@@ -1,0 +1,11 @@
+{
+  "name": "pi-pstack-probe",
+  "version": "0.0.0",
+  "pi": {
+    "subagents": {
+      "agents": [
+        "./agents"
+      ]
+    }
+  }
+}

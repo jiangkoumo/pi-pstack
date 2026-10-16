@@ -1,0 +1,1138 @@
+{
+  "commit": "f713f14203cd6420cec13cd7c55c32d598dbab68",
+  "pluginVersion": "0.15.25",
+  "dispositions": {
+    "ported": "已适配；验证强度按 reason 和 audit.scope 记录",
+    "substitute": "必要子集已有替代或已决定路线，完整入口待相应阶段实现",
+    "deferred": "本批不实现；已审阅依赖与归属，不代表兼容或运行验收"
+  },
+  "entries": [
+    {
+      "kind": "skills",
+      "source": "pstack/automations/benny/skills/reproduce-and-fix-issues/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "Benny／Slack／Linear 自动化集成，初版不宣称支持",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/automations/benny/skills/setup-benny/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "Benny／Slack／Linear 自动化集成，初版不宣称支持",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/automations/benny/skills/triage-issue-reports/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "Benny／Slack／Linear 自动化集成，初版不宣称支持",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/architect/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P3",
+      "destination": null,
+      "reason": "通过 how/why 建立上下文，再用 arena 比较设计草图；模型来自 .mdc，需 P2/P3 适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [
+          "references/design-red-flags.md"
+        ],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/arena/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P3",
+      "destination": null,
+      "reason": "Task 并行候选、跨模型盲评与 worktree 写入隔离；依赖角色模型配置，归入 P3",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/automate-me/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "依赖 Cursor 会话 transcript 或云代理上下文，须先做 Pi 会话适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/benchmark-checklist/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "测量方法可复用；nproc/pidstat/strace 属平台工具，PR 输出依赖 Opening a PR，需能力路由",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/blast-radius/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "依赖 how/why、unslop 与大范围任务的 arena；不能当成无依赖文本直接导入",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/bro/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/correct/SKILL.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/correct/SKILL.md",
+      "reason": "已适配；见 validation-p1.md 的实际审阅历史案例与合成历史回归，主会话执行",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/create-verification-skill/SKILL.md",
+      "disposition": "substitute",
+      "phase": "P5",
+      "destination": null,
+      "reason": "采用自编 Pi 作者流程；本轮由 prove-it-works 的脚本化检查替代",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [
+          "references/feature-map-example/"
+        ],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/figure-it-out/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "为大型跨切面工作设计专用 playbook，依赖编排与 PR 流程",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/how/SKILL.md",
+      "disposition": "substitute",
+      "phase": "P3",
+      "destination": null,
+      "reason": "investigation 流程已内嵌 how 的输出结构；完整版依赖子代理",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/in-your-own-words/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/interrogate/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P3",
+      "destination": null,
+      "reason": "依赖多代理或多模型运行；本批以流程内嵌步骤替代其必要部分",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/ketchup/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [
+          "../bro/SKILL.md"
+        ],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/maintain-verification-skill/SKILL.md",
+      "disposition": "substitute",
+      "phase": "P5",
+      "destination": null,
+      "reason": "采用自编 Pi 作者流程；依赖并行源码读取",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/make-bot-ui/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "依赖 Cursor 云端 Bot 与 api2.cursor.sh webhook，初版不宣称支持",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/no-comments/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P3",
+      "destination": null,
+      "reason": "依赖多代理或多模型运行；本批以流程内嵌步骤替代其必要部分",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/poteto-help/SKILL.md",
+      "disposition": "substitute",
+      "phase": "P5",
+      "destination": null,
+      "reason": "poteto-mode 路由表取代本批入口；完整技能索引随其余技能落地",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [
+          "../poteto-mode/SKILL.md",
+          "../setup-pstack/SKILL.md",
+          "../../README.md",
+          "../../docs/guide/01-setup.md",
+          "references/prompting.md",
+          "../../docs/guide/02-poteto-mode.md",
+          "../in-your-own-words/SKILL.md",
+          "../sharpen/SKILL.md",
+          "../how/SKILL.md",
+          "../why/SKILL.md",
+          "../teach/SKILL.md",
+          "../recall/SKILL.md",
+          "../ketchup/SKILL.md",
+          "../blast-radius/SKILL.md",
+          "../architect/SKILL.md",
+          "../arena/SKILL.md",
+          "../swarm/SKILL.md",
+          "../interrogate/SKILL.md",
+          "../tdd/SKILL.md",
+          "../typescript-best-practices/SKILL.md",
+          "../no-comments/SKILL.md",
+          "../unslop/SKILL.md",
+          "../technical-writing/SKILL.md",
+          "../bro/SKILL.md",
+          "../create-verification-skill/SKILL.md",
+          "../maintain-verification-skill/SKILL.md",
+          "../benchmark-checklist/SKILL.md",
+          "../figure-it-out/SKILL.md",
+          "../show-me-your-work/SKILL.md",
+          "../automate-me/SKILL.md",
+          "../reflect/SKILL.md",
+          "../correct/SKILL.md",
+          "../make-bot-ui/SKILL.md",
+          "../../docs/guide/06-verify-and-ship.md",
+          "../poteto-mode/playbooks/multi-phase-plan.md",
+          "../../docs/guide/08-principles.md",
+          "../../docs/guide/07-overnight.md",
+          "../../docs/guide/10-recipes-and-pitfalls.md",
+          "../../docs/guide/09-make-it-yours.md",
+          "references/recipes.md"
+        ],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/poteto-mode/SKILL.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/poteto-mode/SKILL.md",
+      "reason": "已适配；见 validation-p1.md 两次真实新会话调用及手工功能样例",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-attack-the-premise/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "引用 build-the-lever、fix-root-causes、laziness、redesign；需一起迁移引用闭包",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [
+          "../principle-build-the-lever/SKILL.md",
+          "../principle-fix-root-causes/SKILL.md",
+          "../principle-laziness-protocol/SKILL.md",
+          "../principle-redesign-from-first-principles/SKILL.md"
+        ],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-boundary-discipline/SKILL.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/principle-boundary-discipline/SKILL.md",
+      "reason": "已适配并经过加载/链接/来源检查；流程内按需读取，不代表该叶子独立行为评测",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-build-the-lever/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "引用 laziness/encode-lessons/prove-it-works；自动提交及脚本编辑方式需服从操作者规则",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [
+          "../principle-laziness-protocol/SKILL.md",
+          "../principle-encode-lessons-in-structure/SKILL.md",
+          "../principle-prove-it-works/SKILL.md"
+        ],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-encode-lessons-in-structure/SKILL.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/principle-encode-lessons-in-structure/SKILL.md",
+      "reason": "已适配并经过加载/链接/来源检查；流程内按需读取，不代表该叶子独立行为评测",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-exhaust-the-design-space/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-experience-first/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-explain-the-number/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "性能测量依赖 benchmark-checklist，另引用 prove-it-works；需验证计量与回放",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [
+          "../benchmark-checklist/SKILL.md",
+          "../principle-prove-it-works/SKILL.md"
+        ],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-fix-root-causes/SKILL.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/principle-fix-root-causes/SKILL.md",
+      "reason": "已适配并经过加载/链接/来源检查；流程内按需读取，不代表该叶子独立行为评测",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-foundational-thinking/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-guard-the-context-window/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "描述默认把大输出交给子代理；Pi 中需按委派授权改写并支持 codemode 汇总",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-laziness-protocol/SKILL.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/principle-laziness-protocol/SKILL.md",
+      "reason": "已适配并经过加载/链接/来源检查；流程内按需读取，不代表该叶子独立行为评测",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-make-operations-idempotent/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-minimize-reader-load/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "引用 guard-the-context-window；方法可移植，引用与委派授权需改写",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [
+          "../principle-guard-the-context-window/SKILL.md"
+        ],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-model-the-domain/SKILL.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/principle-model-the-domain/SKILL.md",
+      "reason": "已适配并经过加载/链接/来源检查；流程内按需读取，不代表该叶子独立行为评测",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-never-block-on-the-human/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "与 Pi 授权规则冲突，自动继续语义必须按用户规则改写后才可移植",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-outcome-oriented-execution/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-prove-it-works/SKILL.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/principle-prove-it-works/SKILL.md",
+      "reason": "已适配并经过加载/链接/来源检查；流程内按需读取，不代表该叶子独立行为评测",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-redesign-from-first-principles/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-separate-before-serializing-shared-state/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-sequence-verifiable-units/SKILL.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/principle-sequence-verifiable-units/SKILL.md",
+      "reason": "已适配并经过加载/链接/来源检查；流程内按需读取，不代表该叶子独立行为评测",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-subtract-before-you-add/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-test-behavior-not-implementation/SKILL.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/principle-test-behavior-not-implementation/SKILL.md",
+      "reason": "已适配并经过加载/链接/来源检查；流程内按需读取，不代表该叶子独立行为评测",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/principle-type-system-discipline/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "引用 typescript-best-practices、boundary-discipline、encode-lessons；需核对引用闭包",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/recall/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P3",
+      "destination": null,
+      "reason": "依赖会话历史重建与 MCP 记录",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/reflect/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P3",
+      "destination": null,
+      "reason": "依赖多代理或多模型运行；本批以流程内嵌步骤替代其必要部分",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/setup-pstack/SKILL.md",
+      "disposition": "substitute",
+      "phase": "P2",
+      "destination": null,
+      "reason": "改用独立 JSON 配置与 Pi 实际模型列表，不沿用 .mdc",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/sharpen/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/show-me-your-work/SKILL.md",
+      "disposition": "substitute",
+      "phase": "P5",
+      "destination": null,
+      "reason": "principle-prove-it-works 现保留本地证据记录；TSV 决策轨迹依赖会话 transcript",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/swarm/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P3",
+      "destination": null,
+      "reason": "依赖多代理或多模型运行；本批以流程内嵌步骤替代其必要部分",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/tdd/SKILL.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/tdd/SKILL.md",
+      "reason": "已适配并经过加载/链接/来源检查；流程内按需读取，不代表该叶子独立行为评测",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/teach/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "依赖 how、why、unslop，并要求生成图像；需保留只读授权及可用图像工具路由",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/technical-writing/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/typescript-best-practices/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/unslop/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/why/SKILL.md",
+      "disposition": "deferred",
+      "phase": "P3",
+      "destination": null,
+      "reason": "依赖多代理或多模型运行；本批以流程内嵌步骤替代其必要部分",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/authoring-a-skill.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "采用自编 Pi 作者流程（接入决策已定路线），随该流程实现批次落地",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/autonomous-run.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "依赖长时间自主续跑、停止谓词与 /loop 语义",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/autopilot-full.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "包含 PR、合并、推送等外部写操作，需先按授权边界改写",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/autopilot-stack.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "包含 PR、合并、推送等外部写操作，需先按授权边界改写",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/babysit.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "包含 PR、合并、推送等外部写操作，需先按授权边界改写",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/bug-fix.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/poteto-mode/playbooks/bug-fix.md",
+      "reason": "已适配；见 validation-p1.md 的对应流程样例（手工执行），调查与修复另有新会话观察",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/eval.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "依赖 Cursor 会话 transcript 或云代理上下文，须先做 Pi 会话适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/feature.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/poteto-mode/playbooks/feature.md",
+      "reason": "已适配；见 validation-p1.md 的对应流程样例（手工执行），调查与修复另有新会话观察",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/hillclimb.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "依赖长时间自主续跑、停止谓词与 /loop 语义",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/investigation.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/poteto-mode/playbooks/investigation.md",
+      "reason": "已适配；见 validation-p1.md 的对应流程样例（手工执行），调查与修复另有新会话观察",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/multi-phase-plan.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "包含 PR、合并、推送等外部写操作，需先按授权边界改写",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/opening-a-pr.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "包含 PR、合并、推送等外部写操作，需先按授权边界改写",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/orchestrate.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "包含 PR、合并、推送等外部写操作，需先按授权边界改写",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/pause-safely.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自动取消子代理并创建 wip 提交；Pi 中需保留当前授权，恢复笔记适配会话路径",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/perf-issue.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "依赖 how、architect、benchmark-checklist、控制驱动、固定模型委派与 PR；未要求 /loop",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/prototype.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "自包含方法文本，不含 Cursor 私有机理，可在后续批次直接适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/refactoring.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "依赖 how、architect、多个原则、固定模型委派及自动 rebase/PR；结构等价验证方法可复用",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/runtime-forensics.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "依赖实时控制驱动、诊断采样与子代理归约；诊断任务中的运行时注入需明确范围",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/session-pickup.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "依赖 Cursor 会话 transcript 或云代理上下文，须先做 Pi 会话适配",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/shipping.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "包含 PR、合并、推送等外部写操作，需先按授权边界改写",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/trace-forensics.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "解析器与 sqlite 为方法依赖；大文件默认交子代理，须改写委派授权与文件读取路由",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/visual-parity.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "依赖长时间自主续跑、停止谓词与 /loop 语义",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/worktree-cleanup.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "依赖模拟器或沙箱清理，须先移除 Cursor 扫描路径",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "agents",
+      "source": "pstack/agents/comment-sicko.md",
+      "disposition": "deferred",
+      "phase": "P3",
+      "destination": null,
+      "reason": "代理定义需 pi-subagents 接线与只读工具白名单",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    },
+    {
+      "kind": "agents",
+      "source": "pstack/agents/poteto-agent.md",
+      "disposition": "deferred",
+      "phase": "P3",
+      "destination": null,
+      "reason": "代理需 pi-subagents 接线；原文使用 is_background 与 ~/.cursor/plugins 发现主技能，不携带模型配置",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; no implementation/runtime acceptance"
+      }
+    }
+  ]
+}

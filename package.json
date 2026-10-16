@@ -1,0 +1,36 @@
+{
+  "name": "pi-pstack",
+  "version": "0.1.0-alpha.1",
+  "private": true,
+  "description": "Pi adaptation of pstack engineering skills, starting with single-agent workflows",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "pi-package"
+  ],
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "files": [
+    "skills/",
+    "upstream/",
+    "docs/",
+    "scripts/",
+    "AGENTS.md",
+    "LICENSE",
+    "LICENSES/",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "pi": {
+    "skills": [
+      "./skills"
+    ]
+  },
+  "scripts": {
+    "check": "node scripts/check-package.mjs",
+    "check:pi": "node scripts/check-pi-discovery.mjs",
+    "check:pi:commands": "node scripts/check-pi-commands.mjs",
+    "check:correct": "node scripts/check-correct-acceptance.mjs",
+    "check:correct:history": "node scripts/check-published-links.mjs"
+  }
+}

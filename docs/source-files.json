@@ -1,0 +1,65 @@
+{
+  "commit": "f713f14203cd6420cec13cd7c55c32d598dbab68",
+  "files": [
+    {
+      "path": "pstack/LICENSE",
+      "blob": "6b5400237fdf6545be0b8fae370d6f2fcff8fb25"
+    },
+    {
+      "path": "pstack/skills/correct/SKILL.md",
+      "blob": "c45e06f48a0982ae19f92c6e83a8cd05988097a3"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/SKILL.md",
+      "blob": "9295b7e4fb87eb95d3c887d79e63ec748ce20e4d"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/bug-fix.md",
+      "blob": "b5de0bfa63add6ed38a38a8bd668cf36ac009c61"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/feature.md",
+      "blob": "eb1040cb2631f3eeacd8f9f6469d7e97277f24ef"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/investigation.md",
+      "blob": "cd119f04f23e0b7acb3f8cc5ba13ce4ab7aa6c7d"
+    },
+    {
+      "path": "pstack/skills/principle-boundary-discipline/SKILL.md",
+      "blob": "dfe9a6fb0e5acd6ae43a41437ee0951adfe839cb"
+    },
+    {
+      "path": "pstack/skills/principle-encode-lessons-in-structure/SKILL.md",
+      "blob": "4a96f77fe70e36cb030f9c5efa142f66877bf58a"
+    },
+    {
+      "path": "pstack/skills/principle-fix-root-causes/SKILL.md",
+      "blob": "14fc189fa1ec3fb1614b0a3c75557f92943d8f13"
+    },
+    {
+      "path": "pstack/skills/principle-laziness-protocol/SKILL.md",
+      "blob": "016c3c7c8dfffd995c1a02135a62248e6625879b"
+    },
+    {
+      "path": "pstack/skills/principle-model-the-domain/SKILL.md",
+      "blob": "09b7c739955facf03f08f66e1e329745d2f8880e"
+    },
+    {
+      "path": "pstack/skills/principle-prove-it-works/SKILL.md",
+      "blob": "5dc14a3b06f9d579e5c17cd8a7242f432ddb3125"
+    },
+    {
+      "path": "pstack/skills/principle-sequence-verifiable-units/SKILL.md",
+      "blob": "986371260ebccd9a5a6818c9561e88c1d270d0ee"
+    },
+    {
+      "path": "pstack/skills/principle-test-behavior-not-implementation/SKILL.md",
+      "blob": "78c9389bfe707d6d56485ade32c59150958228f9"
+    },
+    {
+      "path": "pstack/skills/tdd/SKILL.md",
+      "blob": "ca6f24c963001d9d518db2936dfe3d12f29b4e94"
+    }
+  ]
+}

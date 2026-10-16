@@ -1,0 +1,12 @@
+{
+  "packages": [
+    "../../package"
+  ],
+  "subagents": {
+    "agentOverrides": {
+      "pstack.comment-sicko": {
+        "description": "Project override reader"
+      }
+    }
+  }
+}

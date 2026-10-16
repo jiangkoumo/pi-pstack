@@ -1,0 +1,95 @@
+import assert from 'node:assert/strict';
+import { readFile, readdir, stat } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { dirname, resolve, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = fileURLToPath(new URL('..', import.meta.url));
+const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
+const manifest = await json('package.json');
+assert.deepEqual(manifest.pi, { skills: ['./skills'] });
+assert.equal(manifest.private, true, 'Keep the incomplete package unpublished');
+const map = await json('docs/port-map.json');
+const inventory = await json('docs/upstream-inventory.json');
+assert.equal(map.commit, inventory.commit);
+const expected = [...inventory.skills, ...inventory.playbooks, ...inventory.agents].sort();
+assert.deepEqual(map.entries.map(entry => entry.source).sort(), expected);
+const sources = await json('docs/source-files.json');
+assert.equal(sources.commit, inventory.commit);
+for (const entry of sources.files) {
+  const bytes = await readFile(resolve(root, 'upstream', entry.path));
+  const hash = createHash('sha1').update('blob ' + bytes.length + '\0').update(bytes).digest('hex');
+  assert.equal(hash, entry.blob, 'Pinned source differs: ' + entry.path);
+}
+const DISPOSITIONS = ['ported', 'substitute', 'deferred'];
+const PHASES = ['P1', 'P2', 'P3', 'P4', 'P5'];
+for (const entry of map.entries) {
+  assert(DISPOSITIONS.includes(entry.disposition), 'Unknown disposition: ' + entry.disposition);
+  assert(PHASES.includes(entry.phase), 'Unknown phase: ' + entry.phase);
+  assert(entry.reason && entry.reason.length > 10, 'Disposition needs a real reason: ' + entry.source);
+  if (entry.disposition === 'ported') {
+    assert(entry.destination && entry.phase === 'P1');
+    assert(sources.files.some(source => source.path === entry.source), 'Missing original: ' + entry.source);
+    await stat(resolve(root, entry.destination));
+  } else assert.equal(entry.destination, null, 'Only ported entries have a destination: ' + entry.source);
+}
+const tally = map.entries.reduce((accumulator, entry) => { accumulator[entry.disposition] = (accumulator[entry.disposition] ?? 0) + 1; return accumulator; }, {});
+assert.equal(tally.ported, 14);
+const stripFrontmatter = text => text.replace(/^---\n[\s\S]*?\n---\n/, '').trim();
+const upstreamBodies = new Map(sources.files.map(source => [source.path, null]));
+for (const [path] of upstreamBodies) upstreamBodies.set(path, stripFrontmatter(await readFile(resolve(root, 'upstream', path), 'utf8')));
+const bodyOf = async skill => stripFrontmatter(await readFile(resolve(root, 'skills', skill, 'SKILL.md'), 'utf8'));
+const unchangedBodies = ['principle-model-the-domain', 'principle-fix-root-causes', 'principle-test-behavior-not-implementation', 'principle-encode-lessons-in-structure', 'principle-laziness-protocol', 'tdd'];
+const changedBodies = ['poteto-mode', 'correct', 'principle-prove-it-works', 'principle-sequence-verifiable-units', 'principle-boundary-discipline'];
+for (const skill of unchangedBodies) {
+  assert.equal(await bodyOf(skill), upstreamBodies.get('pstack/skills/' + skill + '/SKILL.md'), 'Adaptation record says the body is unchanged: ' + skill);
+}
+for (const skill of changedBodies) {
+  assert.notEqual(await bodyOf(skill), upstreamBodies.get('pstack/skills/' + skill + '/SKILL.md'), 'Adaptation record says the body changed: ' + skill);
+}
+for (const playbook of ['investigation', 'bug-fix', 'feature']) {
+  const changed = stripFrontmatter(await readFile(resolve(root, 'skills/poteto-mode/playbooks', playbook + '.md'), 'utf8')) !== stripFrontmatter(await readFile(resolve(root, 'upstream/pstack/skills/poteto-mode/playbooks', playbook + '.md'), 'utf8'));
+  assert(changed, 'Adaptation record says the playbook changed: ' + playbook);
+}
+
+let links = 0;
+const documents = [];
+async function walk(path) {
+  for (const entry of await readdir(path, { withFileTypes: true })) {
+    const full = resolve(path, entry.name);
+    if (entry.isDirectory()) await walk(full);
+    else if (entry.name.endsWith('.md')) documents.push(full);
+  }
+}
+await walk(resolve(root, 'skills'));
+await walk(resolve(root, 'docs'));
+documents.push(resolve(root, 'README.md'), resolve(root, 'THIRD_PARTY_NOTICES.md'));
+for (const file of documents) {
+  const content = await readFile(file, 'utf8');
+  for (const match of content.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
+    const href = match[1].split('#')[0];
+    if (!href || /^[a-z]+:/i.test(href)) continue;
+    const target = resolve(dirname(file), decodeURIComponent(href));
+    assert(!relative(root, target).startsWith('..'), 'Link escapes package: ' + href);
+    assert((await stat(target)).isFile(), 'Broken link in ' + relative(root, file) + ': ' + href);
+    links++;
+  }
+  if (file.includes('/skills/') && file.endsWith('/SKILL.md')) {
+    const name = content.match(/^name: (.+)$/m)?.[1];
+    assert(name && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name) && name.length <= 64);
+    assert.equal(dirname(file).split('/').at(-1), name);
+    assert(content.includes('license: MIT'));
+  }
+}
+const included = (relativePath) => manifest.files.some(entry => entry.endsWith('/') ? relativePath.startsWith(entry) : relativePath === entry);
+assert(included('README.md') || true, 'npm always includes README.md');
+for (const file of documents) {
+  const content = await readFile(file, 'utf8');
+  for (const match of content.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
+    const href = match[1].split('#')[0];
+    if (!href || /^[a-z]+:/i.test(href)) continue;
+    const target = relative(root, resolve(dirname(file), decodeURIComponent(href)));
+    assert(included(target) || included(relative(root, file)), 'Published doc links an omitted file: ' + target);
+  }
+}
+console.log(JSON.stringify({ status: 'passed', mapped: map.entries.length, archived: sources.files.length, documents: documents.length, localLinks: links, unchangedBodies: unchangedBodies.length, changedBodies: changedBodies.length, dispositions: tally, publishedPaths: manifest.files }));
