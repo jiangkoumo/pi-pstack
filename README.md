@@ -2,7 +2,7 @@
 
 将 Lauren Tan（@poteto）的 pstack 工程技能与工作流移植到 Pi，交付为一次安装的 Pi package。
 
-当前阶段：P1 单代理闭环已完成。11 个技能与调查／修复／实现三个流程已适配；82 个上游条目逐项归类为已适配／替代路线／延期；隔离样例、`correct` 验收（两轮审阅实际历史案例 + 合成历史回归）、新会话行为证据、Pi 加载与命令检查均已有实际结果。模式扩展、模型配置、包内子代理和安装验收尚未实现，npm 包未发布。详见 [本批范围](docs/port-status.md)、[逐项审计](docs/skill-audit.md) 与 [验证记录](docs/validation-p1.md)。
+当前阶段：P1 单代理闭环已完成。11 个技能与调查／修复／实现三个流程已适配；82 个上游条目逐项归类为已适配／替代路线／延期；隔离样例、`correct` 验收（两轮审阅实际历史案例 + 合成历史回归）、新会话行为证据、Pi 加载与命令检查均已有实际结果。P2 模式扩展与角色配置已实现并验证，详见 [P2 契约与验收](docs/validation-p2.md)。包内子代理和安装验收尚未实现，npm 包未发布。详见 [本批范围](docs/port-status.md)、[逐项审计](docs/skill-audit.md) 与 [验证记录](docs/validation-p1.md)。
 
 ## 背景与目标
 
@@ -49,6 +49,6 @@
 pi -e /absolute/path/to/pi-pstack
 ```
 
-然后输入 `/skill:poteto-mode <任务>` 或 `/skill:correct <范围>`。当前会话若尚未加载包，需要在加载包的新会话中使用。尚无 `/poteto-mode on/off/status` 或 `/setup-pstack`。
+然后输入 `/skill:poteto-mode <任务>` 或 `/skill:correct <范围>`。当前会话若尚未加载包，需要在加载包的新会话中使用。`/poteto-mode on/off/status` 管理活动分支模式；`/setup-pstack models` 列出模型，`status` 查看角色，`set user code <provider/id> [thinking]` 保存选择，`unset user code` 清除覆盖。受信任项目可将 user 换为 project。具体契约见 P2 文档。
 
-运行 `npm run check` 检查资源、来源指纹和链接；Pi 加载检查详见本批记录。下一步继续 [P1](docs/migration-plan.md#p1上游审计与技能最小闭环) 剩余验收，再做 P2。`pi-pstack` 是工作名，npm 名称可用性尚未核实，包清单保持 private。
+运行 `npm run check` 检查资源、来源指纹和链接；Pi 加载检查详见本批记录。后续进入 [P3](docs/migration-plan.md#p3多代理与多模型) 前需先核实 P2 审阅结果与验收边界。`pi-pstack` 是工作名，npm 名称可用性尚未核实，包清单保持 private。

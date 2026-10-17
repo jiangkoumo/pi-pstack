@@ -1,6 +1,6 @@
 # 移植计划
 
-状态：P0 与前置依赖核实完成；P1 单代理闭环已完成，含逐项审计，见 [首批移植记录](port-status.md)、[逐项审计](skill-audit.md) 与 [验证记录](validation-p1.md)。扩展实现尚未开始。详见 [接入决策与阻碍处理](integration-decisions.md)。目标是一个整体分发的 Pi package，提供可独立使用的技能，并用精简扩展实现需要运行时支持的能力。
+状态：P0 与前置依赖核实完成；P1 单代理闭环已完成，含逐项审计，见 [首批移植记录](port-status.md)、[逐项审计](skill-audit.md) 与 [验证记录](validation-p1.md)。P2 模式与角色配置扩展已实现，见 [P2 验收](validation-p2.md)。详见 [接入决策与阻碍处理](integration-decisions.md)。目标是一个整体分发的 Pi package，提供可独立使用的技能，并用精简扩展实现需要运行时支持的能力。
 
 ## 能力映射与适配点
 
@@ -18,7 +18,7 @@
 
 ## 预期包结构
 
-以下为目标结构。当前已有 package.json、skills/、upstream/ 及建档文件；extensions/ 与 agents/ 尚未创建：
+以下为目标结构。当前已有 package.json、skills/、upstream/ 及建档文件；extensions/pstack/ 已创建，agents/ 尚未创建：
 
 ```text
 pi-pstack/
@@ -39,13 +39,13 @@ pi-pstack/
 └── THIRD_PARTY_NOTICES.md
 ```
 
-当前 package.json 只声明 skills。后续代理目录使用 pi.subagents.agents: ["./agents"]，代理 frontmatter 设置 package: pstack。该发现机制已通过 pi-subagents 0.78.0 隔离模块检查，真实会话接入仍需 P3 验收。核心技能不应因为多代理扩展缺失而启动失败；需要多模型的流程应说明依赖缺失，允许的替代行为必须显式标记。
+当前 package.json 声明 skills 与 extensions/pstack/index.ts。后续代理目录使用 pi.subagents.agents: ["./agents"]，代理 frontmatter 设置 package: pstack。该发现机制已通过 pi-subagents 0.78.0 隔离模块检查，真实会话接入仍需 P3 验收。核心技能不应因为多代理扩展缺失而启动失败；需要多模型的流程应说明依赖缺失，允许的替代行为必须显式标记。
 
 Pi 提供的宿主包按官方文档声明为 peerDependencies，不打进运行时 dependencies。其他依赖只在实际引用时添加。
 
 ## 命令与状态设计
 
-下表中两个 /skill: 入口已提供；其余命令仍是拟定接口。技能发现已检查，完整新会话行为验收仍待补齐：
+下表入口已实现，P2 的模式和角色配置契约见验收文档。setup-pstack 只保存角色偏好，不自动改变当前模型或启用委派：
 
 | 入口 | 预期行为 |
 | --- | --- |
@@ -85,10 +85,10 @@ Pi 提供的宿主包按官方文档声明为 peerDependencies，不打进运行
 
 ## P2：模式和模型配置
 
-- [ ] 实现 on/off/status 与跨轮持久化。
-- [ ] 实现 setup-pstack 的检测、角色配置及 schema 校验。
-- [ ] 核实恢复、分支、reload、compaction、会话切换和非 TUI 模式行为。
-- [ ] 防止重复注入、无条件续跑和模式关闭后残留自动触发。
+- [x] 实现 on/off/status 与活动分支状态持久化。
+- [x] 实现 setup-pstack 的实际目录检测、角色配置及严格 schema 校验。
+- [x] 核实恢复、分支、reload、真实 compaction、运行时会话切换和 JSON/print/RPC 行为；TUI 视觉验收另记限制。
+- [x] 单个系统区块更新，无无条件续跑；off 替换自动提醒，但不宣称模型遗忘历史技能。
 
 验收：连续两轮能够应用模式；关闭后新增轮次不再自动应用；恢复与分支行为符合已写明的契约；配置幂等，未知模型和非法值能定位问题；不静默切换供应商或覆盖用户配置。
 

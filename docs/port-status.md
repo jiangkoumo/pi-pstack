@@ -32,7 +32,7 @@
 pi -e /absolute/path/to/pi-pstack
 ```
 
-可用入口为 /skill:poteto-mode <任务> 和 /skill:correct <范围>。叶子技能保持显式调用，主技能通过 read 按需读取。尚无 /poteto-mode on/off/status 或 /setup-pstack。
+可用入口为 /skill:poteto-mode <任务> 和 /skill:correct <范围>。叶子技能保持显式调用，主技能通过 read 按需读取。P2 现已提供 /poteto-mode on/off/status 与 /setup-pstack，详见 [P2 契约与验收](validation-p2.md)。
 
 检查：npm run check。需要实际安装的 Pi 1.3.0 时设置 PI_PSTACK_PI_ROOT=<Pi npm 包绝对路径>，再运行 npm run check:pi 与 npm run check:pi:commands。前者用 Pi 的 loadSkills 检查发现与诊断，后者在临时 agent 目录用真实 Pi 进程读取 /skill 命令且不写全局配置。不从 npm 安装宿主副本。
 
@@ -42,4 +42,4 @@ pi -e /absolute/path/to/pi-pstack
 
 P1 已完成：逐项审计、隔离样例、`correct` 验收（实际审阅案例与合成历史回归）、新会话调用与遵循证据、Pi 加载与命令检查均有实际结果。
 
-P2 模式与模型配置、P3 子代理、P4 安装卸载、P5 长运行仍未实现。多模型审阅与自动化入口没有随本包导出。
+P2 模式与角色配置已实现并验证；P3 子代理、P4 安装卸载、P5 长运行仍未实现。多模型审阅与自动化入口没有随本包导出。

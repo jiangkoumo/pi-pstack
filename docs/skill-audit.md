@@ -39,7 +39,7 @@
 | 技能 how | P3 | investigation 流程已内嵌 how 的输出结构；完整版依赖子代理 |
 | 技能 maintain-verification-skill | P5 | 采用自编 Pi 作者流程；依赖并行源码读取 |
 | 技能 poteto-help | P5 | poteto-mode 路由表取代本批入口；完整技能索引随其余技能落地 |
-| 技能 setup-pstack | P2 | 改用独立 JSON 配置与 Pi 实际模型列表，不沿用 .mdc |
+| 技能 setup-pstack | P2 | P2 已用 /setup-pstack 扩展命令替代：独立 JSON、实际模型目录与 thinking 校验，不沿用 .mdc；见 validation-p2.md |
 | 技能 show-me-your-work | P5 | principle-prove-it-works 现保留本地证据记录；TSV 决策轨迹依赖会话 transcript |
 
 ## P3 延期
@@ -116,4 +116,4 @@
 
 ## 后续约束
 
-只有 ported 的文件由本包资源清单导出。substitute 与 deferred 仍需对应阶段的实现及行为验收。审计归属不等于全量复刻。
+ported 的技能与流程由技能清单导出。P2 的 setup-pstack 已由扩展命令替代，证据见 validation-p2.md；其余 substitute 与 deferred 仍需对应阶段实现及验收。审计归属不等于全量复刻。

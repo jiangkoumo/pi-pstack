@@ -27,7 +27,7 @@ pi-subagents 0.78.0 的 docs/agents.md 及 src/agents/agents.js 明确支持两�
 }
 ```
 
-这是未来包的目标配置，当前根目录尚无 package.json。Pi 核心读取 extensions/skills；pi-subagents 额外读取 subagents.agents。仅把 pi-subagents 写成 npm dependency 不等于它的 Pi 扩展已加载，本项目不靠依赖目录中的另一份扩展实例隐式启动它。
+这是 P3 代理接线的目标配置，当前 package.json 已声明技能与 P2 扩展，但尚无 subagents 资源。Pi 核心读取 extensions/skills；pi-subagents 额外读取 subagents.agents。仅把 pi-subagents 写成 npm dependency 不等于它的 Pi 扩展已加载，本项目不靠依赖目录中的另一份扩展实例隐式启动它。
 
 初版把多代理定义为可选集成：已加载 pi-subagents 时启用；缺失时单代理技能仍可用，多模型步骤明确不可用。当前操作者已有该扩展。对其他用户提供依赖检测与配置说明；若未来追求新环境中的单命令全功能安装，需要在 P4 单独验证依赖资源打包/加载方案。
 

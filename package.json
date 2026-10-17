@@ -12,6 +12,7 @@
     "node": ">=22.19.0"
   },
   "files": [
+    "extensions/",
     "skills/",
     "upstream/",
     "docs/",
@@ -21,7 +22,12 @@
     "LICENSES/",
     "THIRD_PARTY_NOTICES.md"
   ],
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*"
+  },
   "pi": {
+    "extensions": ["./extensions/pstack/index.ts"],
     "skills": [
       "./skills"
     ]
@@ -31,6 +37,9 @@
     "check:pi": "node scripts/check-pi-discovery.mjs",
     "check:pi:commands": "node scripts/check-pi-commands.mjs",
     "check:correct": "node scripts/check-correct-acceptance.mjs",
-    "check:correct:history": "node scripts/check-published-links.mjs"
+    "check:correct:history": "node scripts/check-published-links.mjs",
+    "check:p2": "node --test scripts/p2-runtime.test.mjs",
+    "check:p2:host": "node scripts/check-p2-host.mjs",
+    "check:p2:cli": "node scripts/check-p2-cli.mjs"
   }
 }

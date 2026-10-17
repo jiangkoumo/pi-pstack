@@ -685,7 +685,7 @@
       "disposition": "substitute",
       "phase": "P2",
       "destination": null,
-      "reason": "改用独立 JSON 配置与 Pi 实际模型列表，不沿用 .mdc",
+      "reason": "P2 已用 /setup-pstack 扩展命令替代：独立 JSON、实际模型目录与 thinking 校验，不沿用 .mdc；见 validation-p2.md",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],

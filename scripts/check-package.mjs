@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const root = process.argv[2] ? resolve(process.argv[2]) : fileURLToPath(new URL('..', import.meta.url));
 const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
 const manifest = await json('package.json');
-assert.deepEqual(manifest.pi, { skills: ['./skills'] });
+assert.deepEqual(manifest.pi, { extensions: ['./extensions/pstack/index.ts'], skills: ['./skills'] });
 assert.equal(manifest.private, true, 'Keep the incomplete package unpublished');
 const map = await json('docs/port-map.json');
 const inventory = await json('docs/upstream-inventory.json');

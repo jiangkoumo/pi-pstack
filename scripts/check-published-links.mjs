@@ -13,7 +13,7 @@ const run = (script, cwd, args = []) => {
   return { exitCode: result.status, output: result.stdout + result.stderr };
 };
 try {
-  for (const path of ['skills', 'upstream', 'docs', 'scripts', 'README.md', 'AGENTS.md', 'LICENSE', 'LICENSES', 'THIRD_PARTY_NOTICES.md', 'package.json']) {
+  for (const path of ['extensions', 'skills', 'upstream', 'docs', 'scripts', 'README.md', 'AGENTS.md', 'LICENSE', 'LICENSES', 'THIRD_PARTY_NOTICES.md', 'package.json']) {
     await cp(resolve(root, path), resolve(fixture, path), { recursive: true });
   }
   const original = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));

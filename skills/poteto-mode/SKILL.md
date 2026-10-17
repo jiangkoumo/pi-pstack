@@ -7,7 +7,7 @@ license: MIT
 
 # Poteto mode for Pi
 
-Use this skill for the current request. Persistent on/off mode is not implemented. This is the single-agent subset of pstack, adapted from Lauren Tan's fixed upstream revision. Source and differences are in [the port record](../../docs/port-status.md).
+An explicit /skill:poteto-mode invocation applies to the current request. The package extension also supports /poteto-mode on/off/status for later user requests on the active session branch. Turning persistent mode off does not cancel an explicit skill invocation in the current user request. This is the single-agent subset of pstack, adapted from Lauren Tan's fixed upstream revision. Source and differences are in [the port record](../../docs/port-status.md).
 
 ## Route the task
 
