@@ -13,7 +13,7 @@ const run = (script, cwd, args = []) => {
   return { exitCode: result.status, output: result.stdout + result.stderr };
 };
 try {
-  for (const path of ['extensions', 'skills', 'upstream', 'docs', 'scripts', 'README.md', 'AGENTS.md', 'LICENSE', 'LICENSES', 'THIRD_PARTY_NOTICES.md', 'package.json']) {
+  for (const path of ['extensions', 'skills', 'adapters', 'upstream', 'docs', 'scripts', 'README.md', 'AGENTS.md', 'LICENSE', 'LICENSES', 'THIRD_PARTY_NOTICES.md', 'package.json']) {
     await cp(resolve(root, path), resolve(fixture, path), { recursive: true });
   }
   const original = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
@@ -50,6 +50,19 @@ try {
 
   const packed = JSON.parse(execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }))[0];
   const included = new Set(packed.files.map(file => file.path));
+  const map = JSON.parse(await readFile(resolve(root, 'docs/port-map.json'), 'utf8'));
+  const sources = JSON.parse(await readFile(resolve(root, 'docs/source-files.json'), 'utf8'));
+  const rebuildInputs = [map.generator, map.harness, 'docs/port-map.json', 'docs/source-files.json', 'docs/upstream-inventory.json', ...sources.files.map(source => 'upstream/' + source.path), ...map.entries.filter(entry => entry.adaptation?.strategy === 'override').map(entry => entry.adaptation.override)];
+  const assertRebuildInputs = paths => {
+    for (const path of rebuildInputs) assert(paths.has(path), 'Actual npm tarball omits rebuild input: ' + path);
+  };
+  assertRebuildInputs(included);
+  assert(![...included].some(path => path.startsWith('adapters/pi/overrides/') && path.endsWith('.md')), 'Overrides must ship as source templates, not linked Markdown documents');
+
+  // Exercise npm's actual file selection, not a fabricated list of included paths.
+  await writeFile(resolve(fixture, 'package.json'), JSON.stringify({ ...original, files: [...original.files, '!adapters/pi/overrides/**'] }));
+  const omittedTemplatesPack = JSON.parse(execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: fixture, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }))[0];
+  assert.throws(() => assertRebuildInputs(new Set(omittedTemplatesPack.files.map(file => file.path))), /Actual npm tarball omits rebuild input: adapters\/pi\/overrides\//, 'A real tarball omission must fail rebuild validation');
   let checkedLinks = 0;
   for (const path of included) {
     if (!path.endsWith('.md') || path.startsWith('upstream/') || path.startsWith('scripts/')) continue;
@@ -62,7 +75,7 @@ try {
       checkedLinks++;
     }
   }
-  console.log(JSON.stringify({ status: 'passed', evidence: 'two actual project review findings', historicalFalsePass: falsePass, rejected, correctedExitCode: corrected.exitCode, packedFiles: included.size, checkedLinks }));
+  console.log(JSON.stringify({ status: 'passed', evidence: 'two actual project review findings', historicalFalsePass: falsePass, rejected, correctedExitCode: corrected.exitCode, packedFiles: included.size, checkedLinks, rebuildInputs: rebuildInputs.length, templateOmissionRejected: true }));
 } finally {
   await rm(fixture, { recursive: true, force: true });
 }

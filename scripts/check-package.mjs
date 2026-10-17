@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { dirname, resolve, relative } from 'node:path';
@@ -12,6 +13,10 @@ assert.equal(manifest.private, true, 'Keep the incomplete package unpublished');
 const map = await json('docs/port-map.json');
 const inventory = await json('docs/upstream-inventory.json');
 assert.equal(map.commit, inventory.commit);
+assert.equal(map.generator, 'scripts/generate-pi-resources.mjs');
+assert.equal(map.harness, 'adapters/pi/harness.md');
+assert((await stat(resolve(root, map.generator))).isFile(), 'Missing generator: ' + map.generator);
+assert((await stat(resolve(root, map.harness))).isFile(), 'Missing harness: ' + map.harness);
 const expected = [...inventory.skills, ...inventory.playbooks, ...inventory.agents].sort();
 assert.deepEqual(map.entries.map(entry => entry.source).sort(), expected);
 const sources = await json('docs/source-files.json');
@@ -32,9 +37,23 @@ for (const entry of map.entries) {
   if (entry.disposition === 'ported') {
     assert(entry.destination && entry.phase === 'P1');
     assert(sources.files.some(source => source.path === entry.source), 'Missing original: ' + entry.source);
+    assert(entry.adaptation && ['override', 'inherit-body'].includes(entry.adaptation.strategy), 'Invalid adaptation: ' + entry.source);
+    if (entry.adaptation.strategy === 'override') {
+      assert((await stat(resolve(root, entry.adaptation.override))).isFile(), 'Missing override file: ' + entry.adaptation.override);
+    }
+    assert.equal(typeof entry.evidence, 'string', 'Ported entry requires evidence reference: ' + entry.source);
     const target = resolve(root, entry.destination);
     assert((await stat(target)).isFile(), 'Missing ported file: ' + entry.source);
-  } else assert.equal(entry.destination, null, 'Only ported entries have a destination: ' + entry.source);
+  } else {
+    assert.equal(entry.destination, null, 'Only ported entries have a destination: ' + entry.source);
+    if (entry.source === 'pstack/skills/setup-pstack/SKILL.md') {
+      assert.equal(entry.adaptation?.strategy, 'extension-command');
+      assert.equal(entry.evidence, 'validation-p2.md');
+    } else {
+      assert.equal(entry.adaptation, null);
+      assert.equal(entry.evidence, null);
+    }
+  }
 }
 const tally = map.entries.reduce((accumulator, entry) => { accumulator[entry.disposition] = (accumulator[entry.disposition] ?? 0) + 1; return accumulator; }, {});
 assert.equal(tally.ported, 14);
@@ -73,6 +92,7 @@ async function walk(path) {
 }
 await walk(resolve(root, 'skills'));
 await walk(resolve(root, 'docs'));
+await walk(resolve(root, 'adapters'));
 documents.push(resolve(root, 'README.md'), resolve(root, 'THIRD_PARTY_NOTICES.md'));
 for (const file of documents) {
   const content = await readFile(file, 'utf8');
@@ -102,4 +122,7 @@ for (const file of documents) {
     assert(included(target), 'Published doc links an omitted file: ' + target);
   }
 }
-console.log(JSON.stringify({ status: 'passed', mapped: map.entries.length, archived: sources.files.length, documents: documents.length, localLinks: links, unchangedBodies: unchangedBodies.length, changedBodies: changedBodies.length, dispositions: tally, publishedPaths: manifest.files }));
+const genCheck = spawnSync(process.execPath, [resolve(root, 'scripts/generate-pi-resources.mjs'), '--check'], { encoding: 'utf8' });
+assert.equal(genCheck.status, 0, 'Resource drift detected: ' + genCheck.stderr + genCheck.stdout);
+
+console.log(JSON.stringify({ status: 'passed', mapped: map.entries.length, archived: sources.files.length, documents: documents.length, localLinks: links, unchangedBodies: unchangedBodies.length, changedBodies: changedBodies.length, dispositions: tally, publishedPaths: manifest.files, resourceGeneration: 'in-sync' }));

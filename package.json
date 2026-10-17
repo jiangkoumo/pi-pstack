@@ -14,6 +14,7 @@
   "files": [
     "extensions/",
     "skills/",
+    "adapters/",
     "upstream/",
     "docs/",
     "scripts/",
@@ -33,7 +34,10 @@
     ]
   },
   "scripts": {
-    "check": "node scripts/check-package.mjs",
+    "check": "node scripts/check-package.mjs && node --test scripts/generation.test.mjs",
+    "generate": "node scripts/generate-pi-resources.mjs",
+    "check:generate": "node scripts/generate-pi-resources.mjs --check",
+    "check:generate:tests": "node --test scripts/generation.test.mjs",
     "check:pi": "node scripts/check-pi-discovery.mjs",
     "check:pi:commands": "node scripts/check-pi-commands.mjs",
     "check:correct": "node scripts/check-correct-acceptance.mjs",

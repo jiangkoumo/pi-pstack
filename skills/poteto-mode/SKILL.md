@@ -7,7 +7,11 @@ license: MIT
 
 # Poteto mode for Pi
 
-An explicit /skill:poteto-mode invocation applies to the current request. The package extension also supports /poteto-mode on/off/status for later user requests on the active session branch. Turning persistent mode off does not cancel an explicit skill invocation in the current user request. This is the single-agent subset of pstack, adapted from Lauren Tan's fixed upstream revision. Source and differences are in [the port record](../../docs/port-status.md).
+Before inspecting the workspace or running commands, make your first tool call a `read` of the matching playbook in the routing table below. Explicit `/skill:poteto-mode` already supplies this entry; it does not supply the selected playbook. Resolve its path from this SKILL.md, not from cwd. If that read fails, report the failure before proceeding. Complete the selected playbook's required leaf reads before workspace inspection; do not substitute prior knowledge for a required read.
+
+Use native file tools: `ls` for directories, `read` for contents, and available search tools for discovery. Do not substitute shell `ls`, `find`, `cat`, or `rg`. Run each verification command separately with an explicit `cd <workspace> && <command>`; use the tool's actual exit status. Do not append `echo $?`, `|| true`, pipes that hide failure, or extra commands after a check.
+
+An explicit /skill:poteto-mode invocation applies to the current request. The package extension also supports /poteto-mode on/off/status for later user requests on the active session branch. Turning persistent mode off does not cancel an explicit skill invocation in the current user request. This is the single-agent subset of pstack, adapted from Lauren Tan's fixed upstream revision. Source and differences are in [the port record](../../docs/port-status.md), and Pi harness mappings are in [the Pi adapter](../../adapters/pi/harness.md).
 
 ## Route the task
 

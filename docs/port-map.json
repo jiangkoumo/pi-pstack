@@ -18,7 +18,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -31,7 +34,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -44,7 +50,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -59,7 +68,10 @@
           "references/design-red-flags.md"
         ],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -72,7 +84,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -85,7 +100,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -98,7 +116,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -111,7 +132,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -124,7 +148,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -137,7 +164,18 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/correct/SKILL.md.template"
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": [
+        "skills/principle-encode-lessons-in-structure/SKILL.md",
+        "skills/principle-laziness-protocol/SKILL.md",
+        "skills/principle-prove-it-works/SKILL.md",
+        "skills/principle-test-behavior-not-implementation/SKILL.md"
+      ]
     },
     {
       "kind": "skills",
@@ -152,7 +190,10 @@
           "references/feature-map-example/"
         ],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -165,7 +206,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -178,7 +222,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -191,7 +238,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -204,7 +254,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -219,7 +272,10 @@
           "../bro/SKILL.md"
         ],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -232,7 +288,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -245,7 +304,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -258,7 +320,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -312,7 +377,10 @@
           "references/recipes.md"
         ],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -325,7 +393,28 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/SKILL.md.template"
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": [
+        "adapters/pi/harness.md",
+        "docs/port-status.md",
+        "skills/correct/SKILL.md",
+        "skills/poteto-mode/playbooks/bug-fix.md",
+        "skills/poteto-mode/playbooks/feature.md",
+        "skills/poteto-mode/playbooks/investigation.md",
+        "skills/principle-boundary-discipline/SKILL.md",
+        "skills/principle-encode-lessons-in-structure/SKILL.md",
+        "skills/principle-fix-root-causes/SKILL.md",
+        "skills/principle-laziness-protocol/SKILL.md",
+        "skills/principle-model-the-domain/SKILL.md",
+        "skills/principle-prove-it-works/SKILL.md",
+        "skills/principle-sequence-verifiable-units/SKILL.md",
+        "skills/principle-test-behavior-not-implementation/SKILL.md"
+      ]
     },
     {
       "kind": "skills",
@@ -343,7 +432,10 @@
           "../principle-redesign-from-first-principles/SKILL.md"
         ],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -356,7 +448,13 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/principle-boundary-discipline/SKILL.md.template"
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": []
     },
     {
       "kind": "skills",
@@ -373,7 +471,10 @@
           "../principle-prove-it-works/SKILL.md"
         ],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -386,7 +487,13 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "inherit-body",
+        "override": null
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": []
     },
     {
       "kind": "skills",
@@ -399,7 +506,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -412,7 +522,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -428,7 +541,10 @@
           "../principle-prove-it-works/SKILL.md"
         ],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -441,7 +557,13 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "inherit-body",
+        "override": null
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": []
     },
     {
       "kind": "skills",
@@ -454,7 +576,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -467,7 +592,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -480,7 +608,13 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "inherit-body",
+        "override": null
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": []
     },
     {
       "kind": "skills",
@@ -493,7 +627,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -506,7 +643,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -521,7 +661,10 @@
           "../principle-guard-the-context-window/SKILL.md"
         ],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -534,7 +677,13 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "inherit-body",
+        "override": null
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": []
     },
     {
       "kind": "skills",
@@ -547,7 +696,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -560,7 +712,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -573,7 +728,13 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/principle-prove-it-works/SKILL.md.template"
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": []
     },
     {
       "kind": "skills",
@@ -586,7 +747,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -599,7 +763,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -612,7 +779,15 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/principle-sequence-verifiable-units/SKILL.md.template"
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": [
+        "skills/principle-prove-it-works/SKILL.md"
+      ]
     },
     {
       "kind": "skills",
@@ -625,7 +800,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -638,7 +816,13 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "inherit-body",
+        "override": null
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": []
     },
     {
       "kind": "skills",
@@ -651,7 +835,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -664,7 +851,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -677,7 +867,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -690,7 +883,13 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": {
+        "strategy": "extension-command",
+        "override": null
+      },
+      "evidence": "validation-p2.md",
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -703,7 +902,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -716,7 +918,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -729,7 +934,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -742,7 +950,13 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "inherit-body",
+        "override": null
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": []
     },
     {
       "kind": "skills",
@@ -755,7 +969,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -768,7 +985,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -781,7 +1001,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -794,7 +1017,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -807,7 +1033,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -820,7 +1049,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -833,7 +1065,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -846,7 +1081,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -859,7 +1097,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -872,7 +1113,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -885,7 +1129,18 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/bug-fix.md.template"
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": [
+        "skills/principle-fix-root-causes/SKILL.md",
+        "skills/principle-prove-it-works/SKILL.md",
+        "skills/principle-test-behavior-not-implementation/SKILL.md",
+        "skills/tdd/SKILL.md"
+      ]
     },
     {
       "kind": "playbooks",
@@ -898,7 +1153,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -911,7 +1169,20 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/feature.md.template"
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": [
+        "skills/principle-boundary-discipline/SKILL.md",
+        "skills/principle-laziness-protocol/SKILL.md",
+        "skills/principle-model-the-domain/SKILL.md",
+        "skills/principle-prove-it-works/SKILL.md",
+        "skills/principle-sequence-verifiable-units/SKILL.md",
+        "skills/principle-test-behavior-not-implementation/SKILL.md"
+      ]
     },
     {
       "kind": "playbooks",
@@ -924,7 +1195,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -937,7 +1211,13 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "P1 resource checks plus workflow-level observations"
-      }
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/investigation.md.template"
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": []
     },
     {
       "kind": "playbooks",
@@ -950,7 +1230,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -963,7 +1246,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -976,7 +1262,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -989,7 +1278,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -1002,7 +1294,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -1015,7 +1310,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -1028,7 +1326,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -1041,7 +1342,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -1054,7 +1358,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -1067,7 +1374,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -1080,7 +1390,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -1093,7 +1406,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "playbooks",
@@ -1106,7 +1422,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "agents",
@@ -1119,7 +1438,10 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "agents",
@@ -1132,7 +1454,12 @@
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Disposition audit only; no implementation/runtime acceptance"
-      }
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     }
-  ]
+  ],
+  "generator": "scripts/generate-pi-resources.mjs",
+  "harness": "adapters/pi/harness.md"
 }

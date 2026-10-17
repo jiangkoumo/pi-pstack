@@ -43,6 +43,24 @@ X 正文不是上游代码的完整规格；该链接中的统计数据不影响
 
 57 个技能包括 pstack/skills/ 下 54 个和 pstack/automations/benny/ 下 3 个；Benny 属于额外的 Cursor 自动化集成范围。
 
+## 官方跨宿主接入的参考证据
+
+本次会话通过 ego-browser 读取 [kaito 的原帖](https://x.com/cu30rry_/status/2111227122308300976)，正文宣布官方 pstack 支持 Claude Code；[Jamie Scott Craik 的回复](https://x.com/jscraik/status/2111237299107217852) 称 Codex 也可使用并附图。Codex 仅确认到社区展示，未进行安装或行为验证。
+
+随后用 GitHub API 将这次架构核对固定在 `ac4e25a0064cd600afdd605208bad72748cb019a`（提交时间 `2026-10-16T23:34:00Z`）。这是新增的参考证据，不替换本项目导入基线 `f713f14203cd6420cec13cd7c55c32d598dbab68`，也未全量审计两个提交间的差异。
+
+| 固定提交下的来源 | 已核实内容 |
+| --- | --- |
+| [pstack README](https://github.com/cursor/plugins/blob/ac4e25a0064cd600afdd605208bad72748cb019a/pstack/README.md) | 官方 Claude Code marketplace 安装入口 |
+| [marketplace 清单](https://github.com/cursor/plugins/blob/ac4e25a0064cd600afdd605208bad72748cb019a/.claude-plugin/marketplace.json) | pstack 来源指向 ./harness/pstack/claude-code |
+| [生成目录说明](https://github.com/cursor/plugins/blob/ac4e25a0064cd600afdd605208bad72748cb019a/harness/pstack/README.md) | 由 pstack 原始技能、代理、适配文档、许可与清单生成目标目录 |
+| [生成脚本](https://github.com/cursor/plugins/blob/ac4e25a0064cd600afdd605208bad72748cb019a/scripts/generate-pstack-harness-trees.mjs) | 复制资源、插入按会话读取适配表的提示、检查映射覆盖，并提供 --check 漂移检查 |
+| [Claude Code 适配表](https://github.com/cursor/plugins/blob/ac4e25a0064cd600afdd605208bad72748cb019a/pstack/docs/harness/claude-code.md) | 工具、代理字段、模型、路径与 Cursor 专有能力的映射和限制 |
+
+实际执行的只读检查：`gh api repos/cursor/plugins/commits/main`、`gh api 'repos/cursor/plugins/git/trees/ac4e25a0064cd600afdd605208bad72748cb019a?recursive=1'`，以及上述五份文件与 pstack/plugin.json 的 contents API 读取，均退出码 0。tree 响应 truncated=false；本次目录检查未发现 Codex 命名的接入文件。该结果不否定社区已能在 Codex 使用。
+
+本项目借鉴其源码与生成资源分离的维护方式。官方适配表对非 Claude 模型回退到会话模型、setup-pstack 不落配置、只读 Explore 保留 Bash、Cursor 专有能力跳过等处理，不代表 Pi 的目标能力；Pi 的具体边界以 [接入决定](integration-decisions.md) 和各阶段验收为准。本次没有安装或实测官方 Claude Code/Codex 插件。
+
 ## Pi 能力依据
 
 本机实际参考文档根目录：

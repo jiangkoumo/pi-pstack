@@ -42,4 +42,6 @@ pi -e /absolute/path/to/pi-pstack
 
 P1 已完成：逐项审计、隔离样例、`correct` 验收（实际审阅案例与合成历史回归）、新会话调用与遵循证据、Pi 加载与命令检查均有实际结果。
 
-P2 模式与角色配置已实现并验证；P3 子代理、P4 安装卸载、P5 长运行仍未实现。多模型审阅与自动化入口没有随本包导出。
+P2 模式与角色配置已实现并验证；P2.5 生成式适配迁移与真实场景检查已完成并接入检查，见 [P2.5 验收](validation-p2-5.md) 与 [真实场景检查](validation-p2-5-live.md)。P3 子代理、P4 安装卸载、P5 长运行仍未实现。多模型审阅与自动化入口没有随本包导出。
+
+分发资源现已通过 `npm run generate` 生成，并通过 `npm run check:generate` 与 `npm run check` 保持防漂移。后续技能维护在 `adapters/pi/` 或 `docs/port-map.json` 中进行；`upstream/` 保持固定原文，升级时同时审阅 SHA 与指纹变更。覆盖源使用 `.template` 后缀，相对链接按输出路径校验。未移植项目继续保持原支持状态。
