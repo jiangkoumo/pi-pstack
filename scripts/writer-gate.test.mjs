@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -187,4 +188,71 @@ test('writes a receipt for a passing decision', async t => {
   assert.equal(saved.status, 'passed');
   assert.equal(saved.reviewedTree, reviewedTree);
   assert.equal(saved.patchSha256.length, 64);
+});
+
+
+function patchOf(worktree) {
+  git(worktree, ['add', '-A']);
+  return execFileSync('git', ['diff', '--cached', '--binary', 'HEAD'], { cwd: worktree, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+}
+
+async function writePatch(directory, patch) {
+  const path = join(directory, 'writer.patch');
+  await writeFile(path, patch);
+  return path;
+}
+
+function patchReviewFor({ baseCommit, patch, findings = [{ severity: 'non-blocking', issue: 'naming only' }], tools = ['read', 'grep', 'find', 'ls'] }) {
+  return {
+    version: 1,
+    verdict: 'pass',
+    baseCommit,
+    patchSha256: createHash('sha256').update(patch).digest('hex'),
+    reviewer: { runId: 'review-run-patch', model: 'fixture/reviewer', tools },
+    findings,
+    reviewedAt: '2026-10-19T00:00:00.000Z',
+  };
+}
+
+test('applies a reviewed patch when the managed worktree is already gone', async t => {
+  const { directory, repo, worktree } = await setup(t);
+  await writeFile(join(worktree, 'app.txt'), 'PATCHED\n');
+  const baseCommit = git(worktree, ['rev-parse', 'HEAD']);
+  const patch = patchOf(worktree);
+  const patchPath = await writePatch(directory, patch);
+  const review = await writeReview(directory, patchReviewFor({ baseCommit, patch }));
+  const result = runGate(['--repo', repo, '--patch', patchPath, '--review', review, '--apply']);
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.output.mode, 'patch');
+  assert.equal(result.output.applied, true);
+  assert.equal(await readFile(join(repo, 'app.txt'), 'utf8'), 'PATCHED\n');
+});
+
+test('rejects a patch that changed after review', async t => {
+  const { directory, repo, worktree } = await setup(t);
+  await writeFile(join(worktree, 'app.txt'), 'PATCHED\n');
+  const baseCommit = git(worktree, ['rev-parse', 'HEAD']);
+  const patch = patchOf(worktree);
+  const patchPath = await writePatch(directory, patch);
+  const review = await writeReview(directory, patchReviewFor({ baseCommit, patch }));
+  await writeFile(patchPath, patch.replace('PATCHED', 'TAMPERED'));
+  const result = runGate(['--repo', repo, '--patch', patchPath, '--review', review, '--apply']);
+  assert.equal(result.status, 1);
+  assert.equal(result.output.code, 'stale-patch');
+  assert.equal(await readFile(join(repo, 'app.txt'), 'utf8'), 'ORIGINAL\n');
+});
+
+test('runs patch-mode checks in a temp worktree and leaves the source alone on failure', async t => {
+  const { directory, repo, worktree } = await setup(t);
+  await writeFile(join(worktree, 'app.txt'), 'PATCHED\n');
+  const baseCommit = git(worktree, ['rev-parse', 'HEAD']);
+  const patch = patchOf(worktree);
+  const patchPath = await writePatch(directory, patch);
+  const review = await writeReview(directory, patchReviewFor({ baseCommit, patch }));
+  const result = runGate(['--repo', repo, '--patch', patchPath, '--review', review, '--check', `${process.execPath} -e "process.exit(4)"`, '--apply']);
+  assert.equal(result.status, 1);
+  assert.equal(result.output.code, 'check-failed');
+  assert.equal(result.output.check.exitCode, 4);
+  assert.equal(await readFile(join(repo, 'app.txt'), 'utf8'), 'ORIGINAL\n');
+  assert.deepEqual((await readdir(directory)).filter(name => name.startsWith('pstack-gate-check-')), []);
 });

@@ -1,6 +1,6 @@
 # P3 多代理与多模型接入验收
 
-P3 多模型只读审阅流程、前后台只读隔离与并发 writer 工作树隔离已全量通过并完成实证验收；26 条 live 审阅意见已逐条核实，见 [核实记录](validation-p3-live-findings.md)。写代码委派的父代理交接契约与机械 review gate 已实现并单测通过，端到端 host 闭环尚未验收，见 [writer 验收](validation-p3-writer.md)；P4 打包安装推进中。代理生成与包清单声明已完成；直接单子任务的角色接线、前台真实 child 检查、后台真实 runner 隔离与 ambient 扩展防护、并发 writer 的 managed worktree 隔离，以及基于真实网关的双模型（DeepSeek v4.1 Flash 与 GLM-5.3 FlashX）wire 级只读审阅流程均已全部通过并固化。
+P3 多模型只读审阅流程、前后台只读隔离与并发 writer 工作树隔离已全量通过并完成实证验收；26 条 live 审阅意见已逐条核实，见 [核实记录](validation-p3-live-findings.md)。写代码委派的父代理交接契约、机械 review gate 与端到端 host 流程（fixture 模型）均已实现并验证，见 [writer 验收](validation-p3-writer.md)；P4 打包安装推进中。代理生成与包清单声明已完成；直接单子任务的角色接线、前台真实 child 检查、后台真实 runner 隔离与 ambient 扩展防护、并发 writer 的 managed worktree 隔离，以及基于真实网关的双模型（DeepSeek v4.1 Flash 与 GLM-5.3 FlashX）wire 级只读审阅流程均已全部通过并固化。
 
 此前“P3 全部完成、planner 等于运行期拒写、多轮同模型 review 等于多模型验收、最后一轮 review 覆盖后续修改”的声明均已撤回。上一轮 review `fba6b9a4` 只覆盖当时版本，不覆盖其后增加的角色函数和完成状态。
 
@@ -14,7 +14,7 @@ P3 多模型只读审阅流程、前后台只读隔离与并发 writer 工作树
 | 前台只读与角色接线 | [P3 验收](validation-p3.md) | `scripts/check-p3-host.mjs` | 通过 | 真实 Pi 1.3.0 + pi-subagents 0.79.0；9 次写操作被拒；角色与 thinking 准确分发 |
 | 后台隔离与 ambient 防护 | [后台验收](validation-p3-background.md) | `scripts/check-p3-background.mjs` | 通过 | 真实 detached runner 进程；普通/忽略/未跟踪文件 12 次写入全拒；`extensions: []` 阻止 ambient 扩展；超时/取消/红例通过 |
 | 并发 writer 与 worktree | [工作树验收](validation-p3-worktrees.md) | `scripts/check-p3-worktrees.mjs` | 通过 | 两个并发 writer 在 managed worktrees 互不干扰；同 cwd 证明宿主不自动互斥（单 writer 属父调度纪律）；review-required 状态记录 |
-| writer 交接与 review gate | [Writer 验收](validation-p3-writer.md) | `scripts/writer-gate.test.mjs` | 通过（门禁单测 + 交接契约） | 10 项门禁测试通过；技能新增 handoff/review/apply 顺序；端到端 host 闭环未验收 |
+| writer 交接与 review gate | [Writer 验收](validation-p3-writer.md) | `scripts/writer-gate.test.mjs` / `scripts/check-p3-writer-flow.mjs` | 通过（单测 + host 端到端） | 13 项门禁测试通过；真实 host 下 writer→reviewer→review 记录→gate，正向应用、反向拒绝均通过 |
 | 双模型 live 审阅流程 | [Live 审阅验收](validation-p3-live.md) / [意见核实](validation-p3-live-findings.md) | `scripts/check-p3-live-review.mjs` | 通过（重跑闭环 + 意见核实） | dry-run/self-test 通过；剥离临时 catalog 模型级 endpoint 确保 100% 录制；DeepSeek v4.1 与 GLM-5.3 各完成一次审阅；26 条意见逐条核实（1 处接受修改），exit 0 |
 
 ## 上游与项目适配
@@ -68,8 +68,8 @@ writer 不声明 extensions 字段，以保留宿主默认。只读代理空 ext
 
 本次修复后实际运行（均退出码 0）：
 
-- `npm run check`：25 项生成器测试通过，82 项映射、17 份指纹、118 处链接，模块探针实际 passed 而非 skipped。
-- `PI_PSTACK_PI_ROOT=<本机 Pi 1.3.0 包根> npm run check:p3`：4 项配置/模型单测、发现与 planner 探针、真实前台 child 验收、后台 detached runner 与 ambient 隔离验收、managed worktree 并发隔离验收全部通过（耗时约 30 秒）。
+- `npm run check`：25 项生成器测试与 13 项 writer gate 测试通过，82 项映射、17 份指纹、118 处链接，模块探针实际 passed 而非 skipped。
+- `PI_PSTACK_PI_ROOT=<本机 Pi 1.3.0 包根> npm run check:p3`：4 项配置/模型单测、发现与 planner 探针、真实前台 child 验收、后台 detached runner 与 ambient 隔离验收、managed worktree 并发隔离验收全部通过（注入 writer gate 与 writer flow 后耗时约 60 秒）。
 - `PI_PSTACK_PI_ROOT=<同上> node scripts/check-p3-background.mjs`：真实后台 detached runner、5 场景全通、12 次写尝试全拒、红例与超时取消通过。
 - `PI_PSTACK_PI_ROOT=<同上> node scripts/check-p3-worktrees.mjs`：两个并发 writer 在 managed worktrees 互不影响、同 cwd 竞争验证、review-required 状态验证通过。
 - `node scripts/check-p3-live-review.mjs --dry-run`：两轮不同模型规划与范围验证通过。
@@ -79,13 +79,14 @@ writer 不声明 extensions 字段，以保留宿主默认。只读代理空 ext
 - `npm run check:correct:history`：实际 npm tarball 109 个文件、109 处发布链接、32 个重建输入，历史遗漏与模板漏包坏例被拒绝。
 - `PI_PSTACK_PI_ROOT=<同上> npm run check:p2:host`：18 个本地 provider 请求，5 个预期命令错误，模式生命周期回归通过。
 - `git diff --check`：无空白错误。
-- `node --test scripts/writer-gate.test.mjs`：10 项门禁测试通过（正常检查、apply、blocking、stale tree、写工具、脏源、HEAD 移动、验收失败、空补丁、receipt）。
-- 2026-10-19 核实后复跑：`npm run check` 25 项测试通过；`PI_PSTACK_PI_ROOT=<同上> npm_config_cache=<临时目录> npm run check:p3` 退出码 0。默认 npm cache 在本机报 EPERM（`~/.npm/_cacache` 未发现 root 文件），改用临时 cache 可复现；记为环境问题，不是包失败。
-- 2026-10-19 writer gate 接入后：`npm run check` 与 `npm run check:p3` 均退出码 0（check 现含 writer gate 的 10 项单测）。
+- `node --test scripts/writer-gate.test.mjs`：13 项门禁测试通过（worktree 与 patch 两种模式；正常检查、apply、blocking、stale tree/patch、写工具、脏源、HEAD 移动、验收失败、空补丁、receipt）。
+- `PI_PSTACK_PI_ROOT=<同上> npm run check:p3:writer-flow`：正向 writer→reviewer→gate 应用补丁，反向 blocking review 被 gate 拒绝；两轮退出码 0，源 HEAD 未移动，writer worktree 已清理，reviewer 声明工具恰为 `find/grep/ls/read`。见 [Writer 验收](validation-p3-writer.md)。
+- 2026-10-19 核实后复跑：`npm run check` 通过；`PI_PSTACK_PI_ROOT=<同上> npm_config_cache=<临时目录> npm run check:p3` 退出码 0。默认 npm cache 在本机报 EPERM（`~/.npm/_cacache` 未发现 root 文件），改用临时 cache 可复现；记为环境问题，不是包失败。
+- 2026-10-19 writer flow 接入后：`npm run check` 与 `npm run check:p3` 均退出码 0（check 含 13 项 writer gate 单测，check:p3 含正反向 writer flow）。
 
 ## 尚未完成
 
-- 写代码委派的端到端 host 闭环（父会话启动 writer → reviewer → 写 review 记录 → 门禁应用）；交接契约与机械 gate 已完成，见 [writer 验收](validation-p3-writer.md)。
+- 真实外部模型跑 writer 的行为质量（端到端目前使用 fixture 模型；只读审阅已有真实模型证据）。
 - external CLI runner / 非原生 worktree（如 Worktrunk / Windows）支持。
 - P4 打包、安装/卸载与 CI 验证。
 

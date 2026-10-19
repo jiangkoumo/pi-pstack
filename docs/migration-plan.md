@@ -1,8 +1,8 @@
 # 移植计划
 
-状态：P0 与前置依赖核实完成；P1 单代理闭环已完成，含逐项审计，见 [首批移植记录](port-status.md)、[逐项审计](skill-audit.md) 与 [验证记录](validation-p1.md)。P2 模式与角色配置扩展已实现，见 [P2 验收](validation-p2.md)。P2.5 生成式适配迁移与真实场景验收已完成，见 [P2.5 验收](validation-p2-5.md) 与 [真实场景检查](validation-p2-5-live.md)。详见 [接入决策与阻碍处理](integration-decisions.md)。目标是一个整体分发的 Pi package，提供可独立使用的技能，并用精简扩展实现需要运行时支持的能力。
+状态：P0 与前置依赖核实完成；P1 单代理闭环已完成，含逐项审计，见 [首批移植记录](port-status.md)、[逐项审计](skill-audit.md) 与 [验证记录](validation-p1.md)。P2 模式与角色配置扩展已实现，见 [P2 验收](validation-p2.md)。P2.5 生成式适配迁移与真实场景验收已完成，见 [P2.5 验收](validation-p2-5.md) 与 [真实场景检查](validation-p2-5-live.md)。P3 多代理、多模型与 writer review gate 已完成，见 [P3 验收](validation-p3.md) 与 [Writer 验收](validation-p3-writer.md)。详见 [接入决策与阻碍处理](integration-decisions.md)。目标是一个整体分发的 Pi package，提供可独立使用的技能，并用精简扩展实现需要运行时支持的能力。
 
-项目采用“固定上游源码＋Pi 适配层＋生成分发资源”。依据是官方 Claude Code 接入已采用适配表与生成目录，见 [来源与证据](sources.md#官方跨宿主接入的参考证据)。P2.5 已完成迁移并保留 P1/P2 的配置契约与历史证据，导入基线仍为 `f713f14203cd6420cec13cd7c55c32d598dbab68`。P3 已实现代理生成、角色接线、前后台真实 child 拒写、worktree 隔离与双模型只读审阅；写代码委派流程进行中。
+项目采用“固定上游源码＋Pi 适配层＋生成分发资源”。依据是官方 Claude Code 接入已采用适配表与生成目录，见 [来源与证据](sources.md#官方跨宿主接入的参考证据)。P2.5 已完成迁移并保留 P1/P2 的配置契约与历史证据，导入基线仍为 `f713f14203cd6420cec13cd7c55c32d598dbab68`。P3 已实现代理生成、角色接线、前后台真实 child 拒写、worktree 隔离、双模型只读审阅，以及带 handoff、独立 review 和机械 gate 的写代码委派流程。
 
 ## 能力映射与适配点
 
@@ -124,13 +124,13 @@ P2 已通过 before_agent_start 更新单个系统区块，通过 appendEntry �
 
 - [x] 核实 pi-subagents（当前实测 0.79.0，历史模块探针基线 0.78.0）的包清单发现、命名空间、覆盖、工具/上下文字段及公开注册接口；隔离模块检查通过。
 - [x] P2.5 通过后，将 poteto-agent 和 comment-sicko 纳入适配层和生成清单，通过 pi.subagents.agents 发现；核心技能保持可独立使用。
-- [ ] 先迁移一个多模型只读审阅流程，再迁移写代码的委派流程；接通 P2 角色配置，模型不可用时明确失败，不静默回退到会话模型。（只读多模型审阅流程已完成双模型实测闭环，退出码 0，两轮 wire 捕获完备，26 条意见已逐条核实；写代码委派的 handoff 与机械 review gate 已实现并单测，端到端 host 闭环未验收，因此本项保持未勾选）
+- [x] 先迁移一个多模型只读审阅流程，再迁移写代码的委派流程；接通 P2 角色配置，模型不可用时明确失败，不静默回退到会话模型。（只读多模型审阅已完成双模型实测闭环，26 条意见逐条核实；写代码委派已实现父代理 handoff + 机械 gate，并用真实 host/fixture 模型跑通 writer→reviewer→gate 的正反向流程。reviewer 不是自动启动，gate 为父代理侧约束，见 validation-p3-writer.md）
 - [x] 用实际只读 allowlist 约束 reviewer，核实间接工具能力；尝试写入普通、忽略及未跟踪文件均应被拒绝，不能仅以提示词和 git status 证明只读。（前台+后台 detached runner 均已验证，见 validation-p3-background.md）
 - [x] 保持一个 cwd/worktree 只有一个 writer，并隔离并发写入。（managed worktree 隔离及未隔离同 cwd 对比实测已完成，见 validation-p3-worktrees.md）
 - [x] 交接明确目标、允许路径、禁止事项、已批准决定、验收证据和联系主代理的方法（当前采用遇阻最终返回 + 原生完成通知；字段与顺序已写入 poteto-mode 技能，门禁见 validation-p3-writer.md）。
 - [x] 验证取消、超时、模型不可用及子代理失败的返回路径。（前台中断/超时/400 + 后台 stop/timeout/SIGKILL 均已验证）
 
-验收：使用实际可用模型完成一次不同模型的审阅；主代理核实意见并给出证据；写入范围可核查；禁止 reviewer 修改；缺少依赖时功能范围明确且核心技能可用。运行子代理仍需遵守操作者当前授权。当前验收记录详见 [P3 验收](validation-p3.md)、[后台隔离验收](validation-p3-background.md)、[工作树验收](validation-p3-worktrees.md)、[Live 审阅验收](validation-p3-live.md) 与 [Writer 验收](validation-p3-writer.md)。
+验收：使用实际可用模型完成一次不同模型的审阅；主代理核实意见并给出证据；写入范围可核查；禁止 reviewer 修改；缺少依赖时功能范围明确且核心技能可用；写代码委派须经独立 review 与机械 gate 才应用补丁，且不自动 commit/push。运行子代理仍需遵守操作者当前授权。当前验收记录详见 [P3 验收](validation-p3.md)、[后台隔离验收](validation-p3-background.md)、[工作树验收](validation-p3-worktrees.md)、[Live 审阅验收](validation-p3-live.md) 与 [Writer 验收](validation-p3-writer.md)。
 
 ## P4：打包与安装验收
 
