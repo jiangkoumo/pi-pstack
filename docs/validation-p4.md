@@ -1,6 +1,6 @@
 # P4 打包与安装验收
 
-状态：**本地打包、隔离安装、升级与卸载已通过；CI 尚未真实运行，npm 未发布，名称未核实。** 本文件只记录实际执行结果，不把“安装成功”当成行为验收。
+状态：**本地打包、真实 Pi 安装/移除、隔离加载、升级与卸载已通过；CI 尚未真实运行，npm 未发布，名称已被占用。** 本文件只记录实际执行结果，不把“安装成功”当成行为验收。
 
 对应计划项：[移植计划](migration-plan.md#p4打包与安装验收)。
 
@@ -13,14 +13,28 @@
 | 项 | 值 |
 | --- | --- |
 | 文件数 | 143 |
-| 大小 | 298,414 bytes |
+| 大小 | 298,790 bytes |
 | 必需文件 | `package.json`、扩展、11 个技能、2 个代理、适配层、`writer-gate.mjs`、`docs/validation-p3-writer.md`、`LICENSE`、`LICENSES/pstack.txt`、`THIRD_PARTY_NOTICES.md` |
 | 禁止项 | 无 `node_modules/`、无 `.tgz`、无 `.git/` |
 | 清单状态 | `private: true`，未发布 |
 
 检查还要求 `package.json` 的 `files` 包含 `agents/`，`pi` 清单声明扩展、技能与 `subagents.agents`。
 
-### 2. 隔离安装
+### 2. 真实 Pi CLI 注册与移除
+
+在隔离的 `PI_CODING_AGENT_DIR` 和临时项目中：
+
+```bash
+pi install <tarball> -l -a
+# project .pi/settings.json: packages: [".../pi-pstack-0.1.0-alpha.1.tgz"]
+
+pi remove <tarball> -l -a
+# project .pi/settings.json: packages: []
+```
+
+`pi install` 对本地 tarball 是路径注册，不是从 registry 下载；它验证了 Pi 的安装/移除设置路径，不验证 registry 安装。
+
+### 3. 隔离安装
 
 在一次性 consumer 目录按 Pi 的包布局安装到 `.pi/npm/node_modules/pi-pstack`，用真实 Pi 1.3.0 的 `DefaultResourceLoader` 只注册该包：
 
@@ -29,7 +43,7 @@
 - 本包代理：`pstack.comment-sicko`、`pstack.poteto-agent`，`packageName: pstack`。
 - 未写入用户全局 Pi 配置；agentDir 是临时目录。
 
-### 3. 升级不覆盖用户配置
+### 4. 升级不覆盖用户配置
 
 用同一个 tarball 覆盖安装（升级模拟），重新加载后：
 
@@ -37,7 +51,7 @@
 - `pstack.json` 内容逐字不变；
 - 用户 `settings.json` 的 `theme` 保持不变。
 
-### 4. 卸载
+### 5. 卸载
 
 删除安装目录并从 `packages` 移除后重新加载：
 
@@ -60,10 +74,11 @@ node scripts/check-p4-install.mjs
 ```json
 {
   "status": "passed",
-  "tarball": { "entryCount": 143, "bytes": 298414, "required": 11 },
+  "tarball": { "entryCount": 143, "bytes": 298790, "required": 11 },
   "install": { "skills": 11, "agents": ["pstack.comment-sicko", "pstack.poteto-agent"], "extensionErrors": 0 },
   "upgrade": { "skillsUnchanged": true, "userConfigUnchanged": true, "settingsUnchanged": true },
-  "uninstall": { "packageRemoved": true, "skills": [], "extensionErrors": 0, "userConfigPreserved": true }
+  "uninstall": { "packageRemoved": true, "skills": [], "extensionErrors": 0, "userConfigPreserved": true },
+  "cli": { "install": "registered", "remove": "removed", "projectSettings": [] }
 }
 ```
 
@@ -74,6 +89,16 @@ node scripts/check-p4-install.mjs
 新增 `.github/workflows/check.yml`，在 Node 22 上运行 `npm run check` 与 `npm run check:generate`。**该工作流尚未真实执行**：仓库没有 GitHub 远端，也没有 CI 运行记录。不能把“已写 YAML”当成 CI 验收通过；需要远端后跑一次并记录结果。
 
 host 级检查（`check:p3`、`check:p4`）需要本机 Pi 与 pi-subagents，未放进默认 CI。
+
+## npm 名称
+
+`npm view pi-pstack --json`（2026-10-19）返回已存在的 `pi-pstack@0.1.0`：
+
+- maintainer：`kkgogogo17 <hello@ideaoverflow.dev>`
+- 创建时间：2026-08-08
+- 描述同样是 Pi 的 pstack 移植
+
+因此 **`pi-pstack` 不是可用名称**。在发布前必须改名或使用作用域，并确认归属；本包继续保持 `private: true`，本次没有发布、没有联系 maintainer。
 
 ## 支持版本与依赖
 
@@ -88,8 +113,8 @@ host 级检查（`check:p3`、`check:p4`）需要本机 Pi 与 pi-subagents，�
 ## 尚未完成 / 不能宣称
 
 1. **CI 未运行**：只有本地 YAML，无远端执行证据。
-2. **npm 未发布**：包保持 `private: true`；npm 名称 `pi-pstack` 的可用性未核实，发布需要单独授权。
-3. **安装方式是 Pi 包布局模拟**：用 tarball 解压到 `.pi/npm/node_modules` 并注册 `packages`，没有执行 `pi install` 的真实命令路径；加载器与真实 Pi 一致，但不声称覆盖 Pi 安装器的所有边界。
+2. **npm 未发布且名称被占用**：包保持 `private: true`；registry 上已有 `pi-pstack@0.1.0`，发布前需改名或使用作用域，并取得授权。
+3. **本地安装是路径注册**：`pi install <tarball> -l` 只把 tarball 路径写进项目设置；资源发现测试另行把 tarball 解压到 `.pi/npm/node_modules` 并用真实 Pi loader 加载。没有验证 registry 下载、完整性校验或代理环境。
 4. **未验证外部 registry 安装**：没有从 npm registry 拉取、校验签名或代理环境。
 5. **未验证 Pi 升级/降级**：只在固定 1.3.0 上跑过；升级后行为变化仍需复验。
 6. **未验证 Windows/非原生 worktree 的安装行为。**

@@ -72,6 +72,7 @@ try {
   await mkdir(installDir, { recursive: true });
 
   const pack = JSON.parse(execFileSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', directory], { cwd: root, encoding: 'utf8' }))[0];
+  const tarballPath = resolve(directory, pack.filename);
   const files = pack.files.map(entry => entry.path);
   const required = [
     'package.json',
@@ -92,11 +93,26 @@ try {
     assert(!path.endsWith('.tgz'), 'Tarball must not include a tarball: ' + path);
     assert(!path.startsWith('.git/'), 'Tarball must not include .git: ' + path);
   }
+  // Real Pi CLI registration in an isolated project/agent dir. A local tarball
+  // source is registered as a path; it is not a registry download.
+  const cliProject = resolve(directory, 'cli-project');
+  const cliSettings = resolve(cliProject, '.pi/settings.json');
+  await mkdir(cliProject, { recursive: true });
+  const cliEnv = { ...process.env, PI_CODING_AGENT_DIR: agentDir };
+  const cli = process.env.PI_PSTACK_PI_CLI || 'pi';
+  execFileSync(cli, ['install', tarballPath, '-l', '-a'], { cwd: cliProject, env: cliEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  const installedSettings = JSON.parse(await readFile(cliSettings, 'utf8'));
+  assert.equal(installedSettings.packages.length, 1, 'pi install must add exactly one project package: ' + JSON.stringify(installedSettings));
+  assert(installedSettings.packages[0].includes(pack.filename), 'pi install must register the tarball path: ' + JSON.stringify(installedSettings));
+  execFileSync(cli, ['remove', tarballPath, '-l', '-a'], { cwd: cliProject, env: cliEnv, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  const removedSettings = JSON.parse(await readFile(cliSettings, 'utf8'));
+  assert.deepEqual(removedSettings.packages, [], 'pi remove must clear the project package registration: ' + JSON.stringify(removedSettings));
+
   const manifest = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
   assert.equal(manifest.private, true, 'Package must stay private until publishing is authorized');
   assert.equal(pack.entryCount, files.length);
 
-  execFileSync('tar', ['-xzf', resolve(directory, pack.filename), '-C', installDir, '--strip-components=1']);
+  execFileSync('tar', ['-xzf', tarballPath, '-C', installDir, '--strip-components=1']);
 
   // User configuration that an upgrade/uninstall must not clobber.
   const userConfig = { version: 1, roles: { code: { model: 'fixture/writer', thinking: 'low' } } };
@@ -118,7 +134,7 @@ try {
   assert(pstackAgents.every(agent => agent.packageName === 'pstack'));
 
   // Upgrade simulation: overwrite the same files, then reload. User config must survive.
-  execFileSync('tar', ['-xzf', resolve(directory, pack.filename), '-C', installDir, '--strip-components=1']);
+  execFileSync('tar', ['-xzf', tarballPath, '-C', installDir, '--strip-components=1']);
   const upgraded = await makeLoader([installDir]);
   assert.deepEqual(upgraded.loader.getExtensions().errors, [], 'Upgraded package extension must load without errors');
   assert.deepEqual(await installedSkills(upgraded.loader), skillsAfterInstall, 'Upgrade must keep the same skill set');
@@ -144,6 +160,7 @@ try {
     install: { packageDir: installDir, skills: skillsAfterInstall, agents: agentNames, extensionErrors: 0 },
     upgrade: { skillsUnchanged: true, userConfigUnchanged: true, settingsUnchanged: true },
     uninstall: { packageRemoved: true, skills: skillsAfterRemove, extensionErrors: 0, userConfigPreserved: true },
+    cli: { install: 'registered', remove: 'removed', projectSettings: removedSettings.packages },
   };
   console.log(JSON.stringify(summary));
 } finally {

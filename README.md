@@ -59,4 +59,4 @@ pi -e /absolute/path/to/pi-pstack
 
 然后输入 `/skill:poteto-mode <任务>` 或 `/skill:correct <范围>`。当前会话若尚未加载包，需要在加载包的新会话中使用。`/poteto-mode on/off/status` 管理活动分支模式；`/setup-pstack models` 列出模型，`status` 查看角色，`set user code <provider/id> [thinking]` 保存选择，`unset user code` 清除覆盖。受信任项目可将 user 换为 project。具体契约见 P2 文档。
 
-运行 `npm run check` 检查资源、来源指纹和链接；Pi 加载检查详见本批记录。P3 已通过；继续补齐 P4 的 CI 真实运行、npm 名称确认与发布授权。`pi-pstack` 是工作名，npm 名称可用性尚未核实，包清单保持 private。
+运行 `npm run check` 检查资源、来源指纹和链接；Pi 加载检查详见本批记录。P3 已通过；继续补齐 P4 的 CI 真实运行、npm 名称确认与发布授权。`pi-pstack` 是工作名；registry 上已存在同名包 `pi-pstack@0.1.0`，发布前须改名或使用作用域，包清单保持 private。
