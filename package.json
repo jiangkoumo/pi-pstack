@@ -1,5 +1,5 @@
 {
-  "name": "pi-pstack",
+  "name": "@jiangkoumo/pi-pstack",
   "version": "0.1.0-alpha.1",
   "private": true,
   "description": "Pi adaptation of pstack engineering skills, starting with single-agent workflows",

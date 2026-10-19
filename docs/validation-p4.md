@@ -8,7 +8,7 @@
 
 ### 1. 打包内容
 
-`npm pack` 产出 `pi-pstack-0.1.0-alpha.1.tgz`：
+`npm pack` 产出 `jiangkoumo-pi-pstack-0.1.0-alpha.1.tgz`：
 
 | 项 | 值 |
 | --- | --- |
@@ -26,7 +26,7 @@
 
 ```bash
 pi install <tarball> -l -a
-# project .pi/settings.json: packages: [".../pi-pstack-0.1.0-alpha.1.tgz"]
+# project .pi/settings.json: packages: [".../jiangkoumo-pi-pstack-0.1.0-alpha.1.tgz"]
 
 pi remove <tarball> -l -a
 # project .pi/settings.json: packages: []
@@ -36,7 +36,7 @@ pi remove <tarball> -l -a
 
 ### 3. 隔离安装
 
-在一次性 consumer 目录按 Pi 的包布局安装到 `.pi/npm/node_modules/pi-pstack`，用真实 Pi 1.3.0 的 `DefaultResourceLoader` 只注册该包：
+在一次性 consumer 目录按 Pi 的包布局安装到 `.pi/npm/node_modules/@jiangkoumo/pi-pstack`，用真实 Pi 1.3.0 的 `DefaultResourceLoader` 只注册该包：
 
 - 扩展加载错误：0。
 - 本包技能：11 个（环境里其他全局技能不计入）。
@@ -118,7 +118,7 @@ host 级检查（`check:p3`、`check:p4`）需要本机 Pi 与 pi-subagents，�
 | `pi-pstack-port` | E404，未查到 |
 | `pi-pstack-pi` | E404，未查到 |
 
-推荐优先使用作用域（`@jiangkoumo/pi-pstack`），前提是该 scope 属于操作者；是否发布仍需单独授权。
+已选定作用域名称为 `@jiangkoumo/pi-pstack`；包仍为 private，是否发布仍需单独授权。
 
 ## 支持版本与依赖
 
@@ -133,7 +133,7 @@ host 级检查（`check:p3`、`check:p4`）需要本机 Pi 与 pi-subagents，�
 ## 尚未完成 / 不能宣称
 
 1. **GitHub CI 未运行**：工作流 YAML 有效，本地 clean-clone 等价命令通过，但没有远端 runner 执行证据。
-2. **npm 未发布且名称被占用**：包保持 `private: true`；registry 上已有 `pi-pstack@0.1.0`，候选作用域未查到占用，但发布前需确认 scope 归属并取得授权。
+2. **npm 未发布**：包名已改为 `@jiangkoumo/pi-pstack`，仍保持 `private: true`；registry 上的 `pi-pstack@0.1.0` 未被使用。发布前需确认 scope 归属并取得授权。
 3. **本地安装是路径注册**：`pi install <tarball> -l` 只把 tarball 路径写进项目设置；资源发现测试另行把 tarball 解压到 `.pi/npm/node_modules` 并用真实 Pi loader 加载。没有验证 registry 下载、完整性校验或代理环境。
 4. **未验证外部 registry 安装**：没有从 npm registry 拉取、校验签名或代理环境。
 5. **未验证 Pi 升级/降级**：只在固定 1.3.0 上跑过；升级后行为变化仍需复验。

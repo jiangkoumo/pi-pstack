@@ -3,7 +3,7 @@
 //
 // What this does:
 // - npm packs the package, inspects the tarball contents, and installs it into a
-//   throwaway consumer's .pi/npm/node_modules/pi-pstack (the Pi package layout);
+//   throwaway consumer's .pi/npm/node_modules/@jiangkoumo/pi-pstack (the Pi package layout);
 // - loads the real installed Pi host with only that package registered, checks the
 //   11 skills and 2 subagents, and confirms the extension has no load errors;
 // - overwrites the install with the same tarball (upgrade simulation) and checks
@@ -28,7 +28,7 @@ assert(piRoot, 'Set PI_PSTACK_PI_ROOT to the installed pi-coding-agent package r
 const directory = await mkdtemp(resolve(tmpdir(), 'pstack-p4-install-'));
 const agentDir = resolve(directory, 'agent');
 const consumer = resolve(directory, 'consumer');
-const installDir = resolve(consumer, '.pi/npm/node_modules/pi-pstack');
+const installDir = resolve(consumer, '.pi/npm/node_modules/@jiangkoumo/pi-pstack');
 process.env.PI_CODING_AGENT_DIR = agentDir;
 delete process.env.PI_SUBAGENT_EXTRA_AGENT_DIRS;
 
