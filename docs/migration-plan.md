@@ -124,13 +124,13 @@ P2 已通过 before_agent_start 更新单个系统区块，通过 appendEntry �
 
 - [x] 核实 pi-subagents（当前实测 0.79.0，历史模块探针基线 0.78.0）的包清单发现、命名空间、覆盖、工具/上下文字段及公开注册接口；隔离模块检查通过。
 - [x] P2.5 通过后，将 poteto-agent 和 comment-sicko 纳入适配层和生成清单，通过 pi.subagents.agents 发现；核心技能保持可独立使用。
-- [ ] 先迁移一个多模型只读审阅流程，再迁移写代码的委派流程；接通 P2 角色配置，模型不可用时明确失败，不静默回退到会话模型。（只读多模型审阅流程已完成双模型实测闭环，退出码 0，两轮 wire 捕获完备，26 条意见已逐条核实；写代码委派流程未完成，因此本项保持未勾选）
+- [ ] 先迁移一个多模型只读审阅流程，再迁移写代码的委派流程；接通 P2 角色配置，模型不可用时明确失败，不静默回退到会话模型。（只读多模型审阅流程已完成双模型实测闭环，退出码 0，两轮 wire 捕获完备，26 条意见已逐条核实；写代码委派的 handoff 与机械 review gate 已实现并单测，端到端 host 闭环未验收，因此本项保持未勾选）
 - [x] 用实际只读 allowlist 约束 reviewer，核实间接工具能力；尝试写入普通、忽略及未跟踪文件均应被拒绝，不能仅以提示词和 git status 证明只读。（前台+后台 detached runner 均已验证，见 validation-p3-background.md）
 - [x] 保持一个 cwd/worktree 只有一个 writer，并隔离并发写入。（managed worktree 隔离及未隔离同 cwd 对比实测已完成，见 validation-p3-worktrees.md）
-- [ ] 交接明确目标、允许路径、禁止事项、已批准决定、验收证据和联系主代理的方法（当前采用遇阻最终返回 + 原生完成通知；完整 writer 流程仍待验收）。
+- [x] 交接明确目标、允许路径、禁止事项、已批准决定、验收证据和联系主代理的方法（当前采用遇阻最终返回 + 原生完成通知；字段与顺序已写入 poteto-mode 技能，门禁见 validation-p3-writer.md）。
 - [x] 验证取消、超时、模型不可用及子代理失败的返回路径。（前台中断/超时/400 + 后台 stop/timeout/SIGKILL 均已验证）
 
-验收：使用实际可用模型完成一次不同模型的审阅；主代理核实意见并给出证据；写入范围可核查；禁止 reviewer 修改；缺少依赖时功能范围明确且核心技能可用。运行子代理仍需遵守操作者当前授权。当前验收记录详见 [P3 验收](validation-p3.md)、[后台隔离验收](validation-p3-background.md)、[工作树验收](validation-p3-worktrees.md) 与 [Live 审阅验收](validation-p3-live.md)。
+验收：使用实际可用模型完成一次不同模型的审阅；主代理核实意见并给出证据；写入范围可核查；禁止 reviewer 修改；缺少依赖时功能范围明确且核心技能可用。运行子代理仍需遵守操作者当前授权。当前验收记录详见 [P3 验收](validation-p3.md)、[后台隔离验收](validation-p3-background.md)、[工作树验收](validation-p3-worktrees.md)、[Live 审阅验收](validation-p3-live.md) 与 [Writer 验收](validation-p3-writer.md)。
 
 ## P4：打包与安装验收
 

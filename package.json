@@ -40,7 +40,7 @@
     }
   },
   "scripts": {
-    "check": "node scripts/check-package.mjs && node --test scripts/generation.test.mjs && node scripts/check-p3-agents.mjs --allow-skip && node scripts/check-p3-readonly-gate.mjs --allow-skip",
+    "check": "node scripts/check-package.mjs && node --test scripts/generation.test.mjs && node --test scripts/writer-gate.test.mjs && node scripts/check-p3-agents.mjs --allow-skip && node scripts/check-p3-readonly-gate.mjs --allow-skip",
     "generate": "node scripts/generate-pi-resources.mjs",
     "check:generate": "node scripts/generate-pi-resources.mjs --check",
     "check:generate:tests": "node --test scripts/generation.test.mjs",
@@ -51,8 +51,9 @@
     "check:p3:host": "node scripts/check-p3-host.mjs",
     "check:p3:background": "node scripts/check-p3-background.mjs",
     "check:p3:worktrees": "node scripts/check-p3-worktrees.mjs",
+    "check:p3:writer-gate": "node --test scripts/writer-gate.test.mjs",
     "check:p3:live": "node scripts/check-p3-live-review.mjs",
-    "check:p3": "npm run check:p2 && npm run check:p3:agents && npm run check:p3:gate && npm run check:p3:host && npm run check:p3:background && npm run check:p3:worktrees",
+    "check:p3": "npm run check:p2 && npm run check:p3:agents && npm run check:p3:gate && npm run check:p3:writer-gate && npm run check:p3:host && npm run check:p3:background && npm run check:p3:worktrees",
     "check:p3:agents": "node scripts/check-p3-agents.mjs",
     "check:p3:gate": "node scripts/check-p3-readonly-gate.mjs",
     "check:p2": "node --test scripts/p2-runtime.test.mjs",

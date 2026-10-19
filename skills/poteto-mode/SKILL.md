@@ -34,6 +34,20 @@ Work directly by default. Optional delegation requires operator or applicable pr
 
 Keep one writer per working directory or worktree. Treat user changes as the baseline and preserve them. Stop only the steps that conflict with their changes.
 
+## Delegate a writer only through a review gate
+
+Use this sequence only when the operator authorized delegation and pi-subagents is working. Without it, stay single-agent and say so.
+
+1. **Hand off explicitly.** Give the child the objective, allowed paths, prohibited actions (no commits, pushes, network calls, or unrelated files), approved decisions, exact acceptance commands, and how to report blockers. The parent receives the native completion notice; do not assume a mid-run question channel.
+2. **Isolate the writer.** Start `pstack.poteto-agent` with `worktree: true`; keep the parent checkout clean and never run two writers in one directory. Treat the child's completion as a proposal, not proof.
+3. **Review independently.** Inspect the writer run status and acceptance evidence. Launch a read-only reviewer (`pstack.comment-sicko`) with `cwd` set to the writer's worktree, and put the base commit, reviewed tree, and diff in its task. A `review-required` ledger is not approval, and self-review is not independent review.
+4. **Decide the findings.** Verify each finding against the code. Resolve blockers with a bounded correction run or stop; do not apply a change with open blockers.
+5. **Freeze the reviewed tree.** After review, run `git -C <worktree> add -A` and `git -C <worktree> write-tree`. Record the tree id in a review file: `version: 1`, `verdict: "pass"`, `baseCommit`, `reviewedTree`, `reviewer` (`runId`, `model`, declared `tools`), and `findings`.
+6. **Gate the merge.** From the package root run `node ../../scripts/writer-gate.mjs --repo <source> --worktree <worktree> --review <review.json> --check "<acceptance command>"`. It rejects blockers, a moved tree, a dirty source, a moved HEAD, failed checks, and non-read-only reviewer tools. Only after it exits 0, and only with separate operator authorization to merge, rerun with `--apply`. The gate updates the source working tree; it never commits or pushes.
+7. **Report.** Name the writer run, reviewer run, reviewed tree, gate result, checks with exit codes, whether the patch was applied, and residual risks.
+
+The gate is parent-side enforcement, not a sandbox or a host guarantee: a parent that runs raw Git can bypass it. Do not describe the flow as automatic merging, and do not commit, push, or clean up worktrees without authorization.
+
 ## Read principles when they affect a choice
 
 Read the relevant leaf in full before applying it. Do not preload every principle. Name a principle in the report only if you read it and it changed a concrete decision.
