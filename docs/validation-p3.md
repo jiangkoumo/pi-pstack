@@ -88,6 +88,6 @@ writer 不声明 extensions 字段，以保留宿主默认。只读代理空 ext
 
 - 真实外部模型跑 writer 的行为质量（端到端目前使用 fixture 模型；只读审阅已有真实模型证据）。
 - external CLI runner / 非原生 worktree（如 Worktrunk / Windows）支持。
-- P4 剩余项：CI 真实运行、npm 名称确认与发布；本地打包/安装/升级/卸载已通过，见 [P4 验收](validation-p4.md)。
+- P4 剩余项：npm 发布授权；本地打包/安装/升级/卸载与 GitHub Actions 已通过，见 [P4 验收](validation-p4.md)。
 
 上述未完成项继续在 migration-plan 中保持未勾选；不以当前测试结果虚构完整闭环。

@@ -1,6 +1,6 @@
 # P4 打包与安装验收
 
-状态：**本地打包、真实 Pi 安装/移除、隔离加载、升级与卸载已通过；CI 尚未真实运行，npm 未发布，名称已被占用。** 本文件只记录实际执行结果，不把“安装成功”当成行为验收。
+状态：**本地打包、真实 Pi 安装/移除、隔离加载、升级与卸载已通过；GitHub Actions 已真实运行通过；npm 未发布。** 本文件只记录实际执行结果，不把“安装成功”当成行为验收。
 
 对应计划项：[移植计划](migration-plan.md#p4打包与安装验收)。
 
@@ -95,7 +95,14 @@ node scripts/check-ci-local.mjs
 # exit 0；npm run check 约 7.4s，npm run check:generate 约 0.15s
 ```
 
-**但 GitHub Actions 仍未真实运行**：仓库没有远端，也没有 runner 记录。不能把“YAML 解析通过 + 本地等价命令通过”当成 GitHub CI 通过；需要远端后跑一次并记录结果。
+**GitHub Actions 已真实运行通过**：
+
+- 仓库：<https://github.com/jiangkoumo/pi-pstack>
+- Run：<https://github.com/jiangkoumo/pi-pstack/actions/runs/39194350030>
+- 提交：`a3a5e23`
+- 结果：success，约 12 秒；`npm run check` 与 `npm run check:generate` 均通过。
+
+本地 clean-clone 检查保留，用于在没有远端或不想触发云端运行时复核工作流命令。
 
 host 级检查（`check:p3`、`check:p4`）需要本机 Pi 与 pi-subagents，未放进默认 CI。
 
@@ -132,7 +139,7 @@ host 级检查（`check:p3`、`check:p4`）需要本机 Pi 与 pi-subagents，�
 
 ## 尚未完成 / 不能宣称
 
-1. **GitHub CI 未运行**：工作流 YAML 有效，本地 clean-clone 等价命令通过，但没有远端 runner 执行证据。
+1. **CI 覆盖范围有限**：GitHub Actions 只跑 `npm run check` 与 `check:generate`；需要 Pi 与 pi-subagents 的 host 检查仍需本地执行。
 2. **npm 未发布**：包名已改为 `@jiangkoumo/pi-pstack`，仍保持 `private: true`；registry 上的 `pi-pstack@0.1.0` 未被使用。发布前需确认 scope 归属并取得授权。
 3. **本地安装是路径注册**：`pi install <tarball> -l` 只把 tarball 路径写进项目设置；资源发现测试另行把 tarball 解压到 `.pi/npm/node_modules` 并用真实 Pi loader 加载。没有验证 registry 下载、完整性校验或代理环境。
 4. **未验证外部 registry 安装**：没有从 npm registry 拉取、校验签名或代理环境。
