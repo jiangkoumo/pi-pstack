@@ -40,7 +40,7 @@
     }
   },
   "scripts": {
-    "check": "node scripts/check-package.mjs && node --test scripts/generation.test.mjs && node --test scripts/writer-gate.test.mjs && node scripts/check-p3-agents.mjs --allow-skip && node scripts/check-p3-readonly-gate.mjs --allow-skip",
+    "check": "node scripts/check-package.mjs && node --test scripts/p2-runtime.test.mjs && node --test scripts/generation.test.mjs && node --test scripts/writer-gate.test.mjs && node scripts/check-p3-agents.mjs --allow-skip && node scripts/check-p3-readonly-gate.mjs --allow-skip",
     "generate": "node scripts/generate-pi-resources.mjs",
     "check:generate": "node scripts/generate-pi-resources.mjs --check",
     "check:generate:tests": "node --test scripts/generation.test.mjs",

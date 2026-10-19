@@ -1,6 +1,6 @@
 # pstack for Pi Harness Adapter
 
-pstack skills originate from Cursor conventions. In Pi, this adapter specifies the mapping between Cursor concepts and Pi tools, subagents, models, paths, and authority. It documents the translation contracts. Single-agent workflows and two generated package agents are available. P3 direct subagent role wiring is implemented; full multi-model, background isolation and lifecycle acceptance remains incomplete.
+pstack skills originate from Cursor conventions. In Pi, this adapter specifies the mapping between Cursor concepts and Pi tools, subagents, models, paths, and authority. It documents the translation contracts. Single-agent workflows and two generated package agents are available. P3 direct subagent role wiring, multi-model review, and background isolation lifecycle acceptance are implemented.
 
 ## Tools
 

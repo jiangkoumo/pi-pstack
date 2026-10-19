@@ -42,7 +42,7 @@ pi-subagents 0.78.0 的 docs/agents.md 及 src/agents/agents.js 明确支持两�
 }
 ```
 
-这是 P3 代理接线的目标配置，当前 package.json 已声明技能与 P2 扩展，但尚无 subagents 资源。Pi 核心读取 extensions/skills；pi-subagents 额外读取 subagents.agents。仅把 pi-subagents 写成 npm dependency 不等于它的 Pi 扩展已加载，本项目不靠依赖目录中的另一份扩展实例隐式启动它。
+这是 P3 代理接线的目标配置。在 P3 实施中，package.json 已完整声明 skills、extensions 与 subagents.agents，并已通过生成器导出 agents/，完成了真实子代理接入验收。Pi 核心读取 extensions/skills；pi-subagents 额外读取 subagents.agents。仅把 pi-subagents 写成 npm dependency 不等于它的 Pi 扩展已加载，本项目不靠依赖目录中的另一份扩展实例隐式启动它。
 
 初版把多代理定义为可选集成：已加载 pi-subagents 时启用；缺失时单代理技能仍可用，多模型步骤明确不可用。当前操作者已有该扩展。对其他用户提供依赖检测与配置说明；若未来追求新环境中的单命令全功能安装，需要在 P4 单独验证依赖资源打包/加载方案。
 
@@ -128,6 +128,6 @@ PI_CODING_AGENT_DIR="$PWD/scripts/fixtures/subagents/user" node scripts/check-su
 
 已解除：代理如何随包分发、代理名称/上下文/工具的字段契约、三项公开技能的替代来源与许可、create-skill 的独立实现方向。
 
-后续状态：P1 单代理子集、P2 模式与角色配置，以及 P2.5 生成式适配迁移与真实场景验收均已完成，分别见 [P1 验收](validation-p1.md)、[P2 验收](validation-p2.md)、[P2.5 验收](validation-p2-5.md) 与 [真实场景检查](validation-p2-5-live.md)。本文件早期核对记录中的“尚未实现”描述的是当时的检查边界，不替代当前验收记录。
+后续状态：P1 单代理子集、P2 模式与角色配置，以及 P2.5 生成式适配迁移与真实场景验收均已完成，分别见 [P1 验收](validation-p1.md)、[P2 验收](validation-p2.md)、[P2.5 验收](validation-p2-5.md) 与 [真实场景检查](validation-p2-5-live.md)。本文件早期核对记录中的“尚未实现”描述的是当时建档时的检查边界，不替代当前验收记录。
 
-仍待实现与验收：P3 子代理运行和取消、外部技能替代、Electron 驱动、Bun 工具适配、P4 安装卸载及 P5 长期执行。按新计划后续进入 P3。
+更新记录（2026-10-19）：P3 多代理角色接线、物理只读隔离、双模型审阅、Writer Gate 与 P4 本地打包/隔离安装/升级/卸载主路径均已通过实证验收，见对应验收记录。当前仍待推进项为 P5 规划范围及未授权的 npm 发布。

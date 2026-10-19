@@ -38,6 +38,7 @@ const piRoot = process.env.PI_PSTACK_PI_ROOT;
 const subRoot = process.env.PI_SUBAGENTS_ROOT || resolve(homedir(), ".pi/agent/npm/node_modules/pi-subagents");
 assert(piRoot, "Set PI_PSTACK_PI_ROOT to the installed Pi 1.3.0 package root");
 assert(existsSync(resolve(subRoot, "index.js")), `pi-subagents not found at ${subRoot}`);
+const subagentsVersion = JSON.parse(await readFile(resolve(subRoot, "package.json"), "utf8")).version ?? "unknown";
 
 const directory = await mkdtemp(resolve(tmpdir(), "pstack-p3-background-"));
 const agentDir = resolve(directory, "agent");
@@ -613,6 +614,7 @@ try {
     assert.equal(stopped.success, false);
     assert.equal(artifacts.status.state, "stopped");
     assert.match(JSON.stringify(stopped), /stop|cancel/i, "Terminal result must report the stop: " + JSON.stringify(stopped).slice(0, 400));
+    await waitFor("cancelled runner exit", () => !alive(artifacts.status.pid), 15000);
     assert.equal(alive(artifacts.status.pid), false, "Cancelled runner must have exited");
     for (const name of targets) assert.equal(await readFile(resolve(cwd, name), "utf8"), "ORIGINAL");
     evidence.scenarios.cancel = {
@@ -636,6 +638,7 @@ try {
     assert(completion, "Timed-out run must deliver a terminal result: " + scenario.waitText.slice(0, 300));
     assert.equal(completion.success, false);
     assert.match(JSON.stringify(completion), /timed.?out|deadline/i, "Terminal result must report the deadline: " + JSON.stringify(completion).slice(0, 400));
+    await waitFor("timed-out runner exit", () => !alive(artifacts.status.pid), 15000);
     assert.equal(alive(artifacts.status.pid), false, "Timed-out runner must have exited");
     evidence.scenarios.timeout = {
       runId: scenario.runId,
@@ -688,7 +691,7 @@ try {
   evidence.runnerPids = scenarioPids;
   console.log(JSON.stringify({
     status: "passed",
-    transport: "real Pi 1.3.0 SDK + installed pi-subagents 0.79.0 detached runner + local fixture provider",
+    transport: `real Pi 1.3.0 SDK + installed pi-subagents ${subagentsVersion} detached runner + local fixture provider`,
     packageConsumption: "npm pack tarball extracted into consumer .pi/npm/node_modules/pi-pstack",
     evidence,
   }, null, 2));

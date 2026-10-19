@@ -1443,7 +1443,7 @@
         "strategy": "override",
         "override": "adapters/pi/overrides/agents/comment-sicko.md.template"
       },
-      "evidence": "docs/validation-p3.md",
+      "evidence": "validation-p3.md",
       "dependencies": []
     },
     {
@@ -1462,7 +1462,7 @@
         "strategy": "override",
         "override": "adapters/pi/overrides/agents/poteto-agent.md.template"
       },
-      "evidence": "docs/validation-p3.md",
+      "evidence": "validation-p3.md",
       "dependencies": [
         "skills/poteto-mode/SKILL.md"
       ]

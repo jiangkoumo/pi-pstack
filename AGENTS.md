@@ -2,7 +2,7 @@
 
 ## 项目定位
 
-本项目将 pstack 移植为 Pi package。先读 README.md、docs/sources.md 与 docs/migration-plan.md。当前完成建档和前置依赖核实（含隔离模块检查），不能将规划命令写成已实现功能。接入方案见 docs/integration-decisions.md。
+本项目将 pstack 移植为 Pi package。先读 README.md、docs/sources.md 与 docs/migration-plan.md。当前已完成 P0 至 P4 主路径闭环与验收（P4 发布未授权、P5 延期）；不能将规划命令写成已实现功能。接入方案见 docs/integration-decisions.md。
 
 ## 来源与范围
 

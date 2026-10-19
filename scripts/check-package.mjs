@@ -49,6 +49,7 @@ for (const entry of map.entries) {
       assert((await stat(resolve(root, entry.adaptation.override))).isFile(), 'Missing override file: ' + entry.adaptation.override);
     }
     assert.equal(typeof entry.evidence, 'string', 'Ported entry requires evidence reference: ' + entry.source);
+    assert((await stat(resolve(root, 'docs', entry.evidence))).isFile(), 'Missing evidence file in docs: ' + entry.evidence);
     const target = resolve(root, entry.destination);
     assert((await stat(target)).isFile(), 'Missing ported file: ' + entry.source);
   } else {

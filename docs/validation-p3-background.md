@@ -80,5 +80,5 @@ PI_PSTACK_KEEP_BACKGROUND_FIXTURE=1 ...
 - 项目作用域未验证：父会话固定 `defaultProjectTrust: never`，没有测试恶意 project agent 覆盖、项目 agent/设置覆盖权限。
 - 崩溃只覆盖一种形态：SIGKILL runner（stale-run reconciliation 标记失败）。runner 启动失败、runner 内部 SDK 初始化失败、child 会话内部错误、以及失败后的 resume/revive 都没有在本 harness 中断言。
 - 环境单一：只在本机 macOS 27.2 / arm64、Node 22.22.2 上跑过；未在 Linux/CI 或其它 Pi 版本记录结果。
-- 未接入 `package.json` 脚本：本 lane 禁止改 `package.json`，因此该 harness 目前只能按上面的命令直接运行，也没有进入 `npm run check` / `check:p3`。是否接入由主代理决定。
-- 事件/状态字段依赖当前 pi-subagents 0.79.0 的内部产物（`status.json`、`events.jsonl`、`completion-replay`、`output-archives`）。这些是诊断用途，不是发布运行时代码应依赖的稳定契约。
+- 脚本化接入：最初建档时未接入 package.json；现已作为 `check:p3:background` 脚本接入，并进入 `npm run check:p3` 的必须检查项。
+- 事件/状态字段依赖当前 pi-subagents 0.79.x 的内部产物（`status.json`、`events.jsonl`、`completion-replay`、`output-archives`）。这些是诊断用途，不是发布运行时代码应依赖的稳定契约。

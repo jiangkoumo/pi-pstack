@@ -249,10 +249,12 @@ test('runs patch-mode checks in a temp worktree and leaves the source alone on f
   const patch = patchOf(worktree);
   const patchPath = await writePatch(directory, patch);
   const review = await writeReview(directory, patchReviewFor({ baseCommit, patch }));
+  const beforeChecks = (await readdir(tmpdir())).filter(name => name.startsWith('pstack-gate-check-'));
   const result = runGate(['--repo', repo, '--patch', patchPath, '--review', review, '--check', `${process.execPath} -e "process.exit(4)"`, '--apply']);
   assert.equal(result.status, 1);
   assert.equal(result.output.code, 'check-failed');
   assert.equal(result.output.check.exitCode, 4);
   assert.equal(await readFile(join(repo, 'app.txt'), 'utf8'), 'ORIGINAL\n');
-  assert.deepEqual((await readdir(directory)).filter(name => name.startsWith('pstack-gate-check-')), []);
+  const afterChecks = (await readdir(tmpdir())).filter(name => name.startsWith('pstack-gate-check-'));
+  assert.deepEqual(afterChecks, beforeChecks);
 });
