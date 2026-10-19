@@ -13,7 +13,7 @@
 | 项 | 值 |
 | --- | --- |
 | 文件数 | 143 |
-| 大小 | 298,790 bytes |
+| 大小 | 299,246 bytes |
 | 必需文件 | `package.json`、扩展、11 个技能、2 个代理、适配层、`writer-gate.mjs`、`docs/validation-p3-writer.md`、`LICENSE`、`LICENSES/pstack.txt`、`THIRD_PARTY_NOTICES.md` |
 | 禁止项 | 无 `node_modules/`、无 `.tgz`、无 `.git/` |
 | 清单状态 | `private: true`，未发布 |
@@ -74,7 +74,7 @@ node scripts/check-p4-install.mjs
 ```json
 {
   "status": "passed",
-  "tarball": { "entryCount": 143, "bytes": 298790, "required": 11 },
+  "tarball": { "entryCount": 143, "bytes": 299246, "required": 11 },
   "install": { "skills": 11, "agents": ["pstack.comment-sicko", "pstack.poteto-agent"], "extensionErrors": 0 },
   "upgrade": { "skillsUnchanged": true, "userConfigUnchanged": true, "settingsUnchanged": true },
   "uninstall": { "packageRemoved": true, "skills": [], "extensionErrors": 0, "userConfigPreserved": true },
