@@ -6,7 +6,12 @@
 
 - 11 个技能：poteto-mode、correct、tdd 和八个原则。
 - 三个主流程：调查、缺陷修复、小行为变更。
-- 原清单 57 个技能、23 个流程、2 个代理共 82 项已逐条归类为 ported 16、substitute 6、deferred 60，依据与归属见 [逐项审计](skill-audit.md)，机器可读结果见 [port-map.json](port-map.json)。deferred 只表示本批未适配，不表示方法本身有问题。
+- 原清单 57 个技能、23 个流程、2 个代理共 82 项，当前累计归类为 ported 61、substitute 21、deferred 0，依据与归属见 [逐项审计](skill-audit.md)，机器可读结果见 [port-map.json](port-map.json)。deferred 已归零；substitute 只表示已记录本地替代路线，不代表该入口已实现或运行验收。
+- P5 首批：`pause-safely` 已适配为 Pi 本地暂停流程，使用本地补丁与恢复笔记，未授权不提交或推送；见 [P5 Loop 验收](validation-p5-loop.md)。
+- P5 第二批：`autonomous-run` 已适配为 Pi `/loop run` 有界自治流程，使用 `--until` 停止谓词、`--max-turns` 轮次预算与本地迭代证据；未授权不提交或推送；见 [P5 Loop 验收](validation-p5-loop.md)。
+- P5 Batch A：`bro`、`in-your-own-words`、`ketchup` 及 16 个 `principle-*` 已按 `inherit-body` 纳入生成；其中 4 项保留到已生成技能的真实链接依赖，`principle-explain-the-number` 用最小 override 将未移植的 `benchmark-checklist` 链接改为文字引用。
+- P5 Batch B：`sharpen`、`technical-writing`、`unslop` 按 `inherit-body` 纳入；`typescript-best-practices` 用最小 override 移除 Pi 不支持的 `paths` frontmatter 并标注未随包提供的 examples；`prototype`、`session-pickup`、`worktree-cleanup`、`hillclimb` 按 Pi 隔离、恢复与有界 `/loop` 契约适配。
+- P5 Batch C：`architect`、`arena`、`interrogate`、`no-comments`、`reflect`、`swarm`、`why` 与 9 个 PR/编排/性能/重构类 playbook 按 Pi 语义覆盖纳入生成；15 项 Cursor 云/平台/缺失依赖条目转为 `substitute` 并记录本地替代路线，`deferred` 归零。
 - [原始文件指纹](source-files.json) 记录归档文件的 Git blob ID。upstream/pstack 保存本批使用的固定提交原文，不作为 Pi 技能资源加载。
 
 ## 适配差异
@@ -15,6 +20,11 @@
 | --- | --- |
 | poteto-mode/SKILL.md | 规范 name；移除 Cursor 展示字段；明确仅本轮调用；路由限于本批三流程和 correct；按需原则链接；以可用 Pi 工具替换 Task、AskQuestion、todo 假设；不携带固定模型、自动外发或 Git 授权 |
 | 三份 playbook | 单代理直接执行；保留调查只读、先复现后修复、建模和真实验证；将 how/why/architect/arena/unslop 等尚未移植的强依赖改为流程内必要步骤；移除自动开 PR、提交、rebase、/loop 和 fan-out |
+| pause-safely | 保留显式暂停与安全边界；按 run id 停止本 run 的子代理；默认以本地 `changes.patch`、`untracked.txt`、`resume.md` 保存证据；wip 提交、推送、PR 与清理均需单独授权 |
+| autonomous-run | 将上游 Cursor `/loop` 映射为 Pi `/loop run --until ... --max-turns ...`；谓词退出码 0 才成功，预算耗尽或谓词错误即停；每轮写本地决策证据；默认不 commit/push/PR，恢复需操作者显式 `/loop resume` |
+| typescript-best-practices | 正文保持上游；移除 Pi 不支持的 `paths` frontmatter；将未归档的 `references/patterns.md` 改为明确的未随包提供说明 |
+| Batch B playbooks | prototype 使用隔离 scratch 目录且不启动 `/loop`；session-pickup 只读当前会话或操作者提供的 Pi 会话文件；worktree-cleanup 需逐项授权并避开活动/脏 worktree；hillclimb 绑定有界 `/loop run`、冻结 harness 与本地决策日志；四者默认不 commit/push/PR |
+| Batch C | 7 个深度技能按 Pi 工具、角色模型、受管 worktree 与显式授权语义覆盖；9 个 PR/编排/性能/重构类 playbook 去掉自动 commit/push/merge 与云环境假设；15 项云/平台/缺失依赖条目转 `substitute` 并记录本地替代路线 |
 | correct | 两次实际发生的证据门槛；授权范围内选择架构、类型、检查、测试或文档；历史坏例与修正例使用同一约束；不假定可读取所有会话；不自动提交 |
 | tdd | 保留上游工作方法，仅增加 MIT frontmatter |
 | principle-prove-it-works | 将未移植的 show-me-your-work 引用改为本地证据记录；提交需授权 |

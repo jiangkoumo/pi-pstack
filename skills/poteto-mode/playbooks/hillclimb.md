@@ -1,0 +1,18 @@
+# Hillclimb
+
+Adapted from pstack by Lauren Tan. This workflow improves one measurable thing through bounded experiments; it does not commit, push, open a PR, or claim a win from code inspection.
+
+Before acting, read [Poteto mode for Pi](../SKILL.md) for the mode's tool and authority rules. Resolve that link from this playbooks/ directory: ../SKILL.md is the parent poteto-mode skill. A hillclimb is a bounded `/loop run`, not an infinite loop, and it does not gain commit or delegation authority from the loop.
+
+1. Ground the workload and architecture before choosing the metric. Name the realistic dimensions that can move the result (data size, history, state, concurrency), and select a case that reproduces the complaint. If no case reproduces it, fix the reproduction instead of hillclimbing. Then fix one metric, the better direction, a target, and a floor on attempts so one lucky early win cannot end the run.
+2. Build the measurement harness, prove its sensitivity, then freeze it. Run contrasting workloads, confirm the target case reproduces the symptom and easier cases separate as expected, and make the harness print its error count and work count. Vet it against the benchmark checklist's questions (limiter, tuning, limits, errors, reproducibility, relevance, whether the work happened) before freezing. If platform tools are missing, say so; never invent a number.
+3. Define one `--until` predicate that returns 0 only when the metric target is met, the minimum attempt floor is reached, and the regression gate is green. Record the baseline metric and a green regression run before any change. The predicate is fixed for the run; do not rewrite it to declare victory.
+4. Open a local decision log at `~/.pi/agent/pstack-runs/<run-id>/decision.tsv` (or an operator-approved path), with one row per attempt: id, hypothesis, change, before, after, delta, tests, verdict, note. Read it before each attempt. Keep it out of the tree by default and do not commit it without authorization.
+5. Ground each hypothesis in the architecture model and name a specific mechanism, not "try memoizing something". Start the bounded run explicitly:
+   `/loop run --max-turns <n> --until "<metric + attempt floor + regression gate>" --until-timeout <seconds> "<goal>"`
+   When delegation is separately authorized, give each hypothesis to a child with `worktree: true`, one writer per worktree, and a model from the configured pstack role rather than a fixed Cursor slug. Parallel code exploration is allowed; measurements are serialized so concurrent runs do not pollute the metric.
+6. Per iteration: make one change, measure before and after with the frozen harness, run the regression gate, and accept only when the metric moves past noise and the gate stays green. Otherwise revert the change in full. Record the row either way. Do not use `git add -A`; do not commit by default. A local commit needs a separate authorization, and a PR is never automatic.
+7. Push past the first plateau within the remaining budget: pivot category, combine near-misses, re-read the source, or try a more radical approach. Correctness and simplicity outrank the number. Stop on the predicate, budget exhaustion, no progress, or a genuine dead end; never relax the predicate, and do not quit while cheap untried hypotheses remain.
+8. Report the metric and target, baseline to final with percent delta, attempts kept versus reverted, each accepted fix, the decision-log path, the predicate's final exit code, the terminal `/loop` reason, whether any commit or PR actually happened (default none), and the best next hypothesis.
+
+The main skill owns authorization, delegation, and Git rules. This workflow consumes an existing grant; it does not create one.

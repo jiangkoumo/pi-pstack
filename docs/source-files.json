@@ -14,12 +14,56 @@
       "blob": "e1d2df2e8c3c4954b87ee1b29655c898bc7ee699"
     },
     {
+      "path": "pstack/skills/architect/SKILL.md",
+      "blob": "88e23ca105b89e67f4085d0e676c40d4b170a623"
+    },
+    {
+      "path": "pstack/skills/arena/SKILL.md",
+      "blob": "b198b9e425c6b3e6ff01ca789b97ca5b4abb7ce2"
+    },
+    {
+      "path": "pstack/skills/bro/SKILL.md",
+      "blob": "b1701b778639c08bfc306291d70170c525c66a68"
+    },
+    {
       "path": "pstack/skills/correct/SKILL.md",
       "blob": "c45e06f48a0982ae19f92c6e83a8cd05988097a3"
     },
     {
+      "path": "pstack/skills/in-your-own-words/SKILL.md",
+      "blob": "4b2a476a9017863032c8dba9d12f0a2026943292"
+    },
+    {
+      "path": "pstack/skills/interrogate/SKILL.md",
+      "blob": "94946d22d8bf896bfcc2c54d363df5af3d17b4ca"
+    },
+    {
+      "path": "pstack/skills/ketchup/SKILL.md",
+      "blob": "ebc3e9483266a165784df0a533d33d063292521b"
+    },
+    {
+      "path": "pstack/skills/no-comments/SKILL.md",
+      "blob": "a07ce9dfc657bdf1b2bdf3f7619225e7faac091b"
+    },
+    {
       "path": "pstack/skills/poteto-mode/SKILL.md",
       "blob": "9295b7e4fb87eb95d3c887d79e63ec748ce20e4d"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/autonomous-run.md",
+      "blob": "e6b88703cf327a76bcdd424429345ac0efeca67e"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/autopilot-full.md",
+      "blob": "068882379d9bdc2298052e7762d67ac795715baf"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/autopilot-stack.md",
+      "blob": "d7bdc289e045e8bc7da97b4ddfccc8d6c9ed0800"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/babysit.md",
+      "blob": "51549ab2da11e5905342bbb3aadb93685c8ac348"
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/bug-fix.md",
@@ -30,44 +74,180 @@
       "blob": "eb1040cb2631f3eeacd8f9f6469d7e97277f24ef"
     },
     {
+      "path": "pstack/skills/poteto-mode/playbooks/hillclimb.md",
+      "blob": "e9cf267908a9737236b3a8a8a5a99fe9066f7554"
+    },
+    {
       "path": "pstack/skills/poteto-mode/playbooks/investigation.md",
       "blob": "cd119f04f23e0b7acb3f8cc5ba13ce4ab7aa6c7d"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/multi-phase-plan.md",
+      "blob": "27e99947bd20575e2ff503dbfba985a4f0fa298e"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/opening-a-pr.md",
+      "blob": "d729a7a06c5b67e406b081e1777114bc03b66f4a"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/orchestrate.md",
+      "blob": "4ccb24d76c5e190125cecc99d4a9b5c9eb2932d9"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/pause-safely.md",
+      "blob": "9d1c5f8303976fff40de099f7f28185909430c11"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/perf-issue.md",
+      "blob": "46dcc9963366992016dfb1d59ccaae977930f982"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/prototype.md",
+      "blob": "18bedc7e9249d180f9198d5b4b13e3817d41d281"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/refactoring.md",
+      "blob": "c04b07eeb8b8fa651d080729363466ab73d2fe40"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/session-pickup.md",
+      "blob": "876b1433828ccc7c874123cdf300240abb285dd9"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/shipping.md",
+      "blob": "0a0c3cfde8948e3aa8ee80c6f3f9ce7e3e64fcba"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/worktree-cleanup.md",
+      "blob": "45e1af693cc40d0271249a0e98f15bfc815af615"
+    },
+    {
+      "path": "pstack/skills/principle-attack-the-premise/SKILL.md",
+      "blob": "e9a6d499606992edd9963b80f8f8f57feaccb221"
     },
     {
       "path": "pstack/skills/principle-boundary-discipline/SKILL.md",
       "blob": "dfe9a6fb0e5acd6ae43a41437ee0951adfe839cb"
     },
     {
+      "path": "pstack/skills/principle-build-the-lever/SKILL.md",
+      "blob": "cbf003850489d95fea78e64198fd972c35b1aad3"
+    },
+    {
       "path": "pstack/skills/principle-encode-lessons-in-structure/SKILL.md",
       "blob": "4a96f77fe70e36cb030f9c5efa142f66877bf58a"
+    },
+    {
+      "path": "pstack/skills/principle-exhaust-the-design-space/SKILL.md",
+      "blob": "395a0839126bb231430a9c9da02ebab5422557d5"
+    },
+    {
+      "path": "pstack/skills/principle-experience-first/SKILL.md",
+      "blob": "5ea51741302cf3af4cc0b90ec70815bd3208dbf2"
+    },
+    {
+      "path": "pstack/skills/principle-explain-the-number/SKILL.md",
+      "blob": "1e180c14aefe49a3b2a515320398e08c3ebeb57d"
     },
     {
       "path": "pstack/skills/principle-fix-root-causes/SKILL.md",
       "blob": "14fc189fa1ec3fb1614b0a3c75557f92943d8f13"
     },
     {
+      "path": "pstack/skills/principle-foundational-thinking/SKILL.md",
+      "blob": "19cc6c0eaa6fcbc2863fb73d1d25ca196c6a46e0"
+    },
+    {
+      "path": "pstack/skills/principle-guard-the-context-window/SKILL.md",
+      "blob": "0a1d3cfcf4539fe048887174000fecbf2fa40e81"
+    },
+    {
       "path": "pstack/skills/principle-laziness-protocol/SKILL.md",
       "blob": "016c3c7c8dfffd995c1a02135a62248e6625879b"
+    },
+    {
+      "path": "pstack/skills/principle-make-operations-idempotent/SKILL.md",
+      "blob": "c93f323d694a4d310515ea27165a093d399bc55e"
+    },
+    {
+      "path": "pstack/skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md",
+      "blob": "57ddd7b27d06ba4ee9e2d3811880476a18b88df6"
+    },
+    {
+      "path": "pstack/skills/principle-minimize-reader-load/SKILL.md",
+      "blob": "628999088c5d05c1c546b3a3ca89da553cd3f3b2"
     },
     {
       "path": "pstack/skills/principle-model-the-domain/SKILL.md",
       "blob": "09b7c739955facf03f08f66e1e329745d2f8880e"
     },
     {
+      "path": "pstack/skills/principle-never-block-on-the-human/SKILL.md",
+      "blob": "4f59bdc69f79d536b30b0014a563ed3be05b8b62"
+    },
+    {
+      "path": "pstack/skills/principle-outcome-oriented-execution/SKILL.md",
+      "blob": "c49be0bc74783f0dee013101365ae09b2abb48a2"
+    },
+    {
       "path": "pstack/skills/principle-prove-it-works/SKILL.md",
       "blob": "5dc14a3b06f9d579e5c17cd8a7242f432ddb3125"
+    },
+    {
+      "path": "pstack/skills/principle-redesign-from-first-principles/SKILL.md",
+      "blob": "5ca5246cbb0fa08884ce17b0d22c117ae1ad67b8"
+    },
+    {
+      "path": "pstack/skills/principle-separate-before-serializing-shared-state/SKILL.md",
+      "blob": "ff93b4a2032c08e2232992a9a24f2891ee14e58f"
     },
     {
       "path": "pstack/skills/principle-sequence-verifiable-units/SKILL.md",
       "blob": "986371260ebccd9a5a6818c9561e88c1d270d0ee"
     },
     {
+      "path": "pstack/skills/principle-subtract-before-you-add/SKILL.md",
+      "blob": "b8740ba6f06922d8e7ef3b23f9fb16e0fc4a876f"
+    },
+    {
       "path": "pstack/skills/principle-test-behavior-not-implementation/SKILL.md",
       "blob": "78c9389bfe707d6d56485ade32c59150958228f9"
     },
     {
+      "path": "pstack/skills/principle-type-system-discipline/SKILL.md",
+      "blob": "9fa08b0b17d536ce751fffa90134be8fb03699c7"
+    },
+    {
+      "path": "pstack/skills/reflect/SKILL.md",
+      "blob": "998ae6530fe294791c3a1daa635b36e2947fcca2"
+    },
+    {
+      "path": "pstack/skills/sharpen/SKILL.md",
+      "blob": "4f9bb4ab50fd760285dd6c4cbbfa7fe20e2d2466"
+    },
+    {
+      "path": "pstack/skills/swarm/SKILL.md",
+      "blob": "b0b1eb83363853843ccf1524917b83d0c16d2cd8"
+    },
+    {
       "path": "pstack/skills/tdd/SKILL.md",
       "blob": "ca6f24c963001d9d518db2936dfe3d12f29b4e94"
+    },
+    {
+      "path": "pstack/skills/technical-writing/SKILL.md",
+      "blob": "3e6d26109376cd66439c87ed48b4033df8d78a3a"
+    },
+    {
+      "path": "pstack/skills/typescript-best-practices/SKILL.md",
+      "blob": "2c0279d9a5f800192605e47b55cae4e75a17ec27"
+    },
+    {
+      "path": "pstack/skills/unslop/SKILL.md",
+      "blob": "97f5b6412148fa5b2a2fe478836fe8923ffa5cbb"
+    },
+    {
+      "path": "pstack/skills/why/SKILL.md",
+      "blob": "b5fe93f8b78f58b06e0bf245a6b5b8faae4300e8"
     }
   ]
 }

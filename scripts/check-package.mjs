@@ -42,7 +42,7 @@ for (const entry of map.entries) {
   assert.equal(entry.audit?.sourceRead, true);
   assert(Array.isArray(entry.audit.relativeLinks));
   if (entry.disposition === 'ported') {
-    assert(entry.destination && ['P1', 'P3'].includes(entry.phase));
+    assert(entry.destination && ['P1', 'P3', 'P5'].includes(entry.phase));
     assert(sources.files.some(source => source.path === entry.source), 'Missing original: ' + entry.source);
     assert(entry.adaptation && ['override', 'inherit-body'].includes(entry.adaptation.strategy), 'Invalid adaptation: ' + entry.source);
     if (entry.adaptation.strategy === 'override') {
@@ -64,7 +64,9 @@ for (const entry of map.entries) {
   }
 }
 const tally = map.entries.reduce((accumulator, entry) => { accumulator[entry.disposition] = (accumulator[entry.disposition] ?? 0) + 1; return accumulator; }, {});
-assert.equal(tally.ported, 16);
+assert.equal(tally.ported, 61);
+assert.equal(tally.substitute, 21);
+assert.equal(tally.deferred ?? 0, 0);
 const auditText = await readFile(resolve(root, 'docs/skill-audit.md'), 'utf8');
 const auditRows = auditText.split('\n').filter(line => /^\| (技能 |流程 |代理 |Benny 技能 )/.test(line));
 assert.equal(auditRows.length, map.entries.length, 'Audit table covers every mapped entry');
@@ -76,8 +78,36 @@ const stripFrontmatter = text => text.replace(/^---\n[\s\S]*?\n---\n/, '').trim(
 const upstreamBodies = new Map(sources.files.map(source => [source.path, null]));
 for (const [path] of upstreamBodies) upstreamBodies.set(path, stripFrontmatter(await readFile(resolve(root, 'upstream', path), 'utf8')));
 const bodyOf = async skill => stripFrontmatter(await readFile(resolve(root, 'skills', skill, 'SKILL.md'), 'utf8'));
-const unchangedBodies = ['principle-model-the-domain', 'principle-fix-root-causes', 'principle-test-behavior-not-implementation', 'principle-encode-lessons-in-structure', 'principle-laziness-protocol', 'tdd'];
-const changedBodies = ['poteto-mode', 'correct', 'principle-prove-it-works', 'principle-sequence-verifiable-units', 'principle-boundary-discipline'];
+const unchangedBodies = [
+  'principle-model-the-domain',
+  'principle-fix-root-causes',
+  'principle-test-behavior-not-implementation',
+  'principle-encode-lessons-in-structure',
+  'principle-laziness-protocol',
+  'tdd',
+  'bro',
+  'in-your-own-words',
+  'ketchup',
+  'principle-attack-the-premise',
+  'principle-build-the-lever',
+  'principle-exhaust-the-design-space',
+  'principle-experience-first',
+  'principle-foundational-thinking',
+  'principle-guard-the-context-window',
+  'principle-make-operations-idempotent',
+  'principle-migrate-callers-then-delete-legacy-apis',
+  'principle-minimize-reader-load',
+  'principle-never-block-on-the-human',
+  'principle-outcome-oriented-execution',
+  'principle-redesign-from-first-principles',
+  'principle-separate-before-serializing-shared-state',
+  'principle-subtract-before-you-add',
+  'principle-type-system-discipline',
+  'sharpen',
+  'technical-writing',
+  'unslop',
+];
+const changedBodies = ['poteto-mode', 'correct', 'principle-prove-it-works', 'principle-sequence-verifiable-units', 'principle-boundary-discipline', 'principle-explain-the-number', 'typescript-best-practices', 'architect', 'arena', 'interrogate', 'no-comments', 'reflect', 'swarm', 'why'];
 for (const skill of unchangedBodies) {
   assert.equal(await bodyOf(skill), upstreamBodies.get('pstack/skills/' + skill + '/SKILL.md'), 'Adaptation record says the body is unchanged: ' + skill);
 }

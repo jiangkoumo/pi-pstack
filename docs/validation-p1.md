@@ -136,3 +136,34 @@ pi --print --no-session --mode json -e /Users/jiangkoumo/Documents/pi-pstack \
 审阅者未能运行检查，也无法核验新会话遵循；它报告的正文一致性由主代理用脚本复算后写入结构检查。审阅期间 THIRD_PARTY_NOTICES.md 曾更新，因此审阅快照与本文件最终状态存在时差。
 
 具体执行命令和最终结果以本节为准。
+
+## P5 Batch A：19 项纯文本技能纳入生成器
+
+本批将 `bro`、`in-your-own-words`、`ketchup` 及 16 个 `principle-*` 纳入生成资源，验证范围是资源生成、正文完整性、链接闭包和仓库门禁，不是逐技能行为评测。
+
+- 18 项使用 `inherit-body`，正文与上游逐字相同，仅由生成器补 `name`、`description`、`disable-model-invocation` 与 `license: MIT`。
+- `principle-explain-the-number` 使用最小 override：保留正文，仅把未移植的 `benchmark-checklist` 链接改为文字引用并注明能力缺口；其余引用仍指向已生成技能。
+- 依赖不是全部为空：`ketchup`、`principle-attack-the-premise`、`principle-build-the-lever`、`principle-minimize-reader-load` 保留真实链接依赖；`principle-explain-the-number` 依赖 `principle-prove-it-works`。其余 14 项为 `[]`。
+- 本轮实际执行：`npm run generate` 生成 37 项、写入 19 项；`npm run check:generate` 通过 37 项、0 未归属；`npm run check` 退出码 0，`mapped: 82`、`archived: 38`、`dispositions: { ported: 37, substitute: 6, deferred: 39 }`。
+
+`check-package.mjs` 的 `unchangedBodies` 断言覆盖 18 项正文不变技能；`principle-explain-the-number` 因 override 进入 `changedBodies`。这些断言只能证明资源与正文一致，不能证明每个技能在真实任务中被正确触发或遵循。
+
+## P5 Batch B：4 项技能纳入生成器
+
+本批纳入 `sharpen`、`technical-writing`、`typescript-best-practices`、`unslop`。前 3 项使用 `inherit-body`，正文与上游逐字相同；`typescript-best-practices` 使用最小 override：保留规则正文，移除 Pi 不支持的 `paths` frontmatter，并把未归档的 `references/patterns.md` 改为明确的“未随包提供”说明。
+
+- 4 项都无相对链接，`dependencies` 均为 `[]`，`evidence: validation-p1.md`。
+- `npm run generate` 生成 45 项、写入 8 项；`npm run check:generate` 通过 45 项、0 未归属；`npm run check` 退出码 0，`mapped: 82`、`archived: 46`、`dispositions: { ported: 45, substitute: 6, deferred: 31 }`。
+- `check-package.mjs` 的 `unchangedBodies` 增加 `sharpen`、`technical-writing`、`unslop`；`typescript-best-practices` 因 examples 说明改动进入 `changedBodies`。
+
+以上只验证资源生成、正文完整性和 frontmatter 可加载性，不证明这些技能在真实任务中的触发与遵循。
+
+## P5 Batch C：7 项深度技能纳入生成器
+
+本批纳入 `architect`、`arena`、`interrogate`、`no-comments`、`reflect`、`swarm`、`why`。7 项均使用语义 override，而不是 `inherit-body`：上游正文含 Cursor `Task`/`subagent_type`、`~/.cursor` 模型规则、固定 slug、云环境或未归档的 `references/` 文件，直接继承会把不可用假设带进 Pi。
+
+- 覆盖后的正文只使用 Pi 工具、`subagent` 语义、受管 worktree 与操作者授权；不引入额外 Markdown 链接，`dependencies` 均为 `[]`，`evidence: validation-p1.md`。
+- `architect` 把缺失的 design red-flags 参考内联为本地检查；`arena`/`swarm` 去掉 Cursor slug、cloud 与 `run_in_background` 假设；`interrogate`/`no-comments` 使用只读评审与父代理核实；`reflect` 只读当前 Pi 会话；`why` 只列本环境实际可用的证据源。
+- `npm run generate` 生成 61 项、写入 16 项；`npm run check:generate` 通过 61 项、0 未归属；`npm run check` 退出码 0，`mapped: 82`、`archived: 62`、`dispositions: { ported: 61, substitute: 21, deferred: 0 }`。
+
+这些是语义覆盖与资源门禁的证据，不是 7 个技能在真实任务中的独立行为评测。
