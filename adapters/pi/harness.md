@@ -1,6 +1,6 @@
 # pstack for Pi Harness Adapter
 
-pstack skills originate from Cursor conventions. In Pi, this adapter specifies the mapping between Cursor concepts and Pi tools, subagents, models, paths, and authority. It documents the translation contracts. Current resources support single-agent workflows; subagent mappings below are P3 targets, not implemented package capabilities.
+pstack skills originate from Cursor conventions. In Pi, this adapter specifies the mapping between Cursor concepts and Pi tools, subagents, models, paths, and authority. It documents the translation contracts. Single-agent workflows and two generated package agents are available. P3 direct subagent role wiring is implemented; full multi-model, background isolation and lifecycle acceptance remains incomplete.
 
 ## Tools
 
@@ -20,7 +20,7 @@ pstack skills originate from Cursor conventions. In Pi, this adapter specifies t
 | --- | --- | --- |
 | Fixed slugs (`claude-*`, `grok-*`, `gpt-*`) | Role preferences in `pstack.json` via `/setup-pstack` | Do not hardcode or substitute arbitrary models. Validated against actual Pi catalog snapshot. |
 | `setup-pstack` | `/setup-pstack set <user\|project> <role> <provider/id> [thinking]` | Roles: `code`, `review`, `prose`, `verification`. Saved in the active Pi agent directory (user) or the host configuration directory under cwd (project, trusted only); standard paths are `~/.pi/agent/pstack.json` and `.pi/pstack.json`. |
-| `inherit-parent` / unset role | `inherit` | Missing or inherit roles use the current session's active model. |
+| `inherit-parent` / unset role | `inherit` or omit model | Unset role preserves pi-subagents user defaults. Explicit inherit resolves to the exact parent model, preserving configured thinking as a validated suffix. |
 | Model validation | Strict exact match | Unknown models or unsupported thinking levels produce a visible configuration error and stop execution; never silent fallback. |
 
 ## Subagents and Isolation
@@ -28,7 +28,7 @@ pstack skills originate from Cursor conventions. In Pi, this adapter specifies t
 | Cursor Concept | Pi Mapping | Constraints & Behavior |
 | --- | --- | --- |
 | `subagent_type: generalPurpose` | Default general-purpose subagent | P3 target; not yet connected by this package. |
-| `poteto-agent`, `comment-sicko` | `pstack.poteto-agent`, `pstack.comment-sicko` | Managed package agents under the `pstack` namespace (P3 target). |
+| `poteto-agent`, `comment-sicko` | `pstack.poteto-agent`, `pstack.comment-sicko` | Generated package agents. Direct subagent calls apply code/review preferences through tool_call; script workflows and slash launches are not wired. |
 | `readonly: true` | Strict read-only tool allowlist (`read`, `grep`, `find`, `ls`) | Never grant `bash`, `edit`, or `write` to read-only delegates. Git status clean does not prove read-only compliance if write tools are present. |
 | `readonly: false` | Writer delegate | One writer per working directory / worktree. Isolate concurrent writers in managed git worktrees. |
 | `environment: "cloud"` | Unsupported | Cursor cloud execution is not supported. Use local worktrees with explicit operator authorization. |

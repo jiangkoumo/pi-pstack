@@ -15,7 +15,7 @@
 /setup-pstack unset project review
 ```
 
-roles 为 code、review、prose、verification。选择必须为精确 provider/id 或 inherit；默认所有角色 inherit。模式只提供单代理方法；角色配置是后续委派适配的偏好数据，不会改变当前模型，不会自动启动代理。P3 尚未实现。
+roles 为 code、review、prose、verification。选择必须为精确 provider/id 或 inherit；默认所有角色 inherit。模式只提供单代理方法；角色配置不会改变当前模型或自动启动代理。P3 现已接入直接单子任务的角色选择，范围与证据见 [P3 验收](validation-p3.md)；历史 P2 测试结果保持原执行边界。未配置角色保留 pi-subagents 默认，显式 inherit 选择父模型。
 
 ## 模式契约
 

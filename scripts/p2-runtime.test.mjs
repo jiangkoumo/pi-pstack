@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import { mkdtemp, readFile, rm, writeFile, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
-import { MODE_ENTRY, modeFromBranch, modeGuidance, parseConfig, validateChoices } from '../extensions/pstack/runtime.mjs';
+import { MODE_ENTRY, modeFromBranch, modeGuidance, parseConfig, validateChoices, resolveSubagentModel, applySubagentRole } from '../extensions/pstack/runtime.mjs';
 import { configPaths, loadConfig, updateConfig } from '../extensions/pstack/config.mjs';
 
 const modeEntry = enabled => ({ type: 'custom', customType: MODE_ENTRY, data: { version: 1, enabled } });
@@ -24,6 +24,60 @@ test('strict schema and exact model/thinking reject bad choices without substitu
   for (const bad of [{ version: 2, roles: {} }, { version: 1, roles: { unknown: { model: 'inherit' } } }, { version: 1, roles: { code: { model: 'fuzzy' } } }, { version: 1, roles: {}, extra: true }]) assert.throws(() => parseConfig(bad));
   assert.throws(() => validateChoices({ code: { model: 'test/missing' } }, [m], m, () => ['high']), /not available/);
   assert.throws(() => validateChoices({ code: { model: 'inherit', thinking: 'max' } }, [m], m, () => ['high']), /unsupported/);
+});
+test('resolveSubagentModel strictly resolves role, dispatches configured catalog models, and rejects bad models without fallback', () => {
+  const m1 = { provider: 'magpie', id: 'opendesign/deepseek-v4.1-flash', reasoning: true };
+  const m2 = { provider: 'test', id: 'worker-model', reasoning: true };
+  const available = [m1, m2];
+  const levels = m => m === m1 ? ['off', 'low', 'high'] : ['off'];
+
+  // Test inherit / unconfigured
+  const emptyRoles = {};
+  assert.deepEqual(resolveSubagentModel('pstack.comment-sicko', emptyRoles, available, m1, levels), { role: 'review', model: undefined });
+  assert.deepEqual(resolveSubagentModel('poteto-agent', { code: { model: 'inherit' } }, available, m1, levels), { role: 'code', model: 'magpie/opendesign/deepseek-v4.1-flash' });
+
+  assert.deepEqual(resolveSubagentModel('review', { review: { model: 'inherit', thinking: 'high' } }, available, m1, levels), { role: 'review', model: 'magpie/opendesign/deepseek-v4.1-flash:high' });
+  assert.throws(() => resolveSubagentModel('review', { review: { model: 'inherit', thinking: 'max' } }, available, m1, levels), /unsupported/);
+  assert.throws(() => resolveSubagentModel('review', { review: { model: 'inherit' } }, available, null, levels), /not available/);
+  const input = { agent: 'pstack.comment-sicko' };
+  applySubagentRole(input, { review: { model: 'inherit', thinking: 'high' } }, available, m1, levels);
+  assert.equal(input.model, 'magpie/opendesign/deepseek-v4.1-flash:high');
+  applySubagentRole(input, { review: { model: 'test/worker-model' } }, available, m1, levels);
+  assert.equal(input.model, 'magpie/opendesign/deepseek-v4.1-flash:high', 'explicit per-run choice wins');
+  const writerInput = { agent: 'pstack.poteto-agent' };
+  applySubagentRole(writerInput, { code: { model: 'test/worker-model' } }, available, m1, levels);
+  assert.equal(writerInput.model, 'test/worker-model');
+
+  // Test explicit configured model and thinking
+  const configuredRoles = {
+    review: { model: 'magpie/opendesign/deepseek-v4.1-flash', thinking: 'high' },
+    code: { model: 'test/worker-model' }
+  };
+  assert.deepEqual(resolveSubagentModel('pstack.comment-sicko', configuredRoles, available, m1, levels), {
+    role: 'review',
+    model: 'magpie/opendesign/deepseek-v4.1-flash:high'
+  });
+  assert.deepEqual(resolveSubagentModel('pstack.poteto-agent', configuredRoles, available, m1, levels), {
+    role: 'code',
+    model: 'test/worker-model'
+  });
+
+  // Test unknown agent or role
+  assert.throws(() => resolveSubagentModel('unknown-agent', configuredRoles, available, m1, levels), /Unknown agent or role/);
+
+  // Test unavailable model in catalog: MUST fail explicitly, NO silent fallback
+  const missingModelRoles = { review: { model: 'magpie/nonexistent-model' } };
+  assert.throws(
+    () => resolveSubagentModel('pstack.comment-sicko', missingModelRoles, available, m1, levels),
+    /roles\.review\.model: magpie\/nonexistent-model is not available in catalog; cannot launch subagent without configured model/
+  );
+
+  // Test unsupported thinking level
+  const badThinkingRoles = { review: { model: 'magpie/opendesign/deepseek-v4.1-flash', thinking: 'max' } };
+  assert.throws(
+    () => resolveSubagentModel('pstack.comment-sicko', badThinkingRoles, available, m1, levels),
+    /roles\.review\.thinking: max is unsupported by magpie\/opendesign\/deepseek-v4.1-flash/
+  );
 });
 test('configuration merges per role only for trusted projects, and writes atomically and idempotently', async () => {
   const dir = await mkdtemp(resolve(tmpdir(), 'pstack-config-test-'));

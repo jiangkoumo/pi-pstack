@@ -9,7 +9,7 @@
 - 许可：MIT，Copyright (c) 2026 Lauren Tan。
 - 许可原文：[LICENSES/pstack.txt](LICENSES/pstack.txt)。
 
-当前已导入并适配 11 个技能和三份流程，原始材料位于 upstream/pstack/。具体来源、文件指纹及差异见 [首批移植记录](docs/port-status.md)、[源文件清单](docs/source-files.json) 与 [逐项映射](docs/port-map.json)。保留 Lauren Tan 的原始版权与 MIT 许可。
+当前已导入并适配 11 个技能、三份流程以及 2 个代理定义，原始材料位于 upstream/pstack/。具体来源、文件指纹及差异见 [首批移植记录](docs/port-status.md)、[源文件清单](docs/source-files.json) 与 [逐项映射](docs/port-map.json)。保留 Lauren Tan 的原始版权与 MIT 许可。
 
 ## cursor-team-kit
 

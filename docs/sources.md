@@ -76,9 +76,9 @@ X 正文不是上游代码的完整规格；该链接中的统计数据不影响
 
 [Pi 官方仓库](https://github.com/earendil-works/pi) 中的在线文档会随主线变化，后续开发应先读实际安装版本的文档、类型声明和对应示例。Pi 1.2.0 尚未经过本项目运行时验收。
 
-Pi 核心不自动加载任意 agents/ 目录；已核实 pi-subagents 0.78.0 通过 package.json 的 pi.subagents.agents 或顶层 pi-subagents.agents 读取代理目录。隔离模块检查验证了发现、覆盖、trust 与注册行为。具体决定及检查边界见 [接入决策](integration-decisions.md)。
+Pi 核心不自动加载任意 agents/ 目录；已核实 pi-subagents 0.78.0 通过 package.json 的 pi.subagents.agents 或顶层 pi-subagents.agents 读取代理目录。隔离模块检查验证了发现、覆盖、trust 与注册行为；本批 P3 进一步按实际安装的 0.79.0 复验了包发现与字段解析。具体决定及检查边界见 [接入决策](integration-decisions.md)。
 
-本机 pi-subagents 证据路径（根目录为 /Users/jiangkoumo/.pi/agent/npm/node_modules/pi-subagents/）：package.json、docs/agents.md、docs/models.md、src/agents/agents.js、src/api/agents.d.ts、src/agents/runtime-agent-events.js、src/agents/runtime-agent-registry.js。版本为 0.78.0；扫描接口及字段按这些已安装文件核实。
+本机 pi-subagents 证据路径（根目录为 /Users/jiangkoumo/.pi/agent/npm/node_modules/pi-subagents/）：package.json、docs/agents.md、docs/models.md、src/agents/agents.js、src/api/agents.d.ts、src/agents/runtime-agent-events.js、src/agents/runtime-agent-registry.js。清单机制在 0.78.0 已核实，当前安装版本升级为 0.79.0；扫描接口及字段按这些已安装文件核实。
 
 外部技能来源位于同一固定提交的 cursor-team-kit/skills/deslop、control-cli、control-ui；均为公开 Markdown 方法，许可见 cursor-team-kit/LICENSE。已保留 Cursor 的 MIT 版权声明。Cursor 内置 create-skill 未作为可导入源码发现，采用独立编写 Pi 流程的方案。
 

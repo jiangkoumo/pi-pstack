@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "purpose": "Inputs for scripts/check-p3-live-review.mjs. realProject are actual repository files; syntheticControl is a labelled fixture used only to prove the reviewer read what it was given. Nothing here is production acceptance evidence by itself.",
+  "realProject": {
+    "label": "real project: this repository worktree, P3 role wiring and read-only gate",
+    "files": [
+      "extensions/pstack/runtime.mjs",
+      "scripts/check-p3-readonly-gate.mjs"
+    ]
+  },
+  "syntheticControl": {
+    "label": "synthetic fixture control: seeded comment smells, NOT production code",
+    "files": [
+      "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts"
+    ],
+    "seededAnchors": [
+      "DO NOT REMOVE",
+      "keep for rollback",
+      "eslint-disable",
+      "IMPORTANT",
+      "TODO: refactor later"
+    ]
+  },
+  "rounds": [
+    {
+      "id": "A",
+      "model": "magpie/opendesign/deepseek-v4.1-flash",
+      "thinking": "high"
+    },
+    {
+      "id": "B",
+      "model": "magpie/opendesign/glm-5.3-flashx",
+      "thinking": "high"
+    }
+  ],
+  "limits": {
+    "maxTurnsPerReview": 12,
+    "sessionTimeoutMs": 240000
+  }
+}

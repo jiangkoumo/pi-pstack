@@ -48,7 +48,8 @@ function frontmatter(text, allowed, label) {
   assert(match, 'Missing frontmatter: ' + label);
   const fields = {};
   for (const line of match[1].split('\n')) {
-    const field = line.match(/^([a-z][a-z-]*): (.+)$/);
+    if (!line.trim()) continue;
+    const field = line.match(/^([a-zA-Z][a-zA-Z0-9-]*): ?(.*)$/);
     assert(field && allowed.includes(field[1]), 'Unmapped frontmatter field or syntax in ' + label + ': ' + line);
     assert(!Object.hasOwn(fields, field[1]), 'Duplicate frontmatter field: ' + label + ': ' + field[1]);
     assert(!['|', '>'].includes(field[2]), 'Unsupported multiline frontmatter: ' + label);
@@ -81,14 +82,19 @@ for (const entry of map.entries) {
     continue;
   }
   assert(originals.has(entry.source), 'Missing source fingerprint: ' + entry.source);
-  // P2.5 owns only skills. Agents require a separate P3 schema and permission review.
-  assert(entry.source.startsWith('pstack/skills/'), 'Unsupported generated source: ' + entry.source);
-  assert.equal(entry.destination, entry.source.slice('pstack/'.length), 'Destination must match source within skills/: ' + entry.destination);
-  await pathInPackage(entry.destination, 'skills/');
+  const isSkill = entry.source.startsWith('pstack/skills/');
+  const isAgent = entry.source.startsWith('pstack/agents/');
+  assert(isSkill || isAgent, 'Unsupported generated source: ' + entry.source);
+  assert.equal(entry.destination, entry.source.slice('pstack/'.length), 'Destination must match source within package: ' + entry.destination);
+  await pathInPackage(entry.destination, isSkill ? 'skills/' : 'agents/');
   assert(!rendered.has(entry.destination), 'Duplicate destination: ' + entry.destination);
   assert(Array.isArray(entry.dependencies), 'Missing dependency list: ' + entry.source);
   assert(entry.adaptation && ['override', 'inherit-body'].includes(entry.adaptation.strategy), 'Unknown adaptation strategy: ' + entry.source);
   assert.deepEqual(Object.keys(entry.adaptation).sort(), ['override', 'strategy'], 'Unknown adaptation field: ' + entry.source);
+  if (isAgent) {
+    assert(['pstack/agents/comment-sicko.md', 'pstack/agents/poteto-agent.md'].includes(entry.source), 'Unknown pinned agent source: ' + entry.source);
+    assert.equal(entry.adaptation.strategy, 'override', 'Agents must use an explicit override template: ' + entry.source);
+  }
 
   let output;
   if (entry.adaptation.strategy === 'override') {
@@ -113,6 +119,44 @@ for (const entry of map.entries) {
     assert(fields.description, 'Missing description: ' + entry.destination);
     assert.equal(fields.license, 'MIT', 'Missing MIT license: ' + entry.destination);
     assert.equal(fields['disable-model-invocation'], 'true', 'Skill must be explicit-only: ' + entry.destination);
+  } else if (isAgent) {
+    const agentAllowed = ['name', 'package', 'description', 'tools', 'excludeTools', 'extensions', 'systemPromptMode', 'inheritProjectContext', 'inheritGlobalContext', 'inheritSkills', 'async', 'acceptanceRole', 'license'];
+    const { fields } = frontmatter(output, agentAllowed, entry.destination);
+    assert.equal(fields.name, posix.basename(entry.destination, '.md'), 'Agent name must match filename: ' + entry.destination);
+    assert.equal(fields.package, 'pstack', 'Agent package must be declared as pstack: ' + entry.destination);
+    assert(fields.description, 'Missing agent description: ' + entry.destination);
+    assert.equal(fields.license, 'MIT', 'Missing MIT license: ' + entry.destination);
+    assert.equal(fields.async, 'true', 'Agent must be async: ' + entry.destination);
+    assert.equal(fields.systemPromptMode, 'append', 'Agent systemPromptMode must be append: ' + entry.destination);
+    assert.equal(fields.inheritProjectContext, 'true', 'Agent must inherit project context: ' + entry.destination);
+    assert.equal(fields.inheritGlobalContext, 'false', 'Agent must not implicitly inherit global context: ' + entry.destination);
+    assert.equal(fields.inheritSkills, 'false', 'Agent must not implicitly inherit all skills: ' + entry.destination);
+    assert(['read-only', 'writer'].includes(fields.acceptanceRole), 'Invalid acceptanceRole: ' + fields.acceptanceRole);
+
+    const toolsList = (fields.tools || '').split(',').map(s => s.trim()).filter(Boolean);
+    assert(fields.tools !== undefined && toolsList.length > 0, 'Agent must declare an explicit tool allowlist: ' + entry.destination);
+
+    if (fields.acceptanceRole === 'read-only') {
+      assert(fields.extensions === '', 'Read-only agent must explicitly declare empty extensions to disable ambient extensions: ' + entry.destination);
+      const allowedReadOnly = ['read', 'grep', 'find', 'ls'];
+      for (const t of toolsList) {
+        assert(allowedReadOnly.includes(t), 'Forbidden tool granted to read-only agent: ' + t + ' in ' + entry.destination);
+      }
+    } else if (fields.acceptanceRole === 'writer') {
+      const allowedWriter = ['read', 'edit', 'write', 'grep', 'find', 'ls', 'bash'];
+      for (const t of toolsList) {
+        assert(allowedWriter.includes(t), 'Unrecognized writer tool: ' + t + ' in ' + entry.destination);
+      }
+    }
+
+    if (entry.source === 'pstack/agents/poteto-agent.md') {
+      assert.equal(fields.extensions, undefined, 'Writer must not declare extensions');
+    }
+    if (entry.source === 'pstack/agents/comment-sicko.md') {
+      assert.equal(fields.acceptanceRole, 'read-only', 'comment-sicko must be read-only: ' + entry.destination);
+      assert.equal(fields.excludeTools, 'contact_supervisor', 'comment-sicko must exclude runtime supervisor tool');
+      assert.deepEqual([...toolsList].sort(), ['find', 'grep', 'ls', 'read'], 'comment-sicko must strictly declare read-only allowlist: ' + entry.destination);
+    }
   }
   rendered.set(entry.destination, output);
   entries.set(entry.destination, entry);
@@ -121,6 +165,7 @@ for (const entry of map.entries) {
 // Both modes reject all unowned files, regardless of extension. Do not remove
 // them automatically: the operator may have work here that must be preserved.
 for (const file of await filesUnder('skills')) assert(rendered.has(file), 'Unmanaged generated file: ' + file);
+for (const file of await filesUnder('agents')) assert(rendered.has(file), 'Unmanaged generated file: ' + file);
 for (const file of await filesUnder('adapters/pi/overrides')) assert(overrides.has(file), 'Unmanaged override template: ' + file);
 
 for (const [dest, content] of rendered) {
@@ -131,7 +176,7 @@ for (const [dest, content] of rendered) {
     const target = posix.normalize(posix.join(posix.dirname(dest), decodeURIComponent(href)));
     await pathInPackage(target);
     actual.add(target);
-    if (target.startsWith('skills/')) assert(rendered.has(target), 'Dependency is not generated: ' + target + ' from ' + dest);
+    if (target.startsWith('skills/') || target.startsWith('agents/')) assert(rendered.has(target), 'Dependency is not generated: ' + target + ' from ' + dest);
     else {
       assert(target.startsWith('docs/') || target === map.harness, 'Unmapped dependency: ' + target + ' from ' + dest);
       const info = await lstat(await pathInPackage(target)).catch(error => { if (error.code === 'ENOENT') return null; throw error; });
@@ -152,7 +197,8 @@ if (isCheck) {
 } else {
   let written = 0;
   for (const [dest, content] of rendered) {
-    const path = await pathInPackage(dest, 'skills/');
+    const scope = dest.startsWith('skills/') ? 'skills/' : 'agents/';
+    const path = await pathInPackage(dest, scope);
     const existing = await readFile(path, 'utf8').catch(error => { if (error.code === 'ENOENT') return null; throw error; });
     if (existing === content) continue;
     await mkdir(dirname(path), { recursive: true });

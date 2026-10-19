@@ -1,0 +1,297 @@
+{
+  "validationLayer": "real packaged extension + pi-subagents + real provider inference for the child reviewer; deterministic local fixture for the parent session only",
+  "startedScopes": {
+    "realProject": {
+      "label": "real project: this repository worktree, P3 role wiring and read-only gate",
+      "files": [
+        "extensions/pstack/runtime.mjs",
+        "scripts/check-p3-readonly-gate.mjs"
+      ],
+      "hashes": {
+        "extensions/pstack/runtime.mjs": "65a9a0673aebca10",
+        "scripts/check-p3-readonly-gate.mjs": "2b7c9b2928c7c378",
+        "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts": "b549f2bb415e1fe9"
+      }
+    },
+    "syntheticControl": {
+      "label": "synthetic fixture control: seeded comment smells, NOT production code",
+      "files": [
+        "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts"
+      ],
+      "seededAnchors": [
+        "DO NOT REMOVE",
+        "keep for rollback",
+        "eslint-disable",
+        "IMPORTANT",
+        "TODO: refactor later"
+      ],
+      "note": "control results only show the reviewer read the labelled fixture; they are not project findings"
+    }
+  },
+  "provider": {
+    "name": "magpie",
+    "api": "openai-completions",
+    "baseUrlOrigin": "http://127.0.0.1:3425"
+  },
+  "rounds": [
+    {
+      "round": "A",
+      "model": "magpie/opendesign/deepseek-v4.1-flash",
+      "thinking": "high",
+      "observedModel": "magpie/opendesign/deepseek-v4.1-flash",
+      "requests": 4,
+      "wallMs": 30906,
+      "declaredTools": [
+        "find",
+        "grep",
+        "ls",
+        "read"
+      ],
+      "controlAnchorsFound": [
+        "DO NOT REMOVE",
+        "keep for rollback",
+        "eslint-disable",
+        "IMPORTANT",
+        "TODO: refactor later"
+      ],
+      "structuredParsed": true,
+      "findings": [
+        {
+          "part": "real",
+          "file": "extensions/pstack/runtime.mjs",
+          "line": 87,
+          "summary": "Kill restatement comment; MUST KILL applySubagentRole for in-place input mutation hiding precedence"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 8,
+          "summary": "Delete step banner '1. Isolate user configuration'"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 41,
+          "summary": "Delete step banner '2. Test tool plan for comment-sicko'"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 42,
+          "summary": "Delete scope sermon duplicated by validationLayer output field"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 52,
+          "summary": "Delete second copy of the planner-only disclaimer"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 57,
+          "summary": "Delete step banner '3. Test tool plan for poteto-agent'"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 67,
+          "summary": "Delete step banner '4. Test role to model dispatching'"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 74,
+          "summary": "Delete label restating the assert.equal names below"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 89,
+          "summary": "Delete label restating the assert.throws regex below"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 9,
+          "summary": "MUST KILL top-level env mutation; delete PI_SUBAGENT_EXTRA_AGENT_DIRS with no restore"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 36,
+          "summary": "MUST KILL deep imports of src/agents/agents.js and src/runs/shared/child-tool-plan.js guarded only by existsSync"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 30,
+          "summary": "MUST KILL --allow-skip exit 0 path; gate can pass without running an assertion"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 48,
+          "summary": "sort() mutates planner output that is later printed as evidence"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 1,
+          "summary": "Three-line self-referential fixture banner"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 4,
+          "summary": "ASCII rule rail decoration"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 5,
+          "summary": "IMPORTANT / DO NOT REMOVE / too risky heading with no named constraint"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 6,
+          "summary": "Closing ASCII rule rail decoration"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 9,
+          "summary": "Narration restating the function signature"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 10,
+          "summary": "Commented-out legacyDelay corpse with 'keep for rollback' alibi"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 11,
+          "summary": "eslint-disable-next-line no-console hiding the function's only behavior"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 13,
+          "summary": "Untracked TODO plus unexplained magic multiplier in return"
+        }
+      ],
+      "reviewTextPath": "round-A.md"
+    },
+    {
+      "round": "B",
+      "model": "magpie/opendesign/glm-5.3-flash",
+      "thinking": "high",
+      "observedModel": "magpie/opendesign/glm-5.3-flash",
+      "requests": 0,
+      "wallMs": 52613,
+      "declaredTools": [],
+      "controlAnchorsFound": [
+        "DO NOT REMOVE",
+        "keep for rollback",
+        "eslint-disable",
+        "IMPORTANT",
+        "TODO: refactor later"
+      ],
+      "structuredParsed": true,
+      "findings": [
+        {
+          "part": "real",
+          "file": "extensions/pstack/runtime.mjs",
+          "line": 116,
+          "summary": "Precedence prose above applySubagentRole; 'same exact validation' promise can rot — MUST KILL via naming/type reshape"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 19,
+          "summary": "Numbered narration banner '// 1. Isolate user configuration'"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 29,
+          "summary": "Numbered narration banner '// 2. Test tool plan' plus 'This probe checks planner output' narration; only the cross-ref to check-p3-host.mjs is salvageable"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 43,
+          "summary": "Numbered narration banner '// 3. Test tool plan for poteto-agent'"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 56,
+          "summary": "Numbered narration banner '// 4. Test role to model dispatching'"
+        },
+        {
+          "part": "real",
+          "file": "scripts/check-p3-readonly-gate.mjs",
+          "line": 38,
+          "summary": "Cross-reference to check-p3-host.mjs — only borderline survivor under the cross-reference clause"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 4,
+          "summary": "Decorative banner block around trivial helper"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 5,
+          "summary": "'IMPORTANT: DO NOT REMOVE, too risky' — unjustified scent"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 9,
+          "summary": "Narration comment restating the function signature"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 10,
+          "summary": "Commented-out legacyDelay corpse with 'keep for rollback'"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 11,
+          "summary": "eslint-disable no-console suppression hiding a real console.log side effect — MUST KILL (suppression and the log)"
+        },
+        {
+          "part": "control",
+          "file": "scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts",
+          "line": 13,
+          "summary": "Trailing 'TODO: refactor later' fine-for-now alibi"
+        }
+      ],
+      "reviewTextPath": "round-B.md"
+    }
+  ],
+  "readOnly": {
+    "toolsDeclared": [
+      "find",
+      "grep",
+      "ls",
+      "read"
+    ],
+    "forbiddenToolAttempts": 0,
+    "repositoryUnchanged": true
+  },
+  "outerProviderIdentity": "verified: the exact provider/model id the packaged role configuration produced is what the child requested, and the local gateway served 200; the gateway's internal vendor routing is not verified here",
+  "redaction": "provider apiKey is copied only into the temporary agent dir with mode 0600 and never written to evidence; only ids, tool names and review text are persisted",
+  "failures": [
+    "round B: the child never reached the provider",
+    "round B: reviewer never read an authorized real project file; findings would not be about project code"
+  ]
+}

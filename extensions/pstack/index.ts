@@ -2,7 +2,7 @@ import { access } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { type Model, getSupportedThinkingLevels } from '@earendil-works/pi-ai';
 import { CONFIG_DIR_NAME, getAgentDir, type ExtensionAPI, type ExtensionContext } from '@earendil-works/pi-coding-agent';
-import { MODE_ENTRY, MODE_SECTION, ROLES, modeFromBranch, modeGuidance, parseConfig, validateChoices } from './runtime.mjs';
+import { MODE_ENTRY, MODE_SECTION, ROLES, AGENT_ROLES, modeFromBranch, modeGuidance, parseConfig, validateChoices, applySubagentRole } from './runtime.mjs';
 import { configPaths, loadConfig, updateConfig } from './config.mjs';
 
 export default function pstack(pi: ExtensionAPI) {
@@ -21,6 +21,17 @@ export default function pstack(pi: ExtensionAPI) {
     try { ctx.ui.setStatus('pstack', state(ctx).enabled ? 'poteto-mode on' : undefined); }
     catch { ctx.ui.setStatus('pstack', 'poteto-mode state error'); }
   };
+  pi.on('tool_call', async (event, ctx) => {
+    if (event.toolName !== 'subagent') return;
+    const input = event.input;
+    if (input.action || input.workflow || !['pstack.poteto-agent', 'pstack.comment-sicko'].includes(String(input.agent))) return;
+    try {
+      const config = await configuration(ctx);
+      applySubagentRole(input, config.roles, ctx.modelRegistry.getAvailable(), ctx.model, levels);
+    } catch (error) {
+      return { block: true, reason: `Pstack delegation configuration error: ${String(error)}. No child was launched; no model was substituted.` };
+    }
+  });
   pi.on('session_start', (_event, ctx) => refreshStatus(ctx));
   pi.on('session_tree', (_event, ctx) => refreshStatus(ctx));
   pi.on('before_agent_start', async (event, ctx) => {
@@ -61,7 +72,7 @@ export default function pstack(pi: ExtensionAPI) {
       let config;
       let configError;
       try { config = await configuration(ctx); choices(ctx, config.roles); } catch (error) { configError = String(error); }
-      show({ mode: state(ctx), scope: 'active session branch', persistent: !!ctx.sessionManager.getSessionFile(), config, configError, capabilities: { singleAgent: true, subagents: 'not implemented by this package', autoContinue: false }, skillPath }, ctx);
+      show({ mode: state(ctx), scope: 'active session branch', persistent: !!ctx.sessionManager.getSessionFile(), config, configError, capabilities: { singleAgent: true, subagents: { exported: ['pstack.poteto-agent', 'pstack.comment-sicko'], roles: ROLES, agentRoles: AGENT_ROLES }, autoContinue: false }, skillPath }, ctx);
     },
   });
   pi.registerCommand('setup-pstack', {
@@ -78,7 +89,7 @@ export default function pstack(pi: ExtensionAPI) {
         let config;
         let configError;
         try { config = await configuration(ctx); choices(ctx, config.roles); } catch (error) { configError = String(error); }
-        show({ paths, config, configError, defaults: Object.fromEntries(ROLES.map(role => [role, 'inherit'])), appliesTo: 'role preferences only; current Pi model is unchanged; delegation is not implemented' }, ctx);
+        show({ paths, config, configError, defaults: Object.fromEntries(ROLES.map(role => [role, 'inherit'])), appliesTo: 'role preferences apply to direct subagent calls for pstack package agents; workflow scripts and slash delegation are not wired; current Pi model is unchanged' }, ctx);
         return;
       }
       const [, scope, role, model, thinking] = words;

@@ -1,0 +1,12 @@
+{
+  "name": "p3-background-ambient-fixture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Synthetic ambient extension for the P3 background isolation harness. Registers a write-capable tool and records every load into P3_BACKGROUND_MARKER.",
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

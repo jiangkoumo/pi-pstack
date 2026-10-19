@@ -2,7 +2,7 @@
 
 状态：P0 与前置依赖核实完成；P1 单代理闭环已完成，含逐项审计，见 [首批移植记录](port-status.md)、[逐项审计](skill-audit.md) 与 [验证记录](validation-p1.md)。P2 模式与角色配置扩展已实现，见 [P2 验收](validation-p2.md)。P2.5 生成式适配迁移与真实场景验收已完成，见 [P2.5 验收](validation-p2-5.md) 与 [真实场景检查](validation-p2-5-live.md)。详见 [接入决策与阻碍处理](integration-decisions.md)。目标是一个整体分发的 Pi package，提供可独立使用的技能，并用精简扩展实现需要运行时支持的能力。
 
-项目采用“固定上游源码＋Pi 适配层＋生成分发资源”。依据是官方 Claude Code 接入已采用适配表与生成目录，见 [来源与证据](sources.md#官方跨宿主接入的参考证据)。P2.5 已完成迁移并保留 P1/P2 的配置契约与历史证据，导入基线仍为 `f713f14203cd6420cec13cd7c55c32d598dbab68`。下一步进入 P3。
+项目采用“固定上游源码＋Pi 适配层＋生成分发资源”。依据是官方 Claude Code 接入已采用适配表与生成目录，见 [来源与证据](sources.md#官方跨宿主接入的参考证据)。P2.5 已完成迁移并保留 P1/P2 的配置契约与历史证据，导入基线仍为 `f713f14203cd6420cec13cd7c55c32d598dbab68`。P3 步骤 1 已实现代理生成与包清单导出，后续步骤进行中。
 
 ## 能力映射与适配点
 
@@ -20,7 +20,7 @@
 
 ## 预期包结构
 
-以下为包结构。当前已有 package.json、skills/、upstream/、adapters/pi/、scripts/generate-pi-resources.mjs、extensions/pstack/ 及建档文件；agents/ 尚未创建。skills/ 现由生成器维护：
+以下为包结构。当前已有 package.json、skills/、agents/、upstream/、adapters/pi/、scripts/generate-pi-resources.mjs、extensions/pstack/ 及建档文件；skills/ 与 agents/ 均由生成器维护：
 
 ```text
 pi-pstack/
@@ -39,7 +39,7 @@ pi-pstack/
 │   │   └── playbooks/
 │   ├── correct/
 │   └── principle-*/
-├── agents/                   # P3 经权限适配后生成
+├── agents/                   # P3 经权限适配后生成，受版本控制
 │   ├── poteto-agent.md
 │   └── comment-sicko.md
 ├── docs/
@@ -47,7 +47,7 @@ pi-pstack/
 └── THIRD_PARTY_NOTICES.md
 ```
 
-当前 package.json 声明 skills 与 extensions/pstack/index.ts。后续代理目录使用 pi.subagents.agents: ["./agents"]，代理 frontmatter 设置 package: pstack。该发现机制已通过 pi-subagents 0.78.0 隔离模块检查，真实会话接入仍需 P3 验收。核心技能不应因为多代理扩展缺失而启动失败；需要多模型的流程应说明依赖缺失，允许的替代行为必须显式标记。
+当前 package.json 声明 extensions、skills 以及 pi.subagents.agents: ["./agents"]，代理 frontmatter 设置 package: pstack。该发现机制已通过 pi-subagents 0.79.0 模块检查，P3 步骤 1 已实现导出。核心技能保持独立可用；多模型与角色对接在后续步骤验收。
 
 Pi 提供的宿主包按官方文档声明为 peerDependencies，不打进运行时 dependencies。其他依赖只在实际引用时添加。
 
@@ -122,15 +122,15 @@ P2 已通过 before_agent_start 更新单个系统区块，通过 appendEntry �
 
 ## P3：多代理与多模型
 
-- [x] 核实 pi-subagents 0.78.0 的包清单发现、命名空间、覆盖、工具/上下文字段及公开注册接口；隔离模块检查通过。
-- [ ] P2.5 通过后，将 poteto-agent 和 comment-sicko 纳入适配层和生成清单，通过 pi.subagents.agents 发现；核心技能保持可独立使用。
-- [ ] 先迁移一个多模型只读审阅流程，再迁移写代码的委派流程；接通 P2 角色配置，模型不可用时明确失败，不静默回退到会话模型。
-- [ ] 用实际只读 allowlist 约束 reviewer，核实间接工具能力；尝试写入普通、忽略及未跟踪文件均应被拒绝，不能仅以提示词和 git status 证明只读。
-- [ ] 保持一个 cwd/worktree 只有一个 writer，并隔离并发写入。
-- [ ] 交接明确目标、允许路径、禁止事项、已批准决定、验收证据和联系主代理的方法。
-- [ ] 验证取消、超时、模型不可用及子代理失败的返回路径。
+- [x] 核实 pi-subagents（当前实测 0.79.0，历史模块探针基线 0.78.0）的包清单发现、命名空间、覆盖、工具/上下文字段及公开注册接口；隔离模块检查通过。
+- [x] P2.5 通过后，将 poteto-agent 和 comment-sicko 纳入适配层和生成清单，通过 pi.subagents.agents 发现；核心技能保持可独立使用。
+- [x] 先迁移一个多模型只读审阅流程，再迁移写代码的委派流程；接通 P2 角色配置，模型不可用时明确失败，不静默回退到会话模型。（只读多模型审阅流程已完成双模型实测闭环，退出码 0，两轮 wire 捕获完备；写代码委派流程未完成）
+- [x] 用实际只读 allowlist 约束 reviewer，核实间接工具能力；尝试写入普通、忽略及未跟踪文件均应被拒绝，不能仅以提示词和 git status 证明只读。（前台+后台 detached runner 均已验证，见 validation-p3-background.md）
+- [x] 保持一个 cwd/worktree 只有一个 writer，并隔离并发写入。（managed worktree 隔离及未隔离同 cwd 对比实测已完成，见 validation-p3-worktrees.md）
+- [ ] 交接明确目标、允许路径、禁止事项、已批准决定、验收证据和联系主代理的方法（当前采用遇阻最终返回 + 原生完成通知；完整 writer 流程仍待验收）。
+- [x] 验证取消、超时、模型不可用及子代理失败的返回路径。（前台中断/超时/400 + 后台 stop/timeout/SIGKILL 均已验证）
 
-验收：使用实际可用模型完成一次不同模型的审阅；主代理核实意见并给出证据；写入范围可核查；禁止 reviewer 修改；缺少依赖时功能范围明确且核心技能可用。运行子代理仍需遵守操作者当前授权。
+验收：使用实际可用模型完成一次不同模型的审阅；主代理核实意见并给出证据；写入范围可核查；禁止 reviewer 修改；缺少依赖时功能范围明确且核心技能可用。运行子代理仍需遵守操作者当前授权。当前验收记录详见 [P3 验收](validation-p3.md)、[后台隔离验收](validation-p3-background.md)、[工作树验收](validation-p3-worktrees.md) 与 [Live 审阅验收](validation-p3-live.md)。
 
 ## P4：打包与安装验收
 

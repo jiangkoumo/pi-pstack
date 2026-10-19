@@ -10,7 +10,7 @@
 
 对 how/why、arena、控制驱动、create-skill、Task、固定模型、会话路径、自动提交与外部写操作分别核对。没有把无关键词命中等同于没有依赖。高级流程所需的未移植入口通过主技能中必要步骤替代；原引用记录保留作后续阶段的审计线索。本阶段不承诺 deferred 技能的全部支持材料已适配或运行。
 
-汇总：ported 14，substitute 6，deferred 62（P3 10，P5 52）。
+汇总：ported 16，substitute 6，deferred 60（P3 8，P5 52）。
 
 ## 已适配（P1）
 
@@ -42,6 +42,13 @@
 | 技能 setup-pstack | P2 | P2 已用 /setup-pstack 扩展命令替代：独立 JSON、实际模型目录与 thinking 校验，不沿用 .mdc；见 validation-p2.md |
 | 技能 show-me-your-work | P5 | principle-prove-it-works 现保留本地证据记录；TSV 决策轨迹依赖会话 transcript |
 
+## 已适配代理（P3）
+
+| 条目 | 归属 | 依据 |
+| --- | --- | --- |
+| 代理 comment-sicko | P3 | 已适配；通过适配层生成只读定义，严格限定工具白名单，见 validation-p3.md |
+| 代理 poteto-agent | P3 | 已适配；通过适配层生成代码编写代理定义，适配包清单发现与单一 writer 约束，见 validation-p3.md |
+
 ## P3 延期
 
 | 条目 | 归属 | 依据 |
@@ -54,8 +61,6 @@
 | 技能 reflect | P3 | 依赖多代理或多模型运行；本批以流程内嵌步骤替代其必要部分 |
 | 技能 swarm | P3 | 依赖多代理或多模型运行；本批以流程内嵌步骤替代其必要部分 |
 | 技能 why | P3 | 依赖多代理或多模型运行；本批以流程内嵌步骤替代其必要部分 |
-| 代理 comment-sicko | P3 | 代理定义需 pi-subagents 接线与只读工具白名单 |
-| 代理 poteto-agent | P3 | 代理需 pi-subagents 接线；原文使用 is_background 与 ~/.cursor/plugins 发现主技能，不携带模型配置 |
 
 ## P5 延期
 

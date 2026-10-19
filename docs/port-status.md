@@ -6,7 +6,7 @@
 
 - 11 个技能：poteto-mode、correct、tdd 和八个原则。
 - 三个主流程：调查、缺陷修复、小行为变更。
-- 原清单 57 个技能、23 个流程、2 个代理共 82 项已逐条归类为 ported 14、substitute 6、deferred 62，依据与归属见 [逐项审计](skill-audit.md)，机器可读结果见 [port-map.json](port-map.json)。deferred 只表示本批未适配，不表示方法本身有问题。
+- 原清单 57 个技能、23 个流程、2 个代理共 82 项已逐条归类为 ported 16、substitute 6、deferred 60，依据与归属见 [逐项审计](skill-audit.md)，机器可读结果见 [port-map.json](port-map.json)。deferred 只表示本批未适配，不表示方法本身有问题。
 - [原始文件指纹](source-files.json) 记录归档文件的 Git blob ID。upstream/pstack 保存本批使用的固定提交原文，不作为 Pi 技能资源加载。
 
 ## 适配差异
@@ -21,6 +21,8 @@
 | principle-sequence-verifiable-units | 不自动 rebase 或提交；补齐实际相对链接，将未移植的 build-the-lever 提及改写为通用工具表述 |
 | principle-boundary-discipline | 将无条件信任内部代码改为信任已建立的内部不变量，明确插件、持久化和外部代码边界 |
 | 其余五个原则 | 保留上游正文，仅增加 MIT frontmatter |
+| agents/comment-sicko.md | 声明 package: pstack，强制限定只读工具白名单（read, grep, find, ls），显式设置空 extensions 阻断 ambient extensions，以 excludeTools 排除宿主注入的 contact_supervisor；async: true 为项目统一后台化取舍，遇阻最终返回并由原生通知交接；将 diff against main 改为父会话提供 diff，移除未移植的 /how、/why 引用，保留审查规则与报告格式 |
+| agents/poteto-agent.md | 声明 package: pstack，is_background 映射为 async: true；不声明空 extensions 以便加载模型 provider 扩展并消除告警；移除 Cursor 专用查找路径，通过包内相对路径发现 poteto-mode 技能，明确单一 writer 隔离与受管 worktree 约束 |
 
 这是可追溯的方法移植，尚未承诺全量复刻。未移植技能不会因目录映射存在而被发现。
 
@@ -34,7 +36,7 @@ pi -e /absolute/path/to/pi-pstack
 
 可用入口为 /skill:poteto-mode <任务> 和 /skill:correct <范围>。叶子技能保持显式调用，主技能通过 read 按需读取。P2 现已提供 /poteto-mode on/off/status 与 /setup-pstack，详见 [P2 契约与验收](validation-p2.md)。
 
-检查：npm run check。需要实际安装的 Pi 1.3.0 时设置 PI_PSTACK_PI_ROOT=<Pi npm 包绝对路径>，再运行 npm run check:pi 与 npm run check:pi:commands。前者用 Pi 的 loadSkills 检查发现与诊断，后者在临时 agent 目录用真实 Pi 进程读取 /skill 命令且不写全局配置。不从 npm 安装宿主副本。
+检查：npm run check（缺 pi-subagents 时两个模块探针显式报告 skipped，不算 P3 验收通过）；严格 P3 检查为 npm run check:p3，需要实际 Pi 与 pi-subagents，缺依赖时报错。需要实际安装的 Pi 1.3.0 时设置 PI_PSTACK_PI_ROOT=<Pi npm 包绝对路径>，再运行 npm run check:pi 与 npm run check:pi:commands。前者用 Pi 的 loadSkills 检查发现与诊断，后者在临时 agent 目录用真实 Pi 进程读取 /skill 命令且不写全局配置。不从 npm 安装宿主副本。
 
 行为样例与证据见 [P1 验收](validation-p1.md)。加载成功、静态检查和人工执行样例分别记录，不互相替代。
 
@@ -42,6 +44,6 @@ pi -e /absolute/path/to/pi-pstack
 
 P1 已完成：逐项审计、隔离样例、`correct` 验收（实际审阅案例与合成历史回归）、新会话调用与遵循证据、Pi 加载与命令检查均有实际结果。
 
-P2 模式与角色配置已实现并验证；P2.5 生成式适配迁移与真实场景检查已完成并接入检查，见 [P2.5 验收](validation-p2-5.md) 与 [真实场景检查](validation-p2-5-live.md)。P3 子代理、P4 安装卸载、P5 长运行仍未实现。多模型审阅与自动化入口没有随本包导出。
+P2 模式与角色配置已实现并验证；P2.5 生成式适配迁移与真实场景检查已完成并接入检查，见 [P2.5 验收](validation-p2-5.md) 与 [真实场景检查](validation-p2-5-live.md)。P3 代理生成、清单声明、角色接线、前后台真实 child 拒写（前台+后台 detached runner）、后台 ambient 扩展隔离、managed worktree 并发隔离以及双模型（DeepSeek 与 GLM）真实只读审阅流程均已全部实现并实测验证，见 [P3 验收](validation-p3.md)、[后台隔离验收](validation-p3-background.md)、[工作树验收](validation-p3-worktrees.md) 及 [Live 审阅验收](validation-p3-live.md)。写代码委派合并流程仍待推进。P4 安装卸载、P5 长运行待后续推进。多模型审阅与自动化入口逐步随 P3 导出。
 
 分发资源现已通过 `npm run generate` 生成，并通过 `npm run check:generate` 与 `npm run check` 保持防漂移。后续技能维护在 `adapters/pi/` 或 `docs/port-map.json` 中进行；`upstream/` 保持固定原文，升级时同时审阅 SHA 与指纹变更。覆盖源使用 `.template` 后缀，相对链接按输出路径校验。未移植项目继续保持原支持状态。

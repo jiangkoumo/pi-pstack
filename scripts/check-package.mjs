@@ -8,7 +8,14 @@ import { fileURLToPath } from 'node:url';
 const root = process.argv[2] ? resolve(process.argv[2]) : fileURLToPath(new URL('..', import.meta.url));
 const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
 const manifest = await json('package.json');
-assert.deepEqual(manifest.pi, { extensions: ['./extensions/pstack/index.ts'], skills: ['./skills'] });
+assert(manifest.files.includes('agents/'), 'Missing agents/ in package.json files');
+assert.deepEqual(manifest.pi, {
+  extensions: ['./extensions/pstack/index.ts'],
+  skills: ['./skills'],
+  subagents: {
+    agents: ['./agents']
+  }
+});
 assert.equal(manifest.private, true, 'Keep the incomplete package unpublished');
 const map = await json('docs/port-map.json');
 const inventory = await json('docs/upstream-inventory.json');
@@ -35,7 +42,7 @@ for (const entry of map.entries) {
   assert.equal(entry.audit?.sourceRead, true);
   assert(Array.isArray(entry.audit.relativeLinks));
   if (entry.disposition === 'ported') {
-    assert(entry.destination && entry.phase === 'P1');
+    assert(entry.destination && ['P1', 'P3'].includes(entry.phase));
     assert(sources.files.some(source => source.path === entry.source), 'Missing original: ' + entry.source);
     assert(entry.adaptation && ['override', 'inherit-body'].includes(entry.adaptation.strategy), 'Invalid adaptation: ' + entry.source);
     if (entry.adaptation.strategy === 'override') {
@@ -56,7 +63,7 @@ for (const entry of map.entries) {
   }
 }
 const tally = map.entries.reduce((accumulator, entry) => { accumulator[entry.disposition] = (accumulator[entry.disposition] ?? 0) + 1; return accumulator; }, {});
-assert.equal(tally.ported, 14);
+assert.equal(tally.ported, 16);
 const auditText = await readFile(resolve(root, 'docs/skill-audit.md'), 'utf8');
 const auditRows = auditText.split('\n').filter(line => /^\| (技能 |流程 |代理 |Benny 技能 )/.test(line));
 assert.equal(auditRows.length, map.entries.length, 'Audit table covers every mapped entry');
@@ -91,6 +98,7 @@ async function walk(path) {
   }
 }
 await walk(resolve(root, 'skills'));
+await walk(resolve(root, 'agents'));
 await walk(resolve(root, 'docs'));
 await walk(resolve(root, 'adapters'));
 documents.push(resolve(root, 'README.md'), resolve(root, 'THIRD_PARTY_NOTICES.md'));
@@ -108,6 +116,11 @@ for (const file of documents) {
     const name = content.match(/^name: (.+)$/m)?.[1];
     assert(name && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name) && name.length <= 64);
     assert.equal(dirname(file).split('/').at(-1), name);
+    assert(content.includes('license: MIT'));
+  } else if (file.includes('/agents/') && file.endsWith('.md')) {
+    const name = content.match(/^name: (.+)$/m)?.[1];
+    assert(name && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name) && name.length <= 64);
+    assert.match(content, /^package: pstack$/m);
     assert(content.includes('license: MIT'));
   }
 }

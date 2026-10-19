@@ -1430,34 +1430,42 @@
     {
       "kind": "agents",
       "source": "pstack/agents/comment-sicko.md",
-      "disposition": "deferred",
+      "disposition": "ported",
       "phase": "P3",
-      "destination": null,
-      "reason": "代理定义需 pi-subagents 接线与只读工具白名单",
+      "destination": "agents/comment-sicko.md",
+      "reason": "已适配；通过适配层生成只读定义，严格限定工具白名单，见 validation-p3.md",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],
-        "scope": "Disposition audit only; no implementation/runtime acceptance"
+        "scope": "P3 ported agent with read-only tool allowlist"
       },
-      "adaptation": null,
-      "evidence": null,
-      "dependencies": null
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/agents/comment-sicko.md.template"
+      },
+      "evidence": "docs/validation-p3.md",
+      "dependencies": []
     },
     {
       "kind": "agents",
       "source": "pstack/agents/poteto-agent.md",
-      "disposition": "deferred",
+      "disposition": "ported",
       "phase": "P3",
-      "destination": null,
-      "reason": "代理需 pi-subagents 接线；原文使用 is_background 与 ~/.cursor/plugins 发现主技能，不携带模型配置",
+      "destination": "agents/poteto-agent.md",
+      "reason": "已适配；通过适配层生成代码编写代理定义，适配包清单发现与单一 writer 约束，见 validation-p3.md",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],
-        "scope": "Disposition audit only; no implementation/runtime acceptance"
+        "scope": "P3 ported code-writing subagent"
       },
-      "adaptation": null,
-      "evidence": null,
-      "dependencies": null
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/agents/poteto-agent.md.template"
+      },
+      "evidence": "docs/validation-p3.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
     }
   ],
   "generator": "scripts/generate-pi-resources.mjs",

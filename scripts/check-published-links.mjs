@@ -13,7 +13,7 @@ const run = (script, cwd, args = []) => {
   return { exitCode: result.status, output: result.stdout + result.stderr };
 };
 try {
-  for (const path of ['extensions', 'skills', 'adapters', 'upstream', 'docs', 'scripts', 'README.md', 'AGENTS.md', 'LICENSE', 'LICENSES', 'THIRD_PARTY_NOTICES.md', 'package.json']) {
+  for (const path of ['extensions', 'skills', 'agents', 'adapters', 'upstream', 'docs', 'scripts', 'README.md', 'AGENTS.md', 'LICENSE', 'LICENSES', 'THIRD_PARTY_NOTICES.md', 'package.json']) {
     await cp(resolve(root, path), resolve(fixture, path), { recursive: true });
   }
   const original = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
@@ -57,6 +57,11 @@ try {
     for (const path of rebuildInputs) assert(paths.has(path), 'Actual npm tarball omits rebuild input: ' + path);
   };
   assertRebuildInputs(included);
+  for (const entry of map.entries) {
+    if (entry.disposition === 'ported') {
+      assert(included.has(entry.destination), 'Actual npm tarball omits ported output: ' + entry.destination);
+    }
+  }
   assert(![...included].some(path => path.startsWith('adapters/pi/overrides/') && path.endsWith('.md')), 'Overrides must ship as source templates, not linked Markdown documents');
 
   // Exercise npm's actual file selection, not a fabricated list of included paths.

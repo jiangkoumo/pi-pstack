@@ -21,7 +21,7 @@ export function modeGuidance(state, skillPath, roles) {
     'Persistent poteto-mode is ON for this user request.',
     `Read ${JSON.stringify(skillPath)} and the matching playbook before acting. Resolve references relative to their containing files. Read principle leaves only when needed.`,
     'User and project instructions control authority and tools. This mode grants no delegation, Git, external-message, or continuation permission. Do not automatically continue after the requested work is complete.',
-    `Configured role preferences (data only, not permission to delegate or switch the current model): ${JSON.stringify(roles)}. Missing roles inherit the current model.`,
+    `Configured role preferences (data only, not permission to delegate or switch the current model): ${JSON.stringify(roles)}. For direct pstack subagent calls, unset roles preserve pi-subagents defaults; explicit inherit selects the parent model.`,
   ].join('\n');
 }
 
@@ -51,4 +51,50 @@ export function validateChoices(roles, available, currentModel, supportedLevels)
       throw new Error(`roles.${role}.thinking: ${choice.thinking} is unsupported by ${model.provider}/${model.id}; use ${supportedLevels(model).join(', ')}`);
     }
   }
+}
+
+export const AGENT_ROLES = {
+  'pstack.poteto-agent': 'code',
+  'poteto-agent': 'code',
+  'pstack.comment-sicko': 'review',
+  'comment-sicko': 'review'
+};
+
+export function resolveSubagentModel(target, roles = {}, available = [], currentModel = null, supportedLevels = () => ['off']) {
+  const role = Object.hasOwn(AGENT_ROLES, target) ? AGENT_ROLES[target] : (ROLES.includes(target) ? target : null);
+  if (!role) throw new Error(`Unknown agent or role for pstack subagent model resolution: ${target}`);
+
+  const choice = parseConfig({ version: 1, roles }).roles[role];
+  if (!choice) return { role, model: undefined };
+  const selected = choice.model === 'inherit'
+    ? (currentModel && `${currentModel.provider}/${currentModel.id}`)
+    : choice.model;
+  const modelEntry = available.find(m => `${m.provider}/${m.id}` === selected);
+  if (!modelEntry) {
+    throw new Error(`roles.${role}.model: ${choice.model} is not available in catalog; cannot launch subagent without configured model`);
+  }
+
+  if (choice.thinking !== undefined) {
+    const validLevels = supportedLevels(modelEntry);
+    if (!validLevels.includes(choice.thinking)) {
+      throw new Error(`roles.${role}.thinking: ${choice.thinking} is unsupported by ${modelEntry.provider}/${modelEntry.id}; use ${validLevels.join(', ')}`);
+    }
+  }
+
+  return { role, model: `${selected}${choice.thinking === undefined ? '' : ':' + choice.thinking}` };
+}
+
+// Explicit per-run model wins over saved role preferences, with the same exact validation.
+export function applySubagentRole(input, roles, available, currentModel, supportedLevels) {
+  if (input.action || input.workflow || !['pstack.poteto-agent', 'pstack.comment-sicko'].includes(input.agent)) return;
+  const role = AGENT_ROLES[input.agent];
+  let selectedRoles = roles;
+  if (input.model !== undefined) {
+    if (typeof input.model !== 'string') throw new Error('pstack subagent model must be a string');
+    const suffix = input.model.match(/:(off|minimal|low|medium|high|xhigh|max)$/);
+    const choice = { model: suffix ? input.model.slice(0, -suffix[0].length) : input.model, ...(suffix ? { thinking: suffix[1] } : {}) };
+    selectedRoles = { [role]: choice };
+  }
+  const resolved = resolveSubagentModel(input.agent, selectedRoles, available, currentModel, supportedLevels);
+  if (resolved.model !== undefined) input.model = resolved.model;
 }

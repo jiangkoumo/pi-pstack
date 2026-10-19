@@ -12,7 +12,7 @@ const blob = bytes => createHash('sha1').update('blob ' + bytes.length + '\0').u
 async function fixture(run) {
   const dir = await mkdtemp(resolve(tmpdir(), 'pstack-generation-'));
   try {
-    for (const path of ['scripts', 'docs', 'upstream', 'adapters', 'skills']) await cp(resolve(root, path), resolve(dir, path), { recursive: true });
+    for (const path of ['scripts', 'docs', 'upstream', 'adapters', 'skills', 'agents']) await cp(resolve(root, path), resolve(dir, path), { recursive: true });
     await run(dir);
   } finally { await rm(dir, { recursive: true, force: true }); }
 }
@@ -27,13 +27,13 @@ async function mutateJSON(dir, path, change) {
   await writeFile(resolve(dir, path), JSON.stringify(value, null, 2) + '\n');
 }
 async function rejectInBothModes(dir, pattern) {
-  const sentinel = resolve(dir, 'skills/correct/SKILL.md');
-  const before = await readFile(sentinel);
+  const sentinels = ['skills/correct/SKILL.md', 'agents/comment-sicko.md', 'agents/poteto-agent.md'].map(path => resolve(dir, path));
+  const before = await Promise.all(sentinels.map(path => readFile(path)));
   for (const check of [true, false]) {
     const r = execute(dir, check);
     assert.equal(r.code, 1, r.output);
     assert.match(r.output, pattern);
-    assert.deepEqual(await readFile(sentinel), before, 'Validation failure must precede writes');
+    assert.deepEqual(await Promise.all(sentinels.map(path => readFile(path))), before, 'Validation failure must precede writes');
   }
 }
 
@@ -81,7 +81,7 @@ for (const [name, mutation, pattern] of [
   }));
 }
 
-for (const path of ['skills/poteto-mode/unowned.txt', 'adapters/pi/overrides/orphan.template']) {
+for (const path of ['skills/poteto-mode/unowned.txt', 'agents/unmanaged.txt', 'adapters/pi/overrides/orphan.template']) {
   test('reject unmanaged file: ' + path, () => fixture(async dir => {
     await writeFile(resolve(dir, path), 'must be preserved');
     await rejectInBothModes(dir, /Unmanaged/);
@@ -119,4 +119,58 @@ test('report a missing document dependency before writes', () => fixture(async d
 test('reject override inputs outside their owned template', () => fixture(async dir => {
   await mutateJSON(dir, 'docs/port-map.json', map => { map.entries.find(e => e.destination === 'skills/correct/SKILL.md').adaptation.override = 'docs/validation-p1.md'; });
   await rejectInBothModes(dir, /Override must match destination/);
+}));
+
+test('reject forbidden write tool in read-only agent comment-sicko', () => fixture(async dir => {
+  const path = resolve(dir, 'adapters/pi/overrides/agents/comment-sicko.md.template');
+  const text = (await readFile(path, 'utf8')).replace('tools: read, grep, find, ls', 'tools: read, grep, find, ls, edit');
+  await writeFile(path, text);
+  await rejectInBothModes(dir, /Forbidden tool/);
+}));
+
+test('reject missing explicit tool allowlist in agent', () => fixture(async dir => {
+  const path = resolve(dir, 'adapters/pi/overrides/agents/comment-sicko.md.template');
+  const text = (await readFile(path, 'utf8')).replace(/^tools:.*$/m, '');
+  await writeFile(path, text);
+  await rejectInBothModes(dir, /Agent must declare an explicit tool allowlist/);
+}));
+
+test('reject invalid package namespace in agent definition', () => fixture(async dir => {
+  const path = resolve(dir, 'adapters/pi/overrides/agents/poteto-agent.md.template');
+  const text = (await readFile(path, 'utf8')).replace('package: pstack', 'package: wrong');
+  await writeFile(path, text);
+  await rejectInBothModes(dir, /Agent package must be declared as pstack/);
+}));
+
+test('reject non-empty extensions in read-only agent', () => fixture(async dir => {
+  const path = resolve(dir, 'adapters/pi/overrides/agents/comment-sicko.md.template');
+  const text = (await readFile(path, 'utf8')).replace('extensions:', 'extensions: ./ext.ts');
+  await writeFile(path, text);
+  await rejectInBothModes(dir, /Read-only agent must explicitly declare empty extensions/);
+}));
+
+test('reject unauthorized tool in writer agent', () => fixture(async dir => {
+  const path = resolve(dir, 'adapters/pi/overrides/agents/poteto-agent.md.template');
+  const text = (await readFile(path, 'utf8')).replace('tools: read, edit, write, grep, find, ls, bash', 'tools: read, edit, write, grep, find, ls, bash, dangerous_tool');
+  await writeFile(path, text);
+  await rejectInBothModes(dir, /Unrecognized writer tool/);
+}));
+
+test('reject writer empty extensions', () => fixture(async dir => {
+  const path = resolve(dir, 'adapters/pi/overrides/agents/poteto-agent.md.template');
+  await writeFile(path, (await readFile(path, 'utf8')).replace('systemPromptMode:', 'extensions:\nsystemPromptMode:'));
+  await rejectInBothModes(dir, /Writer must not declare extensions/);
+}));
+
+test('reject missing runtime supervisor exclusion', () => fixture(async dir => {
+  const path = resolve(dir, 'adapters/pi/overrides/agents/comment-sicko.md.template');
+  await writeFile(path, (await readFile(path, 'utf8')).replace('excludeTools: contact_supervisor\n', ''));
+  await rejectInBothModes(dir, /must exclude runtime supervisor tool/);
+}));
+
+test('reject identity role tampering for comment-sicko', () => fixture(async dir => {
+  const path = resolve(dir, 'adapters/pi/overrides/agents/comment-sicko.md.template');
+  const text = (await readFile(path, 'utf8')).replace('acceptanceRole: read-only', 'acceptanceRole: writer');
+  await writeFile(path, text);
+  await rejectInBothModes(dir, /comment-sicko must be read-only/);
 }));

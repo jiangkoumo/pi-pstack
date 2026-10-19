@@ -72,7 +72,7 @@ pi-subagents 0.78.0 的 docs/agents.md 及 src/agents/agents.js 明确支持两�
 | 角色 | writer 与 read-only 明确分开；acceptanceRole 仅用于验收推断，不是工具权限 |
 | 只读工具 | 使用实际只读 allowlist；不授予 edit/write/bash 来假装只读；codemode 和 MCP 的间接能力也需核实 |
 | 扩展工具 | allowlist 不负责加载 provider；需要扩展工具时显式核实 provider 与子会话加载方式 |
-| 模型 | 不保留 Cursor 的固定 slug；省略 model 时遵守 pi-subagents 的用户设置/父模型继承，支持精确 provider/id 覆盖 |
+| 模型 | 不保留 Cursor 固定 slug。P3 直接调用：角色未配置时不传 model，保留 pi-subagents 用户默认；显式 inherit 解析为父模型精确 ID；thinking 校验后编码为 provider/id:thinking；显式单次 model 优先且精确校验。脚本工作流、slash 与 delegation 事件尚未接入 |
 | 并发写入 | 一个 cwd/worktree 只允许一个 writer；managed worktree 要求源仓库干净且有可用基线 |
 
 Pi-subagents 的 thinking 支持 off/minimal/low/medium/high/xhigh/max，模型实际支持的级别还需检测。不得通过替换 Cursor slug 中的字符串来生成 Pi 模型名，不得在模型出错后静默切换供应商。
