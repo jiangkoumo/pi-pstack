@@ -12,8 +12,8 @@
 
 | 项 | 值 |
 | --- | --- |
-| 文件数 | 143 |
-| 大小 | 299,246 bytes |
+| 文件数 | 144 |
+| 大小 | 约 300 KB（以 `npm pack` 输出为准） |
 | 必需文件 | `package.json`、扩展、11 个技能、2 个代理、适配层、`writer-gate.mjs`、`docs/validation-p3-writer.md`、`LICENSE`、`LICENSES/pstack.txt`、`THIRD_PARTY_NOTICES.md` |
 | 禁止项 | 无 `node_modules/`、无 `.tgz`、无 `.git/` |
 | 清单状态 | `private: true`，未发布 |
@@ -74,7 +74,7 @@ node scripts/check-p4-install.mjs
 ```json
 {
   "status": "passed",
-  "tarball": { "entryCount": 143, "bytes": 299246, "required": 11 },
+  "tarball": { "entryCount": 144, "required": 11 },
   "install": { "skills": 11, "agents": ["pstack.comment-sicko", "pstack.poteto-agent"], "extensionErrors": 0 },
   "upgrade": { "skillsUnchanged": true, "userConfigUnchanged": true, "settingsUnchanged": true },
   "uninstall": { "packageRemoved": true, "skills": [], "extensionErrors": 0, "userConfigPreserved": true },
@@ -86,7 +86,16 @@ node scripts/check-p4-install.mjs
 
 ## CI 配置
 
-新增 `.github/workflows/check.yml`，在 Node 22 上运行 `npm run check` 与 `npm run check:generate`。**该工作流尚未真实执行**：仓库没有 GitHub 远端，也没有 CI 运行记录。不能把“已写 YAML”当成 CI 验收通过；需要远端后跑一次并记录结果。
+新增 `.github/workflows/check.yml`，在 Node 22 上运行 `npm run check` 与 `npm run check:generate`。
+
+本地 CI-equivalent 已通过：`node scripts/check-ci-local.mjs` 把当前提交 clone 到一次性目录（只含已提交文件、工作树干净），再执行工作流里的两条命令：
+
+```bash
+node scripts/check-ci-local.mjs
+# exit 0；npm run check 约 7.4s，npm run check:generate 约 0.15s
+```
+
+**但 GitHub Actions 仍未真实运行**：仓库没有远端，也没有 runner 记录。不能把“YAML 解析通过 + 本地等价命令通过”当成 GitHub CI 通过；需要远端后跑一次并记录结果。
 
 host 级检查（`check:p3`、`check:p4`）需要本机 Pi 与 pi-subagents，未放进默认 CI。
 
@@ -112,7 +121,7 @@ host 级检查（`check:p3`、`check:p4`）需要本机 Pi 与 pi-subagents，�
 
 ## 尚未完成 / 不能宣称
 
-1. **CI 未运行**：只有本地 YAML，无远端执行证据。
+1. **GitHub CI 未运行**：工作流 YAML 有效，本地 clean-clone 等价命令通过，但没有远端 runner 执行证据。
 2. **npm 未发布且名称被占用**：包保持 `private: true`；registry 上已有 `pi-pstack@0.1.0`，发布前需改名或使用作用域，并取得授权。
 3. **本地安装是路径注册**：`pi install <tarball> -l` 只把 tarball 路径写进项目设置；资源发现测试另行把 tarball 解压到 `.pi/npm/node_modules` 并用真实 Pi loader 加载。没有验证 registry 下载、完整性校验或代理环境。
 4. **未验证外部 registry 安装**：没有从 npm registry 拉取、校验签名或代理环境。

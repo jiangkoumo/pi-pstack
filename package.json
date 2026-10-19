@@ -55,6 +55,7 @@
     "check:p3:writer-flow": "node scripts/check-p3-writer-flow.mjs && P3_FLOW_BLOCK=1 node scripts/check-p3-writer-flow.mjs",
     "check:p3:live": "node scripts/check-p3-live-review.mjs",
     "check:p4": "node scripts/check-p4-install.mjs",
+    "check:ci": "node scripts/check-ci-local.mjs",
     "check:p3": "npm run check:p2 && npm run check:p3:agents && npm run check:p3:gate && npm run check:p3:writer-gate && npm run check:p3:writer-flow && npm run check:p3:host && npm run check:p3:background && npm run check:p3:worktrees",
     "check:p3:agents": "node scripts/check-p3-agents.mjs",
     "check:p3:gate": "node scripts/check-p3-readonly-gate.mjs",

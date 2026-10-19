@@ -134,7 +134,7 @@ P2 已通过 before_agent_start 更新单个系统区块，通过 appendEntry �
 
 ## P4：打包与安装验收
 
-- [ ] 配置 CI 调用与本地相同的 npm run check，另行记录真实运行结果；已添加 .github/workflows/check.yml，但无远端、未真实运行，见 validation-p4.md。
+- [ ] 配置 CI 调用与本地相同的 npm run check，另行记录真实运行结果；已添加 .github/workflows/check.yml，并通过本地 clean-clone 等价检查，但无远端、GitHub Actions 未真实运行，见 validation-p4.md。
 - [x] 核对许可证、生成资源、运行所需适配说明、依赖与发布包实际包含的文件；打包前确认生成漂移检查通过。
 - [x] 在隔离的 Pi agent 配置目录中验证本地安装和卸载，检查资源发现（含真实 `pi install` / `pi remove` 路径注册与 loader 资源发现）。
 - [x] 验证升级不覆盖用户配置，移除包不会残留自动加载行为。
