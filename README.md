@@ -2,7 +2,7 @@
 
 将 Lauren Tan（@poteto）的 pstack 工程技能与工作流移植到 Pi，交付为一次安装的 Pi package。
 
-当前阶段：P1 单代理闭环已完成。11 个技能与调查／修复／实现三个流程已适配；82 个上游条目逐项归类为已适配／替代路线／延期；隔离样例、`correct` 验收（两轮审阅实际历史案例 + 合成历史回归）、新会话行为证据、Pi 加载与命令检查均已有实际结果。P2 模式扩展与角色配置已实现并验证，详见 [P2 契约与验收](docs/validation-p2.md)。P2.5 生成式适配迁移与真实场景检查已完成并经两轮模型独立审阅，详见 [P2.5 验收](docs/validation-p2-5.md) 与 [真实场景检查](docs/validation-p2-5-live.md)。P3 代理生成、角色接线、前台/后台真实 child 拒写、worktree 隔离与双模型 live 审阅已完成，26 条审阅意见已逐条核实；写代码委派的交接契约、机械 review gate 与端到端 host 流程（fixture 模型）均已验证，P3 验收已通过，详见 [P3 验收](docs/validation-p3.md) 与 [Writer 验收](docs/validation-p3-writer.md)。P4 安装验收尚未实现，npm 包未发布。详见 [本批范围](docs/port-status.md)、[逐项审计](docs/skill-audit.md) 与 [验证记录](docs/validation-p1.md)。
+当前阶段：P1 单代理闭环已完成。11 个技能与调查／修复／实现三个流程已适配；82 个上游条目逐项归类为已适配／替代路线／延期；隔离样例、`correct` 验收（两轮审阅实际历史案例 + 合成历史回归）、新会话行为证据、Pi 加载与命令检查均已有实际结果。P2 模式扩展与角色配置已实现并验证，详见 [P2 契约与验收](docs/validation-p2.md)。P2.5 生成式适配迁移与真实场景检查已完成并经两轮模型独立审阅，详见 [P2.5 验收](docs/validation-p2-5.md) 与 [真实场景检查](docs/validation-p2-5-live.md)。P3 代理生成、角色接线、前台/后台真实 child 拒写、worktree 隔离与双模型 live 审阅已完成，26 条审阅意见已逐条核实；写代码委派的交接契约、机械 review gate 与端到端 host 流程（fixture 模型）均已验证，P3 验收已通过，详见 [P3 验收](docs/validation-p3.md) 与 [Writer 验收](docs/validation-p3-writer.md)。P4 本地打包、隔离安装、升级与卸载已验证；CI 尚未真实运行，npm 包未发布。详见 [本批范围](docs/port-status.md)、[逐项审计](docs/skill-audit.md) 与 [验证记录](docs/validation-p1.md)。
 
 ## 背景与目标
 
@@ -23,6 +23,7 @@
 | [P3 验收记录](docs/validation-p3.md) | 代理导出、前后台只读 host 验收、工作树隔离；多模型流程推进中 |
 | [P3 审阅意见核实](docs/validation-p3-live-findings.md) | 26 条 live findings 的逐条判定、引用核对与处理 |
 | [P3 Writer 验收](docs/validation-p3-writer.md) | writer 交接契约、review gate 边界与门禁测试 |
+| [P4 验收记录](docs/validation-p4.md) | 打包内容、隔离安装/升级/卸载、支持版本与未完成项 |
 | [真实场景检查](docs/validation-p2-5-live.md) | 三轮真实新会话定性观察与 GLM 审阅记录 |
 | [逐项移植映射](docs/port-map.json) | 82 个上游条目的适配或延期状态 |
 | [背景与范围](docs/background.md) | 项目缘起、上游价值、已确定的边界 |
@@ -47,7 +48,7 @@
 1. P1/P2 已完成：上游逐项审计、单代理流程、模式状态与角色配置均保留现有验收记录。
 2. P2.5 已完成：建立 Pi 适配层和生成器，生成当前 11 个技能及三个流程，通过确定性、失败路径、链接、指纹以及三轮真实新会话行为验收。
 3. P3 已完成（边界见验收文档）：已生成并声明两个包代理；角色接线、前后台真实 child 拒写、后台 ambient 扩展隔离、managed worktree 并发隔离以及双模型（DeepSeek 与 GLM）真实审阅流程与 wire 级录制隔离均已实测通过。写代码委派的交接契约、review gate 与端到端 host 流程已完成（fixture 模型），详见 [P3 验收](docs/validation-p3.md) 与 [Writer 验收](docs/validation-p3-writer.md)。
-4. P4：核对生成资源和运行依赖，验证隔离打包、安装、升级与卸载。
+4. P4 进行中：本地打包、隔离安装/升级/卸载已通过；CI 未运行、npm 名称未核，见 [P4 验收](docs/validation-p4.md)。
 5. P5：逐批扩大技能覆盖，单独验收长期执行；固定上游更新须记录差异并复验。
 
 本地临时加载已可使用，不改全局配置：
@@ -58,4 +59,4 @@ pi -e /absolute/path/to/pi-pstack
 
 然后输入 `/skill:poteto-mode <任务>` 或 `/skill:correct <范围>`。当前会话若尚未加载包，需要在加载包的新会话中使用。`/poteto-mode on/off/status` 管理活动分支模式；`/setup-pstack models` 列出模型，`status` 查看角色，`set user code <provider/id> [thinking]` 保存选择，`unset user code` 清除覆盖。受信任项目可将 user 换为 project。具体契约见 P2 文档。
 
-运行 `npm run check` 检查资源、来源指纹和链接；Pi 加载检查详见本批记录。继续补齐 [P3](docs/migration-plan.md#p3多代理与多模型) 尚未完成的验收。`pi-pstack` 是工作名，npm 名称可用性尚未核实，包清单保持 private。
+运行 `npm run check` 检查资源、来源指纹和链接；Pi 加载检查详见本批记录。P3 已通过；继续补齐 P4 的 CI 真实运行、npm 名称确认与发布授权。`pi-pstack` 是工作名，npm 名称可用性尚未核实，包清单保持 private。

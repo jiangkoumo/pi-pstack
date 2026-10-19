@@ -1,0 +1,18 @@
+name: check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Package, generation, links, and agent probes
+        run: npm run check
+      - name: Generated resources are current
+        run: npm run check:generate

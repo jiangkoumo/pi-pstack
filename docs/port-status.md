@@ -44,6 +44,6 @@ pi -e /absolute/path/to/pi-pstack
 
 P1 已完成：逐项审计、隔离样例、`correct` 验收（实际审阅案例与合成历史回归）、新会话调用与遵循证据、Pi 加载与命令检查均有实际结果。
 
-P2 模式与角色配置已实现并验证；P2.5 生成式适配迁移与真实场景检查已完成并接入检查，见 [P2.5 验收](validation-p2-5.md) 与 [真实场景检查](validation-p2-5-live.md)。P3 代理生成、清单声明、角色接线、前后台真实 child 拒写（前台+后台 detached runner）、后台 ambient 扩展隔离、managed worktree 并发隔离以及双模型（DeepSeek 与 GLM）真实只读审阅流程均已全部实现并实测验证，见 [P3 验收](validation-p3.md)、[后台隔离验收](validation-p3-background.md)、[工作树验收](validation-p3-worktrees.md) 及 [Live 审阅验收](validation-p3-live.md)。写代码委派的父代理交接契约、机械 review gate 与端到端 host 流程（fixture 模型）已实现并验证，见 [Writer 验收](validation-p3-writer.md)。P4 安装卸载、P5 长运行待后续推进。多模型审阅与自动化入口逐步随 P3 导出。
+P2 模式与角色配置已实现并验证；P2.5 生成式适配迁移与真实场景检查已完成并接入检查，见 [P2.5 验收](validation-p2-5.md) 与 [真实场景检查](validation-p2-5-live.md)。P3 代理生成、清单声明、角色接线、前后台真实 child 拒写（前台+后台 detached runner）、后台 ambient 扩展隔离、managed worktree 并发隔离以及双模型（DeepSeek 与 GLM）真实只读审阅流程均已全部实现并实测验证，见 [P3 验收](validation-p3.md)、[后台隔离验收](validation-p3-background.md)、[工作树验收](validation-p3-worktrees.md) 及 [Live 审阅验收](validation-p3-live.md)。写代码委派的父代理交接契约、机械 review gate 与端到端 host 流程（fixture 模型）已实现并验证，见 [Writer 验收](validation-p3-writer.md)。P4 本地打包、隔离安装/升级/卸载已通过，见 [P4 验收](validation-p4.md)；CI 与发布待后续。P5 长运行待后续推进。多模型审阅与自动化入口逐步随 P3 导出。
 
 分发资源现已通过 `npm run generate` 生成，并通过 `npm run check:generate` 与 `npm run check` 保持防漂移。后续技能维护在 `adapters/pi/` 或 `docs/port-map.json` 中进行；`upstream/` 保持固定原文，升级时同时审阅 SHA 与指纹变更。覆盖源使用 `.template` 后缀，相对链接按输出路径校验。未移植项目继续保持原支持状态。
