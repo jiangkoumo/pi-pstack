@@ -84,7 +84,6 @@ export function resolveSubagentModel(target, roles = {}, available = [], current
   return { role, model: `${selected}${choice.thinking === undefined ? '' : ':' + choice.thinking}` };
 }
 
-// Explicit per-run model wins over saved role preferences, with the same exact validation.
 export function applySubagentRole(input, roles, available, currentModel, supportedLevels) {
   if (input.action || input.workflow || !['pstack.poteto-agent', 'pstack.comment-sicko'].includes(input.agent)) return;
   const role = AGENT_ROLES[input.agent];

@@ -1,6 +1,6 @@
 # P3 多代理与多模型接入验收
 
-P3 多模型只读审阅流程、前后台只读隔离与并发 writer 工作树隔离已全量通过并完成实证验收；写代码委派合并流程与 P4 打包安装推进中。代理生成与包清单声明已完成；直接单子任务的角色接线、前台真实 child 检查、后台真实 runner 隔离与 ambient 扩展防护、并发 writer 的 managed worktree 隔离，以及基于真实网关的双模型（DeepSeek v4.1 Flash 与 GLM-5.3 FlashX）wire 级只读审阅流程均已全部通过并固化。
+P3 多模型只读审阅流程、前后台只读隔离与并发 writer 工作树隔离已全量通过并完成实证验收；26 条 live 审阅意见已逐条核实，见 [核实记录](validation-p3-live-findings.md)。写代码委派合并流程与 P4 打包安装推进中。代理生成与包清单声明已完成；直接单子任务的角色接线、前台真实 child 检查、后台真实 runner 隔离与 ambient 扩展防护、并发 writer 的 managed worktree 隔离，以及基于真实网关的双模型（DeepSeek v4.1 Flash 与 GLM-5.3 FlashX）wire 级只读审阅流程均已全部通过并固化。
 
 此前“P3 全部完成、planner 等于运行期拒写、多轮同模型 review 等于多模型验收、最后一轮 review 覆盖后续修改”的声明均已撤回。上一轮 review `fba6b9a4` 只覆盖当时版本，不覆盖其后增加的角色函数和完成状态。
 
@@ -14,7 +14,7 @@ P3 多模型只读审阅流程、前后台只读隔离与并发 writer 工作树
 | 前台只读与角色接线 | [P3 验收](validation-p3.md) | `scripts/check-p3-host.mjs` | 通过 | 真实 Pi 1.3.0 + pi-subagents 0.79.0；9 次写操作被拒；角色与 thinking 准确分发 |
 | 后台隔离与 ambient 防护 | [后台验收](validation-p3-background.md) | `scripts/check-p3-background.mjs` | 通过 | 真实 detached runner 进程；普通/忽略/未跟踪文件 12 次写入全拒；`extensions: []` 阻止 ambient 扩展；超时/取消/红例通过 |
 | 并发 writer 与 worktree | [工作树验收](validation-p3-worktrees.md) | `scripts/check-p3-worktrees.mjs` | 通过 | 两个并发 writer 在 managed worktrees 互不干扰；同 cwd 证明宿主不自动互斥（单 writer 属父调度纪律）；review-required 状态记录 |
-| 双模型 live 审阅流程 | [Live 审阅验收](validation-p3-live.md) | `scripts/check-p3-live-review.mjs` | 通过（重跑闭环） | dry-run/self-test 通过；剥离临时 catalog 模型级 endpoint 确保 100% 录制；DeepSeek v4.1 与 GLM-5.3 各完成一次审阅，wire 捕获与 26 条意见全部核实，exit 0 |
+| 双模型 live 审阅流程 | [Live 审阅验收](validation-p3-live.md) / [意见核实](validation-p3-live-findings.md) | `scripts/check-p3-live-review.mjs` | 通过（重跑闭环 + 意见核实） | dry-run/self-test 通过；剥离临时 catalog 模型级 endpoint 确保 100% 录制；DeepSeek v4.1 与 GLM-5.3 各完成一次审阅；26 条意见逐条核实（1 处接受修改），exit 0 |
 
 ## 上游与项目适配
 
@@ -73,10 +73,12 @@ writer 不声明 extensions 字段，以保留宿主默认。只读代理空 ext
 - `PI_PSTACK_PI_ROOT=<同上> node scripts/check-p3-worktrees.mjs`：两个并发 writer 在 managed worktrees 互不影响、同 cwd 竞争验证、review-required 状态验证通过。
 - `node scripts/check-p3-live-review.mjs --dry-run`：两轮不同模型规划与范围验证通过。
 - `PI_PSTACK_PI_ROOT=<同上> node scripts/check-p3-live-review.mjs --self-test --out <tmp>`：确定性本地 stub 走通双轮审阅流程，会话日志完备，临时目录已清理。
-- `PI_PSTACK_PI_ROOT=<同上> node scripts/check-p3-live-review.mjs --out scripts/fixtures/p3-live-review/runs/2026-10-18-dual-model`：真实双模型（DeepSeek v4.1 Flash 与 GLM-5.3 FlashX）审阅实测通过，退出码 0，两轮 wireCapture 均为 recorded，请求 100% 走录制代理，26 条结构化意见核实完成。
+- `PI_PSTACK_PI_ROOT=<同上> node scripts/check-p3-live-review.mjs --out scripts/fixtures/p3-live-review/runs/2026-10-18-dual-model`：真实双模型（DeepSeek v4.1 Flash 与 GLM-5.3 FlashX）审阅实测通过，退出码 0，两轮 wireCapture 均为 recorded，请求 100% 走录制代理。
+- 26 条结构化意见逐条核实（2026-10-19）：1 处 `runtime.mjs` 纯注释接受并删除，8 处 gate 注释保留，16 条合成对照只核实不修改；Round A 有 5 条对照引用行号偏移 +2。见 [核实记录](validation-p3-live-findings.md)。
 - `npm run check:correct:history`：实际 npm tarball 109 个文件、109 处发布链接、32 个重建输入，历史遗漏与模板漏包坏例被拒绝。
 - `PI_PSTACK_PI_ROOT=<同上> npm run check:p2:host`：18 个本地 provider 请求，5 个预期命令错误，模式生命周期回归通过。
 - `git diff --check`：无空白错误。
+- 2026-10-19 核实后复跑：`npm run check` 25 项测试通过；`PI_PSTACK_PI_ROOT=<同上> npm_config_cache=<临时目录> npm run check:p3` 退出码 0。默认 npm cache 在本机报 EPERM（`~/.npm/_cacache` 未发现 root 文件），改用临时 cache 可复现；记为环境问题，不是包失败。
 
 ## 尚未完成
 

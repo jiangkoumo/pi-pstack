@@ -2,7 +2,7 @@
 
 将 Lauren Tan（@poteto）的 pstack 工程技能与工作流移植到 Pi，交付为一次安装的 Pi package。
 
-当前阶段：P1 单代理闭环已完成。11 个技能与调查／修复／实现三个流程已适配；82 个上游条目逐项归类为已适配／替代路线／延期；隔离样例、`correct` 验收（两轮审阅实际历史案例 + 合成历史回归）、新会话行为证据、Pi 加载与命令检查均已有实际结果。P2 模式扩展与角色配置已实现并验证，详见 [P2 契约与验收](docs/validation-p2.md)。P2.5 生成式适配迁移与真实场景检查已完成并经两轮模型独立审阅，详见 [P2.5 验收](docs/validation-p2-5.md) 与 [真实场景检查](docs/validation-p2-5-live.md)。P3 第一步已完成（代理生成与包清单声明）；角色接线与真实 child 行为验收正在补齐，P3 整体未完成，详见 [P3 验收](docs/validation-p3.md)。P4 安装验收尚未实现，npm 包未发布。详见 [本批范围](docs/port-status.md)、[逐项审计](docs/skill-audit.md) 与 [验证记录](docs/validation-p1.md)。
+当前阶段：P1 单代理闭环已完成。11 个技能与调查／修复／实现三个流程已适配；82 个上游条目逐项归类为已适配／替代路线／延期；隔离样例、`correct` 验收（两轮审阅实际历史案例 + 合成历史回归）、新会话行为证据、Pi 加载与命令检查均已有实际结果。P2 模式扩展与角色配置已实现并验证，详见 [P2 契约与验收](docs/validation-p2.md)。P2.5 生成式适配迁移与真实场景检查已完成并经两轮模型独立审阅，详见 [P2.5 验收](docs/validation-p2-5.md) 与 [真实场景检查](docs/validation-p2-5-live.md)。P3 代理生成、角色接线、前台/后台真实 child 拒写、worktree 隔离与双模型 live 审阅已完成，26 条审阅意见已逐条核实；写代码委派合并流程未完成，P3 整体仍未完成，详见 [P3 验收](docs/validation-p3.md)。P4 安装验收尚未实现，npm 包未发布。详见 [本批范围](docs/port-status.md)、[逐项审计](docs/skill-audit.md) 与 [验证记录](docs/validation-p1.md)。
 
 ## 背景与目标
 
@@ -21,6 +21,7 @@
 | [P1 验证记录](docs/validation-p1.md) | 实际运行结果与证据边界 |
 | [P2.5 验收记录](docs/validation-p2-5.md) | 生成式适配迁移、权威清单与一致性验证 |
 | [P3 验收记录](docs/validation-p3.md) | 代理导出、前后台只读 host 验收、工作树隔离；多模型流程推进中 |
+| [P3 审阅意见核实](docs/validation-p3-live-findings.md) | 26 条 live findings 的逐条判定、引用核对与处理 |
 | [真实场景检查](docs/validation-p2-5-live.md) | 三轮真实新会话定性观察与 GLM 审阅记录 |
 | [逐项移植映射](docs/port-map.json) | 82 个上游条目的适配或延期状态 |
 | [背景与范围](docs/background.md) | 项目缘起、上游价值、已确定的边界 |

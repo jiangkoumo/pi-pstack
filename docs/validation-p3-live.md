@@ -1,6 +1,6 @@
 # P3 live 双模型只读审阅验收
 
-状态：**本轮机械门槛通过（脚本 exit 0）。** 两个不同真实模型各完成一次只读审阅，两轮请求全部经过本地录制代理并被记录，wire 上的 `model`、`reasoning_effort`、声明工具与本地网关的 200 响应都有证据。意见内容的逐条核实仍归主代理；本文件不把“脚本通过”当成 P3 整体通过。
+状态：**机械门槛通过（脚本 exit 0），26 条意见已逐条核实。** 两个不同真实模型各完成一次只读审阅，两轮请求全部经过本地录制代理并被记录，wire 上的 `model`、`reasoning_effort`、声明工具与本地网关的 200 响应都有证据；意见内容核实见 [逐条核实记录](validation-p3-live-findings.md)。本文件不把“脚本通过”当成 P3 整体通过。
 
 对应计划项：[移植计划](migration-plan.md) 的“使用实际可用模型完成一次不同模型的审阅；主代理核实意见并给出证据”。本轮实现的是该验收的一个可重放子集。
 
@@ -112,7 +112,7 @@ node scripts/check-p3-live-review.mjs --dry-run
 - child 侧只有 `read`、`grep`、`find`、`ls`：两轮每个 wire 请求的声明工具都恰好是这 4 个。
 - 两个 child 会话日志中不存在 `edit` / `write` / `bash` / `codemode` 调用。
 - 全部工具路径落在授权文件内，没有 `.pi/`、`auth.json`、`.env` 等凭证形态路径，也没有仓库外路径。
-- 受审文件的 sha256 在运行前后一致；`git status --porcelain` 除证据目录外无变化。
+- 受审文件的 sha256 在运行前后一致；`git status --porcelain` 除证据目录外无变化。（审阅结束后按核实结论删除了 `runtime.mjs` 一行纯注释，见 [逐条核实记录](validation-p3-live-findings.md)；该次运行的只读证据不受影响。）
 - reviewer 没有读取 scope 之外的文件；父会话 fixture 的两轮各只产生 1 次 `subagent` 调用，且 args 未携带 `model`（角色由扩展注入）。
 - 证据文件中无凭证：对 `runs/2026-10-18-dual-model/` 全目录搜 `apiKey|Bearer|sk-…|authorization` 只命中 `summary.json` 里那句“apiKey 不会写入证据”的说明。
 
@@ -130,16 +130,21 @@ node scripts/check-p3-live-review.mjs --dry-run
 - child 会话日志被复制进证据目录并记 sha256。
 - 失败即 exit 1，不会因为“审阅文字看着不错”而改判。
 
-主代理负责（脚本不判断）：每条意见的内容是否成立、引用位置是否成立、是否属于授权范围、是否值得修改，以及能否把本轮结果上升为 P3 支持状态。本轮 26 条结构化 findings 尚未做这一步逐条核实。
+主代理负责（脚本不判断）：每条意见的内容是否成立、引用位置是否成立、是否属于授权范围、是否值得修改，以及能否把本轮结果上升为 P3 支持状态。本轮 26 条结构化 findings 已按此逐条核实，结果见 [逐条核实记录](validation-p3-live-findings.md)：1 处真实项目注释接受并删除，8 处 gate 注释保留，16 条合成对照只核实不修改，其中 Round A 的 5 条对照引用行号整体偏移 +2。
 
 ## 7. 未完成与具体阻碍
 
-1. **意见内容未逐条核实**（本轮验收剩余的主要工作）：Round A 20 条（9 条真实项目 + 11 条对照）、Round B 6 条（1 条真实项目 + 5 条对照）。脚本只证明“拿到结构化意见”，不证明意见对。注意 Round B 只对真实项目给出 1 条意见，覆盖面明显窄于 Round A，不能据它判断 `scripts/check-p3-readonly-gate.mjs` 无问题。
-2. **`docs/validation-p3.md` 第 17 行仍记录“未全通（exit 1）”**：该表格不在本次可写路径内，需要主代理更新，否则文档之间自相矛盾。
-3. **历史证据目录改名**：修复前那次运行的证据从 `runs/2026-10-18-dual-model/` 移到了 `runs/2026-10-18-dual-model-attempt1/`（未纳入 git，改名是为了让本轮输出能落在任务指定路径且不销毁旧证据）。若其他文档引用旧路径，需要同步。
-4. **Anthropic messages 模型仍不支持**：录制代理只解析 openai-completions；`opendesign/glm-5.3-flash` 这类模型会被显式 `blocked`。若将来必须用它，需要代理支持 `/v1/messages` 的解析与转发。
-5. **`pi-subagents` 的 ambient extensions 警告**：运行日志出现 `extensions: [] override for agent 'pstack.comment-sicko' disables ALL ambient extensions…`。本轮不受影响（provider 由 models.json 解析），但这条警告提示角色若依赖 provider 扩展会失效，属于待确认项。
-6. **未覆盖**：网关内部路由到厂商、后台 child、取消/超时返回路径、writer 委派、并发 worktree、Pi 升级后的行为变化、以及 `--self-test` 之外的其它上游线格式。
+已关闭：
+
+- **意见内容逐条核实**：26 条已完成，结果见 [逐条核实记录](validation-p3-live-findings.md)。Round B 对真实项目只给出 1 条意见且与 Round A 重合，这个覆盖面限制仍写在记录的“限制”一节。
+- **`docs/validation-p3.md` 状态矛盾**：该文档已更新为通过，并链接核实记录。
+- **历史证据目录**：`runs/2026-10-18-dual-model-attempt1/` 已随 P3 提交纳入 git，只作历史对照。
+
+仍开放：
+
+1. **Anthropic messages 模型仍不支持**：录制代理只解析 openai-completions；`opendesign/glm-5.3-flash` 这类模型会被显式 `blocked`。若将来必须用它，需要代理支持 `/v1/messages` 的解析与转发。
+2. **`pi-subagents` 的 ambient extensions 警告**：运行日志出现 `extensions: [] override for agent 'pstack.comment-sicko' disables ALL ambient extensions…`。本轮不受影响（provider 由 models.json 解析），但这条警告提示角色若依赖 provider 扩展会失效，属于待确认项。
+3. **未覆盖**：网关内部路由到厂商、writer 委派与 review gate、Pi 升级后的行为变化，以及 `--self-test` 之外的其它上游线格式。后台 child、取消/超时与并发 worktree 已由各自的独立验收覆盖。
 
 ## 8. 复现
 
