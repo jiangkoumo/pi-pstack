@@ -133,7 +133,7 @@ function runGates() {
 
 function main() {
   if (flags.has('--help') || flags.has('-h')) {
-    usage();
+    usage(undefined, console.log);
     return;
   }
   for (const flag of flags) {
@@ -142,6 +142,12 @@ function main() {
       process.exitCode = 1;
       return;
     }
+  }
+  const bumpArgs = args.filter(argument => !argument.startsWith('-'));
+  if (bumpArgs.length > 1) {
+    usage(`expected one bump type, got: ${bumpArgs.join(' ')}`);
+    process.exitCode = 1;
+    return;
   }
   if (!bump) {
     usage('missing bump type');
@@ -163,7 +169,7 @@ function main() {
 
   assertClean('before release');
   const branch = assertBranch();
-  if (push) assertRemote();
+  if (push && !dryRun) assertRemote();
 
   const manifest = readPackage();
   if (!manifest.name || !manifest.version) fail('package.json is missing name or version.');
@@ -198,6 +204,7 @@ function main() {
   }
 
   writeVersion(nextVersion);
+  if (readPackage().version !== nextVersion) fail('package.json version did not update to ' + nextVersion);
   const files = ['package.json', ...(existsSync(lockPath) ? ['package-lock.json'] : [])];
   run('git', ['add', ...files]);
   run('git', ['commit', '-m', `chore(release): ${tag}`]);
