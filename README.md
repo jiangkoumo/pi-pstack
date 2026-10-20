@@ -1,64 +1,111 @@
-# pi-pstack
+# @jiangkoumo/pi-pstack
 
-npm 包名：`@jiangkoumo/pi-pstack`（仍为 private，尚未发布）。
+[![CI](https://github.com/jiangkoumo/pi-pstack/actions/workflows/check.yml/badge.svg)](https://github.com/jiangkoumo/pi-pstack/actions/workflows/check.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-将 Lauren Tan（@poteto）的 pstack 工程技能与工作流移植到 Pi，交付为一次安装的 Pi package。
+将 Lauren Tan（[@poteto](https://github.com/poteto)）的 **pstack** 工业级工程技能与工作流移植为原生的 **Pi Package**。
 
-当前阶段：P1 单代理闭环已完成。11 个技能与调查／修复／实现三个流程已适配；82 个上游条目逐项归类为已适配／替代路线／延期；隔离样例、`correct` 验收（两轮审阅实际历史案例 + 合成历史回归）、新会话行为证据、Pi 加载与命令检查均已有实际结果。P2 模式扩展与角色配置已实现并验证，详见 [P2 契约与验收](docs/validation-p2.md)。P2.5 生成式适配迁移与真实场景检查已完成并经两轮模型独立审阅，详见 [P2.5 验收](docs/validation-p2-5.md) 与 [真实场景检查](docs/validation-p2-5-live.md)。P3 代理生成、角色接线、前台/后台真实 child 拒写、worktree 隔离与双模型 live 审阅已完成，26 条审阅意见已逐条核实；写代码委派的交接契约、机械 review gate 与端到端 host 流程（fixture 模型）均已验证，P3 验收已通过，详见 [P3 验收](docs/validation-p3.md) 与 [Writer 验收](docs/validation-p3-writer.md)。P4 本地打包、隔离安装/升级/卸载已验证，GitHub Actions 已真实运行通过；npm 包未发布。详见 [本批范围](docs/port-status.md)、[逐项审计](docs/skill-audit.md) 与 [验证记录](docs/validation-p1.md)。
+提供开箱即用的一站式安装体验，为 Pi 用户带来包含软件工程准则、调查/修复/重构/自主运行流程、多模型只读审阅以及有界循环执行在内的完整软件工程方法论。
 
-## 背景与目标
+---
 
-本项目源于 [@jiangkoumo_ 介绍 pstack 的帖子](https://x.com/jiangkoumo_/status/2110955861896253763)。pstack 将调查、设计、实现、审阅与验证流程整理成技能，以 poteto-mode 为主要入口；correct 则要求从反复发生的错误中找到可由架构、类型、自动检查和行为测试落实的约束。
+## 核心特性与架构
 
-目标是在 Pi 中保留这些工程方法，并适配 Pi 的技能加载、扩展事件、模型配置与子代理机制。交付单位是一个 Pi package，其中包含技能和少量 TypeScript 扩展代码。
+### 1. 全量 82 项条目 100% 决议闭环
+上游 82 个条目已全部完成审计、适配与决议：
+* **已适配生成 (61 项 Ported)**：包含 24 个工程原则、10 个纯方法技能、7 个深度协同技能（`architect`, `arena`, `interrogate`, `no-comments`, `reflect`, `swarm`, `why`）及 17 份实战 Playbooks；彻底消除了上游未经授权自动 commit/push 的原生假设，转为本地证据沉淀与显式授权门禁；
+* **替代路线定案 (21 项 Substitute)**：对依赖 Slack/Linear/Cursor 私有云的自动化条目（如 Benny、make-bot-ui、云端 transcript）确立了本地优先与 MCP 协议解耦的替代方案；
+* **延期待定 (0 项 Deferred)**：上游条目已全部清点决议完毕。
 
-后续开发采用“固定上游源码＋Pi 适配层＋生成分发资源”，参考官方 Claude Code 的生成式接入方式。P2.5 生成器与适配层已落地并接入检查，P2 模式与角色配置继续保留，详见 [P2.5 验收](docs/validation-p2-5.md) 与 [参考证据](docs/sources.md#官方跨宿主接入的参考证据)。
+### 2. `/loop` 长任务有界续跑运行时
+基于 Pi 1.3.0 官方公开的 `agent_before_settle` 事件规范构建的原子续跑底座：
+* **硬性轮次预算**：支持 `--max-turns <n>`（默认 8 轮），防止无界死循环；
+* **可执行停止谓词**：支持 `--until "<command>"`（如 `--until "npm test"`），每轮结算时在子进程执行检查，exit code 0 自动达标停止；
+* **分支绑定与隔离**：状态持久化在会话分支的自定义 entry `pstack.loop.v1` 中；会话重载、切换分支或收到操作者普通输入时自动置为 `interrupted`，严禁隐式静默狂跑；
+* **安全守卫**：默认拒绝在脏工作区启动（可传 `--allow-dirty`），绝不向模型授予未经授权的自动 Git 操作权限。
 
-## 文档入口
+### 3. 多代理安全隔离与机械 Review Gate
+* **物理只读审阅者 (`pstack.comment-sicko`)**：强制限定工具白名单为 `read, grep, find, ls`，物理禁用 `edit, write, bash, subagent`，并阻断外部 extensions 与 supervisor 桥接；
+* **机械门禁 (`writer-gate.mjs`)**：代码编写委派必须生成结构化 Handoff Patch，必须通过独立 Review 与命令验收；未通过门禁前绝不应用补丁，严禁自动 commit 或 push。
 
-| 文档 | 内容 |
-| --- | --- |
-| [首批移植记录](docs/port-status.md) | 已实现范围、适配差异、使用与限制 |
-| [上游逐项审计清单](docs/skill-audit.md) | 57 个技能、23 份流程、2 个代理的逐条归属 |
-| [P1 验证记录](docs/validation-p1.md) | 实际运行结果与证据边界 |
-| [P2.5 验收记录](docs/validation-p2-5.md) | 生成式适配迁移、权威清单与一致性验证 |
-| [P3 验收记录](docs/validation-p3.md) | 代理导出、前后台只读 host 验收、工作树隔离；多模型流程推进中 |
-| [P3 审阅意见核实](docs/validation-p3-live-findings.md) | 26 条 live findings 的逐条判定、引用核对与处理 |
-| [P3 Writer 验收](docs/validation-p3-writer.md) | writer 交接契约、review gate 边界与门禁测试 |
-| [P4 验收记录](docs/validation-p4.md) | 打包内容、隔离安装/升级/卸载、支持版本与未完成项 |
-| [真实场景检查](docs/validation-p2-5-live.md) | 三轮真实新会话定性观察与 GLM 审阅记录 |
-| [逐项移植映射](docs/port-map.json) | 82 个上游条目的适配或延期状态 |
-| [背景与范围](docs/background.md) | 项目缘起、上游价值、已确定的边界 |
-| [来源与证据](docs/sources.md) | 原帖、上游固定提交、许可证、Pi 文档与证据限制 |
-| [移植计划](docs/migration-plan.md) | 兼容性矩阵、包结构、分阶段任务及验收标准 |
-| [接入决策与阻碍处理](docs/integration-decisions.md) | 代理分发机制、Cursor 技能替代、隔离检查与剩余验收 |
-| [依赖扫描记录](docs/dependency-audit.json) | 158 份上游文本文件的依赖线索与原始行号 |
-| [上游目录清单](docs/upstream-inventory.json) | 固定提交下的技能、流程与代理路径 |
-| [第三方声明](THIRD_PARTY_NOTICES.md) | pstack 作者、许可和后续引用要求 |
-| [项目协作规则](AGENTS.md) | 后续开发的约束和交付要求 |
+### 4. 模式控制与多角色模型配置
+* `/poteto-mode on | off | status`：在当前会话分支开启或关闭系统提示词与工程指引注入；
+* `/setup-pstack`：严格 Schema 校验，为 `code`、`review`、`prose`、`verification` 分配精确的 `provider/id` 模型和 thinking 级别，绝不静默回退。
 
-## 已核实的基线
+---
 
-- 上游仓库：[cursor/plugins 的 pstack 目录](https://github.com/cursor/plugins/tree/f713f14203cd6420cec13cd7c55c32d598dbab68/pstack)。
-- 固定提交：`f713f14203cd6420cec13cd7c55c32d598dbab68`。
-- 插件版本：`0.15.25`；57 个 SKILL.md（54 个主技能、3 个 Benny 自动化技能）、23 份 poteto-mode playbook、2 个代理定义。
-- 上游许可：MIT，Copyright (c) 2026 Lauren Tan。
-- 初次建档参考 Pi `1.2.0`；本批使用实际安装的 Pi `1.3.0` 文档与技能加载器。pi-subagents 实际接入版本为 `0.79.0`；本包已通过 `pi.subagents.agents` 导出 `pstack.comment-sicko` 与 `pstack.poteto-agent`。
+## 真实代码库场景实测验证（`npm run check:sim`）
 
-## 实现顺序
+本项目不仅通过了纯逻辑单测，还在真实的业务代码库（`ledger-app` 金融计算工程）中完成了端到端全链路闭环模拟实测：
+1. **真实 Bug 注入**：计算模块存在浮点精度漂移 Bug，单元测试真实失败（exit code 1）；
+2. **模式与循环驱动**：激活 `/poteto-mode on`，启动 `/loop run --max-turns 4 --until "node --test test/calculator.test.mjs"`；
+3. **真实谓词收敛**：经过 2 轮迭代，模型修复业务精度，测试命令返回 exit code 0，系统自动检测并标记 `completed (predicate-satisfied)` 停止；
+4. **机械门禁安全合入**：生成二进制补丁，恢复源工作区，经只读审阅报告校验通过后由 `writer-gate.mjs --apply` 安全合入代码。
 
-1. P1/P2 已完成：上游逐项审计、单代理流程、模式状态与角色配置均保留现有验收记录。
-2. P2.5 已完成：建立 Pi 适配层和生成器，生成当前 11 个技能及三个流程，通过确定性、失败路径、链接、指纹以及三轮真实新会话行为验收。
-3. P3 已完成（边界见验收文档）：已生成并声明两个包代理；角色接线、前后台真实 child 拒写、后台 ambient 扩展隔离、managed worktree 并发隔离以及双模型（DeepSeek 与 GLM）真实审阅流程与 wire 级录制隔离均已实测通过。写代码委派的交接契约、review gate 与端到端 host 流程已完成（fixture 模型），详见 [P3 验收](docs/validation-p3.md) 与 [Writer 验收](docs/validation-p3-writer.md)。
-4. P4 已通过：本地打包、隔离安装/升级/卸载与 GitHub Actions 均已验证；npm 发布仍需单独授权，见 [P4 验收](docs/validation-p4.md)。
-5. P5：逐批扩大技能覆盖，单独验收长期执行；固定上游更新须记录差异并复验。
+---
 
-本地临时加载已可使用，不改全局配置：
+## 安装与使用
+
+### 安装
+
+使用 Pi 官方包管理器进行全局或项目安装：
 
 ```bash
-pi -e /absolute/path/to/pi-pstack
+# 全局安装
+pi install @jiangkoumo/pi-pstack
+
+# 本地调试加载
+pi -e /path/to/pi-pstack
 ```
 
-然后输入 `/skill:poteto-mode <任务>` 或 `/skill:correct <范围>`。当前会话若尚未加载包，需要在加载包的新会话中使用。`/poteto-mode on/off/status` 管理活动分支模式；`/setup-pstack models` 列出模型，`status` 查看角色，`set user code <provider/id> [thinking]` 保存选择，`unset user code` 清除覆盖。受信任项目可将 user 换为 project。具体契约见 P2 文档。
+### 常用命令
 
-运行 `npm run check` 检查资源、来源指纹和链接；Pi 加载检查详见本批记录。P3 与 P4 已通过；剩余 npm 发布需要单独授权。npm 包名已定为 `@jiangkoumo/pi-pstack`；registry 上的 `pi-pstack@0.1.0` 未被使用。包清单保持 private，发布需要单独授权。
+```bash
+# 1. 开启或查看当前会话的 poteto-mode 状态
+/poteto-mode on
+/poteto-mode status
+
+# 2. 配置多模型角色（例如分配审查模型）
+/setup-pstack set project review opendesign/deepseek-v4.1-flash high
+/setup-pstack status
+
+# 3. 启动有界自主推进循环
+/loop run --max-turns 6 --until "npm test" "fix the edge cases in parser"
+/loop status
+/loop stop
+
+# 4. 直接使用特定工程技能
+/skill:poteto-mode "investigate the memory leak in worker"
+/skill:correct "audit recurring regression patterns"
+```
+
+---
+
+## 支持条目索引与映射
+
+| 模块 | 数量 | 典型代表 | 状态与实现依据 |
+| :--- | :---: | :--- | :--- |
+| **工程原则** | 24 | `model-the-domain`, `fix-root-causes`, `prove-it-works`, `build-the-lever` 等 | Ported（全量正文规范化生成） |
+| **工作流程** | 17 | `investigation`, `bug-fix`, `feature`, `autonomous-run`, `pause-safely`, `hillclimb`, `refactoring` 等 | Ported（消除自动commit，对齐Pi规范） |
+| **核心技能** | 18 | `correct`, `tdd`, `architect`, `arena`, `no-comments`, `interrogate`, `why`, `swarm` 等 | Ported（接入角色模型与只读白名单） |
+| **代理角色** | 2 | `pstack.comment-sicko`, `pstack.poteto-agent` | Ported（通过 `pi.subagents.agents` 导出） |
+| **外部替代** | 21 | Benny 自动化系列, `make-bot-ui`, `automate-me`, `visual-parity` 等 | Substitute（提供标准解耦与本地替代） |
+
+详细的逐项审计、源码指纹与适配说明请参阅 [逐项移植映射 (port-map.json)](docs/port-map.json) 与 [逐项审计清单 (skill-audit.md)](docs/skill-audit.md)。
+
+---
+
+## 质量与防漂移保障
+
+本项目采用“固定上游源码（`upstream/`）+ Pi 适配层（`adapters/pi/`）+ 生成分发资源（`skills/`, `agents/`）”的设计：
+* `npm run check:generate`：校验 62 份上游源码 blob SHA-1 哈希与 61 项生成产物，严格防代码漂移；
+* `npm run check`：全套门禁包含模式持久化单测、Loop 状态机测试、生成器测试与 Writer Gate 单元测试；
+* `npm run check:sim`：真实代码库端到端闭环实测。
+
+---
+
+## 许可证与来源
+
+- 本项目遵循 [MIT 许可证](LICENSE)；
+- pstack 技能与工作流版权归原作者 Lauren Tan（[@poteto](https://github.com/poteto)）所有，上游许可证见 [LICENSES/pstack.txt](LICENSES/pstack.txt)；
+- 详细第三方声明参见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

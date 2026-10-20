@@ -53,7 +53,8 @@ export default function pstack(pi: ExtensionAPI) {
   pi.on('session_tree', (_event, ctx) => { refreshStatus(ctx); reconcileLoop(ctx); });
   pi.on('before_agent_start', async (event, ctx) => {
     delete event.systemPromptOptions.sections[MODE_SECTION];
-    const isUserOrLoop = event.messageType === 'user' || (event as any).customType === LOOP_TURN_TYPE;
+    const customType = event.messageType === 'custom' ? ((event as any).message?.customType ?? (event as any).customType) : undefined;
+    const isUserOrLoop = event.messageType === 'user' || customType === LOOP_TURN_TYPE;
     if (!isUserOrLoop) return;
     try {
       const mode = state(ctx);

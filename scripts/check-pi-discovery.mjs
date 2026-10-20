@@ -8,8 +8,8 @@ assert(piRoot, 'Set PI_PSTACK_PI_ROOT to the installed @earendil-works/pi-coding
 const { loadSkills, formatSkillsForPrompt } = await import(pathToFileURL(resolve(piRoot, 'dist/core/skills.js')).href);
 const loaded = loadSkills({ cwd: root, agentDir: resolve(root, 'scripts/fixtures/empty-agent'), skillPaths: [resolve(root, 'skills')], includeDefaults: false });
 assert.deepEqual(loaded.diagnostics, [], 'Pi skill diagnostics');
-assert.equal(loaded.skills.length, 11);
-assert.equal(new Set(loaded.skills.map(skill => skill.name)).size, 11);
+assert.equal(loaded.skills.length, 41);
+assert.equal(new Set(loaded.skills.map(skill => skill.name)).size, 41);
 assert(loaded.skills.every(skill => skill.disableModelInvocation));
 assert.equal(formatSkillsForPrompt(loaded.skills), '', 'Explicit-only skills do not add their bodies to the default prompt');
 assert(loaded.skills.some(skill => skill.name === 'poteto-mode'));

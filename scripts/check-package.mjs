@@ -16,7 +16,8 @@ assert.deepEqual(manifest.pi, {
     agents: ['./agents']
   }
 });
-assert.equal(manifest.private, true, 'Keep the incomplete package unpublished');
+assert.equal(manifest.name, '@jiangkoumo/pi-pstack');
+assert.equal(manifest.publishConfig?.access, 'public', 'Published package requires public access');
 const map = await json('docs/port-map.json');
 const inventory = await json('docs/upstream-inventory.json');
 assert.equal(map.commit, inventory.commit);

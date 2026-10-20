@@ -23,14 +23,29 @@ Read exactly the matching playbook before working. Resolve every relative path f
 | Reported broken behavior | [Bug fix](playbooks/bug-fix.md) |
 | New or changed behavior | [Feature](playbooks/feature.md) |
 | Repeated agent mistakes | [Correct](../correct/SKILL.md) |
+| Autonomous bounded execution until check passes | [Autonomous run](playbooks/autonomous-run.md) |
+| Sustained metric hillclimbing | [Hillclimb](playbooks/hillclimb.md) |
+| Safe durable pause with local evidence | [Pause safely](playbooks/pause-safely.md) |
+| Fast exploratory prototype | [Prototype](playbooks/prototype.md) |
+| Session pickup and resume | [Session pickup](playbooks/session-pickup.md) |
+| Git managed worktree cleanup | [Worktree cleanup](playbooks/worktree-cleanup.md) |
+| Architectural refactoring with contract preservation | [Refactoring](playbooks/refactoring.md) |
+| Performance optimization and regression prevention | [Performance issue](playbooks/perf-issue.md) |
+| Multi-phase execution and orchestration | [Orchestrate](playbooks/orchestrate.md) |
+| Preparing changes for PR review | [Opening a PR](playbooks/opening-a-pr.md) |
+| Safe shipping workflow | [Shipping](playbooks/shipping.md) |
+| Multi-phase planning | [Multi-phase plan](playbooks/multi-phase-plan.md) |
+| Autonomous full autopilot | [Autopilot full](playbooks/autopilot-full.md) |
+| Stacked delivery and PR management | [Autopilot stack](playbooks/autopilot-stack.md) |
+| Babysitting external PR queues | [Babysit](playbooks/babysit.md) |
 
-If a request spans these, finish the read-only diagnosis before the authorized change. A request for an explanation does not authorize a patch. For work outside this subset, explain the limit and follow the operator's existing workflow. Do not claim the remaining upstream playbooks are available.
+If a request spans these, finish the read-only diagnosis before the authorized change. A request for an explanation does not authorize a patch. Workflows with external side effects require explicit operator authorization.
 
 ## Work within the operator's authority
 
 User and project instructions govern tools, permissions, output, and scope. Loading this skill grants no extra permission to delegate, send messages, commit, push, merge, deploy, or delete. Continue reversible work already authorized. Ask only for a material requirement or action that remains unauthorized. Continue independent authorized work while awaiting an answer.
 
-Work directly by default. Optional delegation requires operator or applicable project authorization and a working integration such as pi-subagents. Check the installed integration's instructions and actual model list before using it. Never copy Cursor Task syntax, fixed model names, or /loop calls. Missing delegation does not block these single-agent workflows. Do not describe a self-review as independent review.
+Work directly by default. Optional delegation requires operator or applicable project authorization and a working integration such as pi-subagents. Check the installed integration's instructions and actual model list before using it. Never copy Cursor Task syntax or fixed model names. Use Pi's `/loop run` command for bounded autonomous iterations. Missing delegation does not block these workflows. Do not describe a self-review as independent review.
 
 Keep one writer per working directory or worktree. Treat user changes as the baseline and preserve them. Stop only the steps that conflict with their changes.
 

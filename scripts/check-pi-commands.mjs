@@ -49,7 +49,7 @@ try {
   assert.equal(response?.success, true, diagnostics);
   const commands = response.data.commands;
   const own = commands.filter(command => command.sourceInfo?.path?.startsWith(resolve(root, 'skills') + '/'));
-  assert.equal(own.length, 11, 'All manifest skills appear in actual Pi commands');
+  assert.equal(own.length, 41, 'All manifest skills appear in actual Pi commands');
   const upstreamSkillCommands = commands.filter(command => command.sourceInfo?.path?.startsWith(resolve(root, 'upstream') + '/'));
   assert.equal(upstreamSkillCommands.length, 0, 'Archived upstream originals must not register commands');
   assert(own.some(command => command.name === 'skill:poteto-mode'));
