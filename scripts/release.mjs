@@ -210,17 +210,20 @@ function main() {
   run('git', ['commit', '-m', `chore(release): ${tag}`]);
   run('git', ['tag', '-a', tag, '-m', `Release ${tag}`]);
 
-  if (push) {
-    console.log(`\n[release] pushing ${branch} and ${tag} to origin`);
-    run('git', ['push', 'origin', branch]);
-    run('git', ['push', 'origin', tag]);
-  }
-
+  // Publish before pushing the tag: the tag triggers the CI publish workflow,
+  // which checks npm and skips a version that this local publish already shipped.
   if (publish) {
     const publishArgs = ['publish', '--access', 'public'];
     if (nextVersion.includes('-')) publishArgs.push('--tag', 'next');
     console.log(`\n[release] publishing ${manifest.name}@${nextVersion} to npm`);
     run(npm, publishArgs);
+    console.log(`[release] published ${manifest.name}@${nextVersion}`);
+  }
+
+  if (push) {
+    console.log(`\n[release] pushing ${branch} and ${tag} to origin`);
+    run('git', ['push', 'origin', branch]);
+    run('git', ['push', 'origin', tag]);
   }
 
   console.log(JSON.stringify({

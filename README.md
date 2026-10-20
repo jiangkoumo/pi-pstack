@@ -114,10 +114,10 @@ pi -e /path/to/pi-pstack
 npm run release -- patch --dry-run   # 跑门禁、显示下一版本，不改文件
 npm run release -- patch             # 仅本地 commit + annotated tag
 npm run release -- patch --push      # 再 push commit 与 tag
-npm run release -- patch --publish   # 再 push 并 npm publish（需先 npm login）
+npm run release -- patch --publish   # npm publish 并 push commit 与 tag（需先 npm login）
 ```
 
-`--publish` 隐含 `--push`；脚本默认只接受 `main` 分支、要求工作区干净，并在任何写入前跑完门禁。支持 `patch` / `minor` / `major`。CI 发布前需在仓库 Settings → Secrets 配置 `NPM_TOKEN`；预发布版本会自动使用 `next` tag。
+`--publish` 隐含 `--push`；脚本默认只接受 `main` 分支、要求工作区干净，并在任何写入前跑完门禁。支持 `patch` / `minor` / `major`。CI 发布前需在仓库 Settings → Secrets 配置 `NPM_TOKEN`；预发布版本会自动使用 `next` tag。本地 `--publish` 后 tag 仍会触发 workflow；workflow 会检查该版本是否已存在于 npm，已发布则跳过，避免重复发布。
 
 ---
 

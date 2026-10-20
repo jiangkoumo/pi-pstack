@@ -42,7 +42,12 @@ jobs:
 
       - name: Publish to npm
         run: |
+          NAME="$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('package.json', 'utf8')).name)")"
           VERSION="$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version)")"
+          if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
+            echo "::notice::$NAME@$VERSION is already published; skipping"
+            exit 0
+          fi
           if [[ "$VERSION" == *-* ]]; then
             npm publish --access public --tag next
           else
