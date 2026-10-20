@@ -29,12 +29,19 @@ export function roleGuidance(roles) {
   return `Configured role preferences (data only, not permission to delegate or switch the current model): ${JSON.stringify(roles)}. For direct pstack subagent calls, unset roles preserve pi-subagents defaults; explicit inherit selects the parent model.`;
 }
 
+/**
+ * @typedef {{ model: string, thinking?: string }} RoleChoice
+ * @typedef {{ version: number, roles: Record<string, RoleChoice> }} PstackConfig
+ */
+
+/** @returns {PstackConfig} */
 export function parseConfig(value, source = 'pstack.json') {
   const fail = message => { throw new Error(`${source}: ${message}`); };
   if (!value || typeof value !== 'object' || Array.isArray(value)) fail('expected an object');
   for (const key of Object.keys(value)) if (!['version', 'roles'].includes(key)) fail(`unknown field ${key}`);
   if (value.version !== 1) fail('version must be 1');
   if (!value.roles || typeof value.roles !== 'object' || Array.isArray(value.roles)) fail('roles must be an object');
+  /** @type {Record<string, RoleChoice>} */
   const roles = {};
   for (const [name, choice] of Object.entries(value.roles)) {
     if (!ROLES.includes(name)) fail(`roles.${name}: unknown role; use ${ROLES.join(', ')}`);

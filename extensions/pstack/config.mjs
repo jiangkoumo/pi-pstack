@@ -21,6 +21,11 @@ export async function loadConfig(paths, trusted) {
   const project = trusted ? await readConfig(paths.project) : { version: 1, roles: {} };
   return { version: 1, roles: { ...user.roles, ...project.roles }, projectIgnored: !trusted };
 }
+/**
+ * @param {string} path
+ * @param {(current: ReturnType<typeof parseConfig>) => ReturnType<typeof parseConfig>} transform
+ * @returns {Promise<boolean>} Whether the validated configuration changed.
+ */
 export async function updateConfig(path, transform) {
   await mkdir(dirname(path), { recursive: true });
   const lockPath = path + '.lock';

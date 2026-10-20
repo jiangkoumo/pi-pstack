@@ -181,13 +181,29 @@ export function createInitialLoopState(options) {
 }
 
 /**
+ * @typedef {{ exitCode: number | null, error?: string, timedOut?: boolean }} PredicateResult
+ * @typedef {object} LoopState
+ * @property {number} version
+ * @property {string} runId
+ * @property {string} status
+ * @property {string} goal
+ * @property {number} turn
+ * @property {number} maxTurns
+ * @property {{ command: string, timeoutSec?: number } | null} until
+ * @property {boolean} allowDirty
+ * @property {string} startedAt
+ * @property {string} updatedAt
+ * @property {string} reason
+ * @property {PredicateResult | null} lastPredicateResult
+ */
+
+/**
  * Determine the next step at turn boundary.
  *
- * @param {object} state - Current loop state.
- * @param {object} [predicateResult] - Optional result from executing the --until command.
- *   { exitCode: number, error?: string, timedOut?: boolean }
- * @param {object} [options] - Optional host outcome flags.
- *   { outcome?: 'completed' | 'aborted' | 'error' }
+ * @param {LoopState} state - Current loop state.
+ * @param {PredicateResult | null} [predicateResult] - Result of the --until command.
+ * @param {{ outcome?: 'completed' | 'aborted' | 'error' }} [options] - Host outcome flags.
+ * @returns {{ action: 'stop' | 'continue', nextState: LoopState }}
  */
 export function decideNextStep(state, predicateResult = null, options = {}) {
   const now = new Date().toISOString();
@@ -307,6 +323,9 @@ export function registerLoopAbortHooks(pi) {
 
 /**
  * Render prompt text for a loop turn.
+ * @param {LoopState} state
+ * @param {number} turn
+ * @param {PredicateResult | null} [lastPredicate]
  */
 export function renderLoopPrompt(state, turn, lastPredicate = null) {
   const parts = [
