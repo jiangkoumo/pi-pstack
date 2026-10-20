@@ -170,6 +170,35 @@ test('task 2: diagnostic and visual playbooks preserve evidence and do not imply
   assert.equal((await read('skills/show-me-your-work/references/decision-log-template.tsv')).trim(), 'ts\tphase\tdecision\twhy\tevidence\tresult');
 });
 
+test('task 1: mode directly reaches all 24 fixed principle leaves and required skill triggers', async () => {
+  const body = await load('poteto-mode');
+  const inventory = JSON.parse(await read('docs/upstream-inventory.json'));
+  const principles = inventory.skills.filter(p => p.includes('/principle-')).map(p => p.replace('pstack/skills/', '../'));
+  assert.equal(principles.length, 24);
+  for (const path of principles) {
+    assert(localLinks(body).includes(path), `Missing direct principle link: ${path}`);
+    await stat(resolve(root, 'skills/poteto-mode', path));
+  }
+  for (const name of ['how', 'architect', 'swarm', 'arena', 'interrogate', 'unslop', 'technical-writing', 'no-comments', 'benchmark-checklist']) {
+    assert(localLinks(body).includes(`../${name}/SKILL.md`), `Missing trigger: ${name}`);
+  }
+  for (const n of ['runtime-forensics', 'trace-forensics', 'visual-parity']) assert(localLinks(body).includes(`playbooks/${n}.md`));
+});
+
+test('task 1: autonomy preserves pause gates while continuing authorized work and writing rules', async () => {
+  const body = await load('poteto-mode');
+  for (const h of ['Non-negotiables', 'Autonomy', 'Writing the reply', 'Comments', 'Substitute routes']) assert(headings(body).includes(h), h);
+  assert.match(body, /going to bed/);
+  assert.match(body, /force-push/);
+  assert.match(body, /customer messages/);
+  assert.match(body, /data deletion/);
+  assert.match(body, /Do not.*fabricate.*link|Never fabricate a link/i);
+  assert.match(body, /consumer.*maintainer/i);
+  const routes = body.split('## Substitute routes')[1].split('\n## ')[0];
+  for (const id of ['reproduce-and-fix-issues', 'setup-benny', 'triage-issue-reports', 'automate-me', 'make-bot-ui', 'recall', 'setup-pstack', 'authoring-a-skill', 'eval']) assert(routes.includes(id), id);
+  for (const href of localLinks(routes)) assert((await stat(resolve(root, 'skills/poteto-mode', href))).isFile());
+});
+
 // Host acceptance is intentionally separate from static resource checks. The lead
 // runs these requests after role integration, with the actual tool transcript.
 export const hostAcceptance = [
@@ -179,6 +208,6 @@ export const hostAcceptance = [
   },
   {
     request: '/skill:poteto-mode Design the same queue with two independent candidate writers and a read-only cross-judge. Delegation is authorized; use only available configured models. Stop before implementation.',
-    expected: ['read architect before candidate launch', 'isolated candidate paths and same brief', 'read-only cross-judge after both candidates finish', 'parent scores every criterion and records graft provenance', 'actual configured role/model evidence, verified by the lead after runtime integration'],
+    expected: ['read architect before candidate launch', 'isolated candidate paths and same brief', 'read-only cross-judge after both candidates finish', 'parent scores every criterion and records graft provenance', 'supported direct-call model evidence, or explicit BLOCKED for automatic workflow routing; tasks/chain items must not contain model'],
   },
 ];
