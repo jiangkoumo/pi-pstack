@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { createJiti } from 'jiti';
 import {
   LOOP_ENTRY,
   LOOP_TURN_TYPE,
@@ -10,13 +11,37 @@ import {
   renderLoopPrompt,
 } from '../extensions/pstack/loop.mjs';
 
+const pstack = await createJiti(import.meta.url).import('../extensions/pstack/index.ts', { default: true });
+
+function loopHarness({ mode = 'rpc', state = null } = {}) {
+  const entries = state ? [{ type: 'custom', customType: LOOP_ENTRY, data: state }] : [];
+  const commands = new Map();
+  const handlers = new Map();
+  const messages = [];
+  const executions = [];
+  pstack({
+    on: (event, handler) => handlers.set(event, handler),
+    registerCommand: (name, command) => commands.set(name, command),
+    appendEntry: (customType, data) => entries.push({ type: 'custom', customType, data }),
+    sendMessage: async (...args) => messages.push(args),
+    exec: async (...args) => {
+      executions.push(args);
+      return { code: 1, killed: false, stdout: '', stderr: '' };
+    },
+  });
+  const ctx = { mode, cwd: process.cwd(), isIdle: () => true, sessionManager: { getBranch: () => entries } };
+  return { entries, messages, executions, run: args => commands.get('loop').handler(args, ctx),
+    settle: (outcome = 'completed', canContinue = true) => handlers.get('agent_before_settle')({
+      outcome, context: { canContinue }, entries: [],
+    }, ctx) };
+}
+
 test('parseLoopArgs parses status and stop subcommands', () => {
   assert.deepEqual(parseLoopArgs(''), { action: 'status' });
   assert.deepEqual(parseLoopArgs('status'), { action: 'status' });
   assert.deepEqual(parseLoopArgs('  status  '), { action: 'status' });
 
   assert.deepEqual(parseLoopArgs('stop'), { action: 'stop', reason: 'operator-stopped' });
-  assert.deepEqual(parseLoopArgs('stop user cancelled early'), { action: 'stop', reason: 'user cancelled early' });
 });
 
 test('parseLoopArgs parses resume subcommand with options', () => {
@@ -28,14 +53,14 @@ test('parseLoopArgs parses resume subcommand with options', () => {
 });
 
 test('parseLoopArgs parses run options and goals', () => {
-  const r1 = parseLoopArgs('run fix the bug in math.ts');
+  const r1 = parseLoopArgs('run --until "npm test" fix the bug in math.ts');
   assert.equal(r1.action, 'run');
   assert.equal(r1.goal, 'fix the bug in math.ts');
   assert.equal(r1.maxTurns, 8);
-  assert.equal(r1.until, null);
+  assert.deepEqual(r1.until, { command: 'npm test', timeoutSec: 60 });
   assert.equal(r1.allowDirty, false);
 
-  const r2 = parseLoopArgs('--max-turns 5 --until "npm test" --allow-dirty refactor the parser');
+  const r2 = parseLoopArgs('run --max-turns 5 --until "npm test" --allow-dirty refactor the parser');
   assert.equal(r2.action, 'run');
   assert.equal(r2.goal, 'refactor the parser');
   assert.equal(r2.maxTurns, 5);
@@ -48,9 +73,81 @@ test('parseLoopArgs parses run options and goals', () => {
   assert.deepEqual(r3.until, { command: 'pytest tests/test_api.py', timeoutSec: 120 });
 
   assert.throws(() => parseLoopArgs('run'), /Usage: \/loop/);
-  assert.throws(() => parseLoopArgs('--max-turns'), /--max-turns requires a positive integer/);
-  assert.throws(() => parseLoopArgs('--until'), /--until requires a shell command string/);
-  assert.throws(() => parseLoopArgs('--unknown foo'), /Unknown \/loop option: --unknown/);
+  assert.throws(() => parseLoopArgs('run --max-turns'), /--max-turns requires a positive integer/);
+  assert.throws(() => parseLoopArgs('run --until'), /--until requires a shell command string/);
+  assert.throws(() => parseLoopArgs('run --unknown foo'), /Unknown \/loop option: --unknown/);
+});
+
+test('B1: print and JSON reject run/resume before state changes or messages', async () => {
+  for (const mode of ['print', 'json']) {
+    const h = loopHarness({ mode });
+    await assert.rejects(h.run('run --until "npm test" --allow-dirty fix'), /RPC\/TUI/);
+    assert.equal(h.entries.length, 0);
+    assert.equal(h.messages.length, 0);
+    assert.equal(h.executions.length, 0);
+    const state = { ...createInitialLoopState({ goal: 'fix', until: { command: 'npm test' } }), status: 'interrupted' };
+    const resumed = loopHarness({ mode, state });
+    await assert.rejects(resumed.run('resume'), /RPC\/TUI/);
+    assert.equal(resumed.entries.length, 1);
+    assert.equal(resumed.messages.length, 0);
+  }
+  for (const mode of ['rpc', 'tui']) {
+    const h = loopHarness({ mode });
+    await h.run('run --until "npm test" --allow-dirty fix');
+    assert.equal(h.entries.at(-1).data.status, 'running');
+    assert.equal(h.messages.length, 1);
+  }
+});
+
+test('B3: goals require run and reserved command words cannot swallow trailing goals', () => {
+  for (const args of ['stop the flaky test', 'status foo', 'resume the task', 'fix tests', '--until "npm test" fix']) {
+    assert.throws(() => parseLoopArgs(args));
+  }
+  for (const goal of ['stop the flaky test', 'status foo', 'resume the task']) {
+    const parsed = parseLoopArgs(`run --until "npm test" ${goal}`);
+    assert.equal(parsed.action, 'run');
+    assert.equal(parsed.goal, goal);
+  }
+});
+
+test('B4: new runs and resumed legacy loops require an executable stop predicate', async () => {
+  assert.throws(() => parseLoopArgs('run fix tests'), /--until.*required/);
+  assert.throws(() => parseLoopArgs('run --until "" fix tests'), /--until/);
+  const legacy = { ...createInitialLoopState({ goal: 'fix tests' }), status: 'interrupted' };
+  const h = loopHarness({ state: legacy });
+  await assert.rejects(h.run('resume'), /--until.*required/);
+  assert.equal(h.entries.length, 1);
+  assert.equal(h.messages.length, 0);
+});
+
+test('B9: aborted or errored turns never execute the until command', async () => {
+  for (const [outcome, reason] of [['aborted', 'operator-aborted'], ['error', 'turn-error']]) {
+    const state = createInitialLoopState({ goal: 'fix', until: { command: 'side-effecting predicate' } });
+    const h = loopHarness({ state });
+    const result = await h.settle(outcome);
+    assert.equal(h.executions.length, 0, outcome);
+    assert.equal(result.continue, false);
+    assert.equal(result.entries.at(-1).data.reason, reason);
+  }
+  const h = loopHarness({ state: createInitialLoopState({ goal: 'fix', until: { command: 'npm test' } }) });
+  const result = await h.settle();
+  assert.equal(h.executions.length, 1);
+  assert.equal(result.continue, true);
+});
+
+test('B11: shell words preserve escaped quotes and reject malformed tokens and integers', () => {
+  const parsed = parseLoopArgs(String.raw`run --until "echo \"x\"" fix\ the\ test`);
+  assert.equal(parsed.until.command, 'echo "x"');
+  assert.equal(parsed.goal, 'fix the test');
+  assert.equal(parseLoopArgs(String.raw`run --until 'echo "x"' fix`).until.command, 'echo "x"');
+  assert.equal(parseLoopArgs(String.raw`run --until "printf '%s' C:\\tmp" fix`).until.command, String.raw`printf '%s' C:\tmp`);
+  for (const value of ['5abc', '1.5', 'NaN', 'Infinity']) {
+    assert.throws(() => parseLoopArgs(`run --max-turns ${value} --until true fix`), /--max-turns/);
+    assert.throws(() => parseLoopArgs(`resume --max-turns ${value}`), /--max-turns/);
+    assert.throws(() => parseLoopArgs(`run --until-timeout ${value} --until true fix`), /--until-timeout/);
+  }
+  assert.throws(() => parseLoopArgs('run --until "unterminated fix'), /quote/i);
+  assert.throws(() => parseLoopArgs('run --until true fix\\'), /escape/i);
 });
 
 test('loopFromBranch extracts current state', () => {
@@ -144,6 +241,122 @@ test('decideNextStep handles host outcomes and predicate results', () => {
   assert.equal(sPredErr.action, 'stop');
   assert.equal(sPredErr.nextState.status, 'failed');
   assert.equal(sPredErr.nextState.reason, 'predicate-error');
+});
+
+test('Pi host: print/JSON refusal, multi-turn RPC budget/predicate stops, and abort/error guards', { timeout: 20000 }, async () => {
+  const { createServer } = await import('node:http');
+  const { mkdtemp, mkdir, writeFile, stat, rm } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const { resolve } = await import('node:path');
+  const { createAgentSession, DefaultResourceLoader, SessionManager, SettingsManager, ModelRuntime } = await import('@earendil-works/pi-coding-agent');
+  const directory = await mkdtemp(resolve(tmpdir(), 'pstack-loop-regression-'));
+  const sessions = [];
+  let requests = 0;
+  let responseMode = 'success';
+  let abortSession;
+  let predicateMarker;
+  let predicateRequest;
+  const server = createServer(async (request, response) => {
+    for await (const _chunk of request) { /* drain the fixture request */ }
+    requests++;
+    if (responseMode === 'abort') {
+      void abortSession.abort();
+      return;
+    }
+    if (responseMode === 'error') {
+      response.writeHead(400, { 'Content-Type': 'application/json' });
+      response.end(JSON.stringify({ error: { message: 'fixture turn error' } }));
+      return;
+    }
+    if (predicateMarker && requests === predicateRequest) await writeFile(predicateMarker, 'done');
+    response.writeHead(200, { 'Content-Type': 'text/event-stream' });
+    const base = { id: 'loop-regression', object: 'chat.completion.chunk', created: 1, model: 'fixture' };
+    for (const [delta, finish_reason] of [[{ role: 'assistant', content: 'Done.' }, null], [{}, 'stop']]) {
+      response.write(`data: ${JSON.stringify({ ...base, choices: [{ index: 0, delta, finish_reason }] })}\n\n`);
+    }
+    response.end('data: [DONE]\n\n');
+  });
+  try {
+    await new Promise(accept => server.listen(0, '127.0.0.1', accept));
+    const agentDir = resolve(directory, 'agent');
+    await mkdir(agentDir);
+    const modelsPath = resolve(agentDir, 'models.json');
+    await writeFile(modelsPath, JSON.stringify({ providers: { fixture: {
+      baseUrl: `http://127.0.0.1:${server.address().port}/v1`, api: 'openai-completions', apiKey: 'test-only',
+      models: [{ id: 'model', name: 'Fixture', reasoning: false, input: ['text'], contextWindow: 64000,
+        maxTokens: 1024, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } }],
+    } } }));
+    const modelRuntime = await ModelRuntime.create({ authPath: resolve(agentDir, 'auth.json'), modelsPath, allowModelNetwork: false });
+    const settingsManager = SettingsManager.inMemory({ defaultProjectTrust: 'never', compaction: { enabled: false }, retry: { enabled: false } });
+    async function open(mode) {
+      const errors = [];
+      const boundaries = [];
+      const manager = SessionManager.inMemory(directory);
+      const resourceLoader = new DefaultResourceLoader({ cwd: directory, agentDir, settingsManager,
+        noExtensions: true, noSkills: true, noContextFiles: true, noPromptTemplates: true, noThemes: true,
+        additionalExtensionPaths: [new URL('../extensions/pstack/index.ts', import.meta.url).pathname],
+        extensionFactories: [pi => pi.on('agent_before_settle', event => {
+          boundaries.push({ outcome: event.outcome, canContinue: event.context.canContinue });
+        })] });
+      await resourceLoader.reload();
+      assert.deepEqual(resourceLoader.getExtensions().errors, []);
+      const { session } = await createAgentSession({ cwd: directory, agentDir, settingsManager, modelRuntime,
+        model: modelRuntime.getModel('fixture', 'model'), resourceLoader, sessionManager: manager, tools: [] });
+      sessions.push(session);
+      await session.bindExtensions({ mode, onError: error => errors.push(error) });
+      return { session, manager, errors, boundaries, latest: () => loopFromBranch(manager.getBranch()).state };
+    }
+    for (const mode of ['print', 'json']) {
+      const h = await open(mode);
+      const before = requests;
+      await h.session.prompt('/loop run --until true --allow-dirty fix');
+      await h.session.waitForIdle();
+      assert(h.errors.some(error => /RPC\/TUI/.test(error.error)));
+      assert.equal(h.latest(), null);
+      assert.equal(requests, before);
+    }
+    const h = await open('rpc');
+    const before = requests;
+    await h.session.prompt('/loop run --max-turns 2 --until false --allow-dirty fix');
+    await h.session.waitForIdle();
+    assert.equal(requests - before, 2);
+    assert.equal(h.latest().reason, 'budget-exhausted');
+    assert.equal(h.latest().turn, 2);
+    assert.equal(h.latest().lastPredicateResult.exitCode, 1);
+    predicateMarker = resolve(directory, 'completed.marker');
+    predicateRequest = requests + 2;
+    await h.session.prompt(`/loop run --max-turns 4 --until "test -f ${predicateMarker}" --allow-dirty fix`);
+    await h.session.waitForIdle();
+    assert.equal(requests - before, 4);
+    assert.equal(h.latest().status, 'completed');
+    assert.equal(h.latest().reason, 'predicate-satisfied');
+    assert.equal(h.latest().turn, 2);
+    assert.equal(h.latest().lastPredicateResult.exitCode, 0);
+    assert.equal(h.boundaries.length, 4);
+    assert(h.boundaries.every(boundary => boundary.outcome === 'completed'));
+    // The observer runs after pstack: proposed loop messages enable continuation,
+    // while the two terminal answers still have canContinue=false.
+    assert.deepEqual(h.boundaries.map(boundary => boundary.canContinue), [true, false, true, false]);
+    assert.deepEqual(h.errors, []);
+    for (const [outcome, reason] of [['error', 'turn-error'], ['abort', 'operator-aborted']]) {
+      responseMode = outcome;
+      const stopped = await open('rpc');
+      abortSession = stopped.session;
+      const marker = resolve(directory, `${outcome}.marker`);
+      await stopped.session.prompt(`/loop run --until "touch ${marker}" --allow-dirty fix`);
+      await stopped.session.waitForIdle();
+      if (outcome === 'error') assert.equal(stopped.latest().reason, reason);
+      // Pi may skip the settle boundary entirely on abort; either path must avoid the predicate.
+      assert.equal(stopped.latest().lastPredicateResult, null);
+      await assert.rejects(stat(marker), { code: 'ENOENT' });
+      assert.deepEqual(stopped.errors, []);
+    }
+  } finally {
+    for (const session of sessions) session.dispose();
+    server.closeAllConnections();
+    await new Promise(accept => server.close(accept));
+    await rm(directory, { recursive: true, force: true });
+  }
 });
 
 test('renderLoopPrompt generates proper instructions without false commitments', () => {

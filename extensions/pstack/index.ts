@@ -140,7 +140,7 @@ export default function pstack(pi: ExtensionAPI) {
     if (currentLoop.status !== 'running') return;
 
     let predicateResult = null;
-    if (currentLoop.until?.command) {
+    if (event.outcome === 'completed' && currentLoop.until?.command) {
       try {
         const timeoutMs = (currentLoop.until.timeoutSec || 60) * 1000;
         const res = await pi.exec('bash', ['-c', currentLoop.until.command], {
@@ -163,9 +163,11 @@ export default function pstack(pi: ExtensionAPI) {
 
     const decision = decideNextStep(currentLoop, predicateResult, {
       outcome: event.outcome,
-      canContinue: event.context.canContinue,
     });
 
+    // After a normal answer, Pi 1.3.0 reports canContinue=false because the
+    // current context ends with an assistant message. Appending a loop message
+    // makes the proposed context continuable; Pi validates it after this handler.
     if (decision.action === 'continue') {
       const stateDraft = {
         type: 'custom' as const,
@@ -195,7 +197,7 @@ export default function pstack(pi: ExtensionAPI) {
     }
   });
   pi.registerCommand('loop', {
-    description: 'Autonomous bounded turn continuation: [run] [--max-turns <n>] [--until <cmd>] <goal> | status | stop | resume',
+    description: 'Autonomous bounded turn continuation: run [--max-turns <n>] --until <cmd> <goal> | status | stop | resume',
     handler: async (args, ctx) => {
       const parsed = parseLoopArgs(args);
       const branch = ctx.sessionManager.getBranch();
@@ -223,11 +225,13 @@ export default function pstack(pi: ExtensionAPI) {
       }
 
       if (parsed.action === 'resume') {
+        if (ctx.mode === 'print' || ctx.mode === 'json') throw new Error('/loop run/resume requires RPC/TUI; use pi --mode rpc for headless runs');
         if (!ctx.isIdle()) throw new Error('Wait for the current run to finish before resuming /loop');
         if (current.active) throw new Error('A loop is already active on this branch; use /loop stop first if you want to abort it');
         if (!current.state || !['interrupted', 'stopped'].includes(current.state.status)) {
           throw new Error('No interrupted or stopped loop available to resume on this branch');
         }
+        if (!current.state.until?.command?.trim()) throw new Error('--until is required; start a new /loop run with a stop predicate');
         const maxTurns = parsed.maxTurns ?? current.state.maxTurns;
         if (current.state.turn >= maxTurns) {
           throw new Error(`Cannot resume loop: turn count ${current.state.turn} already reached maxTurns ${maxTurns}; specify a higher --max-turns`);
@@ -250,6 +254,7 @@ export default function pstack(pi: ExtensionAPI) {
       }
 
       if (parsed.action === 'run') {
+        if (ctx.mode === 'print' || ctx.mode === 'json') throw new Error('/loop run/resume requires RPC/TUI; use pi --mode rpc for headless runs');
         if (!ctx.isIdle()) throw new Error('Wait for the current run to finish before starting a new /loop');
         if (current.active) throw new Error('A loop is already running on this branch; use /loop stop or /loop status');
 
