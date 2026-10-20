@@ -2,16 +2,17 @@ import assert from "node:assert/strict";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { homedir } from "node:os";
+import { getAgentDir } from "@earendil-works/pi-coding-agent";
 
 // Redirect Pi settings; package scope intentionally excludes user/project agents.
 const root = fileURLToPath(new URL("..", import.meta.url));
+const installedAgentDir = getAgentDir();
 process.env.PI_CODING_AGENT_DIR = resolve(root, "scripts/fixtures/subagents/user");
 delete process.env.PI_SUBAGENT_EXTRA_AGENT_DIRS;
 
 const candidates = [
   process.env.PI_SUBAGENTS_ROOT,
-  resolve(homedir(), ".pi/agent/npm/node_modules/pi-subagents"),
+  resolve(installedAgentDir, "npm/node_modules/pi-subagents"),
   resolve(root, "node_modules/pi-subagents")
 ].filter(Boolean);
 

@@ -37,6 +37,15 @@ async function rejectInBothModes(dir, pattern) {
   }
 }
 
+test('B2 generated artifact instructions use the injected run directory instead of the real home', async () => {
+  for (const destination of ['skills/architect/SKILL.md', ...['autonomous-run', 'hillclimb', 'multi-phase-plan', 'orchestrate', 'pause-safely', 'prototype'].map(name => `skills/poteto-mode/playbooks/${name}.md`)]) {
+    const content = await readFile(resolve(root, destination), 'utf8');
+    assert.doesNotMatch(content, /~\/\.pi\/agent\/pstack-runs/, destination);
+    assert.match(content, /pstack run directory (?:given|provided) in the system prompt/i, destination);
+    assert.match(content, /<run-id>/, destination);
+  }
+});
+
 test('generation is repeatable, no-op generation preserves mtime, and check is read-only', () => fixture(async dir => {
   const path = resolve(dir, 'skills/tdd/SKILL.md');
   const before = await stat(path);

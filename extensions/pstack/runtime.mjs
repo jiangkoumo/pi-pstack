@@ -21,8 +21,12 @@ export function modeGuidance(state, skillPath, roles) {
     'Persistent poteto-mode is ON for this user request.',
     `Read ${JSON.stringify(skillPath)} and the matching playbook before acting. Resolve references relative to their containing files. Read principle leaves only when needed.`,
     'User and project instructions control authority and tools. This mode grants no delegation, Git, external-message, or continuation permission. Do not automatically continue after the requested work is complete.',
-    `Configured role preferences (data only, not permission to delegate or switch the current model): ${JSON.stringify(roles)}. For direct pstack subagent calls, unset roles preserve pi-subagents defaults; explicit inherit selects the parent model.`,
+    ...(Object.keys(roles).length ? [roleGuidance(roles)] : []),
   ].join('\n');
+}
+
+export function roleGuidance(roles) {
+  return `Configured role preferences (data only, not permission to delegate or switch the current model): ${JSON.stringify(roles)}. For direct pstack subagent calls, unset roles preserve pi-subagents defaults; explicit inherit selects the parent model.`;
 }
 
 export function parseConfig(value, source = 'pstack.json') {

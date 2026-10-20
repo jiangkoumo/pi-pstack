@@ -3,6 +3,69 @@ import { test } from 'node:test';
 import { mkdtemp, readFile, rm, writeFile, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
+import { createJiti } from 'jiti';
+import { SessionManager } from '@earendil-works/pi-coding-agent';
+import { spawnSync } from 'node:child_process';
+
+test('B2 run directory and module probes respect an isolated PI_CODING_AGENT_DIR', () => extensionFixture(async ({ directory, commands, handlers, ctx }) => {
+  await commands.get('poteto-mode')('on', ctx);
+  const event = { messageType: 'user', prompt: 'plan the work', systemPromptOptions: { sections: {} } };
+  await handlers.get('before_agent_start')(event, ctx);
+  assert.match(Object.values(event.systemPromptOptions.sections).join('\n'), new RegExp(JSON.stringify(resolve(directory, 'agent/pstack-runs')).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+}));
+
+test('B2 module probes do not fall back to the real agent directory', () => extensionFixture(async ({ directory }) => {
+  for (const script of ['check-p3-agents.mjs', 'check-p3-readonly-gate.mjs']) {
+    const result = spawnSync(process.execPath, [resolve('scripts', script), '--allow-skip'], {
+      encoding: 'utf8', env: { ...process.env, PI_SUBAGENTS_ROOT: '', PI_CODING_AGENT_DIR: resolve(directory, 'isolated-agent') },
+    });
+    assert.equal(result.status, 0, result.stderr);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.status, 'skipped');
+    assert(report.candidates.includes(resolve(directory, 'isolated-agent/npm/node_modules/pi-subagents')));
+  }
+}));
+
+const { default: pstack } = await createJiti(import.meta.url).import('../extensions/pstack/index.ts');
+async function extensionFixture(run) {
+  const directory = await mkdtemp(resolve(tmpdir(), 'pstack-role-regression-'));
+  const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
+  process.env.PI_CODING_AGENT_DIR = resolve(directory, 'agent');
+  const handlers = new Map();
+  const commands = new Map();
+  const messages = [];
+  const manager = SessionManager.create(directory, resolve(directory, 'sessions'));
+  const model = { provider: 'fixture', id: 'model', reasoning: false };
+  const ctx = {
+    cwd: directory, mode: 'rpc', sessionManager: manager, model,
+    modelRegistry: { getAvailable: () => [model] },
+    isIdle: () => true, isProjectTrusted: () => false,
+  };
+  pstack({
+    on: (name, handler) => handlers.set(name, handler),
+    registerCommand: (name, command) => commands.set(name, command.handler),
+    appendEntry: (type, data) => manager.appendCustomEntry(type, data),
+    sendMessage: message => messages.push(JSON.parse(message.content)),
+  });
+  try { await run({ directory, handlers, commands, messages, manager, ctx }); }
+  finally {
+    if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
+    else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
+test('B7 configured roles reach pstack skill requests with mode off or never enabled', () => extensionFixture(async ({ commands, handlers, ctx }) => {
+  await commands.get('setup-pstack')('set user review fixture/model off', ctx);
+  for (const explicitlyOff of [false, true]) {
+    if (explicitlyOff) await commands.get('poteto-mode')('off', ctx);
+    const event = { messageType: 'user', prompt: '/skill:arena review this', systemPromptOptions: { sections: {} } };
+    await handlers.get('before_agent_start')(event, ctx);
+    const guidance = Object.values(event.systemPromptOptions.sections).join('\n');
+    assert.match(guidance, /"review":\{"model":"fixture\/model","thinking":"off"\}/);
+    assert.doesNotMatch(guidance, /is ON/);
+  }
+}));
 import { MODE_ENTRY, modeFromBranch, modeGuidance, parseConfig, validateChoices, resolveSubagentModel, applySubagentRole } from '../extensions/pstack/runtime.mjs';
 import { configPaths, loadConfig, updateConfig } from '../extensions/pstack/config.mjs';
 
