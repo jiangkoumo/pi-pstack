@@ -27,10 +27,19 @@
 
 ### 3. 并行子代理走角色映射
 
-- [ ] 扩展 `runtime.mjs` 的 applySubagentRole，从单个 input.agent 覆盖每个并行/顺序子任务；要求单测覆盖 tasks 和 chain。
-- [ ] prose、verification：接入具体使用场景，或者从 ROLES 和 /setup-pstack 移除；兼容性及最终决定须记录。
-- [ ] 验收：interrogate/arena/swarm 并行启动的每个子代理都使用配置的 review/code 模型，有真实启动证据。
-- [ ] 先核对本机 pi-subagents 0.79.2 的实际公共 API：目前是命名 parallel workflow 的 args.tasks 及脚本 runs.run/runs.all；旧 tasks/chain 字段兼容测试不能冒充现行脚本流程验收。发现规格冲突先报告，不能静默扩大协议范围。
+操作者已定案：按 agent 定义绑定角色模型，使用 pi-subagents 0.79.2 公开运行时注册事件，替代改写每个 launch 的方案。操作者已实测 named parallel、脚本顺序 runs.run、顶层 model 覆盖及用户 override 优先级；项目仍须补自身实现验收。
+
+- [ ] 仅经 `pi-subagents:runtime-agent-register:v1` 同步事件注册，不导入 pi-subagents 内部实现、不改内部 launch、不写用户 settings。
+- [ ] 去掉 package.json 的 pi.subagents.agents 导出；session_start 从 agents/*.md 读取 definition，保留 systemPrompt、tools、隔离和继承字段。
+- [ ] 绑定 code → pstack.poteto-agent、review → pstack.comment-sicko、verification → 新增 pstack.verifier、prose → 新增 pstack.prose-writer。保留四角色配置兼容性。
+- [ ] 未配置角色省略 model/thinking；inherit 保留 model:"inherit"；thinking 独立写 definition.thinking，不编码为模型后缀。
+- [ ] session_start、set/unset、cwd/会话切换先 dispose 旧注册再注册，shutdown 清理；不保留失效会话上下文。
+- [ ] 调用涉及任意 pstack child 且带顶层 model 时 block，并提示去掉 model；不改写参数结构。直接调用 applySubagentRole 的旧改写在正式入口切换时一并移除。
+- [ ] request.result 为空时 status 显示 pi-subagents 未安装或不支持 v1；ok:false 时报告 error，不静默回退。
+- [ ] README 写明最低 0.79.2；status 提示用户级 subagents.agentOverrides.<name> 的模型和 thinking 优先于 pstack.json，项目 overrides 仍受项目 trust 约束。
+- [ ] 单测 mock pi.events 覆盖注册内容、缺失/失败、重新注册与清理、顶层 model 拦截；真实集成覆盖 named parallel、脚本顺序、顶层 model 拦截、用户级 override，核对子进程实际 provider/thinking。
+
+runtime 分支追加模块 `extensions/pstack/role-agents.mjs` 和 `scripts/role-agents.test.mjs`，负责公开事件控制器、定义解析、顶层 model 检测和专用集成脚本。主控保留 index.ts、package.json、agents 的模板与生成文件、公共检查、README 和正式入口验收接线；不同工作目录不写同一文件。旧导出与旧测试仅在主控正式切换入口时移除，避免未合并模块破坏当前 main。
 
 ### 4. 补回多代理方法内容
 

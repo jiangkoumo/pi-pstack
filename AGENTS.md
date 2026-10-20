@@ -15,7 +15,7 @@
 
 - 按实际安装版本阅读 Pi 文档、类型与示例后再写扩展。
 - 技能按需读取；扩展处理命令和状态，避免无条件每轮注入整套技能。
-- agents/ 通过 package.json 的 pi.subagents.agents 交给 pi-subagents 发现；使用 pstack 命名空间，不复制到全局目录。缺少该扩展时保持单代理技能可用。
+- agents/ 定义在 session_start 通过 pi-subagents 0.79.2 的公开事件 pi-subagents:runtime-agent-register:v1 注册；使用 pstack 命名空间，不复制到全局目录，不再通过 pi.subagents.agents 重复导出。角色模型与 thinking 绑定在 agent 定义，用户 agentOverrides 按宿主优先级覆盖。缺少兼容扩展时明确提示，保持单代理技能可用。
 - 诊断脚本中的内部模块路径仅用于当前版本探针；发布代码依赖公开包清单或公开事件契约。
 - 保持一个工作目录/工作树只有一个 writer；reviewer 只读。派生任务应明确权限、路径和验收证据。
 - 模型必须来自实际可用列表；遵守用户已有偏好，不硬编码上游 Cursor 模型为不可覆盖默认值。
