@@ -20,8 +20,8 @@
 ### 2. `/loop` 长任务有界续跑运行时
 基于 Pi 1.3.0 官方公开的 `agent_before_settle` 事件规范构建的原子续跑底座：
 * **硬性轮次预算**：支持 `--max-turns <n>`（默认 8 轮），防止无界死循环；
-* **可执行停止谓词**：支持 `--until "<command>"`（如 `--until "npm test"`），每轮结算时在子进程执行检查，exit code 0 自动达标停止；
-* **分支绑定与隔离**：状态持久化在会话分支的自定义 entry `pstack.loop.v1` 中；会话重载、切换分支或收到操作者普通输入时自动置为 `interrupted`，严禁隐式静默狂跑；
+* **可执行停止谓词**：启动 loop 必须提供 `--until "<command>"`（如 `--until "npm test"`），每轮结算时在子进程执行检查，exit code 0 自动达标停止；
+* **分支绑定与隔离**：状态持久化在会话分支的自定义 entry `pstack.loop.v1` 中；会话重载或切换分支时，仍在运行的 loop 会置为 `interrupted`。普通输入不会自动将 loop 标记为中断；需要主动停止时使用 `/loop stop`；
 * **安全守卫**：默认拒绝在脏工作区启动（可传 `--allow-dirty`），绝不向模型授予未经授权的自动 Git 操作权限。
 
 ### 3. 多代理安全隔离与机械 Review Gate
@@ -58,6 +58,14 @@ pi install @jiangkoumo/pi-pstack
 pi -e /path/to/pi-pstack
 ```
 
+使用多代理审阅或 writer 委派前，必须先安装提供 `subagent` 工具的可选扩展：
+
+```bash
+pi install npm:pi-subagents
+```
+
+安装后重新启动 Pi，使扩展加载。`pi-pstack` 通过包清单导出 `pstack.comment-sicko` 与 `pstack.poteto-agent`，`subagent` 工具由 `pi-subagents` 提供。未安装该扩展时，仍可使用单代理技能、模式与 `/loop`，多代理流程不可用。
+
 ### 常用命令
 
 ```bash
@@ -78,6 +86,12 @@ pi -e /path/to/pi-pstack
 /skill:poteto-mode "investigate the memory leak in worker"
 /skill:correct "audit recurring regression patterns"
 ```
+
+`/loop run` 必须提供 `--until "<command>"` 停止谓词；`--max-turns` 限制最大轮次。`/loop` 的交互入口使用 TUI；无头运行请启动 `pi --mode rpc`，通过 RPC 客户端发送 `/loop run ...` 并处理后续事件。不要使用 print/JSON 模式（`pi -p` 或 `pi --mode json`）启动 loop；这些模式不支持此续跑入口。
+
+### 已知限制
+
+角色路由目前仅用于直接调用 `pstack.poteto-agent`（`code`）和 `pstack.comment-sicko`（`review`）；并行 workflow 调用不走角色路由。`prose` / `verification` 角色暂未生效，`/setup-pstack` 保存这些角色的配置不会自动应用到代理或技能。
 
 ---
 
