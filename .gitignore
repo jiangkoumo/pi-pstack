@@ -3,6 +3,7 @@ node_modules/
 dist/
 coverage/
 *.tgz
+package-lock.json
 .env
 .env.*
 !.env.example
