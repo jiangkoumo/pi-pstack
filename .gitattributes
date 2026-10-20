@@ -1,0 +1,2 @@
+# Preserve the byte-exact fixed upstream archive, including trailing blank lines.
+upstream/** whitespace=-blank-at-eof

@@ -65,6 +65,29 @@ test('B12 generated writer guidance points to the current skill and principle le
   assert.match(content, /Read the \[poteto-mode skill\].*in full before doing any work/);
 });
 
+test('prepared references are generated, checked for drift, and remain pending acceptance', () => fixture(async dir => {
+  const map = JSON.parse(await readFile(resolve(dir, 'docs/port-map.json'), 'utf8'));
+  const entry = map.preparedResources.find(entry => entry.destination === 'skills/how/references/explorer-prompt.md');
+  assert.equal(entry.status, 'pending-acceptance');
+  assert.equal(map.entries.find(entry => entry.source === 'pstack/skills/how/SKILL.md').disposition, 'substitute');
+  const target = resolve(dir, entry.destination);
+  const expected = await readFile(resolve(dir, entry.adaptation.override), 'utf8');
+  await writeFile(target, expected + '\nmanual drift\n');
+  assert.equal(execute(dir).code, 1);
+  assert.equal(execute(dir, false).code, 0);
+  assert.equal(await readFile(target, 'utf8'), expected);
+}));
+
+test('prepared resources cannot escape their source-owned destination', () => fixture(async dir => {
+  await mutateJSON(dir, 'docs/port-map.json', map => { map.preparedResources[0].destination = 'docs/escape.md'; });
+  await rejectInBothModes(dir, /Destination must match source/);
+}));
+
+test('prepared resources cannot claim acceptance or duplicate a ported source', () => fixture(async dir => {
+  await mutateJSON(dir, 'docs/port-map.json', map => { map.preparedResources[0].status = 'accepted'; });
+  await rejectInBothModes(dir, /must not claim acceptance/);
+}));
+
 test('generation is repeatable, no-op generation preserves mtime, and check is read-only', () => fixture(async dir => {
   const path = resolve(dir, 'skills/tdd/SKILL.md');
   const before = await stat(path);

@@ -18,8 +18,32 @@
       "blob": "88e23ca105b89e67f4085d0e676c40d4b170a623"
     },
     {
+      "path": "pstack/skills/architect/references/design-red-flags.md",
+      "blob": "f8503c9595b289c607ff5088f82b21197edf94ec"
+    },
+    {
+      "path": "pstack/skills/architect/references/rationale-template.md",
+      "blob": "a10f77f59510c532cd909faaf3bfeee5ffbfd588"
+    },
+    {
+      "path": "pstack/skills/architect/references/runner-prompt.md",
+      "blob": "b1ad21aef22e80d718c361787190b599eb359d6c"
+    },
+    {
       "path": "pstack/skills/arena/SKILL.md",
       "blob": "b198b9e425c6b3e6ff01ca789b97ca5b4abb7ce2"
+    },
+    {
+      "path": "pstack/skills/automate-me/SKILL.md",
+      "blob": "50971b894688b1e1923458996b89f2a9961feeb3"
+    },
+    {
+      "path": "pstack/skills/benchmark-checklist/SKILL.md",
+      "blob": "e901d1fdbc9ffce53e94d6514be7d9a22e771a1a"
+    },
+    {
+      "path": "pstack/skills/blast-radius/SKILL.md",
+      "blob": "b296cce0d746260a53c16e3671cb05bacfe82daf"
     },
     {
       "path": "pstack/skills/bro/SKILL.md",
@@ -30,6 +54,38 @@
       "blob": "c45e06f48a0982ae19f92c6e83a8cd05988097a3"
     },
     {
+      "path": "pstack/skills/create-verification-skill/SKILL.md",
+      "blob": "140d033a001e8d27acd14b06004506c43053b199"
+    },
+    {
+      "path": "pstack/skills/create-verification-skill/references/feature-map-example/README.md",
+      "blob": "fb64570cfab3bbe672fe80925651933ebd57aa33"
+    },
+    {
+      "path": "pstack/skills/create-verification-skill/references/feature-map-example/create-note.md",
+      "blob": "21357566b69223a503d6780a04fb90ce540eae22"
+    },
+    {
+      "path": "pstack/skills/create-verification-skill/references/feature-map-example/search.md",
+      "blob": "1f8e57d3aaf19cf27a9464d55fa72e46bcbc8b0f"
+    },
+    {
+      "path": "pstack/skills/figure-it-out/SKILL.md",
+      "blob": "0d04c2e69b75b22ff1a9a1d8ab339580a5fbbfed"
+    },
+    {
+      "path": "pstack/skills/how/SKILL.md",
+      "blob": "67edc340d4d8a9c7ab0b9e08c663e0e63b8d9125"
+    },
+    {
+      "path": "pstack/skills/how/references/explainer-prompt.md",
+      "blob": "3a36fb6736c5b74ac2774350841e332a019dec94"
+    },
+    {
+      "path": "pstack/skills/how/references/explorer-prompt.md",
+      "blob": "724bacfc7df759865c0c29705bfee641e4c1aeca"
+    },
+    {
       "path": "pstack/skills/in-your-own-words/SKILL.md",
       "blob": "4b2a476a9017863032c8dba9d12f0a2026943292"
     },
@@ -38,16 +94,56 @@
       "blob": "94946d22d8bf896bfcc2c54d363df5af3d17b4ca"
     },
     {
+      "path": "pstack/skills/interrogate/references/code-quality-review.md",
+      "blob": "16581250d81044c7e80fe234c4970a3f7b7fc98a"
+    },
+    {
+      "path": "pstack/skills/interrogate/references/lead-judgment.md",
+      "blob": "3b41346c9c3f5c35453d34f1c77374b7e9346aa9"
+    },
+    {
+      "path": "pstack/skills/interrogate/references/reviewer-prompt.md",
+      "blob": "ef7bff3d77c35a0af2a9947187ccee15465657f4"
+    },
+    {
+      "path": "pstack/skills/interrogate/references/rubric.md",
+      "blob": "8dab195ab840554bfe5e74e9b5ca0d9edbe9b496"
+    },
+    {
       "path": "pstack/skills/ketchup/SKILL.md",
       "blob": "ebc3e9483266a165784df0a533d33d063292521b"
+    },
+    {
+      "path": "pstack/skills/maintain-verification-skill/SKILL.md",
+      "blob": "a2680b91fead45a0b4963d8c367a854956bea59d"
+    },
+    {
+      "path": "pstack/skills/make-bot-ui/SKILL.md",
+      "blob": "285df7569758a70e62e9f3596a1f829a5b6ba80e"
     },
     {
       "path": "pstack/skills/no-comments/SKILL.md",
       "blob": "a07ce9dfc657bdf1b2bdf3f7619225e7faac091b"
     },
     {
+      "path": "pstack/skills/poteto-help/SKILL.md",
+      "blob": "dc443648ed3f0fdce6398fddde226f184f7e3156"
+    },
+    {
+      "path": "pstack/skills/poteto-help/references/prompting.md",
+      "blob": "6b72b2e6081fdb78a3261bd77cf7334596d1ee20"
+    },
+    {
+      "path": "pstack/skills/poteto-help/references/recipes.md",
+      "blob": "d13da3a08cd27a29a68dc8bfbc93d0ca6d8a0647"
+    },
+    {
       "path": "pstack/skills/poteto-mode/SKILL.md",
       "blob": "9295b7e4fb87eb95d3c887d79e63ec748ce20e4d"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/authoring-a-skill.md",
+      "blob": "8c5a55a44f5e95bba92f652da0ac87e941c49538"
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/autonomous-run.md",
@@ -68,6 +164,10 @@
     {
       "path": "pstack/skills/poteto-mode/playbooks/bug-fix.md",
       "blob": "b5de0bfa63add6ed38a38a8bd668cf36ac009c61"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/eval.md",
+      "blob": "768a894e275b1e9b198e83ceb6b46964e3f9d6db"
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/feature.md",
@@ -110,6 +210,10 @@
       "blob": "c04b07eeb8b8fa651d080729363466ab73d2fe40"
     },
     {
+      "path": "pstack/skills/poteto-mode/playbooks/runtime-forensics.md",
+      "blob": "6bf64240d1a890df290b98c632ad374d20ca9fd4"
+    },
+    {
       "path": "pstack/skills/poteto-mode/playbooks/session-pickup.md",
       "blob": "876b1433828ccc7c874123cdf300240abb285dd9"
     },
@@ -118,8 +222,92 @@
       "blob": "0a0c3cfde8948e3aa8ee80c6f3f9ce7e3e64fcba"
     },
     {
+      "path": "pstack/skills/poteto-mode/playbooks/trace-forensics.md",
+      "blob": "bf1b003786503623d91ca173fc97a6e54eee3acf"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/playbooks/visual-parity.md",
+      "blob": "248830ec74a593fc22143a842026388f92f1b9f4"
+    },
+    {
       "path": "pstack/skills/poteto-mode/playbooks/worktree-cleanup.md",
       "blob": "45e1af693cc40d0271249a0e98f15bfc815af615"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/references/bugbot-triage.md",
+      "blob": "b2fc7d35712783707607cf2f39752885c8d5105c"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/bootstrap.ts",
+      "blob": "d9c63e2007449a80000abe75ecaf7f2a0bd5826b"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/check-plan.mjs",
+      "blob": "c8626766cee4cc4a2736fe438a1aea5c1f1b28ce"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/check-plan.test.ts",
+      "blob": "fd966c2b5fb6e99c12070c553906765c7bd900d8"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/orch/orch.test.ts",
+      "blob": "2ef435d7d6f464a396d23158d4bcaae08f19c94d"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/orch/orch.ts",
+      "blob": "14cb5139a91745a58780a81d8a1b40ef67d9504d"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/orch/store.ts",
+      "blob": "417368918d2a6e2589c0221ade5c65535ffe05f1"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/watch-pr/cli.test.ts",
+      "blob": "0656b413e6c180858ca42981105944c45caf9dca"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/watch-pr/cli.ts",
+      "blob": "ec8a2f27c5ac24866b699e6395e7d1f32e595068"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/watch-pr/fakes.test-helper.ts",
+      "blob": "84ccf596b01e03e7fb77e73ea82ec3b1738026ad"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/watch-pr/github.test.ts",
+      "blob": "54722a940aeeff3d8c8cdea5fe7e796296bb44c4"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/watch-pr/github.ts",
+      "blob": "4828b0299672a4696e6844132c1caedb7ebbbd8b"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/watch-pr/policy.test.ts",
+      "blob": "6dae16da71800fb06eb37a7e3b296a8d27275b08"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/watch-pr/policy.ts",
+      "blob": "cabadb9bf96f4d8c4c0426d77d0cbdab80fbe3e5"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/watch-pr/render.ts",
+      "blob": "0e935839357335f24ab1bbc193d761495646ea99"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/watch-pr/types.compile.ts",
+      "blob": "1b53279c7f3e5da55703ed17d6ad0616254c5751"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/watch-pr/types.ts",
+      "blob": "6c94e0a687f8e48f91acffd21f725320dd66e659"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/watch-pr/watch-pr",
+      "blob": "99807d577c3b006cfe6ee9e149cf2914bfd4afd6"
+    },
+    {
+      "path": "pstack/skills/poteto-mode/scripts/worktree-audit.sh",
+      "blob": "743c4e9250ba95000f90db10ef6ba47d8a106461"
     },
     {
       "path": "pstack/skills/principle-attack-the-premise/SKILL.md",
@@ -218,12 +406,48 @@
       "blob": "9fa08b0b17d536ce751fffa90134be8fb03699c7"
     },
     {
+      "path": "pstack/skills/recall/SKILL.md",
+      "blob": "cd8cc20790d90579e632626fe6db2b1fff593eea"
+    },
+    {
       "path": "pstack/skills/reflect/SKILL.md",
       "blob": "998ae6530fe294791c3a1daa635b36e2947fcca2"
     },
     {
+      "path": "pstack/skills/reflect/references/divergent-reviewer.md",
+      "blob": "1e070a2a3754f4dc0ddbaec4450a56179b81c92f"
+    },
+    {
+      "path": "pstack/skills/reflect/references/judgment-reviewer.md",
+      "blob": "61d15d76fff852eb573b551bc1317d79ed5a2e5f"
+    },
+    {
+      "path": "pstack/skills/reflect/references/synthesizer.md",
+      "blob": "1a090d86134987719ddb418023020c2ef58a6dae"
+    },
+    {
+      "path": "pstack/skills/reflect/references/tooling-reviewer.md",
+      "blob": "a839db4318798c51539c319cb90387ce02557225"
+    },
+    {
+      "path": "pstack/skills/setup-pstack/SKILL.md",
+      "blob": "90a9e575397fb59f4d9a47e6157c2106f4b4a5e2"
+    },
+    {
       "path": "pstack/skills/sharpen/SKILL.md",
       "blob": "4f9bb4ab50fd760285dd6c4cbbfa7fe20e2d2466"
+    },
+    {
+      "path": "pstack/skills/show-me-your-work/SKILL.md",
+      "blob": "ada1bba1e51356de0e0d4da1d13ba5a56ba9c7cb"
+    },
+    {
+      "path": "pstack/skills/show-me-your-work/references/decision-log-template.tsv",
+      "blob": "db220376ecb8c582a6a4f6575a8f26469603a38d"
+    },
+    {
+      "path": "pstack/skills/show-me-your-work/scripts/log.sh",
+      "blob": "052e53b7e1090579eaec1d3d59f7a1cd2f2e452a"
     },
     {
       "path": "pstack/skills/swarm/SKILL.md",
@@ -234,6 +458,10 @@
       "blob": "ca6f24c963001d9d518db2936dfe3d12f29b4e94"
     },
     {
+      "path": "pstack/skills/teach/SKILL.md",
+      "blob": "25369f3f554ed6b5826340ae3eee688fac0bda80"
+    },
+    {
       "path": "pstack/skills/technical-writing/SKILL.md",
       "blob": "3e6d26109376cd66439c87ed48b4033df8d78a3a"
     },
@@ -242,12 +470,64 @@
       "blob": "2c0279d9a5f800192605e47b55cae4e75a17ec27"
     },
     {
+      "path": "pstack/skills/typescript-best-practices/references/patterns.md",
+      "blob": "c21d876b71b9c7afa897f2f6d982ead07db8f104"
+    },
+    {
       "path": "pstack/skills/unslop/SKILL.md",
       "blob": "97f5b6412148fa5b2a2fe478836fe8923ffa5cbb"
     },
     {
       "path": "pstack/skills/why/SKILL.md",
       "blob": "b5fe93f8b78f58b06e0bf245a6b5b8faae4300e8"
+    },
+    {
+      "path": "pstack/skills/why/references/epistemics.md",
+      "blob": "b18abf41dfa245ee55e94f1b3a80c0b750eb10cf"
+    },
+    {
+      "path": "pstack/skills/why/references/investigator-prompt.md",
+      "blob": "e1c2bbf52197ff600ba6e4552439e630687b7ae2"
+    },
+    {
+      "path": "pstack/skills/why/references/source-playbook.md",
+      "blob": "aa3d877cd539763ff05e266ae0a02dd811441e2b"
+    },
+    {
+      "path": "pstack/skills/why/references/sources/code-archaeology.md",
+      "blob": "e3555f809da0a5654ceefe7d2c20080397c03506"
+    },
+    {
+      "path": "pstack/skills/why/references/sources/databricks.md",
+      "blob": "2770763ff5d0d1ad004abcc9a0138c9537ad1978"
+    },
+    {
+      "path": "pstack/skills/why/references/sources/datadog.md",
+      "blob": "536466ddd8ae6543836abb84bdf1efd8e43089ba"
+    },
+    {
+      "path": "pstack/skills/why/references/sources/incident-postmortem.md",
+      "blob": "e7397e7ef374bee3b7f0018ac8e5ddd4322bab12"
+    },
+    {
+      "path": "pstack/skills/why/references/sources/linear.md",
+      "blob": "899c643c078f322afe6ae0ef78a007f8ffd356c1"
+    },
+    {
+      "path": "pstack/skills/why/references/sources/notion.md",
+      "blob": "d16230a4105fd1dacf870da0950a38faeb9381e6"
+    },
+    {
+      "path": "pstack/skills/why/references/sources/sentry.md",
+      "blob": "8200fd9f3abbb7fca76d0079663502b33524bd09"
+    },
+    {
+      "path": "pstack/skills/why/references/sources/slack.md",
+      "blob": "cadd5618a349adc5eb1dce6fddde38e7221e00fd"
+    },
+    {
+      "path": "pstack/skills/why/references/synthesizer-prompt.md",
+      "blob": "287a350c925c28b44f0e0dc687bb09a843e11100"
     }
   ]
 }

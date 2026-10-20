@@ -74,9 +74,17 @@ async function filesUnder(path) {
 const rendered = new Map();
 const overrides = new Set();
 const entries = new Map();
-for (const entry of map.entries) {
-  assert(['ported', 'substitute', 'deferred'].includes(entry.disposition), 'Unknown disposition: ' + entry.source);
-  if (entry.disposition !== 'ported') {
+const prepared = map.preparedResources ?? [];
+assert(Array.isArray(prepared), 'preparedResources must be an array');
+const mainSources = new Set(map.entries.filter(entry => entry.disposition === 'ported').map(entry => entry.source));
+for (const entry of prepared) {
+  assert(!mainSources.has(entry.source), 'Prepared resource duplicates a ported source: ' + entry.source);
+  assert(entry.status === 'pending-acceptance', 'Prepared resources must not claim acceptance: ' + entry.source);
+}
+for (const entry of [...map.entries, ...prepared]) {
+  const isPrepared = prepared.includes(entry);
+  assert(isPrepared || ['ported', 'substitute', 'deferred'].includes(entry.disposition), 'Unknown disposition: ' + entry.source);
+  if (!isPrepared && entry.disposition !== 'ported') {
     assert.equal(entry.destination, null, 'Unported entry has a destination: ' + entry.source);
     assert.equal(entry.dependencies, null, 'Unported dependencies must remain unaudited: ' + entry.source);
     continue;
@@ -88,7 +96,7 @@ for (const entry of map.entries) {
   assert.equal(entry.destination, entry.source.slice('pstack/'.length), 'Destination must match source within package: ' + entry.destination);
   await pathInPackage(entry.destination, isSkill ? 'skills/' : 'agents/');
   assert(!rendered.has(entry.destination), 'Duplicate destination: ' + entry.destination);
-  assert(Array.isArray(entry.dependencies), 'Missing dependency list: ' + entry.source);
+  assert(Array.isArray(entry.dependencies) || entry.dependencies === 'from-template', 'Missing dependency list: ' + entry.source);
   assert(entry.adaptation && ['override', 'inherit-body'].includes(entry.adaptation.strategy), 'Unknown adaptation strategy: ' + entry.source);
   assert.deepEqual(Object.keys(entry.adaptation).sort(), ['override', 'strategy'], 'Unknown adaptation field: ' + entry.source);
   if (isAgent) {
@@ -184,8 +192,10 @@ for (const [dest, content] of rendered) {
     }
   }
   const declared = entries.get(dest).dependencies;
-  assert.deepEqual(declared, [...new Set(declared)].sort(), 'Dependencies must be unique and sorted: ' + dest);
-  assert.deepEqual(declared, [...actual].sort(), 'Dependency declaration differs: ' + dest);
+  if (declared !== 'from-template') {
+    assert.deepEqual(declared, [...new Set(declared)].sort(), 'Dependencies must be unique and sorted: ' + dest);
+    assert.deepEqual(declared, [...actual].sort(), 'Dependency declaration differs: ' + dest);
+  }
 }
 
 if (isCheck) {
