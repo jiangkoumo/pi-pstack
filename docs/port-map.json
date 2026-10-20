@@ -2068,5 +2068,30 @@
       },
       "dependencies": "from-template"
     }
+  ],
+  "nativeResources": [
+    {
+      "source": "pi/agents/verifier.md",
+      "destination": "agents/verifier.md",
+      "origin": "pi-specific-role",
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/agents/verifier.md.template"
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pi/agents/prose-writer.md",
+      "destination": "agents/prose-writer.md",
+      "origin": "pi-specific-role",
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/agents/prose-writer.md.template"
+      },
+      "dependencies": [
+        "skills/technical-writing/SKILL.md",
+        "skills/unslop/SKILL.md"
+      ]
+    }
   ]
 }

@@ -65,6 +65,24 @@ test('B12 generated writer guidance points to the current skill and principle le
   assert.match(content, /Read the \[poteto-mode skill\].*in full before doing any work/);
 });
 
+test('Pi-specific role agents preserve tool boundaries and are not attributed to upstream', () => fixture(async dir => {
+  const map = JSON.parse(await readFile(resolve(dir, 'docs/port-map.json'), 'utf8'));
+  assert.deepEqual(map.nativeResources.map(entry => entry.destination).sort(), ['agents/prose-writer.md', 'agents/verifier.md']);
+  for (const entry of map.nativeResources) {
+    assert.equal(entry.origin, 'pi-specific-role');
+    assert(!map.entries.some(original => original.source === entry.source));
+    assert.equal(await readFile(resolve(dir, entry.destination), 'utf8'), await readFile(resolve(dir, entry.adaptation.override), 'utf8'));
+  }
+  const verifier = await readFile(resolve(dir, 'agents/verifier.md'), 'utf8');
+  assert.match(verifier, /^tools: read, grep, find, ls$/m);
+  assert.match(verifier, /^extensions:$/m);
+  assert.match(verifier, /^excludeTools: contact_supervisor$/m);
+  const writer = await readFile(resolve(dir, 'agents/prose-writer.md'), 'utf8');
+  assert.match(writer, /^tools: read, edit, write, grep, find, ls$/m);
+  await mutateJSON(dir, 'docs/port-map.json', map => { map.nativeResources[0].destination = 'agents/poteto-agent.md'; });
+  await rejectInBothModes(dir, /Destination must match source/);
+}));
+
 test('prepared references are generated, checked for drift, and remain pending acceptance', () => fixture(async dir => {
   const map = JSON.parse(await readFile(resolve(dir, 'docs/port-map.json'), 'utf8'));
   const entry = map.preparedResources.find(entry => entry.destination === 'skills/how/references/explorer-prompt.md');

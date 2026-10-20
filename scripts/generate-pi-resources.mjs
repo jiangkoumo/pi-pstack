@@ -76,31 +76,41 @@ const overrides = new Set();
 const entries = new Map();
 const prepared = map.preparedResources ?? [];
 assert(Array.isArray(prepared), 'preparedResources must be an array');
+const native = map.nativeResources ?? [];
+assert(Array.isArray(native), 'nativeResources must be an array');
+const nativeSources = new Set();
+for (const entry of native) {
+  assert(['pi/agents/verifier.md', 'pi/agents/prose-writer.md'].includes(entry.source), 'Unknown Pi-specific agent: ' + entry.source);
+  assert(entry.origin === 'pi-specific-role', 'Native resource needs explicit provenance: ' + entry.source);
+  assert(!nativeSources.has(entry.source), 'Duplicate native resource: ' + entry.source);
+  nativeSources.add(entry.source);
+}
 const mainSources = new Set(map.entries.filter(entry => entry.disposition === 'ported').map(entry => entry.source));
 for (const entry of prepared) {
   assert(!mainSources.has(entry.source), 'Prepared resource duplicates a ported source: ' + entry.source);
   assert(entry.status === 'pending-acceptance', 'Prepared resources must not claim acceptance: ' + entry.source);
 }
-for (const entry of [...map.entries, ...prepared]) {
+for (const entry of [...map.entries, ...prepared, ...native]) {
   const isPrepared = prepared.includes(entry);
-  assert(isPrepared || ['ported', 'substitute', 'deferred'].includes(entry.disposition), 'Unknown disposition: ' + entry.source);
-  if (!isPrepared && entry.disposition !== 'ported') {
+  const isNative = native.includes(entry);
+  assert(isPrepared || isNative || ['ported', 'substitute', 'deferred'].includes(entry.disposition), 'Unknown disposition: ' + entry.source);
+  if (!isPrepared && !isNative && entry.disposition !== 'ported') {
     assert.equal(entry.destination, null, 'Unported entry has a destination: ' + entry.source);
     assert.equal(entry.dependencies, null, 'Unported dependencies must remain unaudited: ' + entry.source);
     continue;
   }
-  assert(originals.has(entry.source), 'Missing source fingerprint: ' + entry.source);
+  if (!isNative) assert(originals.has(entry.source), 'Missing source fingerprint: ' + entry.source);
   const isSkill = entry.source.startsWith('pstack/skills/');
-  const isAgent = entry.source.startsWith('pstack/agents/');
+  const isAgent = isNative || entry.source.startsWith('pstack/agents/');
   assert(isSkill || isAgent, 'Unsupported generated source: ' + entry.source);
-  assert.equal(entry.destination, entry.source.slice('pstack/'.length), 'Destination must match source within package: ' + entry.destination);
+  assert.equal(entry.destination, entry.source.slice(isNative ? 'pi/'.length : 'pstack/'.length), 'Destination must match source within package: ' + entry.destination);
   await pathInPackage(entry.destination, isSkill ? 'skills/' : 'agents/');
   assert(!rendered.has(entry.destination), 'Duplicate destination: ' + entry.destination);
   assert(Array.isArray(entry.dependencies) || entry.dependencies === 'from-template', 'Missing dependency list: ' + entry.source);
   assert(entry.adaptation && ['override', 'inherit-body'].includes(entry.adaptation.strategy), 'Unknown adaptation strategy: ' + entry.source);
   assert.deepEqual(Object.keys(entry.adaptation).sort(), ['override', 'strategy'], 'Unknown adaptation field: ' + entry.source);
   if (isAgent) {
-    assert(['pstack/agents/comment-sicko.md', 'pstack/agents/poteto-agent.md'].includes(entry.source), 'Unknown pinned agent source: ' + entry.source);
+    assert(isNative || ['pstack/agents/comment-sicko.md', 'pstack/agents/poteto-agent.md'].includes(entry.source), 'Unknown pinned agent source: ' + entry.source);
     assert.equal(entry.adaptation.strategy, 'override', 'Agents must use an explicit override template: ' + entry.source);
   }
 

@@ -64,7 +64,13 @@ assert.equal(poteto.inheritProjectContext, true);
 assert.equal(poteto.inheritGlobalContext, false);
 assert.equal(poteto.inheritSkills, false);
 
-assert.deepEqual(discovered.agents.filter(a => a.packageSourceRoot && resolve(a.packageSourceRoot) === resolve(root)).map(a => a.name).sort(), ["pstack.comment-sicko", "pstack.poteto-agent"]);
+const verifier = discovered.agents.find(agent => agent.name === "pstack.verifier");
+const prose = discovered.agents.find(agent => agent.name === "pstack.prose-writer");
+assert(verifier && prose, "Pi-specific role agents must be discoverable until runtime-only registration is integrated");
+assert.deepEqual(verifier.tools, ["read", "grep", "find", "ls"]);
+assert.deepEqual(verifier.extensions, []);
+assert.deepEqual(prose.tools, ["read", "edit", "write", "grep", "find", "ls"]);
+assert.deepEqual(discovered.agents.filter(a => a.packageSourceRoot && resolve(a.packageSourceRoot) === resolve(root)).map(a => a.name).sort(), ["pstack.comment-sicko", "pstack.poteto-agent", "pstack.prose-writer", "pstack.verifier"]);
 
 console.log(JSON.stringify({
   status: "passed",
