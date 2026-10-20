@@ -4,7 +4,7 @@
 
 对应计划项：[移植计划](migration-plan.md) 的“使用实际可用模型完成一次不同模型的审阅；主代理核实意见并给出证据”。本轮实现的是该验收的一个可重放子集。
 
-上一次运行（同一脚本、修复前）失败于“Round B 未经过录制代理”，其证据保留在 `scripts/fixtures/p3-live-review/runs/2026-10-18-dual-model-attempt1/`，仅作历史对照，不再被任何断言引用。
+上一次运行（同一脚本、修复前）失败于“Round B 未经过录制代理”，其证据保留在 `../scripts/fixtures/p3-live-review/runs/2026-10-18-dual-model-attempt1/`，仅作历史对照，不再被任何断言引用。
 
 ## 0. 本轮修复：为什么 Round B 会绕过录制代理
 
@@ -15,7 +15,7 @@
 3. 同一模型走的是 Anthropic messages 线格式（`/v1/messages`），而录制代理只解析/转发 OpenAI chat-completions 请求体，两者不可能同时成立。
 4. 网关目录中存在同族、无模型级覆盖的 `opendesign/glm-5.3-flashx`（provider 级 `openai-completions`）。
 
-据此做了三处改动（均在 `scripts/check-p3-live-review.mjs` 与 `scripts/fixtures/p3-live-review/scope.json`）：
+据此做了三处改动（均在 `../scripts/check-p3-live-review.mjs` 与 `../scripts/fixtures/p3-live-review/scope.json`）：
 
 | 改动 | 作用 |
 | --- | --- |
@@ -32,8 +32,8 @@
 
 | 层 | 内容 | 是否真实 |
 | --- | --- | --- |
-| 被审阅内容 A | 本仓库工作树的 `extensions/pstack/runtime.mjs`、`scripts/check-p3-readonly-gate.mjs` | 真实项目文件，审阅前后 sha256 未变 |
-| 被审阅内容 B | `scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts`，文件开头即声明 SYNTHETIC FIXTURE | 合成对照，只用来证明 reviewer 真的读到了给定文件 |
+| 被审阅内容 A | 本仓库工作树的 `extensions/pstack/runtime.mjs`、`../scripts/check-p3-readonly-gate.mjs` | 真实项目文件，审阅前后 sha256 未变 |
+| 被审阅内容 B | `../scripts/fixtures/p3-live-review/controls/comment-slop-sample.ts`，文件开头即声明 SYNTHETIC FIXTURE | 合成对照，只用来证明 reviewer 真的读到了给定文件 |
 | 父会话 | 本地确定性 SSE fixture，只产生 `subagent` 工具调用 | 合成，无外部推理、无费用 |
 | child reviewer | 本机 `magpie` 网关后的真实模型（`opendesign/deepseek-v4.1-flash`、`opendesign/glm-5.3-flashx`） | 真实外部推理，有 wire 记录、model echo 与 usage/cost |
 | 录制代理 | 本地 HTTP passthrough，记录 wire 上的 `model`、`reasoning_effort`、声明工具，响应字节原样转发 | 合成观测层，不改变语义 |
@@ -165,7 +165,7 @@ PI_PSTACK_PI_ROOT=/Users/jiangkoumo/.pi/agent/install/releases/1.3.0/node_module
 
 ## 9. 证据文件
 
-`scripts/fixtures/p3-live-review/runs/2026-10-18-dual-model/`：
+`../scripts/fixtures/p3-live-review/runs/2026-10-18-dual-model/`：
 
 - `summary.json`：本轮结论、`providerIsolation`（隔离机制与剥离清单）、每轮 wire 捕获、只读汇总、`failures: []`。
 - `round-A.json` / `round-B.json`：每轮请求记录、工具调用、usage、`exitCode`、结构化 findings。
@@ -173,6 +173,6 @@ PI_PSTACK_PI_ROOT=/Users/jiangkoumo/.pi/agent/install/releases/1.3.0/node_module
 - `round-A-child-session.jsonl` / `round-B-child-session.jsonl`：child 会话原始日志（含 `model_change`、工具调用与工具结果）。
 - `run-notes.md`：本批文件的来源、脱敏与归档说明。
 
-输入（可重放）：`scripts/fixtures/p3-live-review/scope.json`（真实范围、合成对照、两个 round 的模型）、`brief.md`、`controls/comment-slop-sample.ts`。
+输入（可重放）：`../scripts/fixtures/p3-live-review/scope.json`（真实范围、合成对照、两个 round 的模型）、`brief.md`、`controls/comment-slop-sample.ts`。
 
-历史对照：`scripts/fixtures/p3-live-review/runs/2026-10-18-dual-model-attempt1/`（修复前那次 exit 1 的完整证据）。
+历史对照：`../scripts/fixtures/p3-live-review/runs/2026-10-18-dual-model-attempt1/`（修复前那次 exit 1 的完整证据）。

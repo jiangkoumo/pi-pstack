@@ -4,7 +4,7 @@
 
 ## 验证层次
 
-`scripts/check-p3-background.mjs` 复用 [前台 host 检查](../scripts/check-p3-host.mjs) 的思路，但把调用路径换成真实后台：
+`../scripts/check-p3-background.mjs` 复用 [前台 host 检查](../scripts/check-p3-host.mjs) 的思路，但把调用路径换成真实后台：
 
 | 层次 | 本次实际使用 |
 | --- | --- |
@@ -21,9 +21,9 @@
 
 | 路径 | 作用 |
 | --- | --- |
-| `scripts/check-p3-background.mjs` | 后台 harness：打包消费、真实后台 child、只读/ambient/生命周期断言、红例 |
-| `scripts/fixtures/p3-background/ambient-extension/package.json` | ambient fixture 扩展的包清单（`pi.extensions: ["./index.ts"]`） |
-| `scripts/fixtures/p3-background/ambient-extension/index.ts` | 注入的 ambient 写扩展：每次加载向 `P3_BACKGROUND_MARKER` 追加一行，并注册可写工具 `ambient_write` |
+| `../scripts/check-p3-background.mjs` | 后台 harness：打包消费、真实后台 child、只读/ambient/生命周期断言、红例 |
+| `../scripts/fixtures/p3-background/ambient-extension/package.json` | ambient fixture 扩展的包清单（`pi.extensions: ["./index.ts"]`） |
+| `../scripts/fixtures/p3-background/ambient-extension/index.ts` | 注入的 ambient 写扩展：每次加载向 `P3_BACKGROUND_MARKER` 追加一行，并注册可写工具 `ambient_write` |
 
 ## 复现命令
 

@@ -23,7 +23,7 @@ PI_PSTACK_PI_ROOT=/Users/jiangkoumo/.pi/agent/install/releases/1.3.0/node_module
 
 多次实际执行均退出码 0，单次耗时约 6–22 秒。以下为一次完整通过运行的输出（临时路径已省略）；每次运行的写入内容、worktree 路径与 run id 不同，断言不变。
 
-检查脚本：[scripts/check-p3-worktrees.mjs](../scripts/check-p3-worktrees.mjs)。fixture 仓库、agent 目录、模型与 worktree 根都在运行时生成并清理，因此不需要 `scripts/fixtures/p3-worktrees/` 下的静态文件；该目录本次未新增。
+检查脚本：[scripts/check-p3-worktrees.mjs](../scripts/check-p3-worktrees.mjs)。fixture 仓库、agent 目录、模型与 worktree 根都在运行时生成并清理，因此不需要 `../scripts/fixtures/p3-worktrees/` 下的静态文件；该目录本次未新增。
 
 ## 方法
 
@@ -89,7 +89,7 @@ PI_PSTACK_PI_ROOT=/Users/jiangkoumo/.pi/agent/install/releases/1.3.0/node_module
 
 ## 新增文件
 
-- `scripts/check-p3-worktrees.mjs`
+- `../scripts/check-p3-worktrees.mjs`
 - `docs/validation-p3-worktrees.md`
 
 复现证据以重新运行上面的命令为准；临时 fixture、agent 目录与 worktree 在结束时删除，不保留归档。

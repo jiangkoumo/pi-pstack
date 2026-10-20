@@ -13,8 +13,8 @@
 
 ### 1. 全量 82 项条目 100% 决议闭环
 上游 82 个条目已全部完成审计、适配与决议：
-* **已适配生成 (61 项 Ported)**：包含 24 个工程原则、10 个纯方法技能、7 个深度协同技能（`architect`, `arena`, `interrogate`, `no-comments`, `reflect`, `swarm`, `why`）及 17 份实战 Playbooks；彻底消除了上游未经授权自动 commit/push 的原生假设，转为本地证据沉淀与显式授权门禁；
-* **替代路线定案 (21 项 Substitute)**：对依赖 Slack/Linear/Cursor 私有云的自动化条目（如 Benny、make-bot-ui、云端 transcript）确立了本地优先与 MCP 协议解耦的替代方案；
+* **已适配生成 (73 项 Ported)**：包含 24 个工程原则、19 个纯方法技能、7 个深度协同技能（`architect`, `arena`, `interrogate`, `no-comments`, `reflect`, `swarm`, `why`）及 20 份实战 Playbooks（新增 `runtime-forensics`, `trace-forensics`, `visual-parity`）；彻底消除了上游未经授权自动 commit/push 的原生假设，转为本地证据沉淀与显式授权门禁；
+* **替代路线定案 (9 项 Substitute)**：对依赖 Slack/Linear/Cursor 私有云的自动化条目（如 Benny、make-bot-ui、云端 transcript）确立了本地优先与 MCP 协议解耦的替代方案，并在主技能与相关文档中明确指出替代路径；
 * **延期待定 (0 项 Deferred)**：上游条目已全部清点决议完毕。
 
 ### 2. `/loop` 长任务有界续跑运行时
@@ -24,9 +24,10 @@
 * **分支绑定与隔离**：状态持久化在会话分支的自定义 entry `pstack.loop.v1` 中；会话重载或切换分支时，仍在运行的 loop 会置为 `interrupted`。普通输入不会自动将 loop 标记为中断；需要主动停止时使用 `/loop stop`；
 * **安全守卫**：默认拒绝在脏工作区启动（可传 `--allow-dirty`），绝不向模型授予未经授权的自动 Git 操作权限。
 
-### 3. 多代理安全隔离与机械 Review Gate
-* **物理只读审阅者 (`pstack.comment-sicko`)**：强制限定工具白名单为 `read, grep, find, ls`，物理禁用 `edit, write, bash, subagent`，并阻断外部 extensions 与 supervisor 桥接；
-* **机械门禁 (`writer-gate.mjs`)**：代码编写委派必须生成结构化 Handoff Patch，必须通过独立 Review 与命令验收；未通过门禁前绝不应用补丁，严禁自动 commit 或 push。
+### 3. 多代理安全隔离与运行时角色注册
+* **运行时公开事件注册**：本扩展在会话启动时通过 `pi-subagents:runtime-agent-register:v1` 公开事件动态注册 `pstack.poteto-agent`（`code`）、`pstack.comment-sicko`（`review`）、`pstack.verifier`（`verification`）和 `pstack.prose-writer`（`prose`），完全解耦静态包导出与全局命名空间；
+* **物理只读审阅者 (`pstack.comment-sicko` / `pstack.verifier`)**：强制限定工具白名单为 `read, grep, find, ls`，物理禁用 `edit, write, bash, subagent`，并阻断外部 extensions 与 supervisor 桥接；
+* **机械门禁与长程编排**：代码编写委派必须生成结构化 Handoff Patch，必须通过独立 Review 与命令验收；多阶段规划提供标准计划模板（`docs/templates/pstack-plan.md`）与 Node CLI 计划检查器（`scripts/check-plan.mjs`），未通过门禁前绝不应用补丁，严禁自动 commit 或 push。
 
 ### 4. 模式控制与多角色模型配置
 * `/poteto-mode on | off | status`：在当前会话分支开启或关闭系统提示词与工程指引注入；
@@ -58,13 +59,15 @@ pi install @jiangkoumo/pi-pstack
 pi -e /path/to/pi-pstack
 ```
 
-使用多代理审阅或 writer 委派前，必须先安装提供 `subagent` 工具的可选扩展：
+使用多代理审阅或 writer 委派前，必须先安装提供 `subagent` 工具的可选扩展（要求版本 `>=0.79.2`）：
 
 ```bash
 pi install npm:pi-subagents
 ```
 
-安装后重新启动 Pi，使扩展加载。`pi-pstack` 通过包清单导出 `pstack.comment-sicko` 与 `pstack.poteto-agent`，`subagent` 工具由 `pi-subagents` 提供。未安装该扩展时，仍可使用单代理技能、模式与 `/loop`，多代理流程不可用。
+安装后重新启动 Pi，使扩展加载。`pi-pstack` 通过公共运行时事件动态注册角色代理，`subagent` 工具由 `pi-subagents` 提供。未安装该扩展时，仍可使用单代理技能、模式与 `/loop`，多代理流程不可用。
+
+从源码运行测试或二次开发时，需先执行 `npm install` 安装 `devDependencies`。
 
 ### 常用命令
 
@@ -89,9 +92,9 @@ pi install npm:pi-subagents
 
 `/loop run` 必须提供 `--until "<command>"` 停止谓词；`--max-turns` 限制最大轮次。`/loop` 的交互入口使用 TUI；无头运行请启动 `pi --mode rpc`，通过 RPC 客户端发送 `/loop run ...` 并处理后续事件。不要使用 print/JSON 模式（`pi -p` 或 `pi --mode json`）启动 loop；这些模式不支持此续跑入口。
 
-### 已知限制
+### 角色优先级与调用规则
 
-角色路由目前仅用于直接调用 `pstack.poteto-agent`（`code`）和 `pstack.comment-sicko`（`review`）；并行 workflow 调用不走角色路由。`prose` / `verification` 角色暂未生效，`/setup-pstack` 保存这些角色的配置不会自动应用到代理或技能。
+通过 `/setup-pstack` 配置的角色模型直接绑定到各角色的运行时定义中。调用任何包含 pstack 代理的工作流或子代理时，禁止传入顶层 `model` 参数（否则会被机械拦截），以确保各角色使用预设的专属模型。用户级配置 `subagents.agentOverrides.<name>` 优先级高于 `pstack.json`，可按需覆盖特定代理模型与 thinking。
 
 ---
 
@@ -100,10 +103,10 @@ pi install npm:pi-subagents
 | 模块 | 数量 | 典型代表 | 状态与实现依据 |
 | :--- | :---: | :--- | :--- |
 | **工程原则** | 24 | `model-the-domain`, `fix-root-causes`, `prove-it-works`, `build-the-lever` 等 | Ported（全量正文规范化生成） |
-| **工作流程** | 17 | `investigation`, `bug-fix`, `feature`, `autonomous-run`, `pause-safely`, `hillclimb`, `refactoring` 等 | Ported（消除自动commit，对齐Pi规范） |
-| **核心技能** | 18 | `correct`, `tdd`, `architect`, `arena`, `no-comments`, `interrogate`, `why`, `swarm` 等 | Ported（接入角色模型与只读白名单） |
-| **代理角色** | 2 | `pstack.comment-sicko`, `pstack.poteto-agent` | Ported（通过 `pi.subagents.agents` 导出） |
-| **外部替代** | 21 | Benny 自动化系列, `make-bot-ui`, `automate-me`, `visual-parity` 等 | Substitute（提供标准解耦与本地替代） |
+| **工作流程** | 20 | `investigation`, `bug-fix`, `feature`, `autonomous-run`, `orchestrate`, `multi-phase-plan`, `babysit` 等 | Ported（消除自动commit，对齐Pi规范） |
+| **核心技能** | 27 | `correct`, `tdd`, `architect`, `arena`, `how`, `poteto-help`, `benchmark-checklist` 等 | Ported（接入角色模型与只读白名单） |
+| **代理角色** | 4 | `comment-sicko`, `poteto-agent`, `verifier`, `prose-writer` | Ported（通过运行时公共事件动态注册） |
+| **外部替代** | 9 | Benny 自动化系列, `make-bot-ui`, `automate-me` 等 | Substitute（提供标准解耦与本地替代） |
 
 详细的逐项审计、源码指纹与适配说明请参阅 [逐项移植映射 (port-map.json)](docs/port-map.json) 与 [逐项审计清单 (skill-audit.md)](docs/skill-audit.md)。
 

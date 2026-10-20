@@ -20,7 +20,7 @@
 
 ## 验证证据
 
-### 1. 纯逻辑单元测试（`scripts/loop.test.mjs`）
+### 1. 纯逻辑单元测试（`../scripts/loop.test.mjs`）
 测试覆盖：
 - 参数解析：默认无参 `status`、带原因的 `stop`、带预算校验的 `resume`、带双引号的 `--until` 与 `--` 分隔目标文本；
 - 分支状态重构：空分支、活跃状态、停止状态与畸形 entry 拦截；
@@ -33,7 +33,7 @@ node --test scripts/loop.test.mjs
 # 7 tests passed (exit code 0)
 ```
 
-### 2. 真实 Pi 宿主端到端测试（`scripts/check-loop-host.mjs`）
+### 2. 真实 Pi 宿主端到端测试（`../scripts/check-loop-host.mjs`）
 在隔离临时目录中启动本地 Fixture Provider，通过真实 Pi 1.3.0 SDK 的 `createAgentSession` 加载扩展并执行完整生命周期验证：
 - **场景 1（预算耗尽停止）**：启动 `--max-turns 2`，无谓词；第 1 轮结算时触发续跑，第 2 轮结算时达到预算上限，会话自动停止并写入 `budget-exhausted` 状态，共发起 2 次模型请求；
 - **场景 2（谓词达标成功退出）**：启动 `--max-turns 5 --until "test -f <marker>"`；第 1 轮未满足继续，第 2 轮检测到 marker 生成，谓词返回 exit code 0，会话在第 2 轮提前终止并标记 `predicate-satisfied`；
@@ -183,7 +183,7 @@ EXIT:0
 
 ## 真实代码库端到端模拟测试（check:sim）
 
-在真实业务代码库环境（`scripts/check-real-codebase-simulation.mjs`）中完成了完整的工程闭环模拟：
+在真实业务代码库环境（`../scripts/check-real-codebase-simulation.mjs`）中完成了完整的工程闭环模拟：
 1. **构造真实业务工程**：初始化带业务精度 Bug 的金融计算模块（`src/calculator.js`）及真实严格单元测试（`test/calculator.test.mjs`），证明基线测试失败（exit code 1）；
 2. **加载移植包与模式激活**：由真实 Pi 1.3.0 SDK 在隔离临时目录加载 `@jiangkoumo/pi-pstack` 包，执行 `/poteto-mode on` 成功持久化活动分支模式条目；
 3. **真实谓词循环收敛**：启动 `/loop run --max-turns 4 --until "node --test test/calculator.test.mjs" "fix precision calculation"`，经过 2 轮迭代模型精准修复浮点漂移，谓词检查返回 exit code 0，系统检测到谓词满足自动标记 `completed` 并成功停止；

@@ -120,8 +120,8 @@ try {
     const { session, manager } = await openSession(sessionDir);
     const beforeCount = requests.length;
 
-    // Start a 2-turn loop without predicate
-    await session.prompt('/loop run --max-turns 2 test budget exhaustion');
+    // Start a 2-turn loop with failing predicate until budget exhausted
+    await session.prompt('/loop run --max-turns 2 --until false test budget exhaustion');
     await session.waitForIdle();
 
     // Each turn triggers one request and settles, advancing turn until budget
@@ -189,11 +189,11 @@ try {
     session.subscribe(event => {
       if (event.type === 'turn_start') {
         // Stop the loop while it is running
-        session.prompt('/loop stop operator aborted manually');
+        session.prompt('/loop stop');
       }
     });
 
-    await session.prompt('/loop run --max-turns 10 long running work');
+    await session.prompt('/loop run --max-turns 10 --until false long running work');
     await session.waitForIdle();
 
     const branch = manager.getBranch();

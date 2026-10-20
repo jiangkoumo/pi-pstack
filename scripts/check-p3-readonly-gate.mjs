@@ -30,14 +30,17 @@ if (!moduleRoot) {
   process.exit(process.argv.includes("--allow-skip") ? 0 : 1);
 }
 
-const { discoverAgents } = await import(pathToFileURL(resolve(moduleRoot, "src/agents/agents.js")));
+import { readFile } from "node:fs/promises";
+import { parseRoleAgent } from "../extensions/pstack/role-agents.mjs";
+
 const { resolvePiLaunchToolPlan } = await import(pathToFileURL(resolve(moduleRoot, "src/runs/shared/child-tool-plan.js")));
 
-const discovered = discoverAgents(root, "package", undefined, { globalNpmRoot: null });
-const sicko = discovered.agents.find(a => a.name === "pstack.comment-sicko");
-const poteto = discovered.agents.find(a => a.name === "pstack.poteto-agent");
+const agentsDir = resolve(root, "agents");
+const sickoDef = parseRoleAgent(await readFile(resolve(agentsDir, "comment-sicko.md"), "utf8"), "pstack.comment-sicko", agentsDir);
+const potetoDef = parseRoleAgent(await readFile(resolve(agentsDir, "poteto-agent.md"), "utf8"), "pstack.poteto-agent", agentsDir);
 
-assert(sicko && poteto, "Both pstack agents must be discovered");
+const sicko = { ...sickoDef, name: "pstack.comment-sicko" };
+const poteto = { ...potetoDef, name: "pstack.poteto-agent" };
 
 // 2. Test tool plan for comment-sicko: strict read-only allowlist
 // This probe checks planner output, not child execution.

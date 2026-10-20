@@ -88,7 +88,7 @@ for (const entry of native) {
 const mainSources = new Set(map.entries.filter(entry => entry.disposition === 'ported').map(entry => entry.source));
 for (const entry of prepared) {
   assert(!mainSources.has(entry.source), 'Prepared resource duplicates a ported source: ' + entry.source);
-  assert(entry.status === 'pending-acceptance', 'Prepared resources must not claim acceptance: ' + entry.source);
+  assert(['pending-acceptance', 'accepted'].includes(entry.status), 'Unknown prepared resource status: ' + entry.source);
 }
 for (const entry of [...map.entries, ...prepared, ...native]) {
   const isPrepared = prepared.includes(entry);

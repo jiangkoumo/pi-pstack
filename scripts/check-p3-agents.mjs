@@ -29,54 +29,71 @@ if (!moduleRoot) {
   process.exit(process.argv.includes("--allow-skip") ? 0 : 1);
 }
 
-const { discoverAgents } = await import(pathToFileURL(resolve(moduleRoot, "src/agents/agents.js")));
+import { readFile } from "node:fs/promises";
+import { ROLE_AGENTS, parseRoleAgent, createRoleAgentController } from "../extensions/pstack/role-agents.mjs";
 
-const discovered = discoverAgents(root, "package", undefined, { globalNpmRoot: null });
-assert.equal(discovered.agentDiagnostics?.length ?? 0, 0, "Discovered agents produced diagnostics: " + JSON.stringify(discovered.agentDiagnostics));
-
-const sicko = discovered.agents.find(a => a.name === "pstack.comment-sicko");
-assert(sicko, "Must discover pstack.comment-sicko from package");
-assert.equal(sicko.source, "package");
-assert.equal(sicko.packageName, "pstack");
-assert.equal(sicko.localName, "comment-sicko");
-assert.equal(sicko.acceptanceRole, "read-only");
-assert.deepEqual(sicko.tools, ["read", "grep", "find", "ls"]);
-assert.deepEqual(sicko.extensions, []);
-assert.deepEqual(sicko.excludeTools, ["contact_supervisor"]);
-assert.equal(sicko.defaultAsync, true);
-assert.equal(sicko.inheritProjectContext, true);
-assert.equal(sicko.inheritGlobalContext, false);
-assert.equal(sicko.inheritSkills, false);
-for (const forbidden of ["edit", "write", "bash", "subagent"]) {
-  assert(!sicko.tools.includes(forbidden), "Forbidden tool granted to read-only agent: " + forbidden);
+const agentsDir = resolve(root, "agents");
+const parsedAgents = new Map();
+for (const [role, name] of Object.entries(ROLE_AGENTS)) {
+  const file = resolve(agentsDir, name.slice("pstack.".length) + ".md");
+  assert(existsSync(file), "Missing agent definition file: " + file);
+  const content = await readFile(file, "utf8");
+  const definition = parseRoleAgent(content, name, agentsDir);
+  parsedAgents.set(name, { role, name, definition });
 }
 
-const poteto = discovered.agents.find(a => a.name === "pstack.poteto-agent");
-assert(poteto, "Must discover pstack.poteto-agent from package");
-assert.equal(poteto.source, "package");
-assert.equal(poteto.packageName, "pstack");
-assert.equal(poteto.localName, "poteto-agent");
-assert.equal(poteto.acceptanceRole, "writer");
-assert.deepEqual(poteto.tools, ["read", "edit", "write", "grep", "find", "ls", "bash"]);
-assert.equal(poteto.extensions, undefined, "writer must not declare extensions");
-assert.equal(poteto.defaultAsync, true);
-assert.equal(poteto.inheritProjectContext, true);
-assert.equal(poteto.inheritGlobalContext, false);
-assert.equal(poteto.inheritSkills, false);
+const sicko = parsedAgents.get("pstack.comment-sicko");
+assert(sicko, "Must have pstack.comment-sicko definition");
+assert.equal(sicko.definition.acceptanceRole, "read-only");
+assert.deepEqual(sicko.definition.tools, ["read", "grep", "find", "ls"]);
+assert.deepEqual(sicko.definition.extensions, []);
+assert.deepEqual(sicko.definition.excludeTools, ["contact_supervisor"]);
+assert.equal(sicko.definition.defaultAsync, true);
+assert.equal(sicko.definition.inheritProjectContext, true);
+assert.equal(sicko.definition.inheritGlobalContext, false);
+assert.equal(sicko.definition.inheritSkills, false);
+for (const forbidden of ["edit", "write", "bash", "subagent"]) {
+  assert(!sicko.definition.tools.includes(forbidden), "Forbidden tool granted to read-only agent: " + forbidden);
+}
 
-const verifier = discovered.agents.find(agent => agent.name === "pstack.verifier");
-const prose = discovered.agents.find(agent => agent.name === "pstack.prose-writer");
-assert(verifier && prose, "Pi-specific role agents must be discoverable until runtime-only registration is integrated");
-assert.deepEqual(verifier.tools, ["read", "grep", "find", "ls"]);
-assert.deepEqual(verifier.extensions, []);
-assert.deepEqual(prose.tools, ["read", "edit", "write", "grep", "find", "ls"]);
-assert.deepEqual(discovered.agents.filter(a => a.packageSourceRoot && resolve(a.packageSourceRoot) === resolve(root)).map(a => a.name).sort(), ["pstack.comment-sicko", "pstack.poteto-agent", "pstack.prose-writer", "pstack.verifier"]);
+const poteto = parsedAgents.get("pstack.poteto-agent");
+assert(poteto, "Must have pstack.poteto-agent definition");
+assert.equal(poteto.definition.acceptanceRole, "writer");
+assert.deepEqual(poteto.definition.tools, ["read", "edit", "write", "grep", "find", "ls", "bash"]);
+assert.equal(poteto.definition.extensions, undefined, "writer must not declare extensions");
+assert.equal(poteto.definition.defaultAsync, true);
+assert.equal(poteto.definition.inheritProjectContext, true);
+assert.equal(poteto.definition.inheritGlobalContext, false);
+assert.equal(poteto.definition.inheritSkills, false);
+
+const verifier = parsedAgents.get("pstack.verifier");
+const prose = parsedAgents.get("pstack.prose-writer");
+assert(verifier && prose, "Pi-specific role agents must be present");
+assert.deepEqual(verifier.definition.tools, ["read", "grep", "find", "ls"]);
+assert.deepEqual(verifier.definition.extensions, []);
+assert.deepEqual(prose.definition.tools, ["read", "edit", "write", "grep", "find", "ls"]);
+
+// Verify dynamic registration through controller
+const registered = [];
+const mockPi = {
+  events: {
+    emit(event, request) {
+      if (event === "pi-subagents:runtime-agent-register:v1") {
+        registered.push(request.name);
+        request.result = { ok: true, registration: { dispose() {} } };
+      }
+    }
+  }
+};
+const controller = createRoleAgentController(mockPi, agentsDir);
+await controller.refresh({}, [{ provider: "test", id: "m" }], null, () => ["off"]);
+assert.deepEqual(registered.sort(), ["pstack.comment-sicko", "pstack.poteto-agent", "pstack.prose-writer", "pstack.verifier"]);
 
 console.log(JSON.stringify({
   status: "passed",
-  discoveredCount: discovered.agents.length,
+  discoveredCount: parsedAgents.size,
   agents: [
-    { name: sicko.name, role: sicko.acceptanceRole, tools: sicko.tools },
-    { name: poteto.name, role: poteto.acceptanceRole, tools: poteto.tools }
+    { name: sicko.name, role: sicko.definition.acceptanceRole, tools: sicko.definition.tools },
+    { name: poteto.name, role: poteto.definition.acceptanceRole, tools: poteto.definition.tools }
   ]
 }));

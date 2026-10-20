@@ -2,7 +2,7 @@
 
 状态：**26 条已逐条核实（2026-10-19）。** 本文件补上 [Live 审阅验收](validation-p3-live.md) 第 6 节留给主代理的部分：意见内容是否成立、引用位置是否成立、是否值得修改。脚本的机械门槛结论不因本文件改变。
 
-- 来源运行：`scripts/fixtures/p3-live-review/runs/2026-10-18-dual-model/`
+- 来源运行：`../scripts/fixtures/p3-live-review/runs/2026-10-18-dual-model/`
 - 原始报告：[round-A.md](../scripts/fixtures/p3-live-review/runs/2026-10-18-dual-model/round-A.md)、[round-B.md](../scripts/fixtures/p3-live-review/runs/2026-10-18-dual-model/round-B.md)
 - 结构化结果：`round-A.json`、`round-B.json` 的 `structured.findings`
 - 核实对象：Round A 20 条（9 条真实项目 + 11 条合成对照），Round B 6 条（1 条真实项目 + 5 条合成对照），合计 26 条
@@ -24,7 +24,7 @@
 | 引用位置错误 | 5 | 均属 Round A 的对照意见，行号整体偏移 +2 |
 | 合计 | 26（去重后 25 个位置） | — |
 
-两条模型在 `extensions/pstack/runtime.mjs:87` 上判断一致，该注释已删除。Round A 对 `scripts/check-p3-readonly-gate.mjs` 的 8 条注释意见没有被采纳：Round B 明确把该文件列为跳过，并说明这些是诊断探针的场景标签；删除会降低排错时可读性，且不改变任何行为或权限。该分歧记录在案，不以任一模型单独意见冒充结论。
+两条模型在 `extensions/pstack/runtime.mjs:87` 上判断一致，该注释已删除。Round A 对 `../scripts/check-p3-readonly-gate.mjs` 的 8 条注释意见没有被采纳：Round B 明确把该文件列为跳过，并说明这些是诊断探针的场景标签；删除会降低排错时可读性，且不改变任何行为或权限。该分歧记录在案，不以任一模型单独意见冒充结论。
 
 ## 逐条核实
 
@@ -33,14 +33,14 @@
 | # | 轮次 | 部分 | 引用（报告） | 意见摘要 | 核实结果 | 判定 |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | A | 真实 | `extensions/pstack/runtime.mjs:87` | 注释复述显式模型覆盖与同一套校验，属旁白 | 行号与内容一致；函数体已表达该行为 | **接受**，删除该行 |
-| 2 | A | 真实 | `scripts/check-p3-readonly-gate.mjs:8` | “1. Isolate user configuration”编号横幅复述赋值 | 存在且确为编号横幅 | 保留：诊断脚本段标 |
-| 3 | A | 真实 | `scripts/check-p3-readonly-gate.mjs:41` | “2. Test tool plan…”复述后续断言 | 存在 | 保留：段标 |
-| 4 | A | 真实 | `scripts/check-p3-readonly-gate.mjs:42` | planner 边界说明与输出字段重复 | 存在；输出确有 `validationLayer` | 保留：边界说明 |
-| 5 | A | 真实 | `scripts/check-p3-readonly-gate.mjs:52` | 跨文件说明应结构化 | 存在 | 保留：指向真实 host 检查 |
-| 6 | A | 真实 | `scripts/check-p3-readonly-gate.mjs:57` | “3. Test tool plan…”段标 | 存在 | 保留：段标 |
-| 7 | A | 真实 | `scripts/check-p3-readonly-gate.mjs:67` | “4. Test role…”段标 | 存在 | 保留：段标 |
-| 8 | A | 真实 | `scripts/check-p3-readonly-gate.mjs:74` | “Test review role…”段标 | 存在 | 保留：段标 |
-| 9 | A | 真实 | `scripts/check-p3-readonly-gate.mjs:89` | “Test unavailable…”段标 | 存在 | 保留：段标 |
+| 2 | A | 真实 | `../scripts/check-p3-readonly-gate.mjs:8` | “1. Isolate user configuration”编号横幅复述赋值 | 存在且确为编号横幅 | 保留：诊断脚本段标 |
+| 3 | A | 真实 | `../scripts/check-p3-readonly-gate.mjs:41` | “2. Test tool plan…”复述后续断言 | 存在 | 保留：段标 |
+| 4 | A | 真实 | `../scripts/check-p3-readonly-gate.mjs:42` | planner 边界说明与输出字段重复 | 存在；输出确有 `validationLayer` | 保留：边界说明 |
+| 5 | A | 真实 | `../scripts/check-p3-readonly-gate.mjs:52` | 跨文件说明应结构化 | 存在 | 保留：指向真实 host 检查 |
+| 6 | A | 真实 | `../scripts/check-p3-readonly-gate.mjs:57` | “3. Test tool plan…”段标 | 存在 | 保留：段标 |
+| 7 | A | 真实 | `../scripts/check-p3-readonly-gate.mjs:67` | “4. Test role…”段标 | 存在 | 保留：段标 |
+| 8 | A | 真实 | `../scripts/check-p3-readonly-gate.mjs:74` | “Test review role…”段标 | 存在 | 保留：段标 |
+| 9 | A | 真实 | `../scripts/check-p3-readonly-gate.mjs:89` | “Test unavailable…”段标 | 存在 | 保留：段标 |
 | 10 | A | 对照 | `comment-slop-sample.ts:1` | SYNTHETIC FIXTURE 横幅 | 存在 | 对照 |
 | 11 | A | 对照 | `comment-slop-sample.ts:2` | 说明种子用途的元叙述 | 存在 | 对照 |
 | 12 | A | 对照 | `comment-slop-sample.ts:3` | 同句续行 | 存在 | 对照 |

@@ -11,10 +11,7 @@ const manifest = await json('package.json');
 assert(manifest.files.includes('agents/'), 'Missing agents/ in package.json files');
 assert.deepEqual(manifest.pi, {
   extensions: ['./extensions/pstack/index.ts'],
-  skills: ['./skills'],
-  subagents: {
-    agents: ['./agents']
-  }
+  skills: ['./skills']
 });
 assert.equal(manifest.name, '@jiangkoumo/pi-pstack');
 assert.equal(manifest.publishConfig?.access, 'public', 'Published package requires public access');
@@ -67,8 +64,8 @@ for (const entry of map.entries) {
   }
 }
 const tally = map.entries.reduce((accumulator, entry) => { accumulator[entry.disposition] = (accumulator[entry.disposition] ?? 0) + 1; return accumulator; }, {});
-assert.equal(tally.ported, 61);
-assert.equal(tally.substitute, 21);
+assert.equal(tally.ported, 73);
+assert.equal(tally.substitute, 9);
 assert.equal(tally.deferred ?? 0, 0);
 const auditText = await readFile(resolve(root, 'docs/skill-audit.md'), 'utf8');
 const auditRows = auditText.split('\n').filter(line => /^\| (技能 |流程 |代理 |Benny 技能 )/.test(line));
@@ -110,14 +107,20 @@ const unchangedBodies = [
   'technical-writing',
   'unslop',
 ];
-const changedBodies = ['poteto-mode', 'correct', 'principle-prove-it-works', 'principle-sequence-verifiable-units', 'principle-boundary-discipline', 'principle-explain-the-number', 'typescript-best-practices', 'architect', 'arena', 'interrogate', 'no-comments', 'reflect', 'swarm', 'why'];
+const changedBodies = [
+  'poteto-mode', 'correct', 'principle-prove-it-works', 'principle-sequence-verifiable-units',
+  'principle-boundary-discipline', 'principle-explain-the-number', 'typescript-best-practices',
+  'architect', 'arena', 'interrogate', 'no-comments', 'reflect', 'swarm', 'why',
+  'how', 'poteto-help', 'figure-it-out', 'blast-radius', 'benchmark-checklist', 'teach',
+  'show-me-your-work', 'create-verification-skill', 'maintain-verification-skill'
+];
 for (const skill of unchangedBodies) {
   assert.equal(await bodyOf(skill), upstreamBodies.get('pstack/skills/' + skill + '/SKILL.md'), 'Adaptation record says the body is unchanged: ' + skill);
 }
 for (const skill of changedBodies) {
   assert.notEqual(await bodyOf(skill), upstreamBodies.get('pstack/skills/' + skill + '/SKILL.md'), 'Adaptation record says the body changed: ' + skill);
 }
-for (const playbook of ['investigation', 'bug-fix', 'feature']) {
+for (const playbook of ['investigation', 'bug-fix', 'feature', 'runtime-forensics', 'trace-forensics', 'visual-parity']) {
   const changed = stripFrontmatter(await readFile(resolve(root, 'skills/poteto-mode/playbooks', playbook + '.md'), 'utf8')) !== stripFrontmatter(await readFile(resolve(root, 'upstream/pstack/skills/poteto-mode/playbooks', playbook + '.md'), 'utf8'));
   assert(changed, 'Adaptation record says the playbook changed: ' + playbook);
 }

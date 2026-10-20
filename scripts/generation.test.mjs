@@ -83,11 +83,11 @@ test('Pi-specific role agents preserve tool boundaries and are not attributed to
   await rejectInBothModes(dir, /Destination must match source/);
 }));
 
-test('prepared references are generated, checked for drift, and remain pending acceptance', () => fixture(async dir => {
+test('prepared references are generated, checked for drift, and have accepted status', () => fixture(async dir => {
   const map = JSON.parse(await readFile(resolve(dir, 'docs/port-map.json'), 'utf8'));
   const entry = map.preparedResources.find(entry => entry.destination === 'skills/how/references/explorer-prompt.md');
-  assert.equal(entry.status, 'pending-acceptance');
-  assert.equal(map.entries.find(entry => entry.source === 'pstack/skills/how/SKILL.md').disposition, 'substitute');
+  assert.equal(entry.status, 'accepted');
+  assert.equal(map.entries.find(entry => entry.source === 'pstack/skills/how/SKILL.md').disposition, 'ported');
   const target = resolve(dir, entry.destination);
   const expected = await readFile(resolve(dir, entry.adaptation.override), 'utf8');
   await writeFile(target, expected + '\nmanual drift\n');
@@ -101,9 +101,9 @@ test('prepared resources cannot escape their source-owned destination', () => fi
   await rejectInBothModes(dir, /Destination must match source/);
 }));
 
-test('prepared resources cannot claim acceptance or duplicate a ported source', () => fixture(async dir => {
-  await mutateJSON(dir, 'docs/port-map.json', map => { map.preparedResources[0].status = 'accepted'; });
-  await rejectInBothModes(dir, /must not claim acceptance/);
+test('prepared resources must have valid status and cannot duplicate a ported source', () => fixture(async dir => {
+  await mutateJSON(dir, 'docs/port-map.json', map => { map.preparedResources[0].status = 'invalid-status'; });
+  await rejectInBothModes(dir, /Unknown prepared resource status/);
 }));
 
 test('generation is repeatable, no-op generation preserves mtime, and check is read-only', () => fixture(async dir => {
