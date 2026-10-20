@@ -113,6 +113,63 @@ test('task 4: reference access remains bounded by Pi authority', async () => {
   }
 });
 
+test('task 2: restored entry methods expose their source phases and readable references', async () => {
+  for (const name of ['how', 'figure-it-out', 'blast-radius', 'benchmark-checklist', 'teach', 'show-me-your-work', 'create-verification-skill', 'maintain-verification-skill']) {
+    const body = await load(name);
+    assert.doesNotMatch(body, /Adaptation scaffold|pending implementation/);
+    for (const heading of headings(await read(`upstream/pstack/skills/${name}/SKILL.md`))) assert(headings(body).includes(heading), `${name}: ${heading}`);
+    await reachable(`skills/${name}/SKILL.md`);
+  }
+  const seen = await reachable('skills/how/SKILL.md');
+  for (const n of ['explorer', 'explainer']) assert(seen.has(resolve(root, `skills/how/references/${n}-prompt.md`)));
+});
+
+test('task 2: benchmark contract checks work, errors, alternating trials, physical bounds and verdict', async () => {
+  const body = await load('benchmark-checklist');
+  const questions = [...body.matchAll(/^([1-7])\. \*\*(.+?)\*\*/gm)].map(m => m[2]);
+  assert.deepEqual(questions, ['Why not double?', 'Was it tuned?', 'Did it break limits?', 'Did it error?', 'Does it reproduce?', 'Does it matter?', 'Did it even happen?']);
+  assert.match(body, /each side at least 5 times, alternating/);
+  assert.match(body, /10%.*11%/);
+  assert.match(body, /median and range/);
+  assert.match(body, /inconclusive when.*cannot name the limiter/);
+  assert(localLinks(await load('principle-explain-the-number')).includes('../benchmark-checklist/SKILL.md'));
+});
+
+test('task 2: verification map examples teach observable actions and retained proof', async () => {
+  const body = await load('create-verification-skill');
+  const seen = await reachable('skills/create-verification-skill/SKILL.md');
+  for (const name of ['create-note', 'search']) {
+    const path = `skills/create-verification-skill/references/feature-map-example/${name}.md`;
+    assert(seen.has(resolve(root, path)));
+    assert.deepEqual(headings(await read(path)).filter(h => !h.startsWith('Create a') && h !== 'Search notes'), ['Sub-features', 'How to get to it (user POV)', 'Driving it with control-notes', 'Gotchas']);
+  }
+  assert.match(body, /evidence still exists/);
+  assert.match(body, /\.pi\/skills\/verify-/);
+  assert.doesNotMatch(body, /\.cursor\/skills/);
+  const maintenance = await load('maintain-verification-skill');
+  assert.match(maintenance, /Never edit product code/);
+  assert.match(maintenance, /retry once/);
+});
+
+test('task 2: diagnostic and visual playbooks preserve evidence and do not imply new authority', async () => {
+  for (const n of ['runtime-forensics', 'trace-forensics', 'visual-parity']) {
+    const body = await read(`skills/poteto-mode/playbooks/${n}.md`);
+    assert.doesNotMatch(body, /scaffold|pending implementation|Task tool/);
+    assert.match(body, /authoriz/);
+    assert.match(body, /artifact|baseline/);
+  }
+  const trace = await read('skills/poteto-mode/playbooks/trace-forensics.md');
+  assert.match(trace, /fixed dataset/);
+  assert.match(trace, /paired capture/);
+  const visual = await read('skills/poteto-mode/playbooks/visual-parity.md');
+  assert.match(visual, /nonzero diff is a fail/);
+  assert.match(visual, /no baseline tampering/);
+  const trail = await load('show-me-your-work');
+  assert(localLinks(trail).includes('references/decision-log-template.tsv'));
+  assert.doesNotMatch(trail, /scripts\/log\.sh|agent-transcripts\/|printf/);
+  assert.equal((await read('skills/show-me-your-work/references/decision-log-template.tsv')).trim(), 'ts\tphase\tdecision\twhy\tevidence\tresult');
+});
+
 // Host acceptance is intentionally separate from static resource checks. The lead
 // runs these requests after role integration, with the actual tool transcript.
 export const hostAcceptance = [
