@@ -2,6 +2,8 @@
 
 状态：**本地打包、真实 Pi 安装/移除、隔离加载、升级与卸载已通过；GitHub Actions 已真实运行通过；npm 未发布。** 本文件只记录实际执行结果，不把“安装成功”当成行为验收。
 
+> 2026-10-20 更新：包已移除 `private`，并配置 tag 驱动的 `.github/workflows/publish.yml` 与本地 `scripts/release.mjs`；本文其余 P4 记录保留当时状态，当前发布方式见 README「发布」。
+
 对应计划项：[移植计划](migration-plan.md#p4打包与安装验收)。
 
 ## 已验证

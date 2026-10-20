@@ -139,7 +139,7 @@ P2 已通过 before_agent_start 更新单个系统区块，通过 appendEntry �
 - [x] 在隔离的 Pi agent 配置目录中验证本地安装和卸载，检查资源发现（含真实 `pi install` / `pi remove` 路径注册与 loader 资源发现）。
 - [x] 验证升级不覆盖用户配置，移除包不会残留自动加载行为。
 - [x] 记录 Pi 支持版本、必要依赖、能力限制和使用实例（见 validation-p4.md）。
-- [x] 确认 npm 名称或选择作用域；已选定 `@jiangkoumo/pi-pstack`（只读查询未见占用），包仍为 private。发布仍需单独授权，registry 上的 `pi-pstack@0.1.0` 不再使用。
+- [x] 确认 npm 名称或选择作用域；已选定 `@jiangkoumo/pi-pstack`（只读查询未见占用），已配置 tag 驱动的 npm 发布工作流与本地 `scripts/release.mjs`；实际发布仍需单独授权，registry 上的 `pi-pstack@0.1.0` 不再使用。
 
 验收：本地打包和隔离安装/卸载完成；技能、模式及可选依赖行为与文档一致；已有用户配置不受影响。安装成功不等于行为验证通过，P1–P3 的行为证据需要保留。当前记录见 [P4 验收](validation-p4.md)。
 
