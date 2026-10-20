@@ -280,6 +280,32 @@ export function decideNextStep(state, predicateResult = null, options = {}) {
 }
 
 /**
+ * Register the notification fallback for Pi aborts that skip agent_before_settle.
+ * Entry contract: call once from the extension factory, before other settled
+ * observers. agent_settled is notification-only; appendEntry persists state,
+ * without returning continuation drafts or executing a predicate.
+ *
+ * @param {Pick<import('@earendil-works/pi-coding-agent').ExtensionAPI, 'on' | 'appendEntry'>} pi
+ * @returns {() => void} Unsubscribe during runtime teardown if needed.
+ */
+export function registerLoopAbortHooks(pi) {
+  return pi.on('agent_settled', (event, ctx) => {
+    if (!event.aborted) return;
+    const { state } = loopFromBranch(ctx.sessionManager.getBranch());
+    if (!state) return;
+    // Preserve explicit operator stops and all other terminal outcomes. The
+    // settle path currently records an abort as stopped/operator-aborted.
+    if (state.status !== 'running' && !(state.status === 'stopped' && state.reason === 'operator-aborted')) return;
+    pi.appendEntry(LOOP_ENTRY, {
+      ...state,
+      status: 'interrupted',
+      reason: 'operator-aborted',
+      updatedAt: new Date().toISOString(),
+    });
+  });
+}
+
+/**
  * Render prompt text for a loop turn.
  */
 export function renderLoopPrompt(state, turn, lastPredicate = null) {
