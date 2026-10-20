@@ -14,9 +14,9 @@ export const MAX_UNTIL_TIMEOUT_SEC = 600;
  * Parse CLI arguments for /loop command.
  * Supported forms:
  *   /loop status
- *   /loop stop [reason]
+ *   /loop stop
  *   /loop resume [--max-turns <n>]
- *   /loop [run] [--max-turns <n>] [--until <cmd>] [--until-timeout <sec>] [--allow-dirty] [--] <goal...>
+ *   /loop run [--max-turns <n>] --until <cmd> [--until-timeout <sec>] [--allow-dirty] [--] <goal...>
  */
 export function parseLoopArgs(rawArgs) {
   const text = String(rawArgs ?? '').trim();
@@ -25,46 +25,59 @@ export function parseLoopArgs(rawArgs) {
   const tokens = [];
   let current = '';
   let inQuote = null;
+  let wordStarted = false;
+  // Split shell words without expanding variables, substitutions, or operators.
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
-    if (inQuote) {
+    if (char === '\\' && inQuote !== "'") {
+      if (i + 1 >= text.length) throw new Error('Unfinished escape in /loop arguments');
+      const next = text[i + 1];
+      if (!inQuote || ['$', '`', '"', '\\', '\n'].includes(next)) {
+        if (next !== '\n') { current += next; wordStarted = true; }
+        i++;
+      } else {
+        current += char;
+        wordStarted = true;
+      }
+    } else if (inQuote) {
       if (char === inQuote) inQuote = null;
       else current += char;
     } else if (char === '"' || char === "'") {
       inQuote = char;
+      wordStarted = true;
     } else if (/\s/.test(char)) {
-      if (current) { tokens.push(current); current = ''; }
+      if (wordStarted) { tokens.push(current); current = ''; wordStarted = false; }
     } else {
       current += char;
+      wordStarted = true;
     }
   }
-  if (current) tokens.push(current);
+  if (inQuote) throw new Error('Unclosed quote in /loop arguments');
+  if (wordStarted) tokens.push(current);
 
   const first = tokens[0]?.toLowerCase();
   if (first === 'status' && tokens.length === 1) return { action: 'status' };
-  if (first === 'stop') {
-    const reason = tokens.slice(1).join(' ').trim() || 'operator-stopped';
-    return { action: 'stop', reason };
+  if (first === 'stop' && tokens.length === 1) {
+    return { action: 'stop', reason: 'operator-stopped' };
   }
   if (first === 'resume') {
     let maxTurns;
     for (let i = 1; i < tokens.length; i++) {
       if (tokens[i] === '--max-turns' && i + 1 < tokens.length) {
-        maxTurns = Number.parseInt(tokens[i + 1], 10);
+        maxTurns = Number(tokens[i + 1]);
         i++;
       } else {
         throw new Error(`Unknown option for resume: ${tokens[i]}; use /loop resume [--max-turns <n>]`);
       }
     }
-    if (maxTurns !== undefined && (Number.isNaN(maxTurns) || maxTurns < MIN_MAX_TURNS || maxTurns > MAX_MAX_TURNS)) {
+    if (maxTurns !== undefined && (!Number.isInteger(maxTurns) || maxTurns < MIN_MAX_TURNS || maxTurns > MAX_MAX_TURNS)) {
       throw new Error(`--max-turns must be between ${MIN_MAX_TURNS} and ${MAX_MAX_TURNS}`);
     }
     return { action: 'resume', maxTurns };
   }
 
-  // Otherwise it's 'run' (or bare options + goal)
-  let startIndex = 0;
-  if (first === 'run') startIndex = 1;
+  if (first !== 'run') throw new Error('Usage: /loop run --until <cmd> <goal> | status | stop | resume [--max-turns <n>]');
+  const startIndex = 1;
 
   let maxTurns = DEFAULT_MAX_TURNS;
   let untilCommand = null;
@@ -80,8 +93,8 @@ export function parseLoopArgs(rawArgs) {
     }
     if (tok === '--max-turns') {
       if (i + 1 >= tokens.length) throw new Error('--max-turns requires a positive integer');
-      maxTurns = Number.parseInt(tokens[i + 1], 10);
-      if (Number.isNaN(maxTurns) || maxTurns < MIN_MAX_TURNS || maxTurns > MAX_MAX_TURNS) {
+      maxTurns = Number(tokens[i + 1]);
+      if (!Number.isInteger(maxTurns) || maxTurns < MIN_MAX_TURNS || maxTurns > MAX_MAX_TURNS) {
         throw new Error(`--max-turns must be between ${MIN_MAX_TURNS} and ${MAX_MAX_TURNS}`);
       }
       i++;
@@ -96,8 +109,8 @@ export function parseLoopArgs(rawArgs) {
     }
     if (tok === '--until-timeout') {
       if (i + 1 >= tokens.length) throw new Error('--until-timeout requires seconds');
-      untilTimeoutSec = Number.parseInt(tokens[i + 1], 10);
-      if (Number.isNaN(untilTimeoutSec) || untilTimeoutSec < MIN_UNTIL_TIMEOUT_SEC || untilTimeoutSec > MAX_UNTIL_TIMEOUT_SEC) {
+      untilTimeoutSec = Number(tokens[i + 1]);
+      if (!Number.isInteger(untilTimeoutSec) || untilTimeoutSec < MIN_UNTIL_TIMEOUT_SEC || untilTimeoutSec > MAX_UNTIL_TIMEOUT_SEC) {
         throw new Error(`--until-timeout must be between ${MIN_UNTIL_TIMEOUT_SEC} and ${MAX_UNTIL_TIMEOUT_SEC} seconds`);
       }
       i++;
@@ -114,7 +127,8 @@ export function parseLoopArgs(rawArgs) {
   }
 
   const goal = goalTokens.join(' ').trim();
-  if (!goal) throw new Error('Usage: /loop [run] [--max-turns <n>] [--until <cmd>] [--until-timeout <sec>] [--allow-dirty] [--] <goal>');
+  if (!goal) throw new Error('Usage: /loop run [--max-turns <n>] --until <cmd> [--until-timeout <sec>] [--allow-dirty] [--] <goal>');
+  if (!untilCommand) throw new Error('--until is required to define when the loop is complete');
 
   return {
     action: 'run',
@@ -173,7 +187,7 @@ export function createInitialLoopState(options) {
  * @param {object} [predicateResult] - Optional result from executing the --until command.
  *   { exitCode: number, error?: string, timedOut?: boolean }
  * @param {object} [options] - Optional host outcome flags.
- *   { outcome?: 'completed' | 'aborted' | 'error', canContinue?: boolean }
+ *   { outcome?: 'completed' | 'aborted' | 'error' }
  */
 export function decideNextStep(state, predicateResult = null, options = {}) {
   const now = new Date().toISOString();
