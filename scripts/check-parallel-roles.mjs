@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { createServer } from 'node:http';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -8,7 +10,18 @@ import { ROLE_AGENTS, createRoleAgentController, guardPstackTopLevelModel } from
 
 // This fixture loads only pi-subagents' public package entry. The production
 // pstack entry is deliberately not loaded: the owner wires this same controller.
-const subRoot = process.env.PI_SUBAGENTS_ROOT || resolve(getAgentDir(), 'npm/node_modules/pi-subagents');
+const subRootCandidates = [
+  process.env.PI_SUBAGENTS_ROOT,
+  resolve(getAgentDir(), 'npm/node_modules/pi-subagents'),
+  resolve(homedir(), '.pi/agent/npm/node_modules/pi-subagents'),
+].filter(Boolean);
+
+let subRoot = subRootCandidates.find(p => existsSync(resolve(p, 'index.js')));
+if (!subRoot && process.argv.includes('--allow-skip')) {
+  console.log(JSON.stringify({ status: 'skipped', reason: 'pi-subagents not found in environment' }));
+  process.exit(0);
+}
+assert(subRoot, 'Set PI_SUBAGENTS_ROOT or install pi-subagents');
 const directory = await mkdtemp(resolve(tmpdir(), 'pstack-parallel-roles-'));
 const agentDir = resolve(directory, 'agent');
 const cwd = resolve(directory, 'workspace');

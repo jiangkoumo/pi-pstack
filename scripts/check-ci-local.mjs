@@ -47,6 +47,7 @@ try {
   const head = run('git', ['rev-parse', 'HEAD']).trim();
 
   const checks = [];
+  run('npm', ['install']);
   for (const [label, args] of [
     ['npm run check', ['run', 'check']],
     ['npm run check:generate', ['run', 'check:generate']],

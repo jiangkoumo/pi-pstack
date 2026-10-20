@@ -12,6 +12,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Install dependencies
+        run: npm install
       - name: Package, generation, links, and agent probes
         run: npm run check
       - name: Generated resources are current

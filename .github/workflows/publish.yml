@@ -23,8 +23,8 @@ jobs:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Install dependencies when a lockfile exists
-        run: if [ -f package-lock.json ]; then npm ci; fi
+      - name: Install dependencies
+        run: npm install
 
       - name: Verify tag matches package.json
         run: |
