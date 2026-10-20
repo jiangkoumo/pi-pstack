@@ -1,5 +1,16 @@
-# trace-forensics.md
+### Trace forensics
 
-Adaptation scaffold for the fixed pstack v0.15.25 source by Lauren Tan, MIT.
+**You own the diagnosis from the artifact.**
 
-This resource is pending implementation and acceptance. Read the corresponding fixed source under upstream/; do not treat this scaffold as a supported workflow.
+Distinct from **Runtime forensics**, which instruments the live process. Here the capture already exists. The artifact is a fixed dataset, read it, don't re-run it. Keep tooling generic: a DevTools or trace parser for cpuprofile and `.json.gz`, a text editor for a spindump, your heap tooling for a heapsnapshot.
+
+1. Identify the format and load it with the right tool. Reduce large artifacts with an available parser under local tool rules, or an authorized read-only delegate. Keep bounded results in the main thread. Honor operator delegation authorization and exact available model settings.
+2. Transform the raw artifact into a form you can query. Use a supported read-only parser or query tool to expose one row per sample, frame, or node, such as SQLite. Do not bypass file-content tool restrictions with shell or scripts. If no permitted parser exists, report the capability gap. Reach the queryable shape before you read.
+3. Narrow to the cause. Query for the frames that hold the most time and walk the call tree to the hot path. For a leak, follow the retainer chain from the leaked object to a GC root. For a spindump, find the thread stuck on-CPU or blocked and its wait reason.
+4. Attribute to source. Map the hot frame to file, symbol, and line via the artifact's own symbols. A frame with no source mapping is not yet a diagnosis. Resolve the symbols, or say plainly the artifact does not carry them.
+5. If you have a paired capture, diff the before and after artifacts to confirm. Otherwise, mark the finding as the strongest hypothesis the artifact supports, not a confirmed cause.
+6. Hand back a cited diagnosis, no fix unless asked. Route to Bug fix or Perf issue once the cause is known. Throughput checkpoint stays one line: `throughput checkpoint: n/a, read-only forensics`.
+
+**Reply:** the artifact and format, the reduced finding, the source location, the artifact paths, and whether a paired capture confirmed it.
+
+Pi execution follows the [mode authority rules](../SKILL.md). Use read/search tools for source, actual available profilers or image comparators for evidence, and an explicit working directory for every execution command. Missing tooling is a named gap. A diagnosis grants no authorization to fix code, send data externally, commit, push or deploy. Preserve artifacts and clean up only instrumentation/processes this run created.
