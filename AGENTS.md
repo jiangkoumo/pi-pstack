@@ -2,14 +2,13 @@
 
 ## 项目定位
 
-本项目将 pstack 移植为 Pi package。先读 README.md、docs/sources.md 与 docs/migration-plan.md。当前已完成 P0 至 P4 主路径闭环与验收（P4 发布未授权、P5 延期）；不能将规划命令写成已实现功能。接入方案见 docs/integration-decisions.md。
+本项目将 pstack 移植为 Pi package。先读 README.md、docs/sources.md 与 docs/migration-plan.md。当前进度以 docs/migration-plan.md 为准；不能把规划中的命令写成已实现的功能。接入方案见 docs/integration-decisions.md。
 
 ## 来源与范围
 
 - 上游基线以 docs/sources.md 和 docs/upstream-inventory.json 中的固定 SHA 为准；不静默跟随 main。
 - 导入上游内容时保留作者和 MIT 声明，并记录哪些部分发生了适配。
 - 可审阅、可验证的最小改动优先；首期聚焦单代理工程闭环。
-- 本次建档不是安装、发布、推送或执行自动合并的授权。
 
 ## 实现约束
 
@@ -24,35 +23,45 @@
 
 ## 检查与交付
 
+- 检查命令：npm install && npm run check。提交前必须通过，并跑 git diff --check。
+- 源文件与生成文件：adapters/pi/overrides/*.md.template 是源文件，不要直接改生成出来的 Markdown。
+- 不要提交：安装时生成的 package-lock.json。commit 之前用 git status 确认没有带上无关文件。
+- 同一个失败修了两次还没过，就停下来，带着证据报告，不要再继续试。
+- 不可逆操作必须先等我确认：全局安装或装进我的 Pi 配置、发布、合并、rebase、推送、删除 worktree 或分支、删除未提交的改动。在仓库内跑 npm install，以及任务范围内的删文件，不需要确认。
 - 文档修改检查相对链接、来源、状态描述与 diff；无需为纯文字新增实现镜像测试。
 - 实现修改运行最相关的检查，并用真实任务验收宣称支持的工作流。
 - 不修改用户现有 Pi 全局配置来证明安装；优先使用隔离配置环境。
 - 交付记录已完成、实际验证结果、未完成及具体阻碍。
 
-## 项目约定
-- 检查命令：npm install && npm run check，提交前必须通过，还要跑 git diff --check。
-- adapters/pi/overrides/*.md.template 是源文件，生成的 Markdown 不要手改。
-- 不要提交安装时生成的 package-lock.json。commit 前用 git status 确认没有夹带无关的文件。
-- 同一个失败修了两次还没过，就停下来报告证据，不要继续试。
+## 并行开发（只在我明确要求并行时使用）
 
-## 并行开发（仅在我明确要求并行时使用）
-任务来源可以是 BUGS.md、TASKS.md 或者一份功能说明，必须先 commit 到 main。
-如果你在一个从 main 拉出来的 worktree 里，并且被分配了任务，你就是子 agent，只看「子 agent」和「所有人」这两部分。
+### 角色
+- 你在主仓库里接到这个任务：你是主控。
+- 你在 Herdr worktree 里被分配了任务：你是子 agent。除了「主控」和「任务文件」，其余规则都要遵守。
 
-主控：
-- 按改动的文件和模块拆任务，两个 worktree 不能改同一个文件（包括生成的文件和它的源文件）。有依赖关系的任务不要并行，最多开 3 个。
-- 注册表、入口 index、CHANGELOG 这类共享文件不分给子 agent，由主控在合并后统一修改。
-- 开工前先把分工方案给我看：每个分支的任务、允许修改的文件和建议的合并顺序。我确认后再开。
-- 只用 herdr worktree create / remove，从 main 的最新提交拉分支。派任务时把允许修改的文件列表写进任务说明里。
-- 有任何 agent 变成 blocked 就先告诉我，不要替我回答。
-- 全部完成后汇总各子 agent 的报告，并附上每个分支的 git log main..<分支> --oneline 和 git diff main...<分支> --stat。
-- 我确认后按顺序逐个合并：第二个分支开始，每个先 rebase 到最新的 main 并重新跑检查，通过了再合并。全部合完后更新任务文件里的完成状态。
+### 任务文件
+- 不管我给的是什么（一段话、测试报告、issue 还是链接），主控都先把它整理成 tasks/<日期>-<主题>.md。
+- 每个任务写清：编号、问题或需求、来源证据、验收方式、所在分支、这个分支允许修改的文件。
+- 来源里是推测的结论，标成「待验证」，不要当成事实写进去。
+- 任务文件要等我确认后再 commit 到 main，然后才开 worktree。
+- 需要长期跟踪的任务，改用 GitHub Issues，一个分支对应一个 issue。
 
-子 agent：
-- 先跑基线检查。只改分配给自己的文件，不要改 AGENTS.md 和任务文件。
-- 修 bug：补一个修前失败、修后通过的测试。加功能：给新行为加测试。
-- 任务说明和实际情况冲突时，以实测为准，停下来报告，不要自己扩大范围。需要改不属于自己的文件时，也停下来报告。
-- 检查通过后按任务分开 commit。
-- 最后按以下格式报告：完成了哪些（每项的改动和原因），测试结果（通过数和失败数），没完成的或者和任务说明不一致的地方，commit hash。
+### 主控
+- 按改动的文件和模块来拆任务，两个 worktree 不能改同一个文件，包括生成的文件和它的源文件。有依赖关系的任务不要并行，最多同时开 3 个。
+- 共享文件（注册表、入口 index、CHANGELOG、AGENTS.md、任务文件）不分给子 agent，由主控在合并后统一修改。
+- 只用 herdr worktree create 和 herdr worktree remove，从 main 的最新提交拉分支。派任务时写明任务文件的路径和任务编号。
+- 有子 agent 变成 blocked 时，先告诉我，不要替我回答。
+- 全部做完后，汇总每个子 agent 的报告，并附上每个分支的 git log main..<分支> --oneline 和 git diff main...<分支> --stat，再给出建议的合并顺序。
+- 我确认后按顺序逐个合并。从第二个分支开始，先 rebase 到最新的 main，重新跑检查，通过了再合并。
+- 全部合并完后，在任务文件里记下每个任务的结果和 commit，然后 git mv 到 tasks/done/。清理 worktree 和分支要等我确认。
 
-所有人：合并、rebase、推送、删 worktree、删分支，都必须等我确认。
+### 子 agent
+- 先跑一次检查，记下基线。只改分配给你的文件。
+- 修代码 bug：先补一个修复前失败、修复后通过的测试。加功能：为新行为补测试。文档任务：按「检查与交付」检查链接和状态描述，不需要补测试。
+- 任务文件和实际情况冲突，或者需要改不属于你的文件时，停下来报告证据，不要自己扩大范围。
+- 检查通过后，一个任务一个 commit，不要合并，不要 rebase，不要推送。
+- 最后按这个格式报告：
+  1. 完成了什么：每个任务的改动和原因
+  2. 验证：测试通过数和失败数；做了哪些真实行为验证，哪些没做。
+  3. 没完成的，或者和任务文件不一致的地方
+  4. commit hash
