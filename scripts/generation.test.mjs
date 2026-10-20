@@ -46,6 +46,13 @@ test('B2 generated artifact instructions use the injected run directory instead 
   }
 });
 
+test('autonomous-run template and output document stop as a complete command', async () => {
+  for (const path of ['adapters/pi/overrides/skills/poteto-mode/playbooks/autonomous-run.md.template', 'skills/poteto-mode/playbooks/autonomous-run.md']) {
+    const content = await readFile(resolve(root, path), 'utf8');
+    assert.deepEqual([...content.matchAll(/`(\/loop stop[^`]*)`/g)].map(match => match[1]), ['/loop stop'], path);
+  }
+});
+
 test('B12 generated writer guidance points to the current skill and principle leaves', async () => {
   const content = await readFile(resolve(root, 'agents/poteto-agent.md'), 'utf8');
   assert.doesNotMatch(content, /generalPurpose|Subagents section|inline Principles index/);
