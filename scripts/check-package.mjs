@@ -18,6 +18,8 @@ assert.deepEqual(manifest.pi, {
 });
 assert.equal(manifest.name, '@jiangkoumo/pi-pstack');
 assert.equal(manifest.publishConfig?.access, 'public', 'Published package requires public access');
+assert.notEqual(manifest.private, true, 'Package must not be private for release');
+assert.equal(manifest.scripts?.release, 'node scripts/release.mjs', 'Missing release script entry');
 const map = await json('docs/port-map.json');
 const inventory = await json('docs/upstream-inventory.json');
 assert.equal(map.commit, inventory.commit);

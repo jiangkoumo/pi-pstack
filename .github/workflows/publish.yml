@@ -1,0 +1,52 @@
+name: publish
+
+on:
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: npm-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies when a lockfile exists
+        run: if [ -f package-lock.json ]; then npm ci; fi
+
+      - name: Verify tag matches package.json
+        run: |
+          VERSION="$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version)")"
+          if [ "v$VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package version v$VERSION"
+            exit 1
+          fi
+          node -e "const p = JSON.parse(require('fs').readFileSync('package.json', 'utf8')); if (p.private) { console.error('::error::package.json is marked private'); process.exit(1); }"
+
+      - name: Package and generation gates
+        run: |
+          npm run check
+          npm run check:generate
+
+      - name: Publish to npm
+        run: |
+          VERSION="$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version)")"
+          if [[ "$VERSION" == *-* ]]; then
+            npm publish --access public --tag next
+          else
+            npm publish --access public
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

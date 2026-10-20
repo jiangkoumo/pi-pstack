@@ -7,6 +7,14 @@
   "publishConfig": {
     "access": "public"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiangkoumo/pi-pstack.git"
+  },
+  "homepage": "https://github.com/jiangkoumo/pi-pstack#readme",
+  "bugs": {
+    "url": "https://github.com/jiangkoumo/pi-pstack/issues"
+  },
   "keywords": [
     "pi-package"
   ],
@@ -46,6 +54,7 @@
     "generate": "node scripts/generate-pi-resources.mjs",
     "check:generate": "node scripts/generate-pi-resources.mjs --check",
     "check:generate:tests": "node --test scripts/generation.test.mjs",
+    "release": "node scripts/release.mjs",
     "check:pi": "node scripts/check-pi-discovery.mjs",
     "check:pi:commands": "node scripts/check-pi-commands.mjs",
     "check:correct": "node scripts/check-correct-acceptance.mjs",

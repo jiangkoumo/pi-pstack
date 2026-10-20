@@ -104,6 +104,23 @@ pi -e /path/to/pi-pstack
 
 ---
 
+## 发布
+
+发布由 tag 驱动：推送 `v*` tag 后，`.github/workflows/publish.yml` 会校验 tag 与 `package.json` 版本一致，运行 `npm run check` 与 `npm run check:generate`，再使用仓库 secret `NPM_TOKEN` 发布 npm。
+
+本地一键发布：
+
+```bash
+npm run release -- patch --dry-run   # 跑门禁、显示下一版本，不改文件
+npm run release -- patch             # 仅本地 commit + annotated tag
+npm run release -- patch --push      # 再 push commit 与 tag
+npm run release -- patch --publish   # 再 push 并 npm publish（需先 npm login）
+```
+
+`--publish` 隐含 `--push`；脚本默认只接受 `main` 分支、要求工作区干净，并在任何写入前跑完门禁。支持 `patch` / `minor` / `major`。CI 发布前需在仓库 Settings → Secrets 配置 `NPM_TOKEN`；预发布版本会自动使用 `next` tag。
+
+---
+
 ## 许可证与来源
 
 - 本项目遵循 [MIT 许可证](LICENSE)；
