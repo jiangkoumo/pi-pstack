@@ -93,7 +93,13 @@ export default function pstack(pi: ExtensionAPI) {
       let config;
       let configError;
       try { config = await configuration(ctx); choices(ctx, config.roles); } catch (error) { configError = String(error); }
-      show({ mode: state(ctx), scope: 'active session branch', persistent: !!ctx.sessionManager.getSessionFile(), config, configError, capabilities: { singleAgent: true, subagents: { exported: ['pstack.poteto-agent', 'pstack.comment-sicko'], roles: ROLES, agentRoles: AGENT_ROLES }, autoContinue: false }, skillPath }, ctx);
+      let persistent = false;
+      const sessionFile = ctx.sessionManager.getSessionFile();
+      if (sessionFile) {
+        try { await access(sessionFile); persistent = true; }
+        catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+      }
+      show({ mode: state(ctx), scope: 'active session branch', persistent, config, configError, capabilities: { singleAgent: true, subagents: { exported: ['pstack.poteto-agent', 'pstack.comment-sicko'], roles: ROLES, agentRoles: AGENT_ROLES }, autoContinue: false }, skillPath }, ctx);
     },
   });
   pi.registerCommand('setup-pstack', {
