@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { realpathSync } from 'node:fs';
-import { tmpdir, homedir } from 'node:os';
+import { tmpdir } from 'node:os';
+import { getAgentDir } from '@earendil-works/pi-coding-agent';
 import { resolve, isAbsolute } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -26,7 +27,7 @@ import { execFileSync } from 'node:child_process';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const piRoot = process.env.PI_PSTACK_PI_ROOT;
-const subRoot = process.env.PI_SUBAGENTS_ROOT || resolve(homedir(), '.pi/agent/npm/node_modules/pi-subagents');
+const subRoot = process.env.PI_SUBAGENTS_ROOT || resolve(getAgentDir(), 'npm/node_modules/pi-subagents');
 assert(piRoot, 'Set PI_PSTACK_PI_ROOT to the installed pi-coding-agent package root');
 
 const directory = await mkdtemp(resolve(tmpdir(), 'pstack-p3-worktrees-'));

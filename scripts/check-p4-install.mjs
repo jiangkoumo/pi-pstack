@@ -16,13 +16,14 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { tmpdir, homedir } from 'node:os';
+import { tmpdir } from 'node:os';
+import { getAgentDir } from '@earendil-works/pi-coding-agent';
 import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const piRoot = process.env.PI_PSTACK_PI_ROOT;
-const subRoot = process.env.PI_SUBAGENTS_ROOT || resolve(homedir(), '.pi/agent/npm/node_modules/pi-subagents');
+const subRoot = process.env.PI_SUBAGENTS_ROOT || resolve(getAgentDir(), 'npm/node_modules/pi-subagents');
 assert(piRoot, 'Set PI_PSTACK_PI_ROOT to the installed pi-coding-agent package root');
 
 const directory = await mkdtemp(resolve(tmpdir(), 'pstack-p4-install-'));

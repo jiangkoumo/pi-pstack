@@ -1,8 +1,9 @@
 import { access } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { type Model, getSupportedThinkingLevels } from '@earendil-works/pi-ai';
 import { CONFIG_DIR_NAME, getAgentDir, type ExtensionAPI, type ExtensionContext } from '@earendil-works/pi-coding-agent';
-import { MODE_ENTRY, MODE_SECTION, ROLES, AGENT_ROLES, modeFromBranch, modeGuidance, parseConfig, validateChoices, applySubagentRole } from './runtime.mjs';
+import { MODE_ENTRY, MODE_SECTION, ROLES, AGENT_ROLES, modeFromBranch, modeGuidance, roleGuidance, parseConfig, validateChoices, applySubagentRole } from './runtime.mjs';
 import { configPaths, loadConfig, updateConfig } from './config.mjs';
 import { LOOP_ENTRY, LOOP_TURN_TYPE, parseLoopArgs, loopFromBranch, createInitialLoopState, decideNextStep, renderLoopPrompt } from './loop.mjs';
 
@@ -53,19 +54,20 @@ export default function pstack(pi: ExtensionAPI) {
   pi.on('session_tree', (_event, ctx) => { refreshStatus(ctx); reconcileLoop(ctx); });
   pi.on('before_agent_start', async (event, ctx) => {
     delete event.systemPromptOptions.sections[MODE_SECTION];
+    delete event.systemPromptOptions.sections.pstack_context;
     const customType = event.messageType === 'custom' ? ((event as any).message?.customType ?? (event as any).customType) : undefined;
     const isUserOrLoop = event.messageType === 'user' || customType === LOOP_TURN_TYPE;
     if (!isUserOrLoop) return;
     try {
       const mode = state(ctx);
-      let roles = {};
-      if (mode.enabled) {
-        await access(skillPath);
-        const config = await configuration(ctx);
-        choices(ctx, config.roles);
-        roles = config.roles;
-      }
-      const guidance = modeGuidance(mode, skillPath, roles);
+      if (mode.enabled) await access(skillPath);
+      const config = await configuration(ctx);
+      choices(ctx, config.roles);
+      event.systemPromptOptions.sections.pstack_context = [
+        `Pstack run directory: ${JSON.stringify(resolve(getAgentDir(), 'pstack-runs'))}. Use a unique <run-id> subdirectory for local pstack artifacts unless the operator approves another path.`,
+        roleGuidance(config.roles),
+      ].join('\n');
+      const guidance = modeGuidance(mode, skillPath, {});
       if (guidance) event.systemPromptOptions.sections[MODE_SECTION] = guidance;
     } catch (error) {
       event.systemPromptOptions.sections[MODE_SECTION] = `Pstack configuration/state error: ${String(error)}. Report this error and stop this task until the operator fixes configuration or disables poteto-mode. No alternative model or provider was selected.`;
@@ -91,7 +93,13 @@ export default function pstack(pi: ExtensionAPI) {
       let config;
       let configError;
       try { config = await configuration(ctx); choices(ctx, config.roles); } catch (error) { configError = String(error); }
-      show({ mode: state(ctx), scope: 'active session branch', persistent: !!ctx.sessionManager.getSessionFile(), config, configError, capabilities: { singleAgent: true, subagents: { exported: ['pstack.poteto-agent', 'pstack.comment-sicko'], roles: ROLES, agentRoles: AGENT_ROLES }, autoContinue: false }, skillPath }, ctx);
+      let persistent = false;
+      const sessionFile = ctx.sessionManager.getSessionFile();
+      if (sessionFile) {
+        try { await access(sessionFile); persistent = true; }
+        catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+      }
+      show({ mode: state(ctx), scope: 'active session branch', persistent, config, configError, capabilities: { singleAgent: true, subagents: { exported: ['pstack.poteto-agent', 'pstack.comment-sicko'], roles: ROLES, agentRoles: AGENT_ROLES }, autoContinue: false }, skillPath }, ctx);
     },
   });
   pi.registerCommand('setup-pstack', {

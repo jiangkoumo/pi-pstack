@@ -37,6 +37,34 @@ async function rejectInBothModes(dir, pattern) {
   }
 }
 
+test('B2 generated artifact instructions use the injected run directory instead of the real home', async () => {
+  for (const destination of ['skills/architect/SKILL.md', ...['autonomous-run', 'hillclimb', 'multi-phase-plan', 'orchestrate', 'pause-safely', 'prototype'].map(name => `skills/poteto-mode/playbooks/${name}.md`)]) {
+    const content = await readFile(resolve(root, destination), 'utf8');
+    assert.doesNotMatch(content, /~\/\.pi\/agent\/pstack-runs/, destination);
+    assert.match(content, /pstack run directory (?:given|provided) in the system prompt/i, destination);
+    assert.match(content, /<run-id>/, destination);
+  }
+});
+
+test('autonomous-run template and output document stop as a complete command', async () => {
+  for (const path of ['adapters/pi/overrides/skills/poteto-mode/playbooks/autonomous-run.md.template', 'skills/poteto-mode/playbooks/autonomous-run.md']) {
+    const content = await readFile(resolve(root, path), 'utf8');
+    assert.deepEqual([...content.matchAll(/`(\/loop stop[^`]*)`/g)].map(match => match[1]), ['/loop stop'], path);
+  }
+});
+
+test('B12 generated writer guidance points to the current skill and principle leaves', async () => {
+  const content = await readFile(resolve(root, 'agents/poteto-agent.md'), 'utf8');
+  assert.doesNotMatch(content, /generalPurpose|Subagents section|inline Principles index/);
+  assert.match(content, /^description: .*code-writing.*handoff/m);
+  const link = content.match(/\[poteto-mode skill\]\(([^)]+)\)/);
+  assert(link, 'The writer must be told to read the current poteto-mode skill');
+  const skill = await readFile(resolve(root, 'agents', link[1]), 'utf8');
+  assert.match(skill, /^name: poteto-mode$/m);
+  assert.match(content, /principle-\*/);
+  assert.match(content, /Read the \[poteto-mode skill\].*in full before doing any work/);
+});
+
 test('generation is repeatable, no-op generation preserves mtime, and check is read-only', () => fixture(async dir => {
   const path = resolve(dir, 'skills/tdd/SKILL.md');
   const before = await stat(path);

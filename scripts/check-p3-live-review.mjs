@@ -33,6 +33,7 @@ import { createHash } from 'node:crypto';
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { tmpdir, homedir } from 'node:os';
+import { getAgentDir } from '@earendil-works/pi-coding-agent';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { Readable } from 'node:stream';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -82,7 +83,7 @@ function renderPromptLabels(brief) {
   for (const file of [...realFiles, ...controlFiles]) assert(brief.includes(file), 'brief must name ' + file);
 }
 
-const modelsPath = process.env.PI_PSTACK_LIVE_MODELS || resolve(homedir(), '.pi/agent/models.json');
+const modelsPath = process.env.PI_PSTACK_LIVE_MODELS || resolve(getAgentDir(), 'models.json');
 let catalog;
 if (selfTest) {
   // Deterministic plumbing rehearsal: identical harness, stub upstream, no external call.
@@ -184,7 +185,7 @@ if (!selfTest) try {
 }
 
 const piRoot = process.env.PI_PSTACK_PI_ROOT;
-const subRoot = process.env.PI_SUBAGENTS_ROOT || resolve(homedir(), '.pi/agent/npm/node_modules/pi-subagents');
+const subRoot = process.env.PI_SUBAGENTS_ROOT || resolve(getAgentDir(), 'npm/node_modules/pi-subagents');
 if (!piRoot) emit('blocked', { reason: 'set PI_PSTACK_PI_ROOT to the installed Pi coding agent package root' }, 1);
 
 const directory = await mkdtemp(resolve(tmpdir(), 'pstack-p3-live-'));
