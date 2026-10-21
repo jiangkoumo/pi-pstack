@@ -14,10 +14,19 @@ const seats = ['pstack.judgment-agent', 'pstack.strongest-agent', 'pstack.commen
 
 // Product acceptance only: no remote model or task delegation. The public plugin
 // executes actual foreground SDK children against this deterministic local SSE fixture.
-export async function runReviewDiffFixture() {
-  const subRoot = [process.env.PI_SUBAGENTS_ROOT, resolve(getAgentDir(), 'npm/node_modules/pi-subagents'),
+export function findSubagentsRoot() {
+  return [process.env.PI_SUBAGENTS_ROOT, resolve(getAgentDir(), 'npm/node_modules/pi-subagents'),
     resolve(homedir(), '.pi/agent/npm/node_modules/pi-subagents')].filter(Boolean).find(path => existsSync(resolve(path, 'index.js')));
-  assert(subRoot, 'Set PI_SUBAGENTS_ROOT to an installed pi-subagents package');
+}
+
+export async function runReviewDiffFixture(options = {}) {
+  const subRoot = findSubagentsRoot();
+  if (!subRoot) {
+    if (options.allowSkip) {
+      return { status: 'skipped', reason: 'pi-subagents not found in environment' };
+    }
+    assert(subRoot, 'Set PI_SUBAGENTS_ROOT to an installed pi-subagents package');
+  }
   const directory = await mkdtemp(resolve(tmpdir(), 'pstack-review-diff-'));
   const agentDir = resolve(directory, 'agent');
   const cwd = resolve(directory, 'workspace');
@@ -156,5 +165,6 @@ export async function runReviewDiffFixture() {
 }
 
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
-  console.log(JSON.stringify(await runReviewDiffFixture()));
+  const allowSkip = process.argv.includes('--allow-skip');
+  console.log(JSON.stringify(await runReviewDiffFixture({ allowSkip })));
 }
