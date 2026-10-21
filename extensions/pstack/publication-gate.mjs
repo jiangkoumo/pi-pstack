@@ -38,10 +38,13 @@ const PLACEHOLDER = /^<[^<>\n]+>$/;
 const PLACEHOLDER_WORD = /\b(?:TODO|TBD|CHANGEME)\b/;
 const TEST_TYPES = new Set(['test', 'check']);
 const SHELLS = new Set(['sh', 'bash', 'zsh', 'dash', 'ksh']);
-const WRAPPERS = new Set(['sudo', 'command', 'exec', 'time', 'nohup', 'builtin']);
+const WRAPPERS = new Set(['sudo', 'command', 'exec', 'time', 'nohup', 'builtin', 'nice', 'stdbuf', 'timeout']);
 const ENV_ASSIGNMENT = /^[A-Za-z_][A-Za-z0-9_]*=/;
 const SUDO_VALUE_OPTIONS = new Set(['-u', '-g', '-p', '-h', '-C', '-T', '-r', '-t', '-U']);
 const ENV_VALUE_OPTIONS = new Set(['-u', '--unset', '-C', '--chdir', '-S', '--split-string']);
+const NICE_VALUE_OPTIONS = new Set(['-n', '--adjustment']);
+const STDBUF_VALUE_OPTIONS = new Set(['-i', '-o', '-e', '--input', '--output', '--error']);
+const TIMEOUT_VALUE_OPTIONS = new Set(['-s', '--signal', '-k', '--kill-after']);
 const COMMIT_VALUE_OPTIONS = new Set([
   '-C', '--reuse-message', '-c', '--reedit-message', '-t', '--template', '--fixup', '--squash',
 ]);
@@ -238,6 +241,12 @@ function validateCountClaims(text, receipts) {
       continue;
     }
     const scope = cited ? `the last recorded \`${cited}\` run` : 'the last recorded test run';
+    if (latest.ok !== true) {
+      problems.push(latest.ok === false
+        ? `Verification cites ${scope}, but that run failed; a failed run cannot support a green claim`
+        : `Verification cites ${scope}, but it has no success record; rerun the command so the gate can record the outcome`);
+      continue;
+    }
     for (const field of ['tests', 'pass', 'fail', 'skipped']) {
       if (claims[field] === undefined) continue;
       if (latest[field] === undefined) {
@@ -455,6 +464,16 @@ export function tokenize(segment) {
   return { tokens };
 }
 
+function skipWrapperOptions(tokens, index, withValue) {
+  while (index < tokens.length) {
+    const option = tokens[index];
+    if (option === '--') return index + 1;
+    if (!option.startsWith('-')) return index;
+    index += withValue.has(option) ? 2 : 1;
+  }
+  return index;
+}
+
 function stripWrappers(tokens) {
   let index = 0;
   while (index < tokens.length) {
@@ -462,31 +481,71 @@ function stripWrappers(tokens) {
     if (ENV_ASSIGNMENT.test(token)) { index += 1; continue; }
     if (!WRAPPERS.has(token)) break;
     index += 1;
-    if (token === 'sudo' || token === 'env') {
-      const withValue = token === 'sudo' ? SUDO_VALUE_OPTIONS : ENV_VALUE_OPTIONS;
-      while (index < tokens.length) {
-        const option = tokens[index];
-        if (option === '--') { index += 1; break; }
-        if (!option.startsWith('-')) break;
-        index += withValue.has(option) ? 2 : 1;
-      }
+    if (token === 'sudo') index = skipWrapperOptions(tokens, index, SUDO_VALUE_OPTIONS);
+    else if (token === 'env') index = skipWrapperOptions(tokens, index, ENV_VALUE_OPTIONS);
+    else if (token === 'nice') index = skipWrapperOptions(tokens, index, NICE_VALUE_OPTIONS);
+    else if (token === 'stdbuf') index = skipWrapperOptions(tokens, index, STDBUF_VALUE_OPTIONS);
+    else if (token === 'timeout') {
+      index = skipWrapperOptions(tokens, index, TIMEOUT_VALUE_OPTIONS);
+      // `timeout <duration> <command>`: the duration is a required positional.
+      if (index < tokens.length && !tokens[index].startsWith('-')) index += 1;
     }
     while (index < tokens.length && ENV_ASSIGNMENT.test(tokens[index])) index += 1;
   }
   return tokens.slice(index);
 }
 
-function subcommandAfterGlobals(tokens, globals) {
+function subcommandAfterGlobals(tokens, globals, configs = []) {
   let index = 1;
   while (index < tokens.length) {
     const token = tokens[index];
     if (token === '--') return { index: index + 1, command: tokens[index + 1] };
     if (!token.startsWith('-')) return { index, command: token };
+    if (token === '-c') {
+      if (tokens[index + 1] !== undefined) configs.push(tokens[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (token.startsWith('-c') && token.length > 2) {
+      configs.push(token.slice(2));
+      index += 1;
+      continue;
+    }
     if (globals.has(token)) { index += 2; continue; }
     if ([...globals].some(option => option.startsWith('--') && token.startsWith(option + '='))) { index += 1; continue; }
     index += 1;
   }
   return { index, command: undefined };
+}
+
+/** Detect a command-level `git -c alias.<name>=...` alias that hides commit. */
+function gitAliasTarget(configs, command) {
+  if (!command) return null;
+  const aliases = new Map();
+  for (const config of configs) {
+    const equals = config.indexOf('=');
+    if (equals === -1) continue;
+    const key = config.slice(0, equals);
+    if (key.startsWith('alias.')) aliases.set(key.slice('alias.'.length), config.slice(equals + 1));
+  }
+  let current = command;
+  const seen = new Set();
+  for (let depth = 0; depth < 5; depth += 1) {
+    if (seen.has(current)) return null;
+    seen.add(current);
+    const value = aliases.get(current);
+    if (value === undefined) return null;
+    const target = value.trim();
+    if (target.startsWith('!')) {
+      return `git alias \`${current}\` runs a shell command the gate cannot verify; run \`git commit\` directly`;
+    }
+    const next = target.split(/\s+/)[0];
+    if (next === 'commit') {
+      return `git alias \`${current}\` expands to \`commit\`; run \`git commit\` directly so the title is checked`;
+    }
+    current = next;
+  }
+  return null;
 }
 
 function valueAfter(tokens, index, flag, inlinePrefix) {
@@ -618,21 +677,100 @@ function parsePrArgs(args, cwd) {
   return { request: { kind: 'pr', title, body: text, cwd }, problems };
 }
 
+const GH_API_VALUE_OPTIONS = new Set([
+  '-X', '--method', '-f', '--field', '-F', '--raw-field', '--input',
+  '-H', '--header', '-q', '--jq', '-t', '--template', '--cache',
+]);
+
+/** `gh api` can write a PR without the `gh pr create` contract; refuse that path. */
+function parseApiArgs(args) {
+  let endpoint;
+  let method;
+  let write = false;
+  let mutation = false;
+  let inputFile = false;
+  for (let index = 0; index < args.length; index += 1) {
+    const token = args[index];
+    if (token === '-f' || token === '--field' || token === '-F' || token === '--raw-field' || token === '--input') {
+      write = true;
+      if (token === '--input') inputFile = true;
+      if (/mutation/i.test(args[index + 1] ?? '')) mutation = true;
+      index += 1;
+      continue;
+    }
+    if (token.startsWith('--field=') || token.startsWith('--raw-field=') || token.startsWith('--input=')) {
+      write = true;
+      if (token.startsWith('--input=')) inputFile = true;
+      if (/mutation/i.test(token)) mutation = true;
+      continue;
+    }
+    if (/^-[fF].+/.test(token)) {
+      write = true;
+      if (/mutation/i.test(token)) mutation = true;
+      continue;
+    }
+    if (token === '-X' || token === '--method') {
+      method = (args[index + 1] ?? '').toUpperCase();
+      index += 1;
+      continue;
+    }
+    if (token.startsWith('--method=')) { method = token.slice('--method='.length).toUpperCase(); continue; }
+    if (token.startsWith('-X') && token.length > 2) { method = token.slice(2).toUpperCase(); continue; }
+    if (GH_API_VALUE_OPTIONS.has(token)) {
+      if (/mutation/i.test(args[index + 1] ?? '')) mutation = true;
+      index += 1;
+      continue;
+    }
+    if (token.startsWith('-')) continue;
+    if (endpoint === undefined) endpoint = token;
+  }
+  const methodWrites = method !== undefined && !['GET', 'HEAD'].includes(method);
+  const writes = write || methodWrites;
+  if (!writes) return { request: null };
+  if (endpoint !== undefined && /\/pulls(?:\/|$|\?)/.test(endpoint)) {
+    return {
+      request: null,
+      problems: ['`gh api` writes a pull request directly; use `gh pr create --title <title> --body-file <path>` so the title and headings are checked'],
+    };
+  }
+  if (endpoint === 'graphql' && (mutation || inputFile)) {
+    return {
+      request: null,
+      problems: ['`gh api graphql` writes a pull request directly; use `gh pr create --title <title> --body-file <path>` instead'],
+    };
+  }
+  return { request: null };
+}
 function requestFromTokens(tokens, cwd) {
   const head = basename(tokens[0]);
   if (head === 'git') {
-    const { index, command } = subcommandAfterGlobals(tokens, GIT_GLOBAL_VALUE_OPTIONS);
-    if (command !== 'commit') return { request: null };
+    const configs = [];
+    const { index, command } = subcommandAfterGlobals(tokens, GIT_GLOBAL_VALUE_OPTIONS, configs);
+    if (command !== 'commit') {
+      const alias = gitAliasTarget(configs, command);
+      return alias ? { request: null, problems: [alias] } : { request: null };
+    }
     return parseCommitArgs(tokens.slice(index + 1), cwd);
   }
   if (head === 'gh') {
-    let index = tokens.findIndex((token, position) => position > 0 && token === 'pr' && tokens[position + 1] === 'create');
-    if (index === -1) index = tokens.findIndex((token, position) => position > 0 && token === 'pr');
-    if (index === -1) return { request: null };
-    if (tokens[index + 1] !== 'create') return { request: null };
-    return parsePrArgs(tokens.slice(index + 2), cwd);
+    let subIndex = 1;
+    while (subIndex < tokens.length && tokens[subIndex].startsWith('-')) {
+      subIndex += tokens[subIndex] === '--hostname' ? 2 : 1;
+    }
+    const subcommand = tokens[subIndex];
+    if (subcommand === 'api') return parseApiArgs(tokens.slice(subIndex + 1));
+    if (subcommand !== 'pr' || tokens[subIndex + 1] !== 'create') return { request: null };
+    return parsePrArgs(tokens.slice(subIndex + 2), cwd);
   }
   return { request: null };
+}
+
+function looksLikePublication(args) {
+  const words = args.map(arg => arg.toLowerCase());
+  if (words.includes('commit')) return true;
+  if (words.includes('pr') && words.includes('create')) return true;
+  if (words.includes('api') && words.some(word => word.includes('pulls'))) return true;
+  return false;
 }
 
 function parseSegment(segment, cwd) {
@@ -641,6 +779,15 @@ function parseSegment(segment, cwd) {
   const tokens = stripWrappers(parsed.tokens);
   if (!tokens.length) return { requests: [], problems: [], recurse: [] };
   const head = basename(tokens[0]);
+  // `g=git; $g commit` runs a publication command the literal parser cannot
+  // name. Refuse instead of silently allowing it; do not expand variables here.
+  if (/[$`]/.test(head) && looksLikePublication(tokens.slice(1))) {
+    return {
+      requests: [],
+      problems: [`the executable is a shell variable or substitution (${JSON.stringify(head)}); the gate cannot verify a publication request through it. Use the literal \`git\` or \`gh\` command`],
+      recurse: [],
+    };
+  }
   if (SHELLS.has(head)) {
     const flagIndex = tokens.findIndex((token, position) => position > 0 && /^-[A-Za-z]*c[A-Za-z]*$/.test(token));
     if (flagIndex !== -1 && tokens[flagIndex + 1] !== undefined) {
@@ -742,6 +889,15 @@ export function inspectCommand(command, { cwd = process.cwd(), receipts, receipt
 // Pi wiring and CLI
 // ---------------------------------------------------------------------------
 
+/** Pull the STDOUT block out of a verification_exec rendering. */
+function verificationStdout(text) {
+  const marker = '\nSTDOUT:\n';
+  const start = text.indexOf(marker);
+  const body = start === -1 ? text : text.slice(start + marker.length);
+  const end = body.indexOf('\n\nSTDERR:');
+  return end === -1 ? body : body.slice(0, end);
+}
+
 /**
  * Register the gate on the host. The main entry only needs:
  *   import { registerPublicationGate } from './publication-gate.mjs';
@@ -758,18 +914,28 @@ export function registerPublicationGate(pi, { enabled = () => true, cwd: fixedCw
     if (result.status === 'block') return { block: true, reason: result.reason };
   });
   pi.on('tool_result', async (event, ctx) => {
-    if (event?.toolName !== 'bash') return;
+    const toolName = event?.toolName;
+    if (toolName !== 'bash' && toolName !== 'verification_exec') return;
     const command = event.input?.command;
     if (typeof command !== 'string') return;
     const cwd = fixedCwd ?? ctx?.cwd ?? process.cwd();
-    let output = (event.content ?? []).filter(part => part?.type === 'text').map(part => part.text).join('\n');
-    const fullOutputPath = event.details?.fullOutputPath;
-    if (typeof fullOutputPath === 'string' && fullOutputPath) {
-      try { output = readText(fullOutputPath, 16 * 1024 * 1024); }
-      catch { /* fall back to the inline content */ }
-    }
-    try { recordTestRun({ command, output, ok: !event.isError, cwd, receiptPath: receiptPath ?? defaultReceiptPath(cwd) }); }
-    catch { /* recording must never break the tool result */ }
+    const store = receiptPath ?? defaultReceiptPath(cwd);
+    try {
+      if (toolName === 'verification_exec') {
+        const details = event.details ?? {};
+        const passed = details.ok === true && details.status === 'passed' && details.exitCode === 0;
+        const rendered = (event.content ?? []).filter(part => part?.type === 'text').map(part => part.text).join('\n');
+        recordTestRun({ command, output: verificationStdout(rendered), ok: passed, cwd, receiptPath: store });
+        return;
+      }
+      let output = (event.content ?? []).filter(part => part?.type === 'text').map(part => part.text).join('\n');
+      const fullOutputPath = event.details?.fullOutputPath;
+      if (typeof fullOutputPath === 'string' && fullOutputPath) {
+        try { output = readText(fullOutputPath, 16 * 1024 * 1024); }
+        catch { /* fall back to the inline content */ }
+      }
+      recordTestRun({ command, output, ok: !event.isError, cwd, receiptPath: store });
+    } catch { /* recording must never break the tool result */ }
   });
 }
 

@@ -305,6 +305,116 @@ test('a command with several test invocations is refused a receipt', () => {
   assert.equal(one.command, 'npm test');
 });
 
+test('a failed latest run cannot back a green count claim', () => {
+  const cwd = repo();
+  recordTestRun({ command: 'npm test', output: CLEAN_TAP, ok: false, cwd });
+  const receipts = JSON.parse(readFileSync(join(cwd, '.git', 'pstack-publication-receipts.json'), 'utf8')).runs;
+  const problems = validateBody(body('- `npm test`: 11 pass, 0 fail.'), { receipts });
+  assert.ok(problems.some(problem => problem.includes('failed')), problems.join('\n'));
+});
+
+test('common wrappers and shell-escaped executables are still inspected', () => {
+  const cwd = repo();
+  for (const command of [
+    'nice git commit -m "Update the gate"',
+    'nice -n 10 git commit -m "Update the gate"',
+    'nice g\\it commit -m "Update the gate"',
+    'nice g""it commit -m "Update the gate"',
+    'stdbuf -o0 git commit -m "Update the gate"',
+    'timeout 5 git commit -m "Update the gate"',
+    'timeout -s KILL 5 git commit -m "Update the gate"',
+  ]) {
+    assert.equal(inspectCommand(command, { cwd, receipts: [] }).status, 'block', command);
+  }
+  assert.equal(inspectCommand('nice git status', { cwd, receipts: [] }).status, 'allow');
+});
+
+test('in-command git aliases cannot hide commit', () => {
+  const cwd = repo();
+  for (const command of [
+    'git -c alias.ci=commit ci -m "Update the gate"',
+    'git -c alias.ci=commit ci -m "fix(pstack): ok"',
+    'git -c "alias.ci=commit" ci -m "Update the gate"',
+  ]) {
+    assert.equal(inspectCommand(command, { cwd, receipts: [] }).status, 'block', command);
+  }
+  assert.equal(inspectCommand('git -c color.ui=false status', { cwd, receipts: [] }).status, 'allow');
+});
+
+test('gh api pull-request writes are refused and point at gh pr create', () => {
+  const cwd = repo();
+  for (const command of [
+    'gh api repos/owner/repo/pulls -f title=bad -f body=nope -f head=branch -f base=main',
+    'gh api -X POST repos/owner/repo/pulls -f title=bad',
+    'gh api --method PATCH repos/owner/repo/pulls/7 -f body=nope',
+    'gh api graphql -f query=mutation -f title=bad',
+    'gh api graphql --input mutation.json',
+    'gh api --input pr.json repos/owner/repo/pulls',
+  ]) {
+    const result = inspectCommand(command, { cwd, receipts: [] });
+    assert.equal(result.status, 'block', command);
+    assert.match(result.reason, /gh pr create/, `${command}\n${result.reason}`);
+  }
+  assert.equal(inspectCommand('gh api repos/owner/repo/pulls', { cwd, receipts: [] }).status, 'allow');
+  assert.equal(inspectCommand('gh api repos/owner/repo/issues --jq "[.[].title]"', { cwd, receipts: [] }).status, 'allow');
+  assert.equal(inspectCommand('gh api graphql -X POST -f query=query{viewer{login}}', { cwd, receipts: [] }).status, 'allow');
+});
+
+test('variable-expanded executables cannot silently carry a publication request', () => {
+  const cwd = repo();
+  for (const command of [
+    'g=git; $g commit -m "Update the gate"',
+    'x=gh; $x pr create --title bad --body nope',
+    'g=git; "$g" commit -m "Update the gate"',
+    'g=git; ${g} commit -m "Update the gate"',
+    '$(which git) commit -m "Update the gate"',
+  ]) {
+    assert.equal(inspectCommand(command, { cwd, receipts: [] }).status, 'block', command);
+  }
+  assert.equal(inspectCommand('g=git; $g status', { cwd, receipts: [] }).status, 'allow');
+});
+
+test('verification_exec results record a receipt from structured details', async () => {
+  const cwd = repo();
+  const handlers = {};
+  const pi = { on(name, handler) { (handlers[name] ??= []).push(handler); } };
+  registerPublicationGate(pi, { cwd });
+  const rendered = [
+    'COMMAND: npm test',
+    'STATUS: passed',
+    'EXIT CODE: 0',
+    '',
+    'STDOUT:',
+    CLEAN_TAP,
+    '',
+    'STDERR:',
+    '(empty)',
+  ].join('\n');
+  await handlers.tool_result[0]({
+    toolName: 'verification_exec',
+    input: { command: 'npm test' },
+    content: [{ type: 'text', text: rendered }],
+    details: { ok: true, status: 'passed', exitCode: 0, sandbox: 'test', category: 'test' },
+    isError: false,
+  }, { cwd });
+  const stored = JSON.parse(readFileSync(join(cwd, '.git', 'pstack-publication-receipts.json'), 'utf8'));
+  assert.equal(stored.runs[0].command, 'npm test');
+  assert.equal(stored.runs[0].ok, true);
+  assert.equal(stored.runs[0].pass, 11);
+  assert.deepEqual(validateBody(body('- `npm test`: 11 pass, 0 fail.'), { receipts: stored.runs }), []);
+
+  const failedRendered = rendered.replace('STATUS: passed', 'STATUS: failed').replace('EXIT CODE: 0', 'EXIT CODE: 1');
+  await handlers.tool_result[0]({
+    toolName: 'verification_exec',
+    input: { command: 'npm test' },
+    content: [{ type: 'text', text: failedRendered }],
+    details: { ok: true, status: 'failed', exitCode: 1, sandbox: 'test', category: 'test' },
+    isError: false,
+  }, { cwd });
+  const afterFailed = JSON.parse(readFileSync(join(cwd, '.git', 'pstack-publication-receipts.json'), 'utf8')).runs;
+  assert.equal(afterFailed.at(-1).ok, false);
+});
+
 test('a corrupt receipt store blocks publications but not unrelated commands', () => {
   const cwd = repo();
   writeFileSync(join(cwd, '.git', 'pstack-publication-receipts.json'), '{not json');

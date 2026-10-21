@@ -29,7 +29,7 @@ baseline run. (Older validation records list 162 for an earlier revision; this b
 | File | Change |
 | --- | --- |
 | `extensions/pstack/publication-gate.mjs` | New pure inspector, receipt store, Pi handler registration, and CLI. No git/gh/shell execution. |
-| `scripts/publication-gate.test.mjs` | 19 behavior tests for titles, PR headings, order, stale counts, exact-argv matching, multi-invocation refusal, wrappers, handler wiring, linked-worktree storage, and CLI exit codes. |
+| `scripts/publication-gate.test.mjs` | 25 behavior tests for titles, PR headings, order, stale counts, failed receipts, exact-argv matching, multi-invocation refusal, wrappers, aliases, `gh api`, variable executables, `verification_exec`, handler wiring, linked-worktree storage, and CLI exit codes. |
 | `adapters/pi/overrides/skills/poteto-mode/playbooks/opening-a-pr.md.template` | Records the mechanical gate and corrects the self-check: five sections are required; `## Tradeoffs` is optional and only sits between Scope and Blast Radius. |
 | `docs/templates/pstack-pr.md` | States the gate behavior and the optional Tradeoffs position. |
 
@@ -50,11 +50,20 @@ baseline run. (Older validation records list 162 for an earlier revision; this b
 - Test counts: any `N pass`/`N/N`/`N tests`/`N fail`/`N skipped` claim in a PR `## Verification` must
   match the last recorded run of the cited command. Matching is exact at the argv level, so a
   different `--filter`/`--test-name-pattern` is a different run. A count that matches an older run is
-  reported as stale. No recorded run means the claim is rejected. Counts are recorded from the actual
-  bash tool result, not from the body.
-- The parser is fail-closed for wrappers and hidden requests (`sudo`, `bash -c`, `eval`, `xargs`,
-  chained commands, quoted `git commit` text, command substitution): an unverifiable publication
-  request is blocked rather than allowed.
+  reported as stale. A run recorded with `ok: false` (the command exited non-zero, failed, or timed
+  out) cannot support any count claim. No recorded run means the claim is rejected. Counts are
+  recorded from the actual bash or `verification_exec` result, not from the body.
+- The parser is fail-closed for wrappers and hidden requests: `sudo`, `env`, `nice`, `stdbuf`,
+  `timeout`, `bash -c/-lc`, `eval`, `xargs`, chained commands, quoted `git commit` text, command
+  substitution, and a variable-expanded executable carrying `commit`/`pr create`/`pulls`. It does not
+  expand shell variables; it refuses the request instead.
+- Command-level git aliases are resolved: `git -c alias.ci=commit ci` is blocked and must use
+  `git commit` directly. Aliases from global config are not visible to the gate.
+- `gh api` writes to `/pulls` and GraphQL mutations are refused with a pointer to
+  `gh pr create --title ... --body-file ...`; read-only `gh api` calls stay allowed.
+- `verification_exec` results are recorded when the host reports structured details
+  `{ok, status, exitCode}` and renders a `STDOUT` block; only `status: passed` with exit code 0
+  counts as a successful run.
 
 Receipts stay out of the working tree: a normal repository uses
 `<git-dir>/pstack-publication-receipts.json`; a linked worktree whose gitdir lives in the main
@@ -67,7 +76,7 @@ would create a count that belongs to neither run; run each command separately.
 
 | Command | Exit | Result |
 | --- | ---: | --- |
-| `node --test scripts/publication-gate.test.mjs` | 0 | 19 tests, 19 pass, 0 fail |
+| `node --test scripts/publication-gate.test.mjs` | 0 | 25 tests, 25 pass, 0 fail |
 | `node extensions/pstack/publication-gate.mjs inspect --command 'git commit -m "Update the gate"'` | 1 | `status: block`, Conventional Commits rejection |
 | `node extensions/pstack/publication-gate.mjs inspect --command 'git commit -m "fix(pstack): close the publication gate"'` | 0 | `status: allow` |
 | `node scripts/generate-pi-resources.mjs --check` | 1 | Only expected drift: generated `skills/poteto-mode/playbooks/opening-a-pr.md` no longer matches the edited template; the primary controller regenerates it |
@@ -81,11 +90,13 @@ unknown/duplicate/empty/placeholder sections; bad commit title; compliant commit
 bodies (`Fixes #12`, count claims) staying outside the PR shape; the opt-in strict commit body;
 `-F`/`--file`; `-F -`; `--amend` with and without a message; `-C`; `--fixup`; `--edit`;
 PR title/body/body-file; missing body file; `--fill`; `body` plus `body-file`; `sudo`, `bash -c`,
-`bash -lc`, `env`, chaining, quoted and substituted requests; test summary aggregation; stale and
-mismatched counts; exact-argv matching for different test filters; refusal to record a command with
-several test invocations; corrupt receipt store; linked-worktree temp storage; full-output fallback;
-real Pi handler block/allow and recording; CLI exit codes 0/1/2. Read-only commands such as
-`git log --grep commit` and `git show commit` stay allowed.
+`bash -lc`, `env`, `nice`, `stdbuf`, `timeout`, shell-escaped executables, chaining, quoted and
+substituted requests; variable-expanded executables; in-command git aliases; `gh api` pull writes
+versus reads; failed receipts; test summary aggregation; stale and mismatched counts; exact-argv
+matching for different test filters; refusal to record a command with several test invocations;
+corrupt receipt store; linked-worktree temp storage; bash full-output fallback; `verification_exec`
+structured results; real Pi handler block/allow and recording; CLI exit codes 0/1/2. Read-only
+commands such as `git log --grep commit` and `git show commit` stay allowed.
 
 ## Not done in this worktree (assigned to the primary controller)
 
@@ -108,18 +119,32 @@ This worktree was not authorized to edit the extension entry, `package.json`, or
    (blocked), and a compliant PR body (allowed). The external PR operation still needs the
    operator's authorization. This worktree did not push, open a PR, or run the extension through a
    real Pi host, so no end-to-end claim is made here.
+5. **verification_exec wiring**: the gate now records `verification_exec` tool results using the
+   Issue #13 details contract `{ok, status, exitCode}` and the rendered `STDOUT:` block. The host
+   must register that tool and dispatch the `tool_result` event for this handler to see it. The
+   current worktree does not include `extensions/pstack/verification-exec.mjs`.
 
-## Limits
+## Limits and explicit non-goals
 
-- The gate is a preflight over the request string, not proof that the change works and not a sandbox.
-  It can miss a publication command produced by a program that does not expose it in the bash string;
-  the documented fail-closed checks cover the shell forms named above.
+- The gate is a preflight over the request string, not proof that the change works and not an OS
+  execution boundary. A publication command started inside `node`, `npm`, a package script, a
+  release helper, or another tool the host exposes (for example PowerShell) is outside this module.
+  It also does not observe detached child processes.
+- Shell support is deliberately partial: known wrappers and variable-expanded executables are
+  refused, but the gate does not implement full shell expansion or PowerShell parsing. When it cannot
+  name the request, it blocks; when a program hides the request from the command string, only a Git
+  hook, CI check, or binary-level wrapper can close that gap.
 - Count extraction is heuristic for the Node test reporter (`# tests`/`# pass`/`# fail` and the
-  `ℹ` spec lines) plus mocha-style `N passing`. Other runners need their own summary support.
-- Test-count matching trusts the receipt store; an agent that deletes or edits the store can erase
-  evidence. Receipts are evidence of what the host reported, not a cryptographic attestation.
+  `ℹ` spec lines) plus mocha-style `N passing`. It trusts the output the host reports: a test script
+  that prints its own summary lines, or a forged stdout, can still poison a receipt. Other runners
+  need their own summary support.
+- Receipts are not signed. An agent that can write the store can change or delete it; the store is
+  evidence of what the host reported, not a cryptographic attestation, and this module does not add
+  HMAC or a privileged ledger.
 - A linked worktree whose gitdir is outside the writable workspace uses a temp store keyed by the
   checkout path. It survives tool calls in the session but not a reboot or temp cleanup; pass an
   explicit receipt path when the evidence must outlive the machine.
+- Global git aliases are not visible to the gate; only aliases defined in the same command are
+  resolved.
 - `git commit` bodies are not checked against the PR headings by default; set `requireCommitBody` if
   every commit must carry the full PR body.
