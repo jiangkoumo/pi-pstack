@@ -101,7 +101,7 @@ export async function runReviewDiffFixture(options = {}) {
     } } }));
     const runtime = await ModelRuntime.create({ authPath: resolve(agentDir, 'auth.json'), modelsPath, allowModelNetwork: false });
     const reviewer = parseRoleAgent(await readFile(resolve(root, 'agents/comment-sicko.md'), 'utf8'), 'pstack.comment-sicko', resolve(root, 'agents'));
-    assert.deepEqual(reviewer.tools, ['read', 'grep', 'find', 'ls']);
+    assert.deepEqual(reviewer.tools, ['read', 'grep', 'find', 'ls', 'git_read']);
     const settingsManager = SettingsManager.inMemory(settings);
     const loader = new DefaultResourceLoader({ cwd, agentDir, settingsManager, noExtensions: true,
       additionalExtensionPaths: [resolve(subRoot, 'index.js')], noSkills: true, noContextFiles: true, noPromptTemplates: true, noThemes: true,
@@ -111,6 +111,7 @@ export async function runReviewDiffFixture(options = {}) {
             // Judgment/strongest registration belongs to the lead's shared files.
             // Use the same strict reviewer boundary while testing their public names.
             const request = { version: 1, name, definition: { ...reviewer,
+              tools: ['read', 'grep', 'find', 'ls'],
               inheritProjectContext: false, defaultAsync: false, model: `fixture/${['judgment', 'strongest', 'review'][index]}`, thinking: 'low' } };
             pi.events.emit('pi-subagents:runtime-agent-register:v1', request);
             assert(request.result?.ok, String(request.result?.error));

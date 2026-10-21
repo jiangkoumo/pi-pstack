@@ -50,8 +50,8 @@ const sickoPlan = resolvePiLaunchToolPlan({
 });
 
 assert.equal(sickoPlan.explicitToolAllowlist, true, "Read-only agent must enforce explicit tool allowlist");
-assert.equal(sickoPlan.disableAmbientExtensions, true, "Read-only agent must disable ambient extensions");
-assert.deepEqual(sickoPlan.effectiveToolAllowlist.sort(), ["find", "grep", "ls", "read"], "Tool plan must strictly contain only read-only tools");
+assert.equal(sickoPlan.disableAmbientExtensions, false, "Read-only agent must not disable ambient extensions");
+assert.deepEqual(sickoPlan.effectiveToolAllowlist.sort(), ["find", "git_read", "grep", "ls", "read"], "Tool plan must strictly contain only read-only tools");
 
 // Verify planner output only; actual tool denial is exercised by check-p3-host.mjs.
 for (const forbidden of ["edit", "write", "bash", "subagent"]) {

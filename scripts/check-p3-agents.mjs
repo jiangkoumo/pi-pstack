@@ -45,8 +45,8 @@ for (const [role, name] of Object.entries(ROLE_AGENTS)) {
 const sicko = parsedAgents.get("pstack.comment-sicko");
 assert(sicko, "Must have pstack.comment-sicko definition");
 assert.equal(sicko.definition.acceptanceRole, "read-only");
-assert.deepEqual(sicko.definition.tools, ["read", "grep", "find", "ls"]);
-assert.deepEqual(sicko.definition.extensions, []);
+assert.deepEqual(sicko.definition.tools, ["read", "grep", "find", "ls", "git_read"]);
+assert.equal(sicko.definition.extensions, undefined);
 assert.deepEqual(sicko.definition.excludeTools, ["contact_supervisor"]);
 assert.equal(sicko.definition.defaultAsync, true);
 assert.equal(sicko.definition.inheritProjectContext, true);
@@ -70,7 +70,7 @@ const verifier = parsedAgents.get("pstack.verifier");
 const prose = parsedAgents.get("pstack.prose-writer");
 assert(verifier && prose, "Pi-specific role agents must be present");
 assert.deepEqual(verifier.definition.tools, ["read", "grep", "find", "ls"]);
-assert.deepEqual(verifier.definition.extensions, []);
+assert.equal(verifier.definition.extensions, undefined);
 assert.deepEqual(prose.definition.tools, ["read", "edit", "write", "grep", "find", "ls"]);
 
 // Verify dynamic registration through controller
