@@ -33,6 +33,11 @@
 - 不修改用户现有 Pi 全局配置来证明安装；优先使用隔离配置环境。
 - 交付记录已完成、实际验证结果、未完成及具体阻碍。
 
+## 子 agent 启动规则
+
+- 小任务可以用 subagent 插件：只读的工作（查代码、review、调研）随时可以用。要改文件的，同一时间最多一个，而且不开新分支。
+- 我要求并行开发或者用 Herdr pane 时：每个分支先用 herdr worktree create 建 worktree，再在这个 worktree 里新开一个可见的 pane，用 herdr agent start 启动子 agent，用 herdr agent prompt 派任务，不要用 subagent 插件。派完后把每个 pane 对应的 issue 编号、分支和 worktree 路径列给我。
+
 ## 并行开发（只在我明确要求并行时使用）
 
 ### 角色
