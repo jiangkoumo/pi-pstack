@@ -55,10 +55,17 @@ async function extensionFixture(run) {
   }
 }
 
-test('B6 mode status reflects session file existence before the first assistant message', () => extensionFixture(async ({ commands, messages, ctx, manager }) => {
+test('B6 mode status reports durable mode state before the first assistant message', () => extensionFixture(async ({ commands, messages, ctx, manager }) => {
+  await commands.get('poteto-mode')('status', ctx);
+  assert.equal(messages.at(-1).persistent, false);
   await commands.get('poteto-mode')('on', ctx);
   assert.equal(messages.at(-1).mode.enabled, true);
-  assert.equal(messages.at(-1).persistent, false);
+  assert.equal(messages.at(-1).persistent, true);
+  await commands.get('poteto-mode')('status', ctx);
+  assert.equal(messages.at(-1).persistent, true);
+  await commands.get('poteto-mode')('off', ctx);
+  assert.equal(messages.at(-1).mode.enabled, false);
+  assert.equal(messages.at(-1).persistent, true);
   manager.appendMessage({ role: 'assistant', content: [{ type: 'text', text: 'saved' }], api: 'openai-completions', provider: 'fixture', model: 'model', usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: 0, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } }, stopReason: 'stop', timestamp: Date.now() });
   await commands.get('poteto-mode')('status', ctx);
   assert.equal(messages.at(-1).persistent, true);

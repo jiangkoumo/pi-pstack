@@ -165,10 +165,23 @@ export default function pstack(pi: ExtensionAPI) {
       let configError;
       try { config = await configuration(ctx); choices(ctx, config.roles); } catch (error) { configError = String(error); }
       let persistent = false;
-      const sessionFile = ctx.sessionManager.getSessionFile();
-      if (sessionFile) {
-        try { await access(sessionFile); persistent = true; }
-        catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+      for (const path of modeStatePaths(ctx)) {
+        try {
+          await access(path);
+          loadModeState(path);
+          persistent = true;
+          break;
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+        }
+      }
+      // Older sessions may persist only their branch entry in the transcript.
+      if (!persistent && modeFromBranch(ctx.sessionManager.getBranch()).explicit) {
+        const sessionFile = ctx.sessionManager.getSessionFile();
+        if (sessionFile) {
+          try { await access(sessionFile); persistent = true; }
+          catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+        }
       }
       const roleStatus = roleController.status();
       const subagentsAvailable = roleStatus.state !== 'unavailable';

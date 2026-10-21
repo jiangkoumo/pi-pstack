@@ -27,7 +27,7 @@ roles 为 code、review、prose、verification。选择必须为精确 provider/
 - reload、恢复与 compaction 从完整活动分支读取状态，不从已被压缩的模型消息猜测。没有自动续跑事件。
 - set/on 遇到配置或状态坏值会报错；两个 status 命令对坏配置显示 configError 字段；运行中发现错误则在系统区块明确呈现并要求停止任务。该提示是行为约束，不是工具权限拦截。off 可以覆盖较早的不兼容状态。
 - TUI 用状态栏与可见命令消息；JSON/RPC 用结构化事件；print 命令结果写 stderr，避免混入模型 stdout。非 print 的命令结果通过 pi.sendMessage 存成 custom_message，包含状态、路径、模型目录或角色数据，会进入后续模型上下文且不会随 off 撤回；它们是历史数据，不是当前模式状态的来源。
-- 新会话在首次聊天之前 Pi 可能尚未落盘；此时状态只在内存，status 的 persistent=false。第一次消息落盘后才保证跨进程恢复。
+- 自 0.3.1 起，模式开关在命令返回前写入按 session ID 命名的持久化文件，首次聊天前也可跨进程恢复。0.3.2 修正 status 的显示：有效模式状态文件存在即 persistent=true，包括已持久化的 off；没有模式状态且没有历史分支条目的新会话为 false。Pi transcript 是否已经创建不再决定此字段。历史 P2 验收的内存限制不适用于当前实现。
 
 ## 配置契约
 
