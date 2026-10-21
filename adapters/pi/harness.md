@@ -1,12 +1,12 @@
 # pstack for Pi Harness Adapter
 
-pstack skills originate from Cursor conventions. In Pi, this adapter specifies the mapping between Cursor concepts and Pi tools, subagents, models, paths, and authority. It documents the translation contracts. Single-agent workflows and two generated package agents are available. P3 direct subagent role wiring, multi-model review, and background isolation lifecycle acceptance are implemented.
+pstack skills originate from Cursor conventions. In Pi, this adapter specifies the mapping between Cursor concepts and Pi tools, subagents, models, paths, and authority. It documents the translation contracts. Single-agent workflows and four generated role agents are available. Runtime registration binds role models for direct calls and workflow children; multi-model review and background isolation lifecycle acceptance are implemented.
 
 ## Tools
 
 | Cursor Concept | Pi Mapping | Constraints & Behavior |
 | --- | --- | --- |
-| `Task` | `subagent({ ... })` or direct execution | Current workflows execute directly. P3 may use bounded child agents only with operator authorization and verified integration. Never invent Cursor Task syntax. |
+| `Task` | `subagent({ ... })` or direct execution | Follow the selected playbook’s delegation requirements within operator authorization and verified integration. Parallel calls use `workflow: "parallel", args: { tasks: [{ agent, task }] }`. Never invent Cursor Task syntax. |
 | `AskQuestion` | Plain-text question in response | Ask the user directly in normal reply text. If in an autonomous grant, follow non-negotiable pause criteria. |
 | Open a todolist | Inline response plan or task tracking | Keep the plan, phases, and throughput checkpoints in the response or use existing task tools. |
 | Run another pstack skill (`/name` or "the **name** skill") | `read` `<package>/skills/<name>/SKILL.md` or `/skill:<name>` | Explicitly read leaf skill or use `/skill:<name>`. Skills are loaded on demand, not preloaded into every turn. |
@@ -27,8 +27,8 @@ pstack skills originate from Cursor conventions. In Pi, this adapter specifies t
 
 | Cursor Concept | Pi Mapping | Constraints & Behavior |
 | --- | --- | --- |
-| `subagent_type: generalPurpose` | Default general-purpose subagent | P3 target; not yet connected by this package. |
-| `poteto-agent`, `comment-sicko` | `pstack.poteto-agent`, `pstack.comment-sicko` | Generated package agents. Direct subagent calls apply code/review preferences through tool_call; script workflows and slash launches are not wired. |
+| `subagent_type: generalPurpose` | `pstack.poteto-agent` | Implementation delegate bound to the configured `code` role. |
+| `poteto-agent`, `comment-sicko` | `pstack.poteto-agent`, `pstack.comment-sicko` | Registered at session start through the public runtime-agent-register v1 event. Role models bind in agent definitions for direct calls and workflow children; `pstack.verifier` uses verification and `pstack.prose-writer` uses prose. Omit model from task items and the outer call. User agentOverrides take precedence. |
 | `readonly: true` | Strict read-only tool allowlist (`read`, `grep`, `find`, `ls`) | Never grant `bash`, `edit`, or `write` to read-only delegates. Git status clean does not prove read-only compliance if write tools are present. |
 | `readonly: false` | Writer delegate | One writer per working directory / worktree. Isolate concurrent writers in managed git worktrees. |
 | `environment: "cloud"` | Unsupported | Cursor cloud execution is not supported. Use local worktrees with explicit operator authorization. |

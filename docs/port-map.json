@@ -1267,13 +1267,8 @@
         "strategy": "override",
         "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/bug-fix.md.template"
       },
-      "evidence": "validation-p1.md",
-      "dependencies": [
-        "skills/principle-fix-root-causes/SKILL.md",
-        "skills/principle-prove-it-works/SKILL.md",
-        "skills/principle-test-behavior-not-implementation/SKILL.md",
-        "skills/tdd/SKILL.md"
-      ]
+      "evidence": "validation-playbook-restoration.md",
+      "dependencies": []
     },
     {
       "kind": "playbooks",
@@ -1307,15 +1302,8 @@
         "strategy": "override",
         "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/feature.md.template"
       },
-      "evidence": "validation-p1.md",
-      "dependencies": [
-        "skills/principle-boundary-discipline/SKILL.md",
-        "skills/principle-laziness-protocol/SKILL.md",
-        "skills/principle-model-the-domain/SKILL.md",
-        "skills/principle-prove-it-works/SKILL.md",
-        "skills/principle-sequence-verifiable-units/SKILL.md",
-        "skills/principle-test-behavior-not-implementation/SKILL.md"
-      ]
+      "evidence": "validation-playbook-restoration.md",
+      "dependencies": []
     },
     {
       "kind": "playbooks",
@@ -1394,6 +1382,7 @@
       },
       "evidence": "validation-p5-loop.md",
       "dependencies": [
+        "skills/interrogate/SKILL.md",
         "skills/poteto-mode/SKILL.md"
       ]
     },

@@ -11,7 +11,7 @@ Before inspecting the workspace or running commands, make your first tool call a
 
 Use native file tools: `ls` for directories, `read` for contents, and available search tools for discovery. Do not substitute shell `ls`, `find`, `cat`, or `rg`. Run each verification command separately with an explicit `cd <workspace> && <command>`; use the tool's actual exit status. Do not append `echo $?`, `|| true`, pipes that hide failure, or extra commands after a check.
 
-An explicit /skill:poteto-mode invocation applies to the current request. The package extension also supports /poteto-mode on/off/status for later user requests on the active session branch. Turning persistent mode off does not cancel an explicit skill invocation in the current user request. These methods are adapted from Lauren Tan’s pstack v0.15.25, MIT, fixed revision f713f14203cd6420cec13cd7c55c32d598dbab68. Single-agent execution is the default; independent panels require authorized delegation. Source and differences are in [the port record](../../docs/port-status.md), and Pi harness mappings are in [the Pi adapter](../../adapters/pi/harness.md).
+An explicit /skill:poteto-mode invocation applies to the current request. The package extension also supports /poteto-mode on/off/status for later user requests on the active session branch. Turning persistent mode off does not cancel an explicit skill invocation in the current user request. These methods are adapted from Lauren Tan’s pstack v0.15.25, MIT, fixed revision f713f14203cd6420cec13cd7c55c32d598dbab68. Feature and bug-fix playbooks require design exploration and delegated implementation when delegation is authorized; independent panels require a working pi-subagents integration. Source and differences are in [the port record](../../docs/port-status.md), and Pi harness mappings are in [the Pi adapter](../../adapters/pi/harness.md).
 
 ## Non-negotiables
 
@@ -81,11 +81,15 @@ Continue reversible work already authorized. User and project instructions gover
 
 User and project instructions govern tools, permissions, output, and scope. Loading this skill grants no extra permission to delegate, send messages, commit, push, merge, deploy, or delete. Continue reversible work already authorized. Ask only for a material requirement or action that remains unauthorized. Continue independent authorized work while awaiting an answer.
 
-Work directly by default. Optional delegation requires operator or applicable project authorization and a working integration such as pi-subagents. Check the installed integration's instructions and actual model list before using it. Current parallel tasks/chain items forbid model, and script-internal launches have no public launch hook for automatic role mapping. Only the supported direct-call path applies current code/review preferences. Never claim per-seat automatic routing from workflow configuration. Use a schema-verified direct-call path when explicit seat models are required, or report the unavailable route. Never copy Cursor Task syntax or fixed model names. Use Pi's `/loop run` command for bounded autonomous iterations. Missing delegation does not block these workflows. Do not describe a self-review as independent review.
+Follow the selected playbook’s delegation requirements within operator or applicable project authorization. Check the installed integration’s public instructions and actual model list before using it. Runtime-registered pstack agents bind the code, review, verification, and prose roles in their definitions, so direct calls and workflow children use those roles. For parallel seats use `subagent({ workflow: "parallel", args: { tasks: [{ agent: "pstack.<agent>", task: "<brief>" }] } })`; do not put model in a task item or on the outer call. User subagents.agentOverrides take precedence. Never copy Cursor Task syntax or fixed model names. Use Pi’s `/loop run` command for bounded autonomous iterations. If delegation is unavailable, perform the steps sequentially, label the result self-review, and record `BLOCKED: independent review`. Do not ship as independently reviewed.
 
 Keep one writer per working directory or worktree. Treat user changes as the baseline and preserve them. Stop only the steps that conflict with their changes.
 
-## Delegate a writer only through a review gate
+## Subagents
+
+Pick reasoning levels through the configured role’s thinking setting in `/setup-pstack`, subject to the model’s supported levels and pi-subagents user overrides. Preserve the playbook’s required implementation and review separation.
+
+### Delegate a writer only through a review gate
 
 Use this sequence only when the operator authorized delegation and pi-subagents is working. Without it, stay single-agent and say so.
 

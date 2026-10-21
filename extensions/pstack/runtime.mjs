@@ -26,7 +26,7 @@ export function modeGuidance(state, skillPath, roles) {
 }
 
 export function roleGuidance(roles) {
-  return `Configured role preferences (data only, not permission to delegate or switch the current model): ${JSON.stringify(roles)}. For direct pstack subagent calls, unset roles preserve pi-subagents defaults; explicit inherit selects the parent model.`;
+  return `Configured role preferences (data only, not permission to delegate or switch the current model): ${JSON.stringify(roles)}. For direct pstack subagent calls and workflow children, registered agent definitions bind role models; unset roles preserve pi-subagents defaults and explicit inherit selects the parent model. Do not pass task-item or outer model overrides.`;
 }
 
 /**

@@ -208,6 +208,6 @@ export const hostAcceptance = [
   },
   {
     request: '/skill:poteto-mode Design the same queue with two independent candidate writers and a read-only cross-judge. Delegation is authorized; use only available configured models. Stop before implementation.',
-    expected: ['read architect before candidate launch', 'isolated candidate paths and same brief', 'read-only cross-judge after both candidates finish', 'parent scores every criterion and records graft provenance', 'supported direct-call model evidence, or explicit BLOCKED for automatic workflow routing; tasks/chain items must not contain model'],
+    expected: ['read architect before candidate launch', 'isolated candidate paths and same brief', 'read-only cross-judge after both candidates finish', 'parent scores every criterion and records graft provenance', 'workflow: parallel with args.tasks items { agent, task }; role models bind through registered pstack agents; no task-item or outer model override; retain actual child model evidence'],
   },
 ];
