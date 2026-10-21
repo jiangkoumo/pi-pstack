@@ -38,6 +38,17 @@ This report measures fidelity against the pinned upstream pstack snapshot at `f7
 | `skills/poteto-mode/playbooks/feature.md` | 94% | PASS (>=85%) | Pinned upstream text restored with user-specified delegate substitutions and worktree paragraph. |
 | `skills/poteto-mode/playbooks/bug-fix.md` | 73% | TARGETED (<85%) | Upstream grok defaults, speed slugs, and Cursor `/loop` replaced with pstack `/loop` and bug-fix role. |
 
+## Issue #10 Additions
+
+These four files were ported after the original audit. Scores use the same method: strip frontmatter and the `#### Pi adaptation` section, then compare non-empty lines against the pinned upstream file (LCS).
+
+| File | Fidelity | Status | Primary differences from upstream |
+|---|:---:|:---:|---|
+| `skills/recall/SKILL.md` | 89.5% | PASS (>=85%) | Cursor project transcript path replaced with the Pi workspace session path; subagent speed replaced with Pi thinking level. |
+| `skills/automate-me/SKILL.md` | 82.3% | TARGETED (<85%) | `.cursor/skills` paths, `agent-transcripts/`, `AskQuestion`, and six `create-skill` references replaced with the Pi skill directories, session paths, dialogue question, and `docs/skills.md` contract. |
+| `skills/poteto-mode/playbooks/eval.md` | 94.7% | PASS (>=85%) | Candidate transcript lookup moved from Cursor `agent-transcripts/` to the pi-subagents status/session-file path; steps 4-5 remain upstream verbatim. |
+| `skills/poteto-mode/playbooks/authoring-a-skill.md` | 87.5% | PASS (>=85%) | Cursor's built-in `create-skill` step replaced with Pi's `docs/skills.md` authoring contract. |
+
 ## Files Flagged Below 85% and Reasons
 
 1. **`skills/reflect/SKILL.md` (59%)**: The missing sentences in upstream Section 1 describe Cursor's private local JSONL transcript storage (`~/.cursor/projects/*/agent-transcripts/`). Retaining those instructions in Pi would instruct the agent to crawl non-existent Cursor directories. The Pi version correctly targets the active Pi session branch.

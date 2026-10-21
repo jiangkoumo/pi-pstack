@@ -6,12 +6,13 @@
 
 - 11 个技能：poteto-mode、correct、tdd 和八个原则。
 - 三个主流程：调查、缺陷修复、小行为变更。
-- 原清单 57 个技能、23 个流程、2 个代理共 82 项，当前累计归类为 ported 61、substitute 21、deferred 0，依据与归属见 [逐项审计](skill-audit.md)，机器可读结果见 [port-map.json](port-map.json)。deferred 已归零；substitute 只表示已记录本地替代路线，不代表该入口已实现或运行验收。
+- 原清单 57 个技能、23 个流程、2 个代理共 82 项，当前累计归类为 ported 77、substitute 5、deferred 0，依据与归属见 [逐项审计](skill-audit.md)，机器可读结果见 [port-map.json](port-map.json)。deferred 已归零；substitute 只表示已记录本地替代路线，不代表该入口已实现或运行验收。
 - P5 首批：`pause-safely` 已适配为 Pi 本地暂停流程，使用本地补丁与恢复笔记，未授权不提交或推送；见 [P5 Loop 验收](validation-p5-loop.md)。
 - P5 第二批：`autonomous-run` 已适配为 Pi `/loop run` 有界自治流程，使用 `--until` 停止谓词、`--max-turns` 轮次预算与本地迭代证据；未授权不提交或推送；见 [P5 Loop 验收](validation-p5-loop.md)。
 - P5 Batch A：`bro`、`in-your-own-words`、`ketchup` 及 16 个 `principle-*` 已按 `inherit-body` 纳入生成；其中 4 项保留到已生成技能的真实链接依赖，`principle-explain-the-number` 用最小 override 将未移植的 `benchmark-checklist` 链接改为文字引用。
 - P5 Batch B：`sharpen`、`technical-writing`、`unslop` 按 `inherit-body` 纳入；`typescript-best-practices` 用最小 override 移除 Pi 不支持的 `paths` frontmatter 并标注未随包提供的 examples；`prototype`、`session-pickup`、`worktree-cleanup`、`hillclimb` 按 Pi 隔离、恢复与有界 `/loop` 契约适配。
 - P5 Batch C：`architect`、`arena`、`interrogate`、`no-comments`、`reflect`、`swarm`、`why` 与 9 个 PR/编排/性能/重构类 playbook 按 Pi 语义覆盖纳入生成；15 项 Cursor 云/平台/缺失依赖条目转为 `substitute` 并记录本地替代路线，`deferred` 归零。
+- Issue #10 复核：`recall`、`automate-me`、`eval`、`authoring-a-skill` 四项由 `substitute` 转为 `ported`。前两项读取当前 cwd 的 Pi 会话并按 mtime 排序，`eval` 从子代理 session/transcript 还原执行链，`authoring-a-skill` 改用 Pi 的 `docs/skills.md` 契约；证据见 [recall](validation-recall.md)、[automate-me](validation-automate-me.md)、[eval](validation-eval.md)、[authoring-a-skill](validation-authoring-a-skill.md)。
 - [原始文件指纹](source-files.json) 记录归档文件的 Git blob ID。upstream/pstack 保存本批使用的固定提交原文，不作为 Pi 技能资源加载。
 
 ## 适配差异
