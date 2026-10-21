@@ -7,7 +7,7 @@ import { MODE_ENTRY, MODE_SECTION, ROLES, AGENT_ROLES, modeFromBranch, modeGuida
 import { configPaths, loadConfig, updateConfig } from './config.mjs';
 import { LOOP_ENTRY, LOOP_TURN_TYPE, parseLoopArgs, loopFromBranch, createInitialLoopState, decideNextStep, renderLoopPrompt, registerLoopAbortHooks } from './loop.mjs';
 import { ROLE_AGENTS, createRoleAgentController, guardPstackTopLevelModel } from './role-agents.mjs';
-import { loadModeState, saveModeState } from './mode-state.mjs';
+import { loadModeState, saveModeState, sessionModeStatePath } from './mode-state.mjs';
 import { runGitRead, renderGitReadResult } from './git-read.mjs';
 
 export default function pstack(pi: ExtensionAPI) {
@@ -42,21 +42,34 @@ export default function pstack(pi: ExtensionAPI) {
       };
     },
   });
-  const modeFilePath = (ctx: ExtensionContext) => {
+  const modeStatePaths = (ctx: ExtensionContext) => {
+    // Session-id state is canonical: it survives a new process that only knows
+    // --session-id, where Pi has not written a transcript yet. The transcript
+    // sibling path stays first-class for sessions persisted by older versions.
+    const paths: string[] = [];
+    const sessionId = ctx.sessionManager.getSessionId?.();
+    if (sessionId) paths.push(sessionModeStatePath(getAgentDir(), sessionId));
     const sessionFile = ctx.sessionManager.getSessionFile();
-    if (sessionFile) return sessionFile + '.pstack-mode.json';
-    return resolve(getAgentDir(), 'pstack-mode-default.json');
+    if (sessionFile) paths.push(sessionFile + '.pstack-mode.json');
+    if (paths.length === 0) paths.push(resolve(getAgentDir(), 'pstack-mode-default.json'));
+    return paths;
+  };
+  const loadModeEnabled = (ctx: ExtensionContext) => {
+    let enabled = false;
+    for (const path of modeStatePaths(ctx)) {
+      if (loadModeState(path).enabled) enabled = true;
+    }
+    return enabled;
+  };
+  const persistModeState = (ctx: ExtensionContext, enabled: boolean) => {
+    for (const path of modeStatePaths(ctx)) saveModeState(path, { version: 1, enabled });
   };
   const state = (ctx: ExtensionContext) => {
     const branch = modeFromBranch(ctx.sessionManager.getBranch());
-    try {
-      const persisted = loadModeState(modeFilePath(ctx));
-      if (persisted.enabled) return { enabled: true, explicit: true };
-      if (branch.explicit) return branch;
-      return { enabled: false, explicit: branch.explicit };
-    } catch (e) {
-      throw e;
-    }
+    const persisted = loadModeEnabled(ctx);
+    if (persisted) return { enabled: true, explicit: true };
+    if (branch.explicit) return branch;
+    return { enabled: false, explicit: branch.explicit };
   };
   const configuration = (ctx: ExtensionContext) => loadConfig(configPaths(getAgentDir(), ctx.cwd, CONFIG_DIR_NAME), ctx.isProjectTrusted());
   const choices = (ctx: ExtensionContext, roles: object) => validateChoices(roles, ctx.modelRegistry.getAvailable(), ctx.model, levels);
@@ -142,7 +155,7 @@ export default function pstack(pi: ExtensionAPI) {
           await access(skillPath);
           choices(ctx, (await configuration(ctx)).roles);
         }
-        saveModeState(modeFilePath(ctx), { version: 1, enabled });
+        persistModeState(ctx, enabled);
         let current;
         try { current = modeFromBranch(ctx.sessionManager.getBranch()); } catch (error) { if (enabled) throw error; }
         if (!current?.explicit || current.enabled !== enabled) pi.appendEntry(MODE_ENTRY, { version: 1, enabled });

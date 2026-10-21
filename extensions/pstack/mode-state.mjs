@@ -1,6 +1,19 @@
 import { closeSync, fsyncSync, mkdirSync, openSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
+
+/**
+ * Mode state keyed by Pi session id. Pi only writes the session transcript after
+ * the first user/assistant message, and a `--session-id` lookup that finds no
+ * transcript allocates a fresh timestamped file name. Keying by id keeps mode
+ * recoverable across processes before (and independently of) that transcript.
+ */
+export function sessionModeStatePath(agentDir, sessionId) {
+  if (typeof sessionId !== 'string' || sessionId.length === 0) {
+    throw new Error('mode-state: session id must be a non-empty string');
+  }
+  return join(agentDir, 'pstack-sessions', `${encodeURIComponent(sessionId)}.json`);
+}
 
 function parseState(value, path) {
   if (!value || Array.isArray(value) || typeof value !== 'object'
