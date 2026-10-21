@@ -16,7 +16,11 @@ const seats = ['pstack.judgment-agent', 'pstack.strongest-agent', 'pstack.commen
 // Product acceptance only: no remote model or task delegation. The public plugin
 // executes actual foreground SDK children against this deterministic local SSE fixture.
 export function findSubagentsRoot() {
-  return [process.env.PI_SUBAGENTS_ROOT, resolve(getAgentDir(), 'npm/node_modules/pi-subagents'),
+  // An explicit override wins; the repo-local devDependency is next so a clean
+  // `npm ci` can run the real review fixture without a global Pi install. The
+  // global locations stay as a fallback for installed-package usage.
+  return [process.env.PI_SUBAGENTS_ROOT, resolve(root, 'node_modules/pi-subagents'),
+    resolve(getAgentDir(), 'npm/node_modules/pi-subagents'),
     resolve(homedir(), '.pi/agent/npm/node_modules/pi-subagents')].filter(Boolean).find(path => existsSync(resolve(path, 'index.js')));
 }
 

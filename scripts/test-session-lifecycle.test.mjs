@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { existsSync } from 'node:fs';
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -68,11 +68,18 @@ async function startSubagentsSession(directory) {
 }
 
 test('pi-subagents extension timers are cleared when the session is disposed', { timeout: 60000 }, async t => {
-  const subRoot = findSubagentsRoot();
-  if (!subRoot || !existsSync(piPackageRoot)) {
-    t.skip('pi-subagents or the Pi package is not available in this environment');
+  if (!existsSync(piPackageRoot)) {
+    t.skip('the Pi package is not available in this environment');
     return;
   }
+  // The probe must load the repo-local devDependency, not a global Pi install;
+  // an explicit PI_SUBAGENTS_ROOT still wins.
+  const localRoot = resolve(root, 'node_modules/pi-subagents');
+  const expectedRoot = process.env.PI_SUBAGENTS_ROOT ? resolve(process.env.PI_SUBAGENTS_ROOT) : localRoot;
+  assert.ok(existsSync(resolve(expectedRoot, 'index.js')), `pi-subagents is not installed where expected: ${expectedRoot}; run npm ci --include=dev`);
+  const subRoot = findSubagentsRoot();
+  assert(subRoot, 'a pi-subagents package must be available');
+  assert.equal(await realpath(subRoot), await realpath(expectedRoot), 'the lifecycle probe must load the repo-local dependency');
   const directory = await mkdtemp(resolve(tmpdir(), 'pstack-test-lifecycle-'));
   const previous = {
     agentDir: process.env.PI_CODING_AGENT_DIR,

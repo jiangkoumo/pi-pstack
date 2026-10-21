@@ -53,6 +53,29 @@ Timeout { [Symbol(refed)]: false, _idleTimeout: 1000, _onTimeout: [Function: rec
 
 主控另在干净 clone 执行 `npm ci --include=dev && npm test`：63.0s、exit 0、无挂起。需要注意：本次修复前后都未能复现“永不退出”的原报告；泄漏证据来自 interval 探针（修复前遗留 1 个 1000ms `reconcile` interval），不是进程是否退出。
 
+## 本地 pi-subagents 依赖与不再 skip
+
+主控已在 `package.json` 固定 devDependency `pi-subagents@0.79.2`（本文件所在分支尚未 rebase 到该提交）。测试侧改动：
+
+| 文件 | 改动 |
+| --- | --- |
+| `../scripts/check-review-diff.mjs` | `findSubagentsRoot()` 候选顺序改为：显式 `PI_SUBAGENTS_ROOT` → 仓库内 `node_modules/pi-subagents` → Pi agentDir 全局安装 → `~/.pi/agent` 全局安装 |
+| `../scripts/review-dispatch.test.mjs` | 找不到 pi-subagents 时失败（明确提示安装本地 devDependency），不再 `t.skip` 静默跳过 |
+| `../scripts/test-session-lifecycle.test.mjs` | 探针断言实际加载的 root 等于仓库本地依赖（显式 env 优先），确保真实装载本地包而不是全局安装 |
+
+验证方式：本地安装 `pi-subagents@0.79.2`（`npm install --no-save --no-package-lock`，不改 `package.json`），再把 `HOME` 指向空临时目录并取消 `PI_SUBAGENTS_ROOT`，模拟“无全局安装”：
+
+```bash
+env -u PI_SUBAGENTS_ROOT HOME=/tmp/pstack-032-empty-home \
+  node --test scripts/comment-sicko.test.mjs
+env -u PI_SUBAGENTS_ROOT HOME=/tmp/pstack-032-empty-home \
+  node --test scripts/review-dispatch.test.mjs
+env -u PI_SUBAGENTS_ROOT HOME=/tmp/pstack-032-empty-home \
+  node --test scripts/test-session-lifecycle.test.mjs
+```
+
+结果：三个文件均 exit 0；comment-sicko 3/3、review-dispatch 1/1、lifecycle 1/1，三者 `skipped 0`。review-dispatch 的 childRequests 仍为 12，说明在无全局安装时真实加载了仓库本地 pi-subagents 并执行了真实 child。
+
 ## 未完成与需主控处理
 
 `package.json` 属于本 Issue 禁止修改的文件，因此独立探针 `scripts/test-session-lifecycle.test.mjs` 未加入 `check` 脚本。当前 `npm run check` 已经通过 `comment-sicko.test.mjs` 内的 interval 断言覆盖同类回归；主控若要把独立探针纳入 CI，建议在 `check` 中 `comment-sicko.test.mjs` 之后插入：
