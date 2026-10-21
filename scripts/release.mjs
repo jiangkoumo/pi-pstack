@@ -123,10 +123,12 @@ function writeVersion(nextVersion) {
 }
 
 function runGates() {
-  console.log('\n[release] running npm run check');
-  run(npm, ['run', 'check']);
+  console.log('\n[release] running npm test');
+  run(npm, ['test']);
   console.log('\n[release] running npm run check:generate');
   run(npm, ['run', 'check:generate']);
+  console.log('\n[release] running npm run check:fidelity');
+  run(npm, ['run', 'check:fidelity']);
   // The gates must not leave generated artifacts or test byproducts behind.
   assertClean('after gates');
 }
