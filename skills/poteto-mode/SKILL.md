@@ -172,7 +172,7 @@ A large or cross-cutting effort (a migration across many call sites, an ambitiou
 
 Adapted from Lauren Tan's pstack v0.15.25, MIT, fixed revision f713f14203cd6420cec13cd7c55c32d598dbab68. The engineering body above preserves that snapshot with Pi tool, role, thinking and optional integration substitutions. Source attribution is recorded in [the port record](../../docs/port-status.md); platform mappings are in [the Pi adapter](../../adapters/pi/harness.md).
 
-User and project instructions govern tools, permissions and scope. This section takes precedence over upstream autonomy and delivery assumptions. Loading a skill grants no extra authority to delegate, send messages, create tickets, deploy or delete. Pushes, PR creation and merges require explicit authorization in the current session. Prepare a reviewable result before pausing for an unauthorized action. Local commits and worktree cleanup also follow the current operator's instructions. A generic autonomy grant does not replace an explicit gate.
+User and project instructions govern tools, permissions and scope. This section takes precedence over upstream autonomy and delivery assumptions. Invoking `/skill:poteto-mode`, or turning persistent mode on with `/poteto-mode on`, authorizes the local subagent delegation this playbook prescribes: the how, architect, arena, interrogate and comment-sicko routes, and delegated writers through the review gate below. When the user or project instructions forbid delegation, spawn no subagents. Pushes, PR creation, merges and external messages still require separate explicit authorization in the current session. Local commits require explicit operator authorization. Never commit just because the user said "Fix it". Prepare a reviewable result before pausing for an unauthorized action. Worktree cleanup also follows the current operator's instructions. A generic autonomy grant does not replace an explicit gate.
 
 Use native file tools for reading, discovery and edits. Follow stricter local tool and output rules. Run checks with an explicit working directory and preserve their actual exit codes. Use a task tool if available, otherwise a text checklist for the verbatim playbook steps and skipped-step reasons. Read the selected playbook and its required skills before the corresponding work.
 
@@ -194,7 +194,7 @@ Diagnostic and visual playbooks: [Runtime forensics](playbooks/runtime-forensics
 
 ### Delegate a writer only through a review gate
 
-Use this sequence only when the operator authorized delegation and pi-subagents is working. Without it, stay single-agent and say so.
+Use this sequence only when delegation is authorized, which a `/poteto-mode` invocation covers, and pi-subagents is working. Without it, stay single-agent and say so.
 
 1. **Hand off explicitly.** Give the child the objective, allowed paths, prohibited actions (no commits, pushes, network calls, or unrelated files), approved decisions, exact acceptance commands, and how to report blockers. The parent receives the native completion notice; do not assume a mid-run question channel.
 2. **Isolate the writer.** Start `pstack.poteto-agent` with `worktree: true`; keep the parent checkout clean and never run two writers in one directory. Treat the child's completion as a proposal, not proof. The managed worktree is normally removed after the run; use the run's handoff manifest and captured patch, not a deleted directory.

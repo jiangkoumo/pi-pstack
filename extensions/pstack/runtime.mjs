@@ -20,13 +20,13 @@ export function modeGuidance(state, skillPath, roles) {
   return [
     'Persistent poteto-mode is ON for this user request.',
     `Read ${JSON.stringify(skillPath)} and the matching playbook before acting. Resolve references relative to their containing files. Read principle leaves only when needed.`,
-    'User and project instructions control authority and tools. This mode grants no delegation, Git, external-message, or continuation permission. Do not automatically continue after the requested work is complete.',
+    'User and project instructions control authority and tools. This mode authorizes the local subagent delegation its playbooks prescribe (how, architect, arena, delegate writer, interrogate, comment-sicko). Spawn no subagents when the user or project forbids delegation. Pushes, PR creation, merges and external messages still need separate explicit authorization. Local commits need explicit operator authorization; never commit just because the user said "Fix it". Do not automatically continue after the requested work is complete.',
     ...(Object.keys(roles).length ? [roleGuidance(roles)] : []),
   ].join('\n');
 }
 
 export function roleGuidance(roles) {
-  return `Configured role preferences (data only, not permission to delegate or switch the current model): ${JSON.stringify(roles)}. For direct pstack subagent calls and workflow children, registered agent definitions bind role models; unset roles preserve pi-subagents defaults and explicit inherit selects the parent model. Do not pass task-item or outer model overrides.`;
+  return `Configured role preferences (data only, not permission to switch the current model): ${JSON.stringify(roles)}. For direct pstack subagent calls and workflow children, registered agent definitions bind role models; unset roles preserve pi-subagents defaults and explicit inherit selects the parent model. Do not pass task-item or outer model overrides.`;
 }
 
 /**
