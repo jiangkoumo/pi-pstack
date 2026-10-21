@@ -15,6 +15,8 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Package, generation, links, and agent probes
-        run: npm run check
+        run: npm test
       - name: Generated resources are current
         run: npm run check:generate
+      - name: Upstream fidelity (overall 85%, every port 70%)
+        run: npm run check:fidelity

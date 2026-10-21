@@ -28,4 +28,4 @@ Apply the **type-system-discipline** principle skill first.
 | Real tests | Don't mock what you can run. Prefer the framework's real test primitives with leak/disposable checks, and verify UI in a running build. Mock only what you can't run locally. |
 | Structured telemetry | Prefer structured logger diagnostics with enough context to debug from an id. No `console.log` in shipped code. |
 
-Examples live in `references/patterns.md`, which is not bundled in this package. State that gap instead of citing an unavailable file.
+Examples live in [references/patterns.md](references/patterns.md), preserved from the pinned upstream snapshot under its MIT license.

@@ -69,7 +69,7 @@ The default answer is `/poteto-mode`, which runs most of the others when its ste
 | Know how code works now, or where new code should live | [`/how`](../how/SKILL.md) |
 | Know why code is shaped this way, or where a number came from | [`/why`](../why/SKILL.md) |
 | Understand a change or subsystem, explained plainly | [`/teach`](../teach/SKILL.md) |
-| Catch up on their own recent work on a topic | [Session pickup](../poteto-mode/playbooks/session-pickup.md) and [`/ketchup`](../ketchup/SKILL.md) |
+| Catch up on their own recent work on a topic | [`/recall`](../recall/SKILL.md) |
 | Catch up on what changed in this chat since their last message, in a few plain sentences and small visuals, with enough context to decide each action item | [`/ketchup`](../ketchup/SKILL.md) |
 | Know what a small diff could break outside itself | [`/blast-radius`](../blast-radius/SKILL.md) |
 | Settle types and module shape before code that crosses a function boundary | [`/architect`](../architect/SKILL.md) |
@@ -88,7 +88,7 @@ The default answer is `/poteto-mode`, which runs most of the others when its ste
 | Run a large or cross-cutting change, or one to review after stepping away | [`/figure-it-out`](../figure-it-out/SKILL.md) |
 | Keep a decision log during a run, and review it afterward | [`/show-me-your-work`](../show-me-your-work/SKILL.md) |
 | Pick a model for each role and a reasoning budget | `/setup-pstack` |
-| Turn their own working habits into a personal mode skill | [Autonomous run](../poteto-mode/playbooks/autonomous-run.md) |
+| Turn their own working habits into a personal mode skill | [`/automate-me`](../automate-me/SKILL.md) |
 | Turn what a finished task taught into skill edits | [`/reflect`](../reflect/SKILL.md) |
 | Stop agents from repeating the same mistakes in this repo | [`/correct`](../correct/SKILL.md) |
 | Find their way around pstack | `/poteto-help` |
@@ -101,7 +101,7 @@ Close calls:
 - `/arena` gives every worker the same brief and merges the best parts. `/swarm` splits work into slices or a race and returns one report.
 - `/architect` implements right after it settles the design. Add "with checkpoint" to review the design before it writes code.
 - `/interrogate` reviews the diff. `/blast-radius` looks for breakage outside the diff and proves the one fact that makes the change safe.
-- `/recall` becomes Session pickup for a named Pi session or branch, and `/ketchup` covers only this chat since the user's last message.
+- `/recall` rebuilds context across recent chats. `/ketchup` covers only this chat since the user's last message. Resuming one specific chat or branch is the Session pickup playbook.
 - `/figure-it-out` designs one rigorous run. The Orchestrate playbook runs a program that spans days and many PRs. The Autonomous run playbook drives one task to a finish condition.
 
 Not shipped as skills in this package:
@@ -119,7 +119,7 @@ Playbooks are step lists inside `/poteto-mode`, not skills, so they have no slas
 - "take over this branch" runs Session pickup.
 - "pause safely" runs Pause safely.
 - "full autopilot on this queue" runs Autopilot-full. "stack them, don't ship" runs Autopilot-stack.
-- "run the eval playbook" runs the benchmark and verification skills over frozen scenarios.
+- "run the eval playbook" runs [Eval](../poteto-mode/playbooks/eval.md).
 
 Outside `/poteto-mode`, a phrase such as "babysit this pr" does not start a hidden skill here; read the playbook directly or turn the mode on. The Playbooks section of [poteto-mode](../poteto-mode/SKILL.md) lists every playbook and when it applies.
 
@@ -144,9 +144,9 @@ For a run that drifts, [prompting.md](references/prompting.md) has one-line stee
 
 ## Make pstack my own
 
-- To turn their own working habits into a personal mode skill, the [Autonomous run playbook](../poteto-mode/playbooks/autonomous-run.md) and [show-me-your-work](../show-me-your-work/SKILL.md) build a bounded run with retained evidence, to use alongside `/poteto-mode`.
+- [`/automate-me`](../automate-me/SKILL.md) drafts a personal mode skill from the user's own history, to use alongside `/poteto-mode`.
 - [reflect](../reflect/SKILL.md) after a session turns its lessons into skill edits the user approves.
-- `/poteto-mode write a skill for <workflow>` runs the authoring route in the [Pi adapter](../../adapters/pi/harness.md). The benchmark and verification skills test a skill change blind.
+- `/poteto-mode write a skill for <workflow>` runs the [authoring playbook](../poteto-mode/playbooks/authoring-a-skill.md). The [eval playbook](../poteto-mode/playbooks/eval.md) tests a skill change blind.
 - Fix a misbehaving skill in its own PR, not inside the feature work where it went wrong.
 
 ## Reply

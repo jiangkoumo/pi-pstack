@@ -37,8 +37,9 @@ jobs:
 
       - name: Package and generation gates
         run: |
-          npm run check
+          npm test
           npm run check:generate
+          npm run check:fidelity
 
       - name: Publish to npm
         run: |

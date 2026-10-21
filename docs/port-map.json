@@ -1103,7 +1103,7 @@
       "disposition": "ported",
       "phase": "P5",
       "destination": "skills/typescript-best-practices/SKILL.md",
-      "reason": "已适配；正文保持上游，仅移除 Pi 不支持的 paths frontmatter 并标注未随包提供的 examples；见 validation-p1.md 资源检查",
+      "reason": "已适配；正文保持上游，移除 Pi 不支持的 paths frontmatter，随包保留 references/patterns.md；见 validation-p1.md 与 validation-fidelity.md 资源检查",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],
@@ -1114,7 +1114,7 @@
         "override": "adapters/pi/overrides/skills/typescript-best-practices/SKILL.md.template"
       },
       "evidence": "validation-p1.md",
-      "dependencies": []
+      "dependencies": ["skills/typescript-best-practices/references/patterns.md"]
     },
     {
       "kind": "skills",
@@ -1661,6 +1661,16 @@
   "generator": "scripts/generate-pi-resources.mjs",
   "harness": "adapters/pi/harness.md",
   "preparedResources": [
+    {
+      "source": "pstack/skills/typescript-best-practices/references/patterns.md",
+      "destination": "skills/typescript-best-practices/references/patterns.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/typescript-best-practices/references/patterns.md.template"
+      },
+      "dependencies": "from-template"
+    },
     {
       "source": "pstack/skills/architect/references/design-red-flags.md",
       "destination": "skills/architect/references/design-red-flags.md",

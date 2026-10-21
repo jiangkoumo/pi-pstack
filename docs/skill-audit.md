@@ -114,7 +114,7 @@
 | 技能 principle-type-system-discipline | P5 | 已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查 |
 | 技能 sharpen | P5 | 已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查 |
 | 技能 technical-writing | P5 | 已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查 |
-| 技能 typescript-best-practices | P5 | 已适配；正文保持上游，仅移除 Pi 不支持的 paths frontmatter 并标注未随包提供的 examples；见 validation-p1.md 资源检查 |
+| 技能 typescript-best-practices | P5 | 已适配；正文保持上游，移除 Pi 不支持的 paths frontmatter，随包保留 references/patterns.md；见 validation-p1.md 与 validation-fidelity.md 资源检查 |
 | 技能 unslop | P5 | 已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查 |
 
 ## 已适配深度技能（P5）
