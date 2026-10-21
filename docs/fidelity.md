@@ -34,7 +34,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/poteto-mode/playbooks/autonomous-run.md | 21 | 19 | 1 | 0 | 1 | 42 | 95% |  |
 | skills/poteto-mode/playbooks/session-pickup.md | 20 | 19 | 1 | 0 | 0 | 37 | 95% |  |
 | skills/why/references/sources/slack.md | 20 | 19 | 1 | 0 | 0 | 8 | 95% |  |
-| skills/poteto-mode/SKILL.md | 235 | 214 | 8 | 3 | 10 | 131 | 95% |  |
+| skills/poteto-mode/SKILL.md | 235 | 214 | 8 | 3 | 10 | 134 | 95% |  |
 | skills/poteto-help/references/prompting.md | 44 | 42 | 2 | 0 | 0 | 5 | 96% |  |
 | skills/poteto-mode/playbooks/perf-issue.md | 23 | 21 | 1 | 0 | 1 | 36 | 96% |  |
 | skills/principle-boundary-discipline/SKILL.md | 22 | 21 | 0 | 1 | 0 | 2 | 96% |  |
