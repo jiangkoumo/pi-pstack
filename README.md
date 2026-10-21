@@ -7,6 +7,11 @@
 
 提供开箱即用的一站式安装体验，为 Pi 用户带来包含软件工程准则、调查/修复/重构/自主运行流程、多模型只读审阅以及有界循环执行在内的完整软件工程方法论。
 
+> **可选依赖与优雅降级说明**：
+> 本包将 `pi-subagents`（范围 `^0.79.0`，已在 `0.79.x` 严格验证）声明为可选对等依赖（optional peerDependency）。
+> - **已安装兼容的 `pi-subagents` 时**：启用完整的多代理协同与角色路由能力。通过公开事件注册 `pstack.*` 角色代理，支持 `how`、`architect`、`arena`、`swarm`、`interrogate`、`comment-sicko` 以及隔离 worktree 代码委派；
+> - **未安装或不可用时**：系统保持单代理完整可用，不阻断包加载。所有的工程原则、方法技能、实战 Playbooks、`/poteto-mode` 模式控制、以及 `/loop` 有界循环长任务底座均照常工作。遇有多代理审阅流程时，Playbook 优雅降级为单代理顺序执行，结果明确标注为自审并记录 `BLOCKED: independent review`，不冒充独立审查。
+
 ---
 
 ## 核心特性与架构
