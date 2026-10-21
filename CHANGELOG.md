@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased — 0.3.2 in progress
+## 0.3.2
 
-Changes are listed here as their commits land. This section is not a release or acceptance claim.
+Release candidate validated locally and in CI; npm publication is tracked in the release validation record.
 
 - Fix `/poteto-mode status` after `on` before the first chat: report the durable mode-state file instead of requiring a transcript. Persisted `off` also reports `persistent: true`.
 - Track `package-lock.json` so clean clones can use `npm ci`; explicitly install dev dependencies in CI, including the existing `jiti` dependency.
