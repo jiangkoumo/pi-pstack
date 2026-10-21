@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { ROLE_AGENTS, createRoleAgentController, parseRoleAgent, guardPstackTopLevelModel } from '../extensions/pstack/role-agents.mjs';
 
-const catalog = ['code', 'review', 'prose', 'verification', 'parent'].map(id => ({ provider: 'fixture', id }));
+const catalog = [...Object.keys(ROLE_AGENTS), 'parent'].map(id => ({ provider: 'fixture', id }));
 const levels = () => ['off', 'low', 'high'];
 const content = name => `---\nname: ${name.slice(7)}\npackage: pstack\ndescription: Fixture ${name}\ntools: read, grep, find, ls\nexcludeTools: contact_supervisor\nextensions:\nsystemPromptMode: append\ninheritProjectContext: true\ninheritGlobalContext: false\ninheritSkills: false\nasync: true\nacceptanceRole: read-only\nlicense: MIT\n---\n\nPrompt ${name}.\n`;
 async function fixture(t) {
@@ -31,7 +31,7 @@ async function fixture(t) {
   return { dir, pi, actions, active };
 }
 
-test('four role bindings preserve source permissions and use separate model/thinking fields', async t => {
+test('all role bindings preserve source permissions and use separate model/thinking fields', async t => {
   const f = await fixture(t);
   const controller = createRoleAgentController(f.pi, f.dir);
   const roles = Object.fromEntries(Object.keys(ROLE_AGENTS).map(role => [role, { model: `fixture/${role}`, thinking: 'high' }]));
@@ -60,7 +60,7 @@ test('four role bindings preserve source permissions and use separate model/thin
     assert(!Object.hasOwn(f.active.get(ROLE_AGENTS[role]), 'model'));
     assert(!Object.hasOwn(f.active.get(ROLE_AGENTS[role]), 'thinking'));
   }
-  assert.deepEqual(f.actions.slice(4, 8).map(a => a[0]), Array(4).fill('dispose'));
+  assert.deepEqual(f.actions.slice(catalog.length - 1, 2 * (catalog.length - 1)).map(a => a[0]), Array(catalog.length - 1).fill('dispose'));
   controller.dispose();
   controller.dispose();
   assert.equal(f.active.size, 0);
@@ -120,7 +120,7 @@ test('shutdown cancels pending refresh and serialized replacements do not leak h
   await cancelled;
   assert.equal(f.active.size, 0);
   await Promise.all([c.refresh({}, catalog, catalog.at(-1), levels), c.refresh({ code: { model: 'inherit' } }, catalog, catalog.at(-1), levels)]);
-  assert.equal(f.active.size, 4);
+  assert.equal(f.active.size, Object.keys(ROLE_AGENTS).length);
   assert.equal(f.active.get(ROLE_AGENTS.code).model, 'inherit');
   c.dispose();
 });

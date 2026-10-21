@@ -1,6 +1,6 @@
 export const MODE_ENTRY = 'pstack.mode.v1';
 export const MODE_SECTION = 'pstack_mode';
-export const ROLES = ['code', 'review', 'prose', 'verification'];
+export const ROLES = ['code', 'bug-fix', 'perf', 'hillclimb', 'judgment', 'strongest', 'review', 'prose', 'verification'];
 export const THINKING = ['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'];
 
 export function modeFromBranch(entries) {
@@ -68,7 +68,14 @@ export const AGENT_ROLES = {
   'pstack.poteto-agent': 'code',
   'poteto-agent': 'code',
   'pstack.comment-sicko': 'review',
-  'comment-sicko': 'review'
+  'comment-sicko': 'review',
+  'pstack.bug-fix-agent': 'bug-fix',
+  'pstack.perf-agent': 'perf',
+  'pstack.hillclimb-agent': 'hillclimb',
+  'pstack.judgment-agent': 'judgment',
+  'pstack.strongest-agent': 'strongest',
+  'pstack.prose-writer': 'prose',
+  'pstack.verifier': 'verification'
 };
 
 export function resolveSubagentModel(target, roles = {}, available = [], currentModel = null, supportedLevels = () => ['off']) {

@@ -4,8 +4,15 @@ import { parseFrontmatter } from '@earendil-works/pi-coding-agent';
 import { parseConfig, validateChoices } from './runtime.mjs';
 
 export const ROLE_AGENTS = Object.freeze({
-  code: 'pstack.poteto-agent', review: 'pstack.comment-sicko',
-  verification: 'pstack.verifier', prose: 'pstack.prose-writer',
+  code: 'pstack.poteto-agent',
+  'bug-fix': 'pstack.bug-fix-agent',
+  perf: 'pstack.perf-agent',
+  hillclimb: 'pstack.hillclimb-agent',
+  judgment: 'pstack.judgment-agent',
+  strongest: 'pstack.strongest-agent',
+  review: 'pstack.comment-sicko',
+  prose: 'pstack.prose-writer',
+  verification: 'pstack.verifier',
 });
 const REGISTER_EVENT = 'pi-subagents:runtime-agent-register:v1';
 const PRECEDENCE = 'User subagents.agentOverrides.<name> model/thinking override pstack.json definitions; project overrides also win when the project is trusted. Unset roles follow pi-subagents defaults. Per-child explicit model overrides are outside this definition binding.';

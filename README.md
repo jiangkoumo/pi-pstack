@@ -31,7 +31,7 @@
 
 ### 4. 模式控制与多角色模型配置
 * `/poteto-mode on | off | status`：在当前会话分支开启或关闭系统提示词与工程指引注入；
-* `/setup-pstack`：严格 Schema 校验，为 `code`、`review`、`prose`、`verification` 分配精确的 `provider/id` 模型和 thinking 级别，绝不静默回退。
+* `/setup-pstack`：严格 Schema 校验，为 `code`、`bug-fix`、`perf`、`hillclimb`、`judgment`、`strongest`、`review`、`prose`、`verification` 分配精确的 `provider/id` 模型和 thinking 级别，绝不静默回退。
 
 ---
 

@@ -80,7 +80,7 @@ const native = map.nativeResources ?? [];
 assert(Array.isArray(native), 'nativeResources must be an array');
 const nativeSources = new Set();
 for (const entry of native) {
-  assert(['pi/agents/verifier.md', 'pi/agents/prose-writer.md'].includes(entry.source), 'Unknown Pi-specific agent: ' + entry.source);
+  assert(['verifier', 'prose-writer', 'bug-fix-agent', 'perf-agent', 'hillclimb-agent', 'judgment-agent', 'strongest-agent'].some(name => entry.source === `pi/agents/${name}.md`), 'Unknown Pi-specific agent: ' + entry.source);
   assert(entry.origin === 'pi-specific-role', 'Native resource needs explicit provenance: ' + entry.source);
   assert(!nativeSources.has(entry.source), 'Duplicate native resource: ' + entry.source);
   nativeSources.add(entry.source);

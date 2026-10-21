@@ -1,6 +1,6 @@
 # pstack for Pi Harness Adapter
 
-pstack skills originate from Cursor conventions. In Pi, this adapter specifies the mapping between Cursor concepts and Pi tools, subagents, models, paths, and authority. It documents the translation contracts. Single-agent workflows and four generated role agents are available. Runtime registration binds role models for direct calls and workflow children; multi-model review and background isolation lifecycle acceptance are implemented.
+pstack skills originate from Cursor conventions. In Pi, this adapter specifies the mapping between Cursor concepts and Pi tools, subagents, models, paths, and authority. It documents the translation contracts. Single-agent workflows and nine generated role agents are available. Runtime registration binds role models for direct calls and workflow children; multi-model review and background isolation lifecycle acceptance are implemented.
 
 ## Tools
 
@@ -19,7 +19,7 @@ pstack skills originate from Cursor conventions. In Pi, this adapter specifies t
 | Cursor Concept | Pi Mapping | Constraints & Behavior |
 | --- | --- | --- |
 | Fixed slugs (`claude-*`, `grok-*`, `gpt-*`) | Role preferences in `pstack.json` via `/setup-pstack` | Do not hardcode or substitute arbitrary models. Validated against actual Pi catalog snapshot. |
-| `setup-pstack` | `/setup-pstack set <user\|project> <role> <provider/id> [thinking]` | Roles: `code`, `review`, `prose`, `verification`. Saved in the active Pi agent directory (user) or the host configuration directory under cwd (project, trusted only); standard paths are `~/.pi/agent/pstack.json` and `.pi/pstack.json`. |
+| `setup-pstack` | `/setup-pstack set <user\|project> <role> <provider/id> [thinking]` | Roles: `code` (feature/refactoring), `bug-fix`, `perf`, `hillclimb`, `judgment`, `strongest`, `review`, `prose`, `verification`. Saved in the active Pi agent directory (user) or the host configuration directory under cwd (project, trusted only); standard paths are `~/.pi/agent/pstack.json` and `.pi/pstack.json`. |
 | `inherit-parent` / unset role | `inherit` or omit model | Unset role preserves pi-subagents user defaults. Explicit inherit resolves to the exact parent model, preserving configured thinking as a validated suffix. |
 | Model validation | Strict exact match | Unknown models or unsupported thinking levels produce a visible configuration error and stop execution; never silent fallback. |
 
@@ -28,7 +28,7 @@ pstack skills originate from Cursor conventions. In Pi, this adapter specifies t
 | Cursor Concept | Pi Mapping | Constraints & Behavior |
 | --- | --- | --- |
 | `subagent_type: generalPurpose` | `pstack.poteto-agent` | Implementation delegate bound to the configured `code` role. |
-| `poteto-agent`, `comment-sicko` | `pstack.poteto-agent`, `pstack.comment-sicko` | Registered at session start through the public runtime-agent-register v1 event. Role models bind in agent definitions for direct calls and workflow children; `pstack.verifier` uses verification and `pstack.prose-writer` uses prose. Omit model from task items and the outer call. User agentOverrides take precedence. |
+| `poteto-agent`, `comment-sicko` | `pstack.poteto-agent`, `pstack.comment-sicko` | Registered at session start through the public runtime-agent-register v1 event. Role models bind in agent definitions for direct calls and workflow children (`pstack.poteto-agent` code, `pstack.bug-fix-agent` bug-fix, `pstack.perf-agent` perf, `pstack.hillclimb-agent` hillclimb, `pstack.judgment-agent` judgment, `pstack.strongest-agent` strongest, `pstack.comment-sicko` review, `pstack.prose-writer` prose, `pstack.verifier` verification). Omit model from task items and the outer call. User agentOverrides take precedence. |
 | `readonly: true` | Strict read-only tool allowlist (`read`, `grep`, `find`, `ls`) | Never grant `bash`, `edit`, or `write` to read-only delegates. Git status clean does not prove read-only compliance if write tools are present. |
 | `readonly: false` | Writer delegate | One writer per working directory / worktree. Isolate concurrent writers in managed git worktrees. |
 | `environment: "cloud"` | Unsupported | Cursor cloud execution is not supported. Use local worktrees with explicit operator authorization. |

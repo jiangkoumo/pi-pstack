@@ -7,6 +7,7 @@ import { MODE_ENTRY, MODE_SECTION, ROLES, AGENT_ROLES, modeFromBranch, modeGuida
 import { configPaths, loadConfig, updateConfig } from './config.mjs';
 import { LOOP_ENTRY, LOOP_TURN_TYPE, parseLoopArgs, loopFromBranch, createInitialLoopState, decideNextStep, renderLoopPrompt, registerLoopAbortHooks } from './loop.mjs';
 import { ROLE_AGENTS, createRoleAgentController, guardPstackTopLevelModel } from './role-agents.mjs';
+import { loadModeState, saveModeState } from './mode-state.mjs';
 
 export default function pstack(pi: ExtensionAPI) {
   const skillPath = fileURLToPath(new URL('../../skills/poteto-mode/SKILL.md', import.meta.url));
@@ -14,7 +15,22 @@ export default function pstack(pi: ExtensionAPI) {
   const roleController = createRoleAgentController(pi, agentsDir);
   registerLoopAbortHooks(pi);
   const levels = (model: Model<any>) => model.reasoning ? getSupportedThinkingLevels(model) : ['off'];
-  const state = (ctx: ExtensionContext) => modeFromBranch(ctx.sessionManager.getBranch());
+  const modeFilePath = (ctx: ExtensionContext) => {
+    const sessionFile = ctx.sessionManager.getSessionFile();
+    if (sessionFile) return sessionFile + '.pstack-mode.json';
+    return resolve(getAgentDir(), 'pstack-mode-default.json');
+  };
+  const state = (ctx: ExtensionContext) => {
+    const branch = modeFromBranch(ctx.sessionManager.getBranch());
+    try {
+      const persisted = loadModeState(modeFilePath(ctx));
+      if (persisted.enabled) return { enabled: true, explicit: true };
+      if (branch.explicit) return branch;
+      return { enabled: false, explicit: branch.explicit };
+    } catch (e) {
+      throw e;
+    }
+  };
   const configuration = (ctx: ExtensionContext) => loadConfig(configPaths(getAgentDir(), ctx.cwd, CONFIG_DIR_NAME), ctx.isProjectTrusted());
   const choices = (ctx: ExtensionContext, roles: object) => validateChoices(roles, ctx.modelRegistry.getAvailable(), ctx.model, levels);
   const refreshRoles = async (ctx: ExtensionContext) => {
@@ -99,8 +115,9 @@ export default function pstack(pi: ExtensionAPI) {
           await access(skillPath);
           choices(ctx, (await configuration(ctx)).roles);
         }
+        saveModeState(modeFilePath(ctx), { version: 1, enabled });
         let current;
-        try { current = state(ctx); } catch (error) { if (enabled) throw error; }
+        try { current = modeFromBranch(ctx.sessionManager.getBranch()); } catch (error) { if (enabled) throw error; }
         if (!current?.explicit || current.enabled !== enabled) pi.appendEntry(MODE_ENTRY, { version: 1, enabled });
       }
       refreshStatus(ctx);
@@ -115,7 +132,7 @@ export default function pstack(pi: ExtensionAPI) {
       }
       const roleStatus = roleController.status();
       const subagentsAvailable = roleStatus.state !== 'unavailable';
-      const warning = persistent ? undefined : 'Session file is not on disk yet; mode is held in memory and will persist only after the first message. Exiting without chatting will discard this activation.';
+      const warning = undefined;
       show({
         mode: state(ctx),
         scope: 'active session branch',
@@ -126,7 +143,7 @@ export default function pstack(pi: ExtensionAPI) {
         subagents: {
           installed: subagentsAvailable,
           registration: roleStatus,
-          exported: ['pstack.poteto-agent', 'pstack.comment-sicko', 'pstack.verifier', 'pstack.prose-writer'],
+          exported: Object.values(ROLE_AGENTS),
           roles: ROLES,
           agentRoles: AGENT_ROLES,
           precedence: 'User subagents.agentOverrides.<name> override pstack.json roles; project overrides apply when trusted.',
@@ -134,7 +151,7 @@ export default function pstack(pi: ExtensionAPI) {
         capabilities: {
           singleAgent: true,
           subagents: {
-            exported: ['pstack.poteto-agent', 'pstack.comment-sicko', 'pstack.verifier', 'pstack.prose-writer'],
+            exported: Object.values(ROLE_AGENTS),
             roles: ROLES,
             agentRoles: AGENT_ROLES,
           },
@@ -159,12 +176,12 @@ export default function pstack(pi: ExtensionAPI) {
         let configError;
         try { config = await configuration(ctx); choices(ctx, config.roles); } catch (error) { configError = String(error); }
         const roleStatus = roleController.status();
-        show({ paths, config, configError, roleStatus, defaults: Object.fromEntries(ROLES.map(role => [role, 'inherit'])), appliesTo: 'role preferences apply via runtime-registered pstack agents (code: pstack.poteto-agent, review: pstack.comment-sicko, verification: pstack.verifier, prose: pstack.prose-writer); user-level subagents.agentOverrides.<name> take precedence; top-level model overrides are blocked' }, ctx);
+        show({ paths, config, configError, roleStatus, defaults: Object.fromEntries(ROLES.map(role => [role, 'inherit'])), agentRoles: ROLE_AGENTS, appliesTo: 'role preferences bind runtime-registered pstack agent definitions for direct calls and workflow children; user-level subagents.agentOverrides.<name> take precedence; top-level model overrides are blocked' }, ctx);
         return;
       }
       const [, scope, role, model, thinking] = words;
       if (!['set', 'unset'].includes(action) || (scope !== 'user' && scope !== 'project') || !ROLES.includes(role) || (action === 'set' ? words.length < 4 || words.length > 5 : words.length !== 3)) {
-        throw new Error('Usage: /setup-pstack models|status|set <user|project> <code|review|prose|verification> <provider/id|inherit> [thinking]|unset <user|project> <role>');
+        throw new Error(`Usage: /setup-pstack models|status|set <user|project> <${ROLES.join('|')}> <provider/id|inherit> [thinking]|unset <user|project> <role>`);
       }
       if (!ctx.isIdle()) throw new Error('Wait for the current run to finish before changing pstack configuration');
       if (scope === 'project' && !ctx.isProjectTrusted()) throw new Error(`Project configuration is untrusted; trust this project through Pi before writing or applying ${paths.project}`);

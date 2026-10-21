@@ -50,7 +50,7 @@
     ]
   },
   "scripts": {
-    "check": "node scripts/check-package.mjs && node --test scripts/p2-runtime.test.mjs && node --test scripts/loop.test.mjs && node --test scripts/generation.test.mjs && node --test scripts/writer-gate.test.mjs && node --test scripts/coverage.test.mjs && node --test scripts/check-plan.test.mjs && node --test scripts/runtime-next.test.mjs && node --test scripts/role-agents.test.mjs && node scripts/check-p3-agents.mjs --allow-skip && node scripts/check-p3-readonly-gate.mjs --allow-skip && node scripts/check-abort-state.mjs && node scripts/check-parallel-roles.mjs --allow-skip",
+    "check": "node scripts/check-package.mjs && node --test scripts/p2-runtime.test.mjs && node --test scripts/loop.test.mjs && node --test scripts/generation.test.mjs && node --test scripts/writer-gate.test.mjs && node --test scripts/coverage.test.mjs && node --test scripts/check-plan.test.mjs && node --test scripts/runtime-next.test.mjs && node --test scripts/role-agents.test.mjs && node --test scripts/mode-state.test.mjs && node --test scripts/mode-compaction-injection.test.mjs && node --test scripts/review-dispatch.test.mjs && node --test scripts/playbook-role-routing.test.mjs && node scripts/check-p3-agents.mjs --allow-skip && node scripts/check-p3-readonly-gate.mjs --allow-skip && node scripts/check-abort-state.mjs && node scripts/check-parallel-roles.mjs --allow-skip",
     "generate": "node scripts/generate-pi-resources.mjs",
     "check:generate": "node scripts/generate-pi-resources.mjs --check",
     "check:generate:tests": "node --test scripts/generation.test.mjs",

@@ -87,7 +87,7 @@ const mockPi = {
 };
 const controller = createRoleAgentController(mockPi, agentsDir);
 await controller.refresh({}, [{ provider: "test", id: "m" }], null, () => ["off"]);
-assert.deepEqual(registered.sort(), ["pstack.comment-sicko", "pstack.poteto-agent", "pstack.prose-writer", "pstack.verifier"]);
+assert.deepEqual(registered.sort(), Object.values(ROLE_AGENTS).sort());
 
 console.log(JSON.stringify({
   status: "passed",

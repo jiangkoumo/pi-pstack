@@ -185,12 +185,7 @@
         "override": "adapters/pi/overrides/skills/correct/SKILL.md.template"
       },
       "evidence": "validation-p1.md",
-      "dependencies": [
-        "skills/principle-encode-lessons-in-structure/SKILL.md",
-        "skills/principle-laziness-protocol/SKILL.md",
-        "skills/principle-prove-it-works/SKILL.md",
-        "skills/principle-test-behavior-not-implementation/SKILL.md"
-      ]
+      "dependencies": ["adapters/pi/harness.md"]
     },
     {
       "kind": "skills",
@@ -364,7 +359,7 @@
         "override": "adapters/pi/overrides/skills/no-comments/SKILL.md.template"
       },
       "evidence": "validation-p1.md",
-      "dependencies": []
+      "dependencies": ["adapters/pi/harness.md"]
     },
     {
       "kind": "skills",
@@ -1343,7 +1338,7 @@
         "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/investigation.md.template"
       },
       "evidence": "validation-p1.md",
-      "dependencies": []
+      "dependencies": ["skills/poteto-mode/SKILL.md"]
     },
     {
       "kind": "playbooks",
@@ -1382,6 +1377,7 @@
       },
       "evidence": "validation-p5-loop.md",
       "dependencies": [
+        "docs/templates/pstack-pr.md",
         "skills/interrogate/SKILL.md",
         "skills/poteto-mode/SKILL.md"
       ]
@@ -1975,6 +1971,64 @@
     }
   ],
   "nativeResources": [
+    {
+      "source": "pi/agents/bug-fix-agent.md",
+      "destination": "agents/bug-fix-agent.md",
+      "origin": "pi-specific-role",
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/agents/bug-fix-agent.md.template"
+      },
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "source": "pi/agents/perf-agent.md",
+      "destination": "agents/perf-agent.md",
+      "origin": "pi-specific-role",
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/agents/perf-agent.md.template"
+      },
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "source": "pi/agents/hillclimb-agent.md",
+      "destination": "agents/hillclimb-agent.md",
+      "origin": "pi-specific-role",
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/agents/hillclimb-agent.md.template"
+      },
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "source": "pi/agents/judgment-agent.md",
+      "destination": "agents/judgment-agent.md",
+      "origin": "pi-specific-role",
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/agents/judgment-agent.md.template"
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pi/agents/strongest-agent.md",
+      "destination": "agents/strongest-agent.md",
+      "origin": "pi-specific-role",
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/agents/strongest-agent.md.template"
+      },
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
     {
       "source": "pi/agents/verifier.md",
       "destination": "agents/verifier.md",

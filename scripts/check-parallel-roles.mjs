@@ -64,7 +64,7 @@ try {
   }
   await new Promise(accept => server.listen(0, '127.0.0.1', accept));
   const modelsPath = resolve(agentDir, 'models.json');
-  const ids = ['parent', 'code', 'review', 'verification', 'prose', 'override'];
+  const ids = ['parent', ...Object.keys(ROLE_AGENTS), 'override'];
   await writeFile(modelsPath, JSON.stringify({ providers: Object.fromEntries(ids.map(id => [`fixture-${id}`, {
     baseUrl: `http://127.0.0.1:${server.address().port}/${id}/v1`, api: 'openai-completions', apiKey: 'fixture-only',
     models: [{ id, name: id, reasoning: true, input: ['text'], contextWindow: 64000, maxTokens: 1024, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } }],
@@ -121,7 +121,7 @@ try {
   const parallelChildren = await run('parallel', { workflow: 'parallel', args: { tasks }, ...defaults }, Object.keys(ROLE_AGENTS).map(role => [role, roles[role].thinking]));
   // Assert distinct providers were contacted for the parallel roles.
   const parallelProviders = new Set(parallelChildren.map(c => c.url.slice(1).split('/')[0]));
-  assert.equal(parallelProviders.size, 4, 'Four distinct provider endpoints must be contacted: ' + JSON.stringify([...parallelProviders]));
+  assert.equal(parallelProviders.size, Object.keys(ROLE_AGENTS).length, 'Distinct provider endpoints must be contacted for every role: ' + JSON.stringify([...parallelProviders]));
   assert(parallelProviders.has('code') && parallelProviders.has('review'), JSON.stringify([...parallelProviders]));
   const script = tasks.map((task, index) => `const r${index} = await runs.run(${JSON.stringify('role-' + index)}, ${JSON.stringify({ ...task, acceptance: false, async: false })}); if (!r${index}.ok) throw new Error('child failed');`).join('\n') + '\nreturn "done";';
   const scriptPath = resolve(directory, 'sequence.js');
@@ -159,10 +159,10 @@ try {
   await writeFile(resolve(agentDir, 'settings.json'), JSON.stringify({ ...settings, subagents: {
     ...settings.subagents, agentOverrides: { 'pstack.comment-sicko': { model: 'fixture-override/override', thinking: 'low', tools: ['write'] } },
   } }));
-  await run('user-override', { workflow: 'parallel', args: { tasks: [tasks[1]] }, ...defaults }, [['override', 'low']]);
+  await run('user-override', { workflow: 'parallel', args: { tasks: [tasks.find(task => task.agent === ROLE_AGENTS.review)] }, ...defaults }, [['override', 'low']]);
   console.log(JSON.stringify({ status: 'passed', passed: 5, failed: 0, childRequests: requests.filter(request => !request.parent).length,
     transport: 'real Pi SDK + pi-subagents public entry + actual foreground children + local SSE provider',
-    entryWiring: 'inline controller factory; production index not wired', cases: ['four-role named parallel', 'four-role sequential runs.run', 'parallel top model blocked', 'raw script top model blocked', 'user model/thinking override with tools preserved'] }));
+    entryWiring: 'inline controller factory; production index not wired', cases: ['all-role named parallel', 'all-role sequential runs.run', 'parallel top model blocked', 'raw script top model blocked', 'user model/thinking override with tools preserved'] }));
 } finally {
   session?.dispose();
   for (const controller of controllers) controller.dispose();

@@ -67,7 +67,7 @@ test('B12 generated writer guidance points to the current skill and principle le
 
 test('Pi-specific role agents preserve tool boundaries and are not attributed to upstream', () => fixture(async dir => {
   const map = JSON.parse(await readFile(resolve(dir, 'docs/port-map.json'), 'utf8'));
-  assert.deepEqual(map.nativeResources.map(entry => entry.destination).sort(), ['agents/prose-writer.md', 'agents/verifier.md']);
+  assert.deepEqual(map.nativeResources.map(entry => entry.destination).sort(), ['bug-fix-agent', 'hillclimb-agent', 'judgment-agent', 'perf-agent', 'prose-writer', 'strongest-agent', 'verifier'].map(name => `agents/${name}.md`));
   for (const entry of map.nativeResources) {
     assert.equal(entry.origin, 'pi-specific-role');
     assert(!map.entries.some(original => original.source === entry.source));
@@ -174,8 +174,8 @@ test('reject missing declared dependency', () => fixture(async dir => {
 }));
 
 test('reject a skill dependency outside the generated set', () => fixture(async dir => {
-  const path = resolve(dir, 'adapters/pi/overrides/skills/correct/SKILL.md.template');
-  await writeFile(path, (await readFile(path, 'utf8')).replace('../principle-encode-lessons-in-structure/SKILL.md', '../not-generated/SKILL.md'));
+  const path = resolve(dir, 'adapters/pi/overrides/skills/no-comments/SKILL.md.template');
+  await writeFile(path, (await readFile(path, 'utf8')) + '\nSee [missing](../not-generated/SKILL.md).\n');
   await rejectInBothModes(dir, /Dependency is not generated/);
 }));
 
