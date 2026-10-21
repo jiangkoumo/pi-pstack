@@ -54,7 +54,9 @@ try {
   const testOutput = run('npm', ['test']);
   const installAndTestDurationMs = Math.round(performance.now() - installAndTestStarted);
   assert(installAndTestDurationMs < 180000, `npm ci && npm test exceeded 180s: ${installAndTestDurationMs}ms`);
-  checks.push({ command: 'npm ci --include=dev && npm test', status: 'passed', durationMs: installAndTestDurationMs, tail: testOutput.trim().split('\n').slice(-8) });
+  const totals = { tests: 0, pass: 0, fail: 0, skipped: 0 };
+  for (const match of testOutput.matchAll(/^# (tests|pass|fail|skipped) (\d+)$/gm)) totals[match[1]] += Number(match[2]);
+  checks.push({ command: 'npm ci --include=dev && npm test', status: 'passed', durationMs: installAndTestDurationMs, ...totals });
   for (const [label, args] of [
     ['npm run check:generate', ['run', 'check:generate']],
     ['npm run check:fidelity', ['run', 'check:fidelity']],

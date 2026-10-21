@@ -18,8 +18,8 @@
 
 ### 1. 全量 82 项条目 100% 决议闭环
 上游 82 个条目已全部完成审计、适配与决议：
-* **已适配生成 (73 项 Ported)**：包含 24 个工程原则、19 个纯方法技能、7 个深度协同技能（`architect`, `arena`, `interrogate`, `no-comments`, `reflect`, `swarm`, `why`）及 20 份实战 Playbooks（新增 `runtime-forensics`, `trace-forensics`, `visual-parity`）；彻底消除了上游未经授权自动 commit/push 的原生假设，转为本地证据沉淀与显式授权门禁；
-* **替代路线定案 (9 项 Substitute)**：对依赖 Slack/Linear/Cursor 私有云的自动化条目（如 Benny、make-bot-ui、云端 transcript）确立了本地优先与 MCP 协议解耦的替代方案，并在主技能与相关文档中明确指出替代路径；
+* **已适配生成 (77 项 Ported)**：包含工程原则、方法技能、多代理技能与实战 Playbooks；`recall`、`automate-me`、`eval`、`authoring-a-skill` 已接入当前工作区的 Pi 会话。保留本地证据与显式 Git 授权边界；
+* **替代路线定案 (5 项 Substitute)**：Benny 三项自动化、`make-bot-ui` 与由扩展命令替代的 `setup-pstack`。来源与替代范围逐项记录；
 * **延期待定 (0 项 Deferred)**：上游条目已全部清点决议完毕。
 
 ### 2. `/loop` 长任务有界续跑运行时
@@ -72,7 +72,7 @@ pi install npm:pi-subagents
 
 安装后重新启动 Pi，使扩展加载。`pi-pstack` 通过公共运行时事件动态注册角色代理，`subagent` 工具由 `pi-subagents` 提供。未安装该扩展时，仍可使用单代理技能、模式与 `/loop`，多代理流程不可用。
 
-从源码运行测试或二次开发时，需先执行 `npm install` 安装 `devDependencies`。
+从源码运行测试或二次开发时，执行 `npm ci --include=dev && npm test`，安装锁文件中的开发依赖（包含 `jiti`）。显式包含开发依赖可覆盖本机的 `NODE_ENV=production` 或 npm `omit=dev` 设置；更改依赖时执行 `npm install --include=dev` 并提交更新后的锁文件。
 
 ### 常用命令
 
@@ -111,7 +111,7 @@ pi install npm:pi-subagents
 | **工作流程** | 20 | `investigation`, `bug-fix`, `feature`, `autonomous-run`, `orchestrate`, `multi-phase-plan`, `babysit` 等 | Ported（消除自动commit，对齐Pi规范） |
 | **核心技能** | 27 | `correct`, `tdd`, `architect`, `arena`, `how`, `poteto-help`, `benchmark-checklist` 等 | Ported（接入角色模型与只读白名单） |
 | **代理角色** | 4 | `comment-sicko`, `poteto-agent`, `verifier`, `prose-writer` | Ported（通过运行时公共事件动态注册） |
-| **外部替代** | 9 | Benny 自动化系列, `make-bot-ui`, `automate-me` 等 | Substitute（提供标准解耦与本地替代） |
+| **替代条目** | 5 | Benny 三项自动化、`make-bot-ui`、`setup-pstack` 扩展命令 | Substitute（逐项记录替代边界） |
 
 详细的逐项审计、源码指纹与适配说明请参阅 [逐项移植映射 (port-map.json)](docs/port-map.json) 与 [逐项审计清单 (skill-audit.md)](docs/skill-audit.md)。
 
@@ -120,15 +120,16 @@ pi install npm:pi-subagents
 ## 质量与防漂移保障
 
 本项目采用“固定上游源码（`upstream/`）+ Pi 适配层（`adapters/pi/`）+ 生成分发资源（`skills/`, `agents/`）”的设计：
-* `npm run check:generate`：校验 62 份上游源码 blob SHA-1 哈希与 61 项生成产物，严格防代码漂移；
-* `npm run check`：全套门禁包含模式持久化单测、Loop 状态机测试、生成器测试与 Writer Gate 单元测试；
+* `npm run check:generate`：校验固定上游指纹与生成产物，拒绝漂移；当前检查 117 项资源；
+* `npm test`：执行模式持久化、Loop 状态机、生成器、Writer Gate 与保真度门禁行为测试；
+* `npm run check:fidelity`：运行指定上游文本对比脚本，要求整体至少85%、每个已移植Markdown至少70%；
 * `npm run check:sim`：真实代码库端到端闭环实测。
 
 ---
 
 ## 发布
 
-发布由 tag 驱动：推送 `v*` tag 后，`.github/workflows/publish.yml` 会校验 tag 与 `package.json` 版本一致，运行 `npm run check` 与 `npm run check:generate`，再使用仓库 secret `NPM_TOKEN` 发布 npm。
+发布由 tag 驱动：推送 `v*` tag 后，`.github/workflows/publish.yml` 校验 tag 与 `package.json` 版本一致，运行 `npm test`、`npm run check:generate` 和 `npm run check:fidelity`，再发布 npm。0.3.2 的发布目标是由 CI 完成；可信发布者配置与实际结果记录在 [集成验收](docs/validation-032-release.md)。
 
 本地一键发布：
 
