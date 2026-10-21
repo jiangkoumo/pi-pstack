@@ -11,6 +11,8 @@ Investigate the motivation and intent behind code. The companion `how` skill ans
 
 Use independent investigators only when delegation is authorized. All investigators and the synthesizer are read-only. Local sequential investigation preserves the source coverage contract but is not independent multi-model review.
 
+Each spawn below names a role line from `/setup-pstack`. Set the role to that line's value, or leave it unset if the role or the line is missing. Leave `model` unset when the value is `inherit`, or when the role is unset; the spawn call never carries a model. If the host rejects a configured model, stop that seat and report it; never use the closest valid model of the same family. Pick each subagent's reasoning level and speed for the job, per the Subagents section of the **poteto-mode** skill. Investigators still shouldn't write anything.
+
 ## Operating Posture
 
 Operate as a **careful, cautious, and precise investigator**. Be honest about what you know vs what you're inferring. Read [epistemics.md](references/epistemics.md) for the full confidence framework and phrasing guide. The synthesizer must follow it.
@@ -31,7 +33,7 @@ Before spawning investigators, build the seed context inline: file paths and lin
 
 ### Discovery
 
-Discover the tools, connectors, or scoped exports actually exposed in this Pi session. Inspect their schemas before use. Do not assume a platform connector exists or grant broad write access to recover a missing reader. Use the [source-playbook index](references/source-playbook.md) for concrete source methods.
+Before spawning investigators, list the connectors, MCP servers, or scoped exports actually exposed in this Pi session. Use the available-tools map when present. Otherwise inspect the host's exposed tools and connector directories. Inspect their schemas before use. Do not assume a platform connector exists or grant broad write access to recover a missing reader. Use the [source-playbook index](references/source-playbook.md) for concrete source methods.
 
 Map each available source to one evidence category:
 
@@ -43,9 +45,9 @@ Map each available source to one evidence category:
 6. Error / exception tracking
 7. Product analytics warehouse
 
-Start with local Git when this is a repository. PR access through gh depends on installation, authentication and permissions; record a gap when unavailable. For the other six, classify using the MCP name, server instructions, tool names, and resource descriptors. If an MCP could fit more than one category, choose the one matching its primary evidence. Record ambiguous cases in the coverage map.
+Source control is available through git and `gh` when the host installs and authorizes them. Record a gap when either is missing. For the other six, classify using the MCP name, server instructions, tool names, and resource descriptors. If an MCP could fit more than one category, choose the one matching its primary evidence. Record ambiguous cases in the coverage map.
 
-Cover each available category with one source-owning investigator, using parallel children only with delegation authorization. Multiple independent connectors in a category may have separate seats; never silently omit one. Otherwise perform the same searches sequentially.
+Cover each available category with one source-owning investigator, using parallel children only with delegation authorization. Don't ask one agent to cover multiple MCPs. Multiple independent connectors in a category may have separate seats; never silently omit one. Otherwise perform the same searches sequentially. Name the investigator role `review` in each brief.
 
 Each investigator’s prompt is [investigator-prompt.md](references/investigator-prompt.md) filled in, plus:
 - the category playbook `references/sources/<source>.md` for the selected MCP, adapted from the examples in [source-playbook.md](references/source-playbook.md)
@@ -56,7 +58,7 @@ Each investigator’s prompt is [investigator-prompt.md](references/investigator
 
 Each category below is uniquely positioned to surface one shape of "why", shown after "Best at". Use it to know what to expect back, to name a gap when a category returns empty, and, only in the rare provably-irrelevant case, to justify a skip.
 
-1. **Source control** (git history, `gh` for PRs, code comments, tests). Always inspect when a local repository is available; record missing history as a gap. Best at *implementation-time rationale captured during review*.
+1. **Source control** (git history, `gh` for PRs, code comments, tests). Always spawn, the only guaranteed source. If delegation is unavailable, inspect locally and record missing history as a gap. Best at *implementation-time rationale captured during review*.
 2. **Issue / ticket tracker** (e.g. Linear, Jira, GitHub Issues, Plane, Shortcut MCP). Best at *the product or business forcing function*. Strongest when the why is external to engineering.
 3. **Long-form documents** (e.g. Notion, Confluence, Google Docs, Coda MCP). Best at *long-form design rationale*, written out before it becomes code.
 4. **Real-time team chat** (e.g. Slack, Discord, Microsoft Teams, Mattermost MCP). Best at *real-time deliberation that never reached a doc*. Especially important when the source control, ticket, and doc paper trail is thin.
@@ -75,7 +77,7 @@ If your scope assessment suggests a single-commit trivial target where the PR de
 
 ## Step 4. Synthesize
 
-Use one read-only synthesizer when delegation is authorized; otherwise synthesize locally. It gets:
+Use one read-only synthesizer when delegation is authorized; otherwise synthesize locally. Name the synthesizer role `review` in its brief. It gets:
 1. The investigator findings, including any null results and any categories skipped with justification
 2. The code anchor
 3. The user's original question
@@ -102,6 +104,6 @@ Adapted from Lauren Tan’s pstack v0.15.25, MIT, fixed revision f713f14203cd642
 
 Delegation requires operator or applicable project authorization and an available pi-subagents integration. Otherwise perform the same stages sequentially and label the result self-review rather than independent review. Read the installed integration’s public instructions before launching. Use pstack.poteto-agent for isolated candidate writers and pstack.comment-sicko with its actual read-only allowlist for file reviewers. Keep one writer per directory. A source investigator may use only explicitly available read-only connectors; lack of connector access is a gap, never a reason to grant write tools.
 
-Honor the operator’s configured roles and supported reasoning levels. Runtime-registered pstack agents bind their models through /setup-pstack: pstack.poteto-agent uses code, pstack.comment-sicko uses review, pstack.verifier uses verification, and pstack.prose-writer uses prose. This binding applies to direct calls and workflow children, including subagent({ workflow: "parallel", args: { tasks: [{ agent: "pstack.<agent>", task: "<brief>" }] } }). Do not put model in a task item or on the outer call; user subagents.agentOverrides may override the agent’s model and thinking. Do not invent per-skill configuration keys. Preserve model diversity where available; report when configured seats share a model. A rejected model stops that seat and is reported; never silently choose a fallback. Do not launch a child without authorization. Await native completion notices, not polling.
+Honor the operator’s configured roles and supported reasoning levels. Runtime-registered pstack agents bind their models through /setup-pstack: pstack.poteto-agent uses code, pstack.comment-sicko uses review, pstack.verifier uses verification, and pstack.prose-writer uses prose. This binding applies to direct calls and workflow children, including subagent({ workflow: "parallel", args: { tasks: [{ agent: "pstack.<agent>", task: "<brief>" }] } }). Do not put model in a task item or on the outer call; user subagents.agentOverrides may override the agent’s model and thinking. Do not invent per-skill configuration keys. Preserve model diversity where available; report when configured seats share a model. A rejected model stops that seat and is reported; never substitute a default, a same-family model, or any other fallback. Do not launch a child without authorization. Await native completion notices, not polling.
 
 Use read for contents, ls for directories, fffind/ffgrep when available and find/grep otherwise. Use edit/write for authorized changes. Batch independent reads with codemode when available. Bash is for execution and Git with an explicit working directory, never a substitute file reader or searcher. Loading this skill grants no permission to commit, push, merge, deploy, delete, or send messages.

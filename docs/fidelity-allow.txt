@@ -7,9 +7,6 @@
 skills/make-bot-ui/SKILL.md
 skills/setup-pstack/SKILL.md
 
-# Pi paths/tools/model bindings and unshipped Cursor guide-page links.
+# Pi paths/tools and unshipped Cursor guide-page links.
 skills/poteto-help/SKILL.md
 skills/poteto-mode/playbooks/orchestrate.md
-skills/show-me-your-work/SKILL.md
-skills/swarm/SKILL.md
-skills/why/SKILL.md

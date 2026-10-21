@@ -13,7 +13,7 @@ Keep one canonical log.
 
 A single TSV file, one row per decision. Cells stay single-line. Evidence is a pointer, not prose.
 
-Read [decision-log-template.tsv](references/decision-log-template.tsv) and copy its header (the header row) to start a clean log. Columns:
+Copy [`references/decision-log-template.tsv`](references/decision-log-template.tsv) (the header row) to start a clean log. Columns:
 
 - **ts.** ISO8601 timestamp.
 - **phase.** The phase or workstream.
@@ -36,7 +36,7 @@ ts	phase	decision	why	evidence	result
 
 Write each entry the way you'd tell a teammate what you did. Plain words, concrete actions, no AI speak or abstract jargon (the **unslop** skill applies to log text too).
 
-The upstream logging helper is not shipped. Use Pi write to create the log and edit to append rows, respecting stricter local file-tool rules. Preserve existing bytes. Stamp an actual ISO8601 timestamp, strip embedded tabs and newlines from cells, and prefix any cell starting with `=`, `+`, `-`, or `@` with a single quote to avoid spreadsheet formula execution.
+Write each row with Pi `write` and `edit`, appending only. The log writer stamps `ts`, writes the header on first use, strips stray tabs/newlines, and prefixes any cell starting with `=`, `+`, `-`, or `@` with a single quote. Preserve existing bytes.
 
 Log decision points and checkpoints, not every action: a fork chosen, a unit completed with its verification result, a pivot or revert with its trigger, a blocker surfaced, a gate fixed. For loop runs, one row per iteration. Skip the trivial and self-evident.
 
@@ -46,7 +46,7 @@ A run is one agent conversation, including its later turns and any summary of it
 
 By default the log is a working artifact, not committed. Keep it at `decisions.tsv` in the work dir, or `.audit/<task-slug>.tsv` when several efforts run at once, and leave it out of git.
 
-Commit it only when the operator authorized commits and the reviewer needs the trail to trust the result.
+Commit it only when the work is ambitious enough that a reviewer needs the trail to trust the result. Committing requires operator authorization; loading this skill grants none.
 
 ## Rules
 
@@ -55,7 +55,7 @@ Commit it only when the operator authorized commits and the reviewer needs the t
 
 ## Audit the log against the transcript
 
-At the end of the run, before handing back, check the log told the truth. Read only the active Pi session branch or an operator-supplied transcript for this run. Never scan unrelated workspaces or sessions. If unavailable, audit against current conversation evidence and label transcript coverage incomplete. Walk this run's rows against what actually happened. Each stretch of them begins at one of this run's `start` rows, or at the first row if this run created the log, and ends at the next `start` row of another run:
+At the end of the run, before handing back, check the log told the truth. Read this run's transcript under the active workspace's `agent-transcripts/` directory when the host provides it (the system prompt names the path); otherwise read only the active Pi session branch or an operator-supplied transcript for this run. If neither is available, audit against current conversation evidence and label transcript coverage incomplete. Don't glob across the host's project or session stores. That reads unrelated private chats. Walk this run's rows against what actually happened. Each stretch of them begins at one of this run's `start` rows, or at the first row if this run created the log, and ends at the next `start` row of another run:
 
 - Check that every row maps to a real decision or action.
 - Check that each row's evidence resolves and shows what the row claims.
@@ -65,7 +65,7 @@ Correct the log, not the story. The audit never edits or removes a row, even an 
 
 ## Cross-model review of the trail
 
-When delegation is authorized, before handing back spawn a read-only subagent on a different model family from the one that did the work. Self-review is not independent review. If delegation or a different model is unavailable, state that limitation in Attention; do not invent a reviewer. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky. Use available exact model IDs and the installed integration.
+Before handing back, spawn a subagent on a different model family from the one that did the work. Self-review is not a substitute. This requires operator or project authorization and an available pi-subagents integration; if either is unavailable, do not invent a reviewer, and state that limitation in Attention. The reviewer is read-only and never receives write tools. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky. Pick each subagent's reasoning level and speed for the job, per the Subagents section of the **poteto-mode** skill.
 
 - Decisions logged with weak or absent evidence.
 - Verification steps skipped or claimed without proof in the transcript.
@@ -85,6 +85,8 @@ Other skills route their audit trail here instead of inventing one. Reference it
 ## Pi execution and authority
 
 Adapted from Lauren Tan’s pstack v0.15.25, MIT, fixed revision f713f14203cd6420cec13cd7c55c32d598dbab68. Read the [Pi adapter](../../adapters/pi/harness.md) for host mappings.
+
+The upstream helper `scripts/log.sh <logfile> <phase> <decision> <why> <evidence> <result>` is not shipped; the `write` and `edit` steps above reproduce its stamping, header, byte-stripping, and quote-prefix behavior, and the quote prefix prevents spreadsheet formula execution.
 
 Delegation requires operator or applicable project authorization and an available pi-subagents integration. Otherwise perform the same stages sequentially and label the result self-review rather than independent review. Read the installed integration’s public instructions before launching. Use pstack.poteto-agent for isolated candidate writers and pstack.comment-sicko with its actual read-only allowlist for file reviewers. Keep one writer per directory. A source investigator may use only explicitly available read-only connectors; lack of connector access is a gap, never a reason to grant write tools.
 
