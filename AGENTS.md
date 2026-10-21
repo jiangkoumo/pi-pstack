@@ -23,9 +23,9 @@
 
 ## 检查与交付
 
-- 检查命令：npm install && npm run check。提交前必须通过，并跑 git diff --check。
+- 检查命令：干净 checkout 执行 npm ci && npm test；依赖变更时先 npm install 更新锁文件。提交前必须通过，并跑 git diff --check。
 - 源文件与生成文件：adapters/pi/overrides/*.md.template 是源文件，不要直接改生成出来的 Markdown。
-- 不要提交：安装时生成的 package-lock.json。commit 之前用 git status 确认没有带上无关文件。
+- 提交 package-lock.json 以支持干净 clone 的 npm ci；依赖变更同时更新 package.json 与锁文件。commit 之前用 git status 确认没有带上无关文件。
 - 同一个失败修了两次还没过，就停下来，带着证据报告，不要再继续试。
 - 不可逆操作必须先等我确认：全局安装或装进我的 Pi 配置、发布、合并、rebase、推送、删除 worktree 或分支、删除未提交的改动。在仓库内跑 npm install，以及任务范围内的删文件，不需要确认。
 - 文档修改检查相对链接、来源、状态描述与 diff；无需为纯文字新增实现镜像测试。

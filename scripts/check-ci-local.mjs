@@ -12,10 +12,12 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { performance } from 'node:perf_hooks';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const workflow = await readFile(resolve(root, '.github/workflows/check.yml'), 'utf8');
-assert(workflow.includes('npm run check'), 'Workflow must run npm run check');
+assert(workflow.includes('npm test'), 'Workflow must run npm test');
+assert(workflow.includes('npm ci --include=dev'), 'Workflow must install locked devDependencies');
 assert(workflow.includes('npm run check:generate'), 'Workflow must run npm run check:generate');
 assert(workflow.includes('node-version: "22"'), 'Workflow must pin Node 22');
 
@@ -34,7 +36,7 @@ function run(command, args, cwd = checkout) {
     encoding: 'utf8',
     env,
     stdio: ['ignore', 'pipe', 'pipe'],
-    timeout: 10 * 60 * 1000,
+    timeout: 180000,
     maxBuffer: 16 * 1024 * 1024,
   });
 }
@@ -47,10 +49,15 @@ try {
   const head = run('git', ['rev-parse', 'HEAD']).trim();
 
   const checks = [];
-  run('npm', ['install']);
+  const installAndTestStarted = performance.now();
+  run('npm', ['ci', '--include=dev']);
+  const testOutput = run('npm', ['test']);
+  const installAndTestDurationMs = Math.round(performance.now() - installAndTestStarted);
+  assert(installAndTestDurationMs < 180000, `npm ci && npm test exceeded 180s: ${installAndTestDurationMs}ms`);
+  checks.push({ command: 'npm ci --include=dev && npm test', status: 'passed', durationMs: installAndTestDurationMs, tail: testOutput.trim().split('\n').slice(-8) });
   for (const [label, args] of [
-    ['npm run check', ['run', 'check']],
     ['npm run check:generate', ['run', 'check:generate']],
+    ['npm run check:fidelity', ['run', 'check:fidelity']],
   ]) {
     const started = Date.now();
     const output = run('npm', args);
@@ -68,4 +75,3 @@ try {
 } finally {
   await rm(directory, { recursive: true, force: true });
 }
-process.exit(0);

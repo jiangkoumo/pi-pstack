@@ -7,15 +7,16 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
       - name: Install dependencies
-        run: npm install
+        run: npm ci --include=dev
       - name: Package, generation, links, and agent probes
-        run: npm test
+        run: timeout 180s npm test
       - name: Generated resources are current
         run: npm run check:generate
       - name: Upstream fidelity (overall 85%, every port 70%)

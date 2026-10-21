@@ -11,10 +11,12 @@ concurrency:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -23,8 +25,11 @@ jobs:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
+      - name: Install OIDC-capable npm
+        run: npm install --global npm@11.5.1
+
       - name: Install dependencies
-        run: npm install
+        run: npm ci --include=dev
 
       - name: Verify tag matches package.json
         run: |
@@ -37,7 +42,7 @@ jobs:
 
       - name: Package and generation gates
         run: |
-          npm test
+          timeout 180s npm test
           npm run check:generate
           npm run check:fidelity
 
