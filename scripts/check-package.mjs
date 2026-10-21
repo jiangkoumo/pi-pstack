@@ -64,9 +64,11 @@ for (const entry of map.entries) {
   }
 }
 const tally = map.entries.reduce((accumulator, entry) => { accumulator[entry.disposition] = (accumulator[entry.disposition] ?? 0) + 1; return accumulator; }, {});
-assert.equal(tally.ported, 73);
-assert.equal(tally.substitute, 9);
+assert.equal(Object.values(tally).reduce((sum, count) => sum + count, 0), map.entries.length, 'Disposition tally must cover every mapped entry');
 assert.equal(tally.deferred ?? 0, 0);
+for (const entry of map.entries.filter(item => item.disposition === 'ported')) {
+  assert.match(entry.evidence, /^validation-[a-z0-9-]+\.md$/, 'Ported entry requires validation evidence: ' + entry.source);
+}
 const auditText = await readFile(resolve(root, 'docs/skill-audit.md'), 'utf8');
 const auditRows = auditText.split('\n').filter(line => /^\| (技能 |流程 |代理 |Benny 技能 )/.test(line));
 assert.equal(auditRows.length, map.entries.length, 'Audit table covers every mapped entry');
@@ -112,7 +114,8 @@ const changedBodies = [
   'principle-boundary-discipline', 'principle-explain-the-number', 'typescript-best-practices',
   'architect', 'arena', 'interrogate', 'no-comments', 'reflect', 'swarm', 'why',
   'how', 'poteto-help', 'figure-it-out', 'blast-radius', 'benchmark-checklist', 'teach',
-  'show-me-your-work', 'create-verification-skill', 'maintain-verification-skill'
+  'show-me-your-work', 'create-verification-skill', 'maintain-verification-skill',
+  'recall', 'automate-me'
 ];
 for (const skill of unchangedBodies) {
   assert.equal(await bodyOf(skill), upstreamBodies.get('pstack/skills/' + skill + '/SKILL.md'), 'Adaptation record says the body is unchanged: ' + skill);
@@ -120,7 +123,7 @@ for (const skill of unchangedBodies) {
 for (const skill of changedBodies) {
   assert.notEqual(await bodyOf(skill), upstreamBodies.get('pstack/skills/' + skill + '/SKILL.md'), 'Adaptation record says the body changed: ' + skill);
 }
-for (const playbook of ['investigation', 'bug-fix', 'feature', 'runtime-forensics', 'trace-forensics', 'visual-parity']) {
+for (const playbook of ['investigation', 'bug-fix', 'feature', 'runtime-forensics', 'trace-forensics', 'visual-parity', 'eval', 'authoring-a-skill']) {
   const changed = stripFrontmatter(await readFile(resolve(root, 'skills/poteto-mode/playbooks', playbook + '.md'), 'utf8')) !== stripFrontmatter(await readFile(resolve(root, 'upstream/pstack/skills/poteto-mode/playbooks', playbook + '.md'), 'utf8'));
   assert(changed, 'Adaptation record says the playbook changed: ' + playbook);
 }

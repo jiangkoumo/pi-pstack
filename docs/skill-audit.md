@@ -10,7 +10,7 @@
 
 对 how/why、arena、控制驱动、create-skill、Task、固定模型、会话路径、自动提交与外部写操作分别核对。没有把无关键词命中等同于没有依赖。高级流程所需的未移植入口通过主技能中必要步骤替代；原引用记录保留作后续阶段的审计线索。本阶段不承诺 deferred 技能的全部支持材料已适配或运行。
 
-汇总：ported 61，substitute 21，deferred 0。
+汇总：ported 77，substitute 5，deferred 0。
 
 ## 已适配（P1）
 
@@ -44,18 +44,21 @@
 | Benny 技能 reproduce-and-fix-issues | P5 | Cursor Benny/Slack/Linear 自动化不在 Pi 范围；本地替代为 Bug fix + 手动 issue 复现 |
 | Benny 技能 setup-benny | P5 | Cursor Benny 安装与 Slack/Linear 配置不在 Pi 范围；本地替代为项目 AGENTS.md 与显式环境配置 |
 | Benny 技能 triage-issue-reports | P5 | Cursor Benny 报告分流不在 Pi 范围；本地替代为 Investigation + 手动 issue 分类 |
-| 技能 automate-me | P5 | 依赖 Cursor 会话 transcript/自动化；本地替代为显式 /loop + 本地证据目录 |
 | 技能 benchmark-checklist | P5 | 平台工具与 PR 输出未统一；本地替代为 hillclimb/perf-issue 模板内联检查清单 |
 | 技能 blast-radius | P5 | 依赖 how/why/arena/unslop 与大范围编排；本地替代为 investigation + 显式范围与依赖清单 |
 | 技能 figure-it-out | P5 | 依赖编排与 PR 流程；本地替代为 multi-phase-plan/feature 的显式计划 |
 | 技能 make-bot-ui | P5 | 依赖 Cursor 云端 Bot 与 api2.cursor.sh webhook；本地替代为 feature + 操作者浏览器驱动 |
-| 技能 recall | P3 | 依赖会话历史与 MCP 记录；本地替代为 session-pickup 读取当前 Pi 会话 |
 | 技能 teach | P5 | 依赖 how/why/unslop 与图像生成；本地替代为 investigation + 操作者图像工具 |
-| 流程 authoring-a-skill | P5 | Cursor 内置作者流程不可导入；本地替代为 Pi skills 文档与手工 SKILL.md 流程 |
-| 流程 eval | P5 | 依赖 Cursor transcript/云上下文；本地替代为直接测试 harness 与 benchmark-checklist 内联检查 |
 | 流程 runtime-forensics | P5 | 依赖实时控制驱动与诊断采样；本地替代为操作者调试器 + 有界 subagent 归约 |
 | 流程 trace-forensics | P5 | 依赖解析器与 sqlite；本地替代为本地脚本 + 大文件只读子代理 |
 | 流程 visual-parity | P5 | 无通用视觉驱动与 baseline gate；本地替代为操作者截图/图像 diff harness + 有界 loop |
+
+## 已适配会话技能（P3/P5）
+
+| 条目 | 归属 | 依据 |
+| --- | --- | --- |
+| 技能 recall | P3 | 已适配为 Pi 会话回顾流程：只读当前 cwd 的 session JSONL 并按 mtime 排序，排除当前会话，共享记录交给已移植的 why 技能；缺失数据源明确跳过 |
+| 技能 automate-me | P5 | 已适配为 Pi 本地习惯挖掘流程：只读当前 cwd 的会话并按 mtime 排序，结构化提问缺失时改用对话，草稿写入 .pi/skills 或用户技能目录；提交与 PR 需单独授权 |
 
 ## 已适配代理（P3）
 
@@ -83,6 +86,8 @@
 | 流程 perf-issue | P5 | 已适配为 Pi 单次性能修复流程：基线/后测、benchmark checklist、默认不提交或推送 |
 | 流程 refactoring | P5 | 已适配为 Pi 行为保持重构流程：先钉 contract、等价验证、默认不提交或推送 |
 | 流程 shipping | P5 | 已适配为 Pi 已验证 PR 落地流程：逐 PR 独立 verdict、patch-id 复核、显式落地授权 |
+| 流程 eval | P5 | 已适配为 Pi 盲测流程：候选在隔离 cwd 中并行运行并使用配置角色模型，执行链从子代理 sessionFile 或 transcript 读取；默认不提交或推送 |
+| 流程 authoring-a-skill | P5 | 已适配为 Pi 原生技能编写流程：读取安装包 docs/skills.md，使用 read/edit/write，结构校验覆盖 frontmatter、目录名和相对链接；PR 需显式授权 |
 
 ## 已适配纯文本技能（P5）
 

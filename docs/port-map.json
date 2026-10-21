@@ -98,18 +98,21 @@
     {
       "kind": "skills",
       "source": "pstack/skills/automate-me/SKILL.md",
-      "disposition": "substitute",
+      "disposition": "ported",
       "phase": "P5",
-      "destination": null,
-      "reason": "依赖 Cursor 会话 transcript/自动化；本地替代为显式 /loop + 本地证据目录",
+      "destination": "skills/automate-me/SKILL.md",
+      "reason": "已适配为 Pi 本地习惯挖掘流程：只读当前 cwd 的会话并按 mtime 排序，结构化提问缺失时改用对话，草稿写入 .pi/skills 或用户技能目录；提交与 PR 需单独授权",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],
-        "scope": "Disposition audit only; local substitution route recorded, no implementation/runtime acceptance"
+        "scope": "P5 resource checks, semantic override checks, and fixture session-discovery tests"
       },
-      "adaptation": null,
-      "evidence": null,
-      "dependencies": null
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/automate-me/SKILL.md.template"
+      },
+      "evidence": "validation-automate-me.md",
+      "dependencies": "from-template"
     },
     {
       "kind": "skills",
@@ -926,18 +929,21 @@
     {
       "kind": "skills",
       "source": "pstack/skills/recall/SKILL.md",
-      "disposition": "substitute",
+      "disposition": "ported",
       "phase": "P3",
-      "destination": null,
-      "reason": "依赖会话历史与 MCP 记录；本地替代为 session-pickup 读取当前 Pi 会话",
+      "destination": "skills/recall/SKILL.md",
+      "reason": "已适配为 Pi 会话回顾流程：只读当前 cwd 的 session JSONL 并按 mtime 排序，排除当前会话，共享记录交给已移植的 why 技能；缺失数据源明确跳过",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],
-        "scope": "Disposition audit only; local substitution route recorded, no implementation/runtime acceptance"
+        "scope": "P3 resource checks, semantic override checks, and fixture session-scope/order tests"
       },
-      "adaptation": null,
-      "evidence": null,
-      "dependencies": null
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/recall/SKILL.md.template"
+      },
+      "evidence": "validation-recall.md",
+      "dependencies": "from-template"
     },
     {
       "kind": "skills",
@@ -1151,18 +1157,21 @@
     {
       "kind": "playbooks",
       "source": "pstack/skills/poteto-mode/playbooks/authoring-a-skill.md",
-      "disposition": "substitute",
+      "disposition": "ported",
       "phase": "P5",
-      "destination": null,
-      "reason": "Cursor 内置作者流程不可导入；本地替代为 Pi skills 文档与手工 SKILL.md 流程",
+      "destination": "skills/poteto-mode/playbooks/authoring-a-skill.md",
+      "reason": "已适配为 Pi 原生技能编写流程：读取安装包 docs/skills.md，使用 read/edit/write，结构校验覆盖 frontmatter、目录名和相对链接；PR 需显式授权",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],
-        "scope": "Disposition audit only; local substitution route recorded, no implementation/runtime acceptance"
+        "scope": "P5 resource checks, semantic override checks, and fixture skill-validation tests"
       },
-      "adaptation": null,
-      "evidence": null,
-      "dependencies": null
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/authoring-a-skill.md.template"
+      },
+      "evidence": "validation-authoring-a-skill.md",
+      "dependencies": "from-template"
     },
     {
       "kind": "playbooks",
@@ -1268,18 +1277,21 @@
     {
       "kind": "playbooks",
       "source": "pstack/skills/poteto-mode/playbooks/eval.md",
-      "disposition": "substitute",
+      "disposition": "ported",
       "phase": "P5",
-      "destination": null,
-      "reason": "依赖 Cursor transcript/云上下文；本地替代为直接测试 harness 与 benchmark-checklist 内联检查",
+      "destination": "skills/poteto-mode/playbooks/eval.md",
+      "reason": "已适配为 Pi 盲测流程：候选在隔离 cwd 中并行运行并使用配置角色模型，执行链从子代理 sessionFile 或 transcript 读取；默认不提交或推送",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],
-        "scope": "Disposition audit only; local substitution route recorded, no implementation/runtime acceptance"
+        "scope": "P5 resource checks, semantic override checks, and fixture child-transcript discovery tests"
       },
-      "adaptation": null,
-      "evidence": null,
-      "dependencies": null
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/eval.md.template"
+      },
+      "evidence": "validation-eval.md",
+      "dependencies": "from-template"
     },
     {
       "kind": "playbooks",
