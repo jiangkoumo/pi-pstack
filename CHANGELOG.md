@@ -2,12 +2,12 @@
 
 ## 0.3.2
 
-Release candidate validated locally and in CI; npm publication is tracked in the release validation record.
+Published by GitHub Actions on 2026-10-21. Local and CI validation passed; evidence is in docs/validation-032-release.md.
 
 - Fix `/poteto-mode status` after `on` before the first chat: report the durable mode-state file instead of requiring a transcript. Persisted `off` also reports `persistent: true`.
 - Track `package-lock.json` so clean clones can use `npm ci`; explicitly install dev dependencies in CI, including the existing `jiti` dependency.
 - Bound CI test execution to 180 seconds and update the clean-clone check to measure install plus test time, then check generated resources and upstream fidelity.
-- Prepare the publish workflow for npm Trusted Publishing with an OIDC token permission and a compatible npm version. Publisher registration and a successful CI publication are still pending.
+- Publish from GitHub Actions using the repository NPM_TOKEN secret configured from the operator’s existing npm authentication. OIDC support is available, but Trusted Publisher registration is not used for this release.
 - Shut down the extension runtime before disposing reviewer fixture sessions, and assert that watcher intervals are cleared. Discover the locked local pi-subagents dependency in clean CI.
 - Mechanically check Conventional commit/PR titles, required ordered PR headings and the latest recorded test counts; reject common shell wrapper, alias and API bypasses.
 - Add verifier execution under an OS sandbox with real exit codes, write/network denial, timeouts and output bounds; validate the production detached verifier child and require sandbox checks before CI publishing.

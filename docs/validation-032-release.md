@@ -1,4 +1,4 @@
-# 0.3.2 集成验收（进行中）
+# 0.3.2 集成验收与 CI 发布结果
 
 基线：`8adf25a`（0.3.1）。本记录只将实际执行结果列为已验证，未完成项不能当作发布通过。
 
@@ -55,8 +55,14 @@ CI增加macos verifier-sandbox任务并设置PSTACK_VERIFY_REQUIRE_SANDBOX=1，�
 - 集成全量live路由44/46、exit1；失败trace-forensics/how。保持原request，补明确触发后只重放两项，2/2、exit0。当前46项均有真实通过证据；单次全量仍44/46。逐项记录在 [routing results](validation-032-routing-results.json)。
 - 独立审阅发现普通fix recall请求被过宽regex触发，已缩小为活动回忆意图；p2-runtime10/10、exit0。
 
-## 仍待完成
+## 0.3.2 已由 CI 发布
 
-最后触发条件修改后的完整检查、真实外部PR验收、0.3.2版本与CI发布。swarm84.38%仍未达到90%；严格禁网下本库完整npm test无法在verifier沙箱执行（fixture项目npm test已验收）。
+- 发布提交 `fcdb2559aa63eb0a33ff4770f92f6bd712226a2c`，tag `v0.3.2`。版本更新后实际重跑 npm test、生成检查、fidelity 和 git diff --check，exit0，217/217、0fail、0skip；117 checked；93.9569%。
+- [publish run 39616344623](https://github.com/jiangkoumo/pi-pstack/actions/runs/39616344623)：success，verifier-sandbox 与 publish 均完成。发布日志 `2026-10-21T14:24:45Z + @jiangkoumo/pi-pstack@0.3.2`，不是已存在版本的跳过。
+- [tag check run 39616344548](https://github.com/jiangkoumo/pi-pstack/actions/runs/39616344548)：success。main发布提交check run39609642773亦success。
+- `npm view @jiangkoumo/pi-pstack@0.3.2 version dist-tags dist.integrity --json --prefer-online` exit0：version0.3.2、latest0.3.2，registry integrity `sha512-XpyhuFGzhicQnxOmOOC1Tld2mPLCuqX5Ms4kLkwtxZjqCFzvdMFirEZ7USGT3NIynOEnmSl7qN1RDvM6pVk/Zg==`。
+- 操作者要求本地认证后，将本机已验证npm凭据经标准输入配置为GitHub仓库NPM_TOKEN secret，未将值打印或提交。本轮CI使用该secret发布，没有执行本机npm publish。Trusted Publisher网页安全密钥流程未完成，不作为发布依据；后续可复用secret，无需每次网页登录。
 
-npm网页已登录。Trusted Publisher已填写为GitHub Actions、jiangkoumo/pi-pstack、publish.yml、Environment空，仅Allow npm publish；提交现停在Security key二次验证，TaskSpace54已handOff，连接尚未确认保存。禁止本机npm publish 0.3.2。最终CI和registry结果尚不存在。
+## 仍未完成与限制
+
+真实外部合规PR验收仍未执行；swarm84.38%仍未达到90%；单次全量live路由44/46、原请求修复重放2/2，不能宣称一次46/46。严格禁网下本库完整npm test无法在verifier沙箱执行（fixture项目npm test已验收）。上述缺口不因已发布而消失。
