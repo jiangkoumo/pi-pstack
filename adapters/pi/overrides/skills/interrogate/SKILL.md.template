@@ -7,7 +7,7 @@ license: MIT
 
 # Interrogate
 
-Spawn one reviewer per configured model to adversarially review code changes. The adversarial signal comes from model diversity, not assigned personas. The deliverable is a synthesized verdict. Do NOT auto-apply changes. This skill returns a verdict; an implementation request must separately authorize applying fixes.
+Spawn one reviewer per configured model to adversarially review code changes. The adversarial signal comes from model diversity, not assigned personas. The deliverable is a synthesized verdict. Do NOT auto-apply changes.
 
 ## Step 1, Scope
 
@@ -25,13 +25,23 @@ Before spawning reviewers, state the intent in one clear paragraph from the user
 
 ## Step 3, Spawn Reviewers
 
-With delegation authorized, launch independent read-only reviewers through the installed integration, labeled Reviewer A, B, and so on. Give each the same complete prompt. Diverse available models provide adversarial signal; do not assign different personas or different coverage to seats. With no delegation, review sequentially and disclose self-review.
+Launch all reviewers in one pi-subagents call, labeled Reviewer A, B, and C. Use the judgment, strongest, and review roles configured through `/setup-pstack`:
 
-Read [reviewer-prompt.md](references/reviewer-prompt.md) and fill in the same template for every reviewer with the stated intent, the diff or file contents, the rubric from [rubric.md](references/rubric.md), and the code-quality lens from [code-quality-review.md](references/code-quality-review.md). Use supported model settings under the Pi rules below.
+```js
+subagent({workflow:"parallel",args:{tasks:[
+  {agent:"pstack.judgment-agent",task:"<same complete review prompt; Reviewer A>"},
+  {agent:"pstack.strongest-agent",task:"<same complete review prompt; Reviewer B>"},
+  {agent:"pstack.comment-sicko",task:"<same complete review prompt; Reviewer C>"}
+]}})
+```
+
+Every seat is read-only and uses a registered pstack.* agent, never the builtin reviewer. Preserve configured model diversity and report when seats share a model. A missing or rejected configured model is an explicit gap; do not silently fall back or open a PR without current-session authorization.
+
+Read [reviewer-prompt.md](references/reviewer-prompt.md) and fill in the same template for every reviewer with the stated intent, the diff or file contents, the rubric from [rubric.md](references/rubric.md), and the code-quality lens from [code-quality-review.md](references/code-quality-review.md). Pick each subagent's thinking through `/setup-pstack` for the job, per the Subagents section of the **poteto-mode** skill.
 
 ## Step 4, Synthesize
 
-As results come back, build a unified picture. Parse every reviewer's findings. Merge findings that describe the same issue differently, and note which models raised each one. Findings two or more models raised independently are the highest signal. Read a lone model's finding, but weight it accordingly. Note disagreements. If one model flags something and another explicitly says the opposite, that is context for the verdict.
+Collect all required reviewer results before building a unified picture. Parse every reviewer's findings. Merge findings that describe the same issue differently, and note which models raised each one. Findings two or more models raised independently are the highest signal. Read a lone model's finding, but weight it accordingly. Note disagreements. If one model flags something and another explicitly says the opposite, that is context for the verdict.
 
 ## Step 5, Lead Judgment
 
@@ -65,12 +75,12 @@ You are the lead reviewer, a pragmatic senior engineer, not a neutral aggregator
 ### Agreement Map
 [Where models agreed and diverged, and what that pattern tells us.]
 
-## Pi execution and authority
+## Pi adaptation
 
 Adapted from Lauren Tan’s pstack v0.15.25, MIT, fixed revision f713f14203cd6420cec13cd7c55c32d598dbab68. Read the [Pi adapter](../../adapters/pi/harness.md) for host mappings.
 
-Delegation requires operator or applicable project authorization and an available pi-subagents integration. Otherwise perform the same stages sequentially and label the result self-review rather than independent review. Read the installed integration’s public instructions before launching. Use pstack.poteto-agent for isolated candidate writers and pstack.comment-sicko with its actual read-only allowlist for file reviewers. Keep one writer per directory. A source investigator may use only explicitly available read-only connectors; lack of connector access is a gap, never a reason to grant write tools.
+Delegation requires current operator or applicable project authorization and a compatible pi-subagents integration. If unavailable or unauthorized, perform authorized stages locally, disclose self-review and missing independence, and report any required independent stage as open. Use only registered pstack.* agents. Models and thinking bind through /setup-pstack roles and user agentOverrides; never put model in a task item or on the outer subagent call. Report unavailable or identical configured models; do not silently substitute. Await native completion notices and collect every required result before synthesis.
 
-Honor the operator’s configured roles and supported reasoning levels. Runtime-registered pstack agents bind their models through /setup-pstack: pstack.poteto-agent uses code, pstack.comment-sicko uses review, pstack.verifier uses verification, and pstack.prose-writer uses prose. This binding applies to direct calls and workflow children, including subagent({ workflow: "parallel", args: { tasks: [{ agent: "pstack.<agent>", task: "<brief>" }] } }). Do not put model in a task item or on the outer call; user subagents.agentOverrides may override the agent’s model and thinking. Do not invent per-skill configuration keys. Preserve model diversity where available; report when configured seats share a model. A rejected model stops that seat and is reported; never silently choose a fallback. Do not launch a child without authorization. Await native completion notices, not polling.
+Use read for file contents, grep/find/ls for search and directories, and ffgrep/fffind when available. Batch independent reads with codemode when available. Use edit/write only for authorized changes; bash executes programs and Git in an explicit working directory, never reads or searches files. Keep one writer per worktree and isolate candidate output paths. Read-only reviewers never receive bash, edit, write, or nested delegation. Loading this skill grants no new permission: push, PR creation, merge, external messages, and destructive operations require explicit authorization in the current session. Commit only when authorized.
 
-Use read for contents, ls for directories, fffind/ffgrep when available and find/grep otherwise. Use edit/write for authorized changes. Batch independent reads with codemode when available. Bash is for execution and Git with an explicit working directory, never a substitute file reader or searcher. Loading this skill grants no permission to commit, push, merge, deploy, delete, or send messages.
+The lead captures the scoped diff against `main` or the repository default branch, including working-tree changes when relevant, and passes its readable file path and surrounding context to every seat. Read-only children cannot run Git. The lead performs Steps 4 and 5 itself after collecting every result, reading `references/lead-judgment.md` before issuing the synthesized verdict.

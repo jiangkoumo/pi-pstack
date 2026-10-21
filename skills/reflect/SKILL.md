@@ -13,23 +13,33 @@ Invoke when the user says "reflect" or "/reflect". Skip when the conversation is
 
 ## 1. Locate the active transcript
 
-Use only the active Pi session branch or an operator-supplied transcript path. Match the opening request and branch metadata before reading. Do not scan unrelated sessions or workspaces. If no safe transcript path is available, pass a tight digest of the current conversation and state its limits. A digest is not a full transcript.
+Before fanning out, locate only the active Pi session transcript supplied by the host, using its session path and opening user prompt to confirm identity. Read it with `read`; do not scan unrelated workspaces or chats. If the active path is unavailable, pass a tight digest of the session instead.
 
 ## 2. Spawn three reviewers in parallel
 
-With delegation authorized, launch three read-only reviewers, using available configured review models and the distinct lenses below. If a connector is unavailable to a read-only reviewer, the parent can make an authorized read-only lookup and supply the evidence. Do not grant write tools to recover connector access. Otherwise apply these lenses sequentially and disclose self-review.
+One pi-subagents call launches all three reviewers:
 
-| Lens | Prompt template |
-|---|---|
-| Judgment | [judgment-reviewer.md](references/judgment-reviewer.md) |
-| Tooling | [tooling-reviewer.md](references/tooling-reviewer.md) |
-| Divergent | [divergent-reviewer.md](references/divergent-reviewer.md) |
+```js
+subagent({workflow:"parallel",args:{tasks:[
+  {agent:"pstack.judgment-agent",task:"<references/judgment-reviewer.md with transcript or digest>"},
+  {agent:"pstack.verifier",task:"<references/tooling-reviewer.md with transcript or digest>"},
+  {agent:"pstack.strongest-agent",task:"<references/divergent-reviewer.md with transcript or digest>"}
+]}})
+```
 
-Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in the `Task` response body.
+Use the judgment, verification, and strongest roles configured by `/setup-pstack`, with thinking appropriate to the job. Reviewers needing referenced tickets, chat threads, or traces receive only explicitly available read-only sources; otherwise the lead supplies evidence and reports gaps.
+
+| Lens | Setup role | Prompt template |
+|---|---|---|
+| Judgment | `judgment` | [judgment-reviewer.md](references/judgment-reviewer.md) |
+| Tooling | `verification` | [tooling-reviewer.md](references/tooling-reviewer.md) |
+| Divergent | `strongest` | [divergent-reviewer.md](references/divergent-reviewer.md) |
+
+Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in the `subagent` response body.
 
 ## 3. Synthesize
 
-Use a fresh read-only synthesizer when delegation is authorized, or synthesize locally with that limitation stated. Read [synthesizer.md](references/synthesizer.md), fill in every reviewer’s complete output, and spot-check citations using only available authorized read-only access. It returns an Accepted / Rejected / Backlog list.
+One pi-subagents `subagent` call with `agent: "pstack.judgment-agent"`, using the configured judgment role. It spot-verifies citations through explicitly available read-only sources, or reports missing access. Pass [synthesizer.md](references/synthesizer.md) verbatim, with each reviewer's full output inlined where marked. It returns an Accepted / Rejected / Backlog list.
 
 ## 4. Structural enforcement check
 
@@ -39,14 +49,14 @@ Move any Accepted item that a lint rule, script, metadata flag, or runtime check
 
 Present the synthesizer's full Accepted / Rejected / Backlog output and wait for explicit approval before applying any Accepted edit. The user picks the subset and may redirect routings. Skill changes affect every future agent in the org. Do not auto-apply.
 
-Keep Backlog items local unless posting to a named tracker is explicitly authorized. Loading reflect never authorizes external messages or ticket writes.
+File each Backlog item to your team's devex or backlog tracker without waiting. Only the Accepted list waits for approval.
 
 Follow each approved row's Routing exactly:
 
 - Trivial existing-skill edit (a one-line bullet, a tightened sentence, a stale fact corrected): the parent does it directly.
-- Substantive existing-skill edits use the manual Pi skill-authoring route in the [Pi adapter](../../adapters/pi/harness.md). Draft the smallest change, validate the SKILL.md against installed Pi docs, replay the motivating failure, and iterate.
-- `tune description: <skill path>` means the existing skill failed to trigger. Test representative should-trigger and should-not-trigger requests against the proposed description before accepting it.
-- `new skill via manual Pi authoring: <kebab-name>` is rare. Read installed Pi skills documentation, choose a discovered project-local path, write frontmatter and grounded instructions, and test discovery plus the real motivating task. Do not invent an unavailable authoring skill.
+- Substantive existing-skill edit (a new section, a new pattern table, more than ~10 lines): hand to the Pi authoring-a-skill playbook and run its draft / test / iterate loop.
+- `tune description: <skill path>` (the skill exists but didn't trigger when it should have): hand to the Pi authoring-a-skill playbook and run its description-optimization loop.
+- `new skill via create-skill: <kebab-name>`: hand creation to the Pi authoring-a-skill playbook. Do not invent the shape ad hoc.
 
 If your environment ships a SKILL.md validator, run it on every touched skill before declaring done.
 
@@ -59,12 +69,12 @@ Short list, no preamble:
 - Backlog filed to the devex tracker: `<issue title>` (`<tags>`). One line each.
 - Dropped: one line per rejected finding + reason from the synthesizer.
 
-## Pi execution and authority
+## Pi adaptation
 
 Adapted from Lauren Tan’s pstack v0.15.25, MIT, fixed revision f713f14203cd6420cec13cd7c55c32d598dbab68. Read the [Pi adapter](../../adapters/pi/harness.md) for host mappings.
 
-Delegation requires operator or applicable project authorization and an available pi-subagents integration. Otherwise perform the same stages sequentially and label the result self-review rather than independent review. Read the installed integration’s public instructions before launching. Use pstack.poteto-agent for isolated candidate writers and pstack.comment-sicko with its actual read-only allowlist for file reviewers. Keep one writer per directory. A source investigator may use only explicitly available read-only connectors; lack of connector access is a gap, never a reason to grant write tools.
+Delegation requires current operator or applicable project authorization and a compatible pi-subagents integration. If unavailable or unauthorized, perform authorized stages locally, disclose self-review and missing independence, and report any required independent stage as open. Use only registered pstack.* agents. Models and thinking bind through /setup-pstack roles and user agentOverrides; never put model in a task item or on the outer subagent call. Report unavailable or identical configured models; do not silently substitute. Await native completion notices and collect every required result before synthesis.
 
-Honor the operator’s configured roles and supported reasoning levels. Runtime-registered pstack agents bind their models through /setup-pstack: pstack.poteto-agent uses code, pstack.comment-sicko uses review, pstack.verifier uses verification, and pstack.prose-writer uses prose. This binding applies to direct calls and workflow children, including subagent({ workflow: "parallel", args: { tasks: [{ agent: "pstack.<agent>", task: "<brief>" }] } }). Do not put model in a task item or on the outer call; user subagents.agentOverrides may override the agent’s model and thinking. Do not invent per-skill configuration keys. Preserve model diversity where available; report when configured seats share a model. A rejected model stops that seat and is reported; never silently choose a fallback. Do not launch a child without authorization. Await native completion notices, not polling.
+Use read for file contents, grep/find/ls for search and directories, and ffgrep/fffind when available. Batch independent reads with codemode when available. Use edit/write only for authorized changes; bash executes programs and Git in an explicit working directory, never reads or searches files. Keep one writer per worktree and isolate candidate output paths. Read-only reviewers never receive bash, edit, write, or nested delegation. Loading this skill grants no new permission: push, PR creation, merge, external messages, and destructive operations require explicit authorization in the current session. Commit only when authorized.
 
-Use read for contents, ls for directories, fffind/ffgrep when available and find/grep otherwise. Use edit/write for authorized changes. Batch independent reads with codemode when available. Bash is for execution and Git with an explicit working directory, never a substitute file reader or searcher. Loading this skill grants no permission to commit, push, merge, deploy, delete, or send messages.
+Backlog filing is an external write. Prepare the backlog items locally and file only with explicit current-session authorization. Read-only synthesis returns proposed edits; the parent applies only the explicitly approved subset.

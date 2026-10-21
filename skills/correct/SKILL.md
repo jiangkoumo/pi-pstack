@@ -1,33 +1,43 @@
 ---
 name: correct
-description: "Find repeated agent mistakes with at least two real occurrences, then prevent them through architecture, types, checks, and behavior tests. Use for an explicit correct request."
+description: "Find the mistakes agents keep repeating in this repo and make each one impossible. Try architecture first, then types, then a lint whose error names the fix, then a test, and write docs last. Prove each check fails on a real past mistake. Repeat this each time the operator corrects you. Use for /correct."
 disable-model-invocation: true
 license: MIT
 ---
 
-# Correct for Pi
+# Correct
 
-Adapted from Lauren Tan's pstack. Change the repository so a recurring mistake is prevented even when the next agent has only read its nearest example. Work only within the operator's authorized scope and tool rules. Read [Encode lessons in structure](../principle-encode-lessons-in-structure/SKILL.md).
+The operator keeps correcting agents in this repo for the same mistakes. Change the repo so the next agent can't make them.
 
-## Establish real mistake classes
+Assume every contributor is an agent that sees only the files it opened, copies the nearest example, and takes the shortest path that compiles. Design the repo so a change that looks right from one file is right for the whole repo.
 
-Inspect available commits, reverts, review feedback, instruction files, and operator-provided history. Cite at least two distinct occurrences before calling a pattern repeated. A duplicated warning is not automatically two actual mistakes. Do not search unrelated workspaces or fabricate prior sessions. If evidence is missing, report what is unavailable and request the specific source only if necessary; continue any independently justified work.
+## Find the mistake classes
 
-Group the occurrences by the mechanism that allowed them. Rank real classes by frequency and impact. The existence of a rule alone does not establish a violation.
+First, read recent commits, reverts, review comments, agent instruction files, and comments that explain workarounds. Group the mistakes into classes. A class counts once it has happened twice.
 
-## Prevent at the strongest practical level
+## Fix each class at the highest level that works
 
-1. Eliminate the mistake through architecture: one owner for state, one supported operation, private internals, one source of truth, and removal of obsolete examples. Read [Laziness protocol](../principle-laziness-protocol/SKILL.md) before adding machinery.
-2. If architecture cannot remove it, use types to exclude the bad state. Otherwise add a lint or CI check whose error names the supported replacement. For widespread legacy patterns, consider blocking newly introduced occurrences without forcing unrelated cleanup.
-3. Test user-observable behavior. Read [Test behavior](../principle-test-behavior-not-implementation/SKILL.md). Fix or remove hollow tests only within scope. Do not use an assertion that merely repeats the new rule's text.
-4. Write docs last for judgment that cannot be encoded. Explain why a stronger level would not work. Do not copy absolute advice such as trusting every internal value when the code has an actual untrusted boundary.
+1. **Eliminate it with architecture.** Give each piece of state one owner and each task one supported way. Hide internals so the wrong import fails. Replace hand-synced lists with one source of truth. Delete old ways and dead code an agent would copy.
+2. **Enforce it with types so the bad state can't be written.** If bad code still compiles, add a lint or CI check whose error names the file, type, or function to use instead. If the pattern is already common, fail only when a change adds more.
+3. **Test the behavior.** Fix or delete any test that still passes when the behavior it checks breaks, or that fails when only the internals change.
+4. **Write docs or agent rules last, only for judgment calls.** Nothing fails when an agent skips them.
 
-## Prove the constraint
+## Fix and prove
 
-Apply the most frequent, authorized classes. Keep changes and evidence separate per class; commit only when the operator's rules authorize it. Recreate a cited historical bad case in an isolated fixture or other reversible check. Run the exact same constraint against the bad case and the corrected case. Capture rejection before and success after, and confirm CI invokes that same check when CI is in scope. Do not claim CI ran merely because its configuration contains the command.
+Then fix the most frequent classes now, one commit each. Prove each new check fails on a real past mistake. Run the same command locally and in CI. Exceptions go on the offending line with a reason, an expiry date, and a human's approval.
 
-Read [Prove it works](../principle-prove-it-works/SKILL.md). Inspect the resulting diff and relevant checks. Never weaken enforcement to make the bad case pass. Exceptions require the operator's approval, a reason, and an expiry; do not invent approval.
+## Keep the rule table
 
-If repository instruction files are within scope and a useful rule remains, pair it with the actual enforcing file or command. Remove obsolete instructions only when their purpose is enforced and the edit is authorized. Avoid duplicating mechanically guaranteed rules.
+Last, keep a table in the agent instruction file that pairs each rule with what enforces it. When the operator corrects you, fix the mistake and add the rule. If the rule was already there and nothing enforces it, that's a repeat, so fix it at the highest level in the same change. Drop a rule once its mistake can't happen.
 
-Report each class, both occurrences, chosen enforcement, why a stronger level was unsuitable, actual bad-case and corrected-case results, residual risks, and unavailable evidence. Never present a single observed error as a proven recurring class.
+**Reply:** each class with its evidence, the level you picked, and why a higher level didn't work.
+
+## Pi adaptation
+
+Adapted from Lauren Tan’s pstack v0.15.25, MIT, fixed revision f713f14203cd6420cec13cd7c55c32d598dbab68. Read the [Pi adapter](../../adapters/pi/harness.md) for host mappings.
+
+Delegation requires current operator or applicable project authorization and a compatible pi-subagents integration. If unavailable or unauthorized, perform authorized stages locally, disclose self-review and missing independence, and report any required independent stage as open. Use only registered pstack.* agents. Models and thinking bind through /setup-pstack roles and user agentOverrides; never put model in a task item or on the outer subagent call. Report unavailable or identical configured models; do not silently substitute. Await native completion notices and collect every required result before synthesis.
+
+Use read for file contents, grep/find/ls for search and directories, and ffgrep/fffind when available. Batch independent reads with codemode when available. Use edit/write only for authorized changes; bash executes programs and Git in an explicit working directory, never reads or searches files. Keep one writer per worktree and isolate candidate output paths. Read-only reviewers never receive bash, edit, write, or nested delegation. Loading this skill grants no new permission: push, PR creation, merge, external messages, and destructive operations require explicit authorization in the current session. Commit only when authorized.
+
+Use only available history and explicitly authorized read-only review sources. Missing history or unavailable CI is a reported evidence gap. The original one-commit-per-class instruction is subject to the current session’s commit authorization.
