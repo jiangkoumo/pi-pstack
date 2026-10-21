@@ -1,0 +1,7 @@
+
+> @jiangkoumo/pi-pstack@0.3.1 check:fidelity
+> node scripts/check-upstream-fidelity.mjs
+
+{"status":"passed","files":111,"overall":0.9395689846700733,"kept":4229,"upstream":4501,"errors":[]}
+
+exit_code=0

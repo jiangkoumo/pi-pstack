@@ -48,8 +48,15 @@
 
 CI增加macos verifier-sandbox任务并设置PSTACK_VERIFY_REQUIRE_SANDBOX=1，缺沙箱不能skip冒充通过；publish依赖此任务成功。Linux常规suite仍可明确skip未安装bwrap的沙箱用例，最终以独立macOS任务验证能力。
 
+## 最终集成证据
+
+- 67f5f88干净clone `npm run check:ci` exit0：npm ci --include=dev && npm test合计60409ms，216/216，0skip；117资源同步，fidelity93.9569%。
+- 远端 [check run 39607077699](https://github.com/jiangkoumo/pi-pstack/actions/runs/39607077699) success；Linux check与macOS verifier-sandbox均success。不是本机fixture冒充远端CI。
+- 集成全量live路由44/46、exit1；失败trace-forensics/how。保持原request，补明确触发后只重放两项，2/2、exit0。当前46项均有真实通过证据；单次全量仍44/46。逐项记录在 [routing results](validation-032-routing-results.json)。
+- 独立审阅发现普通fix recall请求被过宽regex触发，已缩小为活动回忆意图；p2-runtime10/10、exit0。
+
 ## 仍待完成
 
-最终干净clone与远端CI、完整46路由结果、真实外部PR验收、所有最终证据归档、0.3.2版本与CI发布。swarm84.38%仍未达到90%；严格禁网下本库完整npm test无法在verifier沙箱执行（fixture项目npm test已验收）。
+最后触发条件修改后的完整检查、真实外部PR验收、0.3.2版本与CI发布。swarm84.38%仍未达到90%；严格禁网下本库完整npm test无法在verifier沙箱执行（fixture项目npm test已验收）。
 
 npm网页已登录。Trusted Publisher已填写为GitHub Actions、jiangkoumo/pi-pstack、publish.yml、Environment空，仅Allow npm publish；提交现停在Security key二次验证，TaskSpace54已handOff，连接尚未确认保存。禁止本机npm publish 0.3.2。最终CI和registry结果尚不存在。

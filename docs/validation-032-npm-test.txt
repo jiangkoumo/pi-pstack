@@ -1,0 +1,1622 @@
+{
+  "command": "npm test && npm run check:generate && git diff --check",
+  "exit_code": 0,
+  "seconds": 60.6,
+  "tests": 217,
+  "fail": 0,
+  "skipped": 0
+}
+
+
+> @jiangkoumo/pi-pstack@0.3.1 test
+> npm run check && node --test scripts/upstream-fidelity.test.mjs
+
+
+> @jiangkoumo/pi-pstack@0.3.1 check
+> node scripts/check-package.mjs && node --test scripts/p2-runtime.test.mjs && node --test scripts/loop.test.mjs && node --test scripts/generation.test.mjs && node --test scripts/writer-gate.test.mjs && node --test scripts/coverage.test.mjs && node --test scripts/check-plan.test.mjs && node --test scripts/runtime-next.test.mjs && node --test scripts/role-agents.test.mjs && node --test scripts/mode-state.test.mjs && node --test scripts/mode-compaction-injection.test.mjs && node --test scripts/review-dispatch.test.mjs && node --test scripts/playbook-role-routing.test.mjs && node --test scripts/delegation-default.test.mjs && node --test scripts/comment-sicko.test.mjs && node --test scripts/watch-pr.test.mjs && node --test scripts/worktree-audit.test.mjs && node --test scripts/orch.test.mjs && node --test scripts/mode-persistence.test.mjs && node --test scripts/session-skills.test.mjs && node scripts/check-p3-agents.mjs --allow-skip && node scripts/check-p3-readonly-gate.mjs --allow-skip && node scripts/check-abort-state.mjs && node scripts/check-parallel-roles.mjs --allow-skip && node --test scripts/test-session-lifecycle.test.mjs && node --test scripts/publication-gate.test.mjs && node --test scripts/publication-host.test.mjs && node --test scripts/verification-exec.test.mjs && node --test scripts/verifier-child.test.mjs && node --test scripts/routing.test.mjs && node --test scripts/playbook-script-invocation.test.mjs
+
+{"status":"passed","mapped":82,"archived":132,"documents":154,"localLinks":352,"unchangedBodies":27,"changedBodies":25,"dispositions":{"substitute":5,"ported":77},"publishedPaths":["extensions/","skills/","agents/","adapters/","upstream/","docs/","scripts/","tools/","AGENTS.md","LICENSE","LICENSES/","THIRD_PARTY_NOTICES.md"],"resourceGeneration":"in-sync"}
+TAP version 13
+# Subtest: B2 run directory and module probes respect an isolated PI_CODING_AGENT_DIR
+ok 1 - B2 run directory and module probes respect an isolated PI_CODING_AGENT_DIR
+  ---
+  duration_ms: 40.991125
+  type: 'test'
+  ...
+# Subtest: recall requests receive the exact current workspace session directory before mining
+ok 2 - recall requests receive the exact current workspace session directory before mining
+  ---
+  duration_ms: 13.756584
+  type: 'test'
+  ...
+# Subtest: ordinary fixes mentioning recall do not trigger transcript mining guidance
+ok 3 - ordinary fixes mentioning recall do not trigger transcript mining guidance
+  ---
+  duration_ms: 10.245709
+  type: 'test'
+  ...
+# Subtest: B2 module probes do not fall back to the real agent directory
+ok 4 - B2 module probes do not fall back to the real agent directory
+  ---
+  duration_ms: 867.854542
+  type: 'test'
+  ...
+# Subtest: B6 mode status reports durable mode state before the first assistant message
+ok 5 - B6 mode status reports durable mode state before the first assistant message
+  ---
+  duration_ms: 13.534375
+  type: 'test'
+  ...
+# Subtest: B7 configured roles reach pstack skill requests with mode off or never enabled
+ok 6 - B7 configured roles reach pstack skill requests with mode off or never enabled
+  ---
+  duration_ms: 25.430666
+  type: 'test'
+  ...
+# Subtest: mode follows only the supplied branch, defaults off and rejects unknown versions
+ok 7 - mode follows only the supplied branch, defaults off and rejects unknown versions
+  ---
+  duration_ms: 0.678083
+  type: 'test'
+  ...
+# Subtest: strict schema and exact model/thinking reject bad choices without substitution
+ok 8 - strict schema and exact model/thinking reject bad choices without substitution
+  ---
+  duration_ms: 0.171041
+  type: 'test'
+  ...
+# Subtest: resolveSubagentModel strictly resolves role, dispatches configured catalog models, and rejects bad models without fallback
+ok 9 - resolveSubagentModel strictly resolves role, dispatches configured catalog models, and rejects bad models without fallback
+  ---
+  duration_ms: 0.63875
+  type: 'test'
+  ...
+# Subtest: configuration merges per role only for trusted projects, and writes atomically and idempotently
+ok 10 - configuration merges per role only for trusted projects, and writes atomically and idempotently
+  ---
+  duration_ms: 11.023209
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1785.658958
+TAP version 13
+# Subtest: parseLoopArgs parses status and stop subcommands
+ok 1 - parseLoopArgs parses status and stop subcommands
+  ---
+  duration_ms: 2.083167
+  type: 'test'
+  ...
+# Subtest: parseLoopArgs parses resume subcommand with options
+ok 2 - parseLoopArgs parses resume subcommand with options
+  ---
+  duration_ms: 0.400042
+  type: 'test'
+  ...
+# Subtest: parseLoopArgs parses run options and goals
+ok 3 - parseLoopArgs parses run options and goals
+  ---
+  duration_ms: 0.255417
+  type: 'test'
+  ...
+# Subtest: B1: print and JSON reject run/resume before state changes or messages
+ok 4 - B1: print and JSON reject run/resume before state changes or messages
+  ---
+  duration_ms: 2.036792
+  type: 'test'
+  ...
+# Subtest: B3: goals require run and reserved command words cannot swallow trailing goals
+ok 5 - B3: goals require run and reserved command words cannot swallow trailing goals
+  ---
+  duration_ms: 0.129292
+  type: 'test'
+  ...
+# Subtest: B4: new runs and resumed legacy loops require an executable stop predicate
+ok 6 - B4: new runs and resumed legacy loops require an executable stop predicate
+  ---
+  duration_ms: 0.241291
+  type: 'test'
+  ...
+# Subtest: B9: aborted or errored turns never execute the until command
+ok 7 - B9: aborted or errored turns never execute the until command
+  ---
+  duration_ms: 0.43875
+  type: 'test'
+  ...
+# Subtest: B11: shell words preserve escaped quotes and reject malformed tokens and integers
+ok 8 - B11: shell words preserve escaped quotes and reject malformed tokens and integers
+  ---
+  duration_ms: 0.2465
+  type: 'test'
+  ...
+# Subtest: loopFromBranch extracts current state
+ok 9 - loopFromBranch extracts current state
+  ---
+  duration_ms: 0.315833
+  type: 'test'
+  ...
+# Subtest: createInitialLoopState produces expected structure
+ok 10 - createInitialLoopState produces expected structure
+  ---
+  duration_ms: 0.344083
+  type: 'test'
+  ...
+# Subtest: decideNextStep handles host outcomes and predicate results
+ok 11 - decideNextStep handles host outcomes and predicate results
+  ---
+  duration_ms: 0.155167
+  type: 'test'
+  ...
+# Subtest: Pi host: print/JSON refusal, multi-turn RPC budget/predicate stops, and abort/error guards
+ok 12 - Pi host: print/JSON refusal, multi-turn RPC budget/predicate stops, and abort/error guards
+  ---
+  duration_ms: 256.393209
+  type: 'test'
+  ...
+# Subtest: renderLoopPrompt generates proper instructions without false commitments
+ok 13 - renderLoopPrompt generates proper instructions without false commitments
+  ---
+  duration_ms: 0.095834
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 693.207917
+TAP version 13
+# Subtest: B2 generated artifact instructions use the injected run directory instead of the real home
+ok 1 - B2 generated artifact instructions use the injected run directory instead of the real home
+  ---
+  duration_ms: 5.152291
+  type: 'test'
+  ...
+# Subtest: autonomous-run template and output document stop as a complete command
+ok 2 - autonomous-run template and output document stop as a complete command
+  ---
+  duration_ms: 1.424458
+  type: 'test'
+  ...
+# Subtest: B12 generated writer guidance points to the current skill and principle leaves
+ok 3 - B12 generated writer guidance points to the current skill and principle leaves
+  ---
+  duration_ms: 0.752667
+  type: 'test'
+  ...
+# Subtest: Pi-specific role agents preserve tool boundaries and are not attributed to upstream
+ok 4 - Pi-specific role agents preserve tool boundaries and are not attributed to upstream
+  ---
+  duration_ms: 462.417
+  type: 'test'
+  ...
+# Subtest: prepared references are generated, checked for drift, and have accepted status
+ok 5 - prepared references are generated, checked for drift, and have accepted status
+  ---
+  duration_ms: 531.253875
+  type: 'test'
+  ...
+# Subtest: prepared resources cannot escape their source-owned destination
+ok 6 - prepared resources cannot escape their source-owned destination
+  ---
+  duration_ms: 363.013583
+  type: 'test'
+  ...
+# Subtest: prepared resources must have valid status and cannot duplicate a ported source
+ok 7 - prepared resources must have valid status and cannot duplicate a ported source
+  ---
+  duration_ms: 341.6525
+  type: 'test'
+  ...
+# Subtest: generation is repeatable, no-op generation preserves mtime, and check is read-only
+ok 8 - generation is repeatable, no-op generation preserves mtime, and check is read-only
+  ---
+  duration_ms: 1129.511958
+  type: 'test'
+  ...
+# Subtest: reject destination outside source-owned path: docs/review-generated-target.md
+ok 9 - reject destination outside source-owned path: docs/review-generated-target.md
+  ---
+  duration_ms: 377.8555
+  type: 'test'
+  ...
+# Subtest: reject destination outside source-owned path: ../escape.md
+ok 10 - reject destination outside source-owned path: ../escape.md
+  ---
+  duration_ms: 339.63325
+  type: 'test'
+  ...
+# Subtest: reject destination outside source-owned path: /tmp/escape.md
+ok 11 - reject destination outside source-owned path: /tmp/escape.md
+  ---
+  duration_ms: 366.446917
+  type: 'test'
+  ...
+# Subtest: reject destination outside source-owned path: skills/../docs/target.md
+ok 12 - reject destination outside source-owned path: skills/../docs/target.md
+  ---
+  duration_ms: 348.611458
+  type: 'test'
+  ...
+# Subtest: reject changed pinned source before generation
+ok 13 - reject changed pinned source before generation
+  ---
+  duration_ms: 320.16725
+  type: 'test'
+  ...
+# Subtest: reject reviewed-baseline metadata needing adaptation: unknown field
+ok 14 - reject reviewed-baseline metadata needing adaptation: unknown field
+  ---
+  duration_ms: 370.722834
+  type: 'test'
+  ...
+# Subtest: reject reviewed-baseline metadata needing adaptation: invocation policy change
+ok 15 - reject reviewed-baseline metadata needing adaptation: invocation policy change
+  ---
+  duration_ms: 387.088375
+  type: 'test'
+  ...
+# Subtest: reject reviewed-baseline metadata needing adaptation: multiline description
+ok 16 - reject reviewed-baseline metadata needing adaptation: multiline description
+  ---
+  duration_ms: 412.674666
+  type: 'test'
+  ...
+# Subtest: reject unmanaged file: skills/poteto-mode/unowned.txt
+ok 17 - reject unmanaged file: skills/poteto-mode/unowned.txt
+  ---
+  duration_ms: 726.159958
+  type: 'test'
+  ...
+# Subtest: reject unmanaged file: agents/unmanaged.txt
+ok 18 - reject unmanaged file: agents/unmanaged.txt
+  ---
+  duration_ms: 435.280542
+  type: 'test'
+  ...
+# Subtest: reject unmanaged file: adapters/pi/overrides/orphan.template
+ok 19 - reject unmanaged file: adapters/pi/overrides/orphan.template
+  ---
+  duration_ms: 381.186666
+  type: 'test'
+  ...
+# Subtest: reject a symlink output without changing its target
+ok 20 - reject a symlink output without changing its target
+  ---
+  duration_ms: 694.106458
+  type: 'test'
+  ...
+# Subtest: reject missing declared dependency
+ok 21 - reject missing declared dependency
+  ---
+  duration_ms: 565.685917
+  type: 'test'
+  ...
+# Subtest: reject a skill dependency outside the generated set
+ok 22 - reject a skill dependency outside the generated set
+  ---
+  duration_ms: 478.958125
+  type: 'test'
+  ...
+# Subtest: report a missing document dependency before writes
+ok 23 - report a missing document dependency before writes
+  ---
+  duration_ms: 486.279292
+  type: 'test'
+  ...
+# Subtest: reject override inputs outside their owned template
+ok 24 - reject override inputs outside their owned template
+  ---
+  duration_ms: 386.9065
+  type: 'test'
+  ...
+# Subtest: reject forbidden write tool in read-only agent comment-sicko
+ok 25 - reject forbidden write tool in read-only agent comment-sicko
+  ---
+  duration_ms: 534.211417
+  type: 'test'
+  ...
+# Subtest: reject missing explicit tool allowlist in agent
+ok 26 - reject missing explicit tool allowlist in agent
+  ---
+  duration_ms: 466.396667
+  type: 'test'
+  ...
+# Subtest: reject invalid package namespace in agent definition
+ok 27 - reject invalid package namespace in agent definition
+  ---
+  duration_ms: 369.279833
+  type: 'test'
+  ...
+# Subtest: reject non-empty extensions in read-only agent
+ok 28 - reject non-empty extensions in read-only agent
+  ---
+  duration_ms: 373.903917
+  type: 'test'
+  ...
+# Subtest: reject an explicitly empty extensions declaration in read-only agent
+ok 29 - reject an explicitly empty extensions declaration in read-only agent
+  ---
+  duration_ms: 362.569458
+  type: 'test'
+  ...
+# Subtest: reject unauthorized tool in writer agent
+ok 30 - reject unauthorized tool in writer agent
+  ---
+  duration_ms: 371.45575
+  type: 'test'
+  ...
+# Subtest: reject writer empty extensions
+ok 31 - reject writer empty extensions
+  ---
+  duration_ms: 377.852792
+  type: 'test'
+  ...
+# Subtest: reject missing runtime supervisor exclusion
+ok 32 - reject missing runtime supervisor exclusion
+  ---
+  duration_ms: 381.910291
+  type: 'test'
+  ...
+# Subtest: reject identity role tampering for comment-sicko
+ok 33 - reject identity role tampering for comment-sicko
+  ---
+  duration_ms: 385.07325
+  type: 'test'
+  ...
+1..33
+# tests 33
+# suites 0
+# pass 33
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13588.058333
+TAP version 13
+# Subtest: passes a reviewed worktree without touching the source
+ok 1 - passes a reviewed worktree without touching the source
+  ---
+  duration_ms: 324.413542
+  type: 'test'
+  ...
+# Subtest: applies the reviewed patch to the source working tree when asked
+ok 2 - applies the reviewed patch to the source working tree when asked
+  ---
+  duration_ms: 359.458875
+  type: 'test'
+  ...
+# Subtest: rejects blocking findings and leaves the source unchanged
+ok 3 - rejects blocking findings and leaves the source unchanged
+  ---
+  duration_ms: 384.959958
+  type: 'test'
+  ...
+# Subtest: rejects a tree that moved after review
+ok 4 - rejects a tree that moved after review
+  ---
+  duration_ms: 282.1275
+  type: 'test'
+  ...
+# Subtest: rejects a reviewer that declared a writable tool
+ok 5 - rejects a reviewer that declared a writable tool
+  ---
+  duration_ms: 282.026125
+  type: 'test'
+  ...
+# Subtest: rejects a dirty source repository
+ok 6 - rejects a dirty source repository
+  ---
+  duration_ms: 249.395333
+  type: 'test'
+  ...
+# Subtest: rejects when the source moved beyond the reviewed base
+ok 7 - rejects when the source moved beyond the reviewed base
+  ---
+  duration_ms: 423.014625
+  type: 'test'
+  ...
+# Subtest: rejects when the verification command fails and does not apply
+ok 8 - rejects when the verification command fails and does not apply
+  ---
+  duration_ms: 322.215542
+  type: 'test'
+  ...
+# Subtest: rejects an empty patch
+ok 9 - rejects an empty patch
+  ---
+  duration_ms: 277.780375
+  type: 'test'
+  ...
+# Subtest: writes a receipt for a passing decision
+ok 10 - writes a receipt for a passing decision
+  ---
+  duration_ms: 303.047583
+  type: 'test'
+  ...
+# Subtest: applies a reviewed patch when the managed worktree is already gone
+ok 11 - applies a reviewed patch when the managed worktree is already gone
+  ---
+  duration_ms: 228.104208
+  type: 'test'
+  ...
+# Subtest: rejects a patch that changed after review
+ok 12 - rejects a patch that changed after review
+  ---
+  duration_ms: 202.983667
+  type: 'test'
+  ...
+# Subtest: runs patch-mode checks in a temp worktree and leaves the source alone on failure
+ok 13 - runs patch-mode checks in a temp worktree and leaves the source alone on failure
+  ---
+  duration_ms: 308.447
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4012.201709
+TAP version 13
+# Subtest: task 4: methodology references are reachable from their skill and retain source review dimensions
+ok 1 - task 4: methodology references are reachable from their skill and retain source review dimensions
+  ---
+  duration_ms: 15.278291
+  type: 'test'
+  ...
+# Subtest: task 4: architect grounds before sketching and retains agree, implement and scrap phases
+ok 2 - task 4: architect grounds before sketching and retains agree, implement and scrap phases
+  ---
+  duration_ms: 0.911625
+  type: 'test'
+  ...
+# Subtest: task 4: arena keeps a private selection rubric and distinct cross-judge/pick/graft/verify stages
+ok 3 - task 4: arena keeps a private selection rubric and distinct cross-judge/pick/graft/verify stages
+  ---
+  duration_ms: 0.632333
+  type: 'test'
+  ...
+# Subtest: task 4: review verdict is a lead judgment and does not authorize fixes
+ok 4 - task 4: review verdict is a lead judgment and does not authorize fixes
+  ---
+  duration_ms: 0.421417
+  type: 'test'
+  ...
+# Subtest: task 4: swarm rejects incomparable evidence and gaps cannot count as passes
+ok 5 - task 4: swarm rejects incomparable evidence and gaps cannot count as passes
+  ---
+  duration_ms: 4.305083
+  type: 'test'
+  ...
+# Subtest: task 4: why has seven source categories and preserves uncertainty through synthesis
+ok 6 - task 4: why has seven source categories and preserves uncertainty through synthesis
+  ---
+  duration_ms: 1.056166
+  type: 'test'
+  ...
+# Subtest: task 4: reference access remains bounded by Pi authority
+ok 7 - task 4: reference access remains bounded by Pi authority
+  ---
+  duration_ms: 1.629541
+  type: 'test'
+  ...
+# Subtest: task 2: restored entry methods expose their source phases and readable references
+ok 8 - task 2: restored entry methods expose their source phases and readable references
+  ---
+  duration_ms: 6.272291
+  type: 'test'
+  ...
+# Subtest: task 2: benchmark contract checks work, errors, alternating trials, physical bounds and verdict
+ok 9 - task 2: benchmark contract checks work, errors, alternating trials, physical bounds and verdict
+  ---
+  duration_ms: 0.830542
+  type: 'test'
+  ...
+# Subtest: task 2: verification map examples teach observable actions and retained proof
+ok 10 - task 2: verification map examples teach observable actions and retained proof
+  ---
+  duration_ms: 1.577917
+  type: 'test'
+  ...
+# Subtest: task 2: diagnostic and visual playbooks preserve evidence and do not imply new authority
+ok 11 - task 2: diagnostic and visual playbooks preserve evidence and do not imply new authority
+  ---
+  duration_ms: 1.277375
+  type: 'test'
+  ...
+# Subtest: task 1: mode directly reaches all 24 fixed principle leaves and required skill triggers
+ok 12 - task 1: mode directly reaches all 24 fixed principle leaves and required skill triggers
+  ---
+  duration_ms: 1.68775
+  type: 'test'
+  ...
+# Subtest: task 1: autonomy preserves pause gates while continuing authorized work and writing rules
+ok 13 - task 1: autonomy preserves pause gates while continuing authorized work and writing rules
+  ---
+  duration_ms: 1.172334
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 82.539542
+TAP version 13
+# Subtest: shipped template is a valid planned contract, never a completed program
+ok 1 - shipped template is a valid planned contract, never a completed program
+  ---
+  duration_ms: 2.00375
+  type: 'test'
+  ...
+# Subtest: multi-phase planning produces a concrete two-PR plan and actually passes the CLI
+ok 2 - multi-phase planning produces a concrete two-PR plan and actually passes the CLI
+  ---
+  duration_ms: 67.512
+  type: 'test'
+  ...
+# independent artifact /var/folders/zr/l0s77ycs6yscb8_993gc11vm0000gp/T/pstack-plan-FLaDbH/plan.md; CLI exit=0; 2 PR sections, 0 problems (structure)
+# independent rejection /var/folders/zr/l0s77ycs6yscb8_993gc11vm0000gp/T/pstack-plan-FLaDbH/cyclic-plan.md; CLI exit=1; dependency cycle rejected
+# Subtest: rejects unknown, self, duplicate and cyclic dependencies
+ok 3 - rejects unknown, self, duplicate and cyclic dependencies
+  ---
+  duration_ms: 0.910625
+  type: 'test'
+  ...
+# Subtest: requires live regression scenarios and concrete pass/evidence fields
+ok 4 - requires live regression scenarios and concrete pass/evidence fields
+  ---
+  duration_ms: 0.487291
+  type: 'test'
+  ...
+# Subtest: measured perf gate needs metric, probe, baseline and numeric-rule text; exemption needs reason
+ok 5 - measured perf gate needs metric, probe, baseline and numeric-rule text; exemption needs reason
+  ---
+  duration_ms: 0.65875
+  type: 'test'
+  ...
+# Subtest: interaction review requires screenshots, video and operator approval evidence
+ok 6 - interaction review requires screenshots, video and operator approval evidence
+  ---
+  duration_ms: 0.261959
+  type: 'test'
+  ...
+# Subtest: requires bounded execution, explicit-go and all reserved operation gates
+ok 7 - requires bounded execution, explicit-go and all reserved operation gates
+  ---
+  duration_ms: 0.4155
+  type: 'test'
+  ...
+# Subtest: fenced examples and HTML comments cannot impersonate a plan contract
+ok 8 - fenced examples and HTML comments cannot impersonate a plan contract
+  ---
+  duration_ms: 0.7075
+  type: 'test'
+  ...
+# Subtest: malformed JSON shapes yield diagnostics rather than crashing
+ok 9 - malformed JSON shapes yield diagnostics rather than crashing
+  ---
+  duration_ms: 0.461209
+  type: 'test'
+  ...
+# Subtest: complete CLI resolves evidence from the plan, not cwd; never executes plan commands
+ok 10 - complete CLI resolves evidence from the plan, not cwd; never executes plan commands
+  ---
+  duration_ms: 36.585666
+  type: 'test'
+  ...
+# Subtest: completion rejects stale heads, failed exits, missing receipts and missing artifacts
+ok 11 - completion rejects stale heads, failed exits, missing receipts and missing artifacts
+  ---
+  duration_ms: 1.732584
+  type: 'test'
+  ...
+# Subtest: completion rejects a verified child when its dependency is blocked
+ok 12 - completion rejects a verified child when its dependency is blocked
+  ---
+  duration_ms: 38.829584
+  type: 'test'
+  ...
+# Subtest: completion includes interaction approval artifacts and rejects blocked verdicts
+ok 13 - completion includes interaction approval artifacts and rejects blocked verdicts
+  ---
+  duration_ms: 1.968666
+  type: 'test'
+  ...
+# Subtest: documented Pi loops parse with the actual runtime and valid shell quoting
+ok 14 - documented Pi loops parse with the actual runtime and valid shell quoting
+  ---
+  duration_ms: 23.091417
+  type: 'test'
+  ...
+# Subtest: documented babysit predicate accepts only a pinned, clean, thread-free snapshot
+ok 15 - documented babysit predicate accepts only a pinned, clean, thread-free snapshot
+  ---
+  duration_ms: 96.594167
+  type: 'test'
+  ...
+# Subtest: CLI has stable exit codes and field diagnostics
+ok 16 - CLI has stable exit codes and field diagnostics
+  ---
+  duration_ms: 193.71475
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 521.449375
+TAP version 13
+# Subtest: abort notification persists interrupted once and leaves explicit terminal states alone
+ok 1 - abort notification persists interrupted once and leaves explicit terminal states alone
+  ---
+  duration_ms: 1.281125
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 46.464542
+TAP version 13
+# Subtest: all role bindings preserve source permissions and use separate model/thinking fields
+ok 1 - all role bindings preserve source permissions and use separate model/thinking fields
+  ---
+  duration_ms: 18.559625
+  type: 'test'
+  ...
+# Subtest: definition parser preserves supported frontmatter and rejects unsupported constraints
+ok 2 - definition parser preserves supported frontmatter and rejects unsupported constraints
+  ---
+  duration_ms: 3.566
+  type: 'test'
+  ...
+# Subtest: unavailable owner and owner error stay visible; partial registration is cleaned
+ok 3 - unavailable owner and owner error stay visible; partial registration is cleaned
+  ---
+  duration_ms: 8.426417
+  type: 'test'
+  ...
+# Subtest: failed refresh removes old roles, rejects missing definitions and exact unavailable choices
+ok 4 - failed refresh removes old roles, rejects missing definitions and exact unavailable choices
+  ---
+  duration_ms: 10.547375
+  type: 'test'
+  ...
+# Subtest: shutdown cancels pending refresh and serialized replacements do not leak handles
+ok 5 - shutdown cancels pending refresh and serialized replacements do not leak handles
+  ---
+  duration_ms: 4.858959
+  type: 'test'
+  ...
+# Subtest: shared model guard blocks pstack children and literal raw scripts without mutation
+ok 6 - shared model guard blocks pstack children and literal raw scripts without mutation
+  ---
+  duration_ms: 0.685708
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 684.097583
+TAP version 13
+# Subtest: missing state starts off without creating a file
+ok 1 - missing state starts off without creating a file
+  ---
+  duration_ms: 1.418875
+  type: 'test'
+  ...
+# Subtest: activation is on disk before any chat or session entry exists
+ok 2 - activation is on disk before any chat or session entry exists
+  ---
+  duration_ms: 45.309958
+  type: 'test'
+  ...
+# Subtest: each load rereads the authoritative file, including off and deletion
+ok 3 - each load rereads the authoritative file, including off and deletion
+  ---
+  duration_ms: 5.004958
+  type: 'test'
+  ...
+# Subtest: invalid JSON and schemas fail explicitly with the source path
+ok 4 - invalid JSON and schemas fail explicitly with the source path
+  ---
+  duration_ms: 3.1785
+  type: 'test'
+  ...
+# Subtest: invalid saves preserve the last valid state and leave no temporary files
+ok 5 - invalid saves preserve the last valid state and leave no temporary files
+  ---
+  duration_ms: 5.763083
+  type: 'test'
+  ...
+# Subtest: filesystem errors propagate and failed replacement cleans its temporary file
+ok 6 - filesystem errors propagate and failed replacement cleans its temporary file
+  ---
+  duration_ms: 4.479167
+  type: 'test'
+  ...
+# Subtest: independent readers only see complete old or new snapshots during replacement
+ok 7 - independent readers only see complete old or new snapshots during replacement
+  ---
+  duration_ms: 337.023417
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 447.649125
+TAP version 13
+# Subtest: mode on before first message persists immediately to file and survives new manager instance
+ok 1 - mode on before first message persists immediately to file and survives new manager instance
+  ---
+  duration_ms: 35.070125
+  type: 'test'
+  ...
+# Subtest: mode guidance and role context are re-injected on before_agent_start after compaction
+ok 2 - mode guidance and role context are re-injected on before_agent_start after compaction
+  ---
+  duration_ms: 8.29425
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 465.37225
+TAP version 13
+# Subtest: real parallel pstack reviewers read the supplied diff, reject mutation and return lead evidence
+ok 1 - real parallel pstack reviewers read the supplied diff, reject mutation and return lead evidence
+  ---
+  duration_ms: 1887.645958
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2298.875
+TAP version 13
+# Subtest: playbook and judgment roles retain independent models in public registrations
+ok 1 - playbook and judgment roles retain independent models in public registrations
+  ---
+  duration_ms: 11.910833
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 410.663167
+TAP version 13
+# Subtest: mode on plus an ordinary feature request authorizes the playbook subagent delegation (prompt contract)
+ok 1 - mode on plus an ordinary feature request authorizes the playbook subagent delegation (prompt contract)
+  ---
+  duration_ms: 0.514584
+  type: 'test'
+  ...
+# Subtest: an explicit no-delegation instruction is answered by a zero-spawn contract (prompt contract)
+ok 2 - an explicit no-delegation instruction is answered by a zero-spawn contract (prompt contract)
+  ---
+  duration_ms: 0.122583
+  type: 'test'
+  ...
+# Subtest: push, PR, merge, external message and local commit gates stay separate (prompt contract)
+ok 3 - push, PR, merge, external message and local commit gates stay separate (prompt contract)
+  ---
+  duration_ms: 0.088292
+  type: 'test'
+  ...
+# Subtest: delegation stays unauthorized when the mode is off or was never enabled
+ok 4 - delegation stays unauthorized when the mode is off or was never enabled
+  ---
+  duration_ms: 0.069542
+  type: 'test'
+  ...
+# Subtest: role preferences still carry no permission to switch the current model
+ok 5 - role preferences still carry no permission to switch the current model
+  ---
+  duration_ms: 0.065
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 47.173084
+TAP version 13
+# Subtest: comment-sicko background child resolves a provider-extension model with thinking
+ok 1 - comment-sicko background child resolves a provider-extension model with thinking
+  ---
+  duration_ms: 2570.301083
+  type: 'test'
+  ...
+# Subtest: git-read rejects everything except the three whitelisted read commands
+ok 2 - git-read rejects everything except the three whitelisted read commands
+  ---
+  duration_ms: 0.539375
+  type: 'test'
+  ...
+# Subtest: git-read defaults to main...HEAD in a real repository
+ok 3 - git-read defaults to main...HEAD in a real repository
+  ---
+  duration_ms: 149.304417
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3113.612834
+TAP version 13
+# Subtest: normalizes a fully green PR into READY with counted checks
+ok 1 - normalizes a fully green PR into READY with counted checks
+  ---
+  duration_ms: 1.372083
+  type: 'test'
+  ...
+# Subtest: verdict matrix never reports pending, failing, or blocked PRs as green
+ok 2 - verdict matrix never reports pending, failing, or blocked PRs as green
+  ---
+  duration_ms: 0.5115
+  type: 'test'
+  ...
+# Subtest: status-only prints one JSON snapshot through a PATH gh shim
+ok 3 - status-only prints one JSON snapshot through a PATH gh shim
+  ---
+  duration_ms: 1619.751667
+  type: 'test'
+  ...
+# Subtest: --green is a single-shot predicate for /loop --until
+ok 4 - --green is a single-shot predicate for /loop --until
+  ---
+  duration_ms: 411.487167
+  type: 'test'
+  ...
+# Subtest: polls until a terminal verdict and stops calling gh
+ok 5 - polls until a terminal verdict and stops calling gh
+  ---
+  duration_ms: 155.752417
+  type: 'test'
+  ...
+# Subtest: a timeout reports timedOut and exits nonzero
+ok 6 - a timeout reports timedOut and exits nonzero
+  ---
+  duration_ms: 131.998167
+  type: 'test'
+  ...
+# Subtest: missing gh is an explicit error, never a silent green
+ok 7 - missing gh is an explicit error, never a silent green
+  ---
+  duration_ms: 36.811666
+  type: 'test'
+  ...
+# Subtest: unauthenticated gh is an explicit error, never a silent green
+ok 8 - unauthenticated gh is an explicit error, never a silent green
+  ---
+  duration_ms: 147.528042
+  type: 'test'
+  ...
+# Subtest: resolves the PR for the current branch when --pr is omitted
+ok 9 - resolves the PR for the current branch when --pr is omitted
+  ---
+  duration_ms: 130.205334
+  type: 'test'
+  ...
+# Subtest: rejects unknown or malformed arguments with exit 2
+ok 10 - rejects unknown or malformed arguments with exit 2
+  ---
+  duration_ms: 109.711708
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2794.760833
+TAP version 13
+# Subtest: parses porcelain records including locked, prunable and detached worktrees
+ok 1 - parses porcelain records including locked, prunable and detached worktrees
+  ---
+  duration_ms: 0.577625
+  type: 'test'
+  ...
+# Subtest: audits merged, unmerged dirty, detached and main worktrees without writing
+ok 2 - audits merged, unmerged dirty, detached and main worktrees without writing
+  ---
+  duration_ms: 774.099458
+  type: 'test'
+  ...
+# Subtest: --size adds a non-negative kilobyte measurement without other changes
+ok 3 - --size adds a non-negative kilobyte measurement without other changes
+  ---
+  duration_ms: 675.156959
+  type: 'test'
+  ...
+# Subtest: defaults to origin/HEAD when a clone has one and accepts origin/main
+ok 4 - defaults to origin/HEAD when a clone has one and accepts origin/main
+  ---
+  duration_ms: 692.621708
+  type: 'test'
+  ...
+# Subtest: unknown base refs and non-repositories fail with exit 2
+ok 5 - unknown base refs and non-repositories fail with exit 2
+  ---
+  duration_ms: 341.720666
+  type: 'test'
+  ...
+# Subtest: rejects unknown arguments and extra paths with exit 2
+ok 6 - rejects unknown arguments and extra paths with exit 2
+  ---
+  duration_ms: 74.547333
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2614.619917
+TAP version 13
+# Subtest: init creates an out-of-repo store; next returns only the dependency-ready batch
+ok 1 - init creates an out-of-repo store; next returns only the dependency-ready batch
+  ---
+  duration_ms: 109.060959
+  type: 'test'
+  ...
+# Subtest: next is read-only before init and never writes into the repository
+ok 2 - next is read-only before init and never writes into the repository
+  ---
+  duration_ms: 457.362708
+  type: 'test'
+  ...
+# Subtest: record writes state and receipts, unlocking dependents; verified needs a head and evidence
+ok 3 - record writes state and receipts, unlocking dependents; verified needs a head and evidence
+  ---
+  duration_ms: 298.696333
+  type: 'test'
+  ...
+# Subtest: active units consume parallel slots; blocked units leave the ready set
+ok 4 - active units consume parallel slots; blocked units leave the ready set
+  ---
+  duration_ms: 249.931375
+  type: 'test'
+  ...
+# Subtest: status reports counts, receipts, and drift against the plan
+ok 5 - status reports counts, receipts, and drift against the plan
+  ---
+  duration_ms: 122.2855
+  type: 'test'
+  ...
+# Subtest: init is idempotent and keeps recorded state
+ok 6 - init is idempotent and keeps recorded state
+  ---
+  duration_ms: 123.380375
+  type: 'test'
+  ...
+# Subtest: a plan rejected by check-plan never creates state
+ok 7 - a plan rejected by check-plan never creates state
+  ---
+  duration_ms: 40.224959
+  type: 'test'
+  ...
+# Subtest: computeProgress honours the dependency graph in-process
+ok 8 - computeProgress honours the dependency graph in-process
+  ---
+  duration_ms: 0.574875
+  type: 'test'
+  ...
+# Subtest: publish is a dry run by default: nothing is pushed, opened, or commented
+ok 9 - publish is a dry run by default: nothing is pushed, opened, or commented
+  ---
+  duration_ms: 338.816875
+  type: 'test'
+  ...
+# Subtest: publish --execute really pushes to the fixture remote and marks execute mode
+ok 10 - publish --execute really pushes to the fixture remote and marks execute mode
+  ---
+  duration_ms: 414.086875
+  type: 'test'
+  ...
+# Subtest: publish --execute runs the gh shim for open-pr and reports failures
+ok 11 - publish --execute runs the gh shim for open-pr and reports failures
+  ---
+  duration_ms: 917.091291
+  type: 'test'
+  ...
+# Subtest: publish rejects missing actions, missing PR numbers, and execute+dry-run
+ok 12 - publish rejects missing actions, missing PR numbers, and execute+dry-run
+  ---
+  duration_ms: 473.847666
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3600.897167
+TAP version 13
+# Subtest: mode on set with only --session-id is restored by a separate process
+ok 1 - mode on set with only --session-id is restored by a separate process
+  ---
+  duration_ms: 1804.882958
+  type: 'test'
+  ...
+# Subtest: sessions with different ids stay isolated and unactivated sessions stay off
+ok 2 - sessions with different ids stay isolated and unactivated sessions stay off
+  ---
+  duration_ms: 2054.427708
+  type: 'test'
+  ...
+# Subtest: session id state paths cannot escape the pstack-sessions directory
+ok 3 - session id state paths cannot escape the pstack-sessions directory
+  ---
+  duration_ms: 0.507833
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3921.037542
+TAP version 13
+# Subtest: workspace slug follows Pi session directory encoding
+ok 1 - workspace slug follows Pi session directory encoding
+  ---
+  duration_ms: 0.568667
+  type: 'test'
+  ...
+# Subtest: session root honors the Pi session and agent directory overrides
+ok 2 - session root honors the Pi session and agent directory overrides
+  ---
+  duration_ms: 0.165167
+  type: 'test'
+  ...
+# Subtest: lists only current-cwd sessions, newest first, excluding the current session
+ok 3 - lists only current-cwd sessions, newest first, excluding the current session
+  ---
+  duration_ms: 9.768791
+  type: 'test'
+  ...
+# Subtest: listing sessions is read-only and never creates a missing workspace directory
+ok 4 - listing sessions is read-only and never creates a missing workspace directory
+  ---
+  duration_ms: 1.827958
+  type: 'test'
+  ...
+# Subtest: lists subagent transcripts for the current workspace only, newest first
+ok 5 - lists subagent transcripts for the current workspace only, newest first
+  ---
+  duration_ms: 2.8955
+  type: 'test'
+  ...
+# Subtest: authoring validation accepts a portable skill and rejects broken structure
+ok 6 - authoring validation accepts a portable skill and rejects broken structure
+  ---
+  duration_ms: 3.8015
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 68.410083
+{"status":"passed","discoveredCount":9,"agents":[{"name":"pstack.comment-sicko","role":"read-only","tools":["read","grep","find","ls","git_read"]},{"name":"pstack.poteto-agent","role":"writer","tools":["read","edit","write","grep","find","ls","bash"]}]}
+{"status":"passed","validationLayer":"pure planner and mock catalog; no child started","readonlyPlan":{"agent":"pstack.comment-sicko","effectiveTools":["find","git_read","grep","ls","read"],"ambientExtensionsDisabled":false,"writeToolsDenied":["edit","write","bash","subagent"]},"modelDispatch":{"sickoResolution":{"role":"review","model":"magpie/opendesign/deepseek-v4.1-flash:high"},"potetoResolution":{"role":"code","model":"deepseek/deepseek-flash"},"rejectionVerified":true}}
+{"status":"passed","passed":2,"failed":0,"host":"real Pi SDK","transport":"local fixture","externalChildren":0,"scenarios":["rpc abort/status","tui abort/status"]}
+[pi-subagents] extensions: [] override for agent 'pstack.poteto-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.bug-fix-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.perf-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.hillclimb-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.judgment-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.strongest-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.comment-sicko' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.prose-writer' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.verifier' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.poteto-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.bug-fix-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.perf-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.hillclimb-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.judgment-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.strongest-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.comment-sicko' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.prose-writer' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.verifier' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.poteto-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.poteto-agent' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+[pi-subagents] extensions: [] override for agent 'pstack.comment-sicko' disables ALL ambient extensions for this child (not just "adds nothing"), including any model-provider extension needed to resolve a provider-qualified model. List the extensions this child actually needs instead of an empty array.
+{"status":"passed","passed":5,"failed":0,"childRequests":21,"transport":"real Pi SDK + pi-subagents public entry + actual foreground children + local SSE provider","entryWiring":"inline controller factory; production index not wired","cases":["all-role named parallel","all-role sequential runs.run","parallel top model blocked","raw script top model blocked","user model/thinking override with tools preserved"]}
+TAP version 13
+# Subtest: pi-subagents extension timers are cleared when the session is disposed
+ok 1 - pi-subagents extension timers are cleared when the session is disposed
+  ---
+  duration_ms: 206.869583
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 817.98575
+TAP version 13
+# Subtest: title gate accepts Conventional Commits and rejects malformed titles
+ok 1 - title gate accepts Conventional Commits and rejects malformed titles
+  ---
+  duration_ms: 2.062792
+  type: 'test'
+  ...
+# Subtest: body gate accepts the required order with optional Tradeoffs
+ok 2 - body gate accepts the required order with optional Tradeoffs
+  ---
+  duration_ms: 1.600584
+  type: 'test'
+  ...
+# Subtest: body gate rejects a missing required heading
+ok 3 - body gate rejects a missing required heading
+  ---
+  duration_ms: 0.106167
+  type: 'test'
+  ...
+# Subtest: body gate rejects headings out of the fixed order
+ok 4 - body gate rejects headings out of the fixed order
+  ---
+  duration_ms: 0.188625
+  type: 'test'
+  ...
+# Subtest: body gate rejects unknown, duplicate, empty and placeholder sections
+ok 5 - body gate rejects unknown, duplicate, empty and placeholder sections
+  ---
+  duration_ms: 0.201458
+  type: 'test'
+  ...
+# Subtest: non-publication commands are allowed untouched
+ok 6 - non-publication commands are allowed untouched
+  ---
+  duration_ms: 3.819625
+  type: 'test'
+  ...
+# Subtest: a commit with a bad title is blocked and a compliant title passes
+ok 7 - a commit with a bad title is blocked and a compliant title passes
+  ---
+  duration_ms: 0.78725
+  type: 'test'
+  ...
+# Subtest: ordinary commit bodies are not forced into the PR heading shape
+ok 8 - ordinary commit bodies are not forced into the PR heading shape
+  ---
+  duration_ms: 0.878209
+  type: 'test'
+  ...
+# Subtest: commit message files are read, and unverifiable message sources are blocked
+ok 9 - commit message files are read, and unverifiable message sources are blocked
+  ---
+  duration_ms: 1.89525
+  type: 'test'
+  ...
+# Subtest: PRs require a title and a body with the fixed headings
+ok 10 - PRs require a title and a body with the fixed headings
+  ---
+  duration_ms: 1.333292
+  type: 'test'
+  ...
+# Subtest: wrapped and chained requests are inspected, and hidden requests fail closed
+ok 11 - wrapped and chained requests are inspected, and hidden requests fail closed
+  ---
+  duration_ms: 0.598041
+  type: 'test'
+  ...
+# Subtest: a linked worktree whose gitdir is outside the workspace uses a temp store
+ok 12 - a linked worktree whose gitdir is outside the workspace uses a temp store
+  ---
+  duration_ms: 2.685708
+  type: 'test'
+  ...
+# Subtest: test summaries aggregate and receipts record actual runs
+ok 13 - test summaries aggregate and receipts record actual runs
+  ---
+  duration_ms: 0.871167
+  type: 'test'
+  ...
+# Subtest: test counts must match the last actual run of the cited command
+ok 14 - test counts must match the last actual run of the cited command
+  ---
+  duration_ms: 2.385708
+  type: 'test'
+  ...
+# Subtest: counts match the exact argv, so a different test filter is a different run
+ok 15 - counts match the exact argv, so a different test filter is a different run
+  ---
+  duration_ms: 0.976917
+  type: 'test'
+  ...
+# Subtest: a command with several test invocations is refused a receipt
+ok 16 - a command with several test invocations is refused a receipt
+  ---
+  duration_ms: 0.626167
+  type: 'test'
+  ...
+# Subtest: a failed latest run cannot back a green count claim
+ok 17 - a failed latest run cannot back a green count claim
+  ---
+  duration_ms: 0.49425
+  type: 'test'
+  ...
+# Subtest: common wrappers and shell-escaped executables are still inspected
+ok 18 - common wrappers and shell-escaped executables are still inspected
+  ---
+  duration_ms: 0.447125
+  type: 'test'
+  ...
+# Subtest: in-command git aliases cannot hide commit
+ok 19 - in-command git aliases cannot hide commit
+  ---
+  duration_ms: 0.284625
+  type: 'test'
+  ...
+# Subtest: gh api pull-request writes are refused and point at gh pr create
+ok 20 - gh api pull-request writes are refused and point at gh pr create
+  ---
+  duration_ms: 0.787042
+  type: 'test'
+  ...
+# Subtest: variable-expanded executables cannot silently carry a publication request
+ok 21 - variable-expanded executables cannot silently carry a publication request
+  ---
+  duration_ms: 0.495416
+  type: 'test'
+  ...
+# Subtest: verification_exec results record a receipt from structured details
+ok 22 - verification_exec results record a receipt from structured details
+  ---
+  duration_ms: 1.059458
+  type: 'test'
+  ...
+# Subtest: a corrupt receipt store blocks publications but not unrelated commands
+ok 23 - a corrupt receipt store blocks publications but not unrelated commands
+  ---
+  duration_ms: 0.367042
+  type: 'test'
+  ...
+# Subtest: the Pi handler blocks bad requests and records real test results
+ok 24 - the Pi handler blocks bad requests and records real test results
+  ---
+  duration_ms: 0.882292
+  type: 'test'
+  ...
+# Subtest: the CLI reports the same verdicts with stable exit codes
+ok 25 - the CLI reports the same verdicts with stable exit codes
+  ---
+  duration_ms: 1.146875
+  type: 'test'
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 92.322125
+TAP version 13
+# Subtest: production Pi gate blocks bad commit and PR requests before execution and permits a Conventional commit
+ok 1 - production Pi gate blocks bad commit and PR requests before execution and permits a Conventional commit
+  ---
+  duration_ms: 268.334625
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 667.257042
+TAP version 13
+# Subtest: parser refuses shell composition, redirection, inline code, push, installs and network tools
+ok 1 - parser refuses shell composition, redirection, inline code, push, installs and network tools
+  ---
+  duration_ms: 1.128
+  type: 'test'
+  ...
+# Subtest: parser accepts the bounded verification grammar
+ok 2 - parser accepts the bounded verification grammar
+  ---
+  duration_ms: 0.678584
+  type: 'test'
+  ...
+# Subtest: seatbelt profile denies network and non-scratch writes
+ok 3 - seatbelt profile denies network and non-scratch writes
+  ---
+  duration_ms: 0.150583
+  type: 'test'
+  ...
+# Subtest: an unavailable or unknown sandbox is a refusal, never an argv-only fallback
+ok 4 - an unavailable or unknown sandbox is a refusal, never an argv-only fallback
+  ---
+  duration_ms: 0.244958
+  type: 'test'
+  ...
+# Subtest: refused commands render as REFUSED with the parser reason
+ok 5 - refused commands render as REFUSED with the parser reason
+  ---
+  duration_ms: 0.144334
+  type: 'test'
+  ...
+# Subtest: tool definition is the registration contract for the host
+ok 6 - tool definition is the registration contract for the host
+  ---
+  duration_ms: 0.060541
+  type: 'test'
+  ...
+# Subtest: executes read-only git under the OS sandbox and reports a real exit code
+ok 7 - executes read-only git under the OS sandbox and reports a real exit code
+  ---
+  duration_ms: 32.918375
+  type: 'test'
+  ...
+# Subtest: executes npm test in a fixture and reports exit code 0
+ok 8 - executes npm test in a fixture and reports exit code 0
+  ---
+  duration_ms: 196.516667
+  type: 'test'
+  ...
+# Subtest: reports a failing npm test exit code without treating it as launch failure
+ok 9 - reports a failing npm test exit code without treating it as launch failure
+  ---
+  duration_ms: 187.087083
+  type: 'test'
+  ...
+# Subtest: a malicious npm script cannot write outside scratch or reach the network
+ok 10 - a malicious npm script cannot write outside scratch or reach the network
+  ---
+  duration_ms: 229.397583
+  type: 'test'
+  ...
+# Subtest: a malicious direct node script cannot write outside scratch or reach the network
+ok 11 - a malicious direct node script cannot write outside scratch or reach the network
+  ---
+  duration_ms: 48.1695
+  type: 'test'
+  ...
+# Subtest: allows builds to write inside the private scratch directory
+ok 12 - allows builds to write inside the private scratch directory
+  ---
+  duration_ms: 44.71925
+  type: 'test'
+  ...
+# Subtest: caps captured output by bytes for multi-byte text
+ok 13 - caps captured output by bytes for multi-byte text
+  ---
+  duration_ms: 41.108959
+  type: 'test'
+  ...
+# Subtest: timeout kills the whole process tree, not only the direct child
+ok 14 - timeout kills the whole process tree, not only the direct child
+  ---
+  duration_ms: 1008.561792
+  type: 'test'
+  ...
+# Subtest: times out a long-running command and reports it as not passed
+ok 15 - times out a long-running command and reports it as not passed
+  ---
+  duration_ms: 506.885208
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2361.538083
+TAP version 13
+# Subtest: production pstack.verifier executes npm test and refuses write and push in a detached child
+ok 1 - production pstack.verifier executes npm test and refuses write and push in a detached child
+  ---
+  duration_ms: 1724.584584
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2135.166333
+TAP version 13
+# Subtest: routing manifest is a labeled 46-case reconstruction, not the original report
+ok 1 - routing manifest is a labeled 46-case reconstruction, not the original report
+  ---
+  duration_ms: 0.50625
+  type: 'test'
+  ...
+# Subtest: every routing case has a unique id and a declared hit
+ok 2 - every routing case has a unique id and a declared hit
+  ---
+  duration_ms: 0.308084
+  type: 'test'
+  ...
+# Subtest: every declared hit resolves to a packaged skill or playbook
+ok 3 - every declared hit resolves to a packaged skill or playbook
+  ---
+  duration_ms: 12.41075
+  type: 'test'
+  ...
+# Subtest: poteto-mode names the restored recall, tdd, sharpen, correct and automate-me routes
+ok 4 - poteto-mode names the restored recall, tdd, sharpen, correct and automate-me routes
+  ---
+  duration_ms: 1.085
+  type: 'test'
+  ...
+# Subtest: poteto-mode no longer keeps substitute rows or phantom skill references
+ok 5 - poteto-mode no longer keeps substitute rows or phantom skill references
+  ---
+  duration_ms: 1.367792
+  type: 'test'
+  ...
+# Subtest: skill reference checker fails unknown links and phantom skills, passes real reference files
+ok 6 - skill reference checker fails unknown links and phantom skills, passes real reference files
+  ---
+  duration_ms: 7.055541
+  type: 'test'
+  ...
+# Subtest: routing cases are explicit-only and do not depend on auto-invocation
+ok 7 - routing cases are explicit-only and do not depend on auto-invocation
+  ---
+  duration_ms: 2.771666
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 75.87275
+TAP version 13
+# Subtest: worktree-cleanup documents an audit command that runs read-only on dirty and merged worktrees
+ok 1 - worktree-cleanup documents an audit command that runs read-only on dirty and merged worktrees
+  ---
+  duration_ms: 525.454542
+  type: 'test'
+  ...
+# Subtest: babysit documents one-shot status and green commands that invoke the shipped watcher
+ok 2 - babysit documents one-shot status and green commands that invoke the shipped watcher
+  ---
+  duration_ms: 422.085958
+  type: 'test'
+  ...
+# Subtest: both playbooks keep package-relative script paths and name the authorization gate
+ok 3 - both playbooks keep package-relative script paths and name the authorization gate
+  ---
+  duration_ms: 0.229
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 998.330792
+TAP version 13
+# Subtest: a high overall score cannot hide one port below 70%, even if allowlisted
+ok 1 - a high overall score cannot hide one port below 70%, even if allowlisted
+  ---
+  duration_ms: 0.551209
+  type: 'test'
+  ...
+# Subtest: overall 85% and per-file 70% boundaries use exact counts
+ok 2 - overall 85% and per-file 70% boundaries use exact counts
+  ---
+  duration_ms: 0.389916
+  type: 'test'
+  ...
+# Subtest: missing ported files fail while substitute files still count in overall
+ok 3 - missing ported files fail while substitute files still count in overall
+  ---
+  duration_ms: 0.446708
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 49.29575
+
+> @jiangkoumo/pi-pstack@0.3.1 check:generate
+> node scripts/generate-pi-resources.mjs --check
+
+{"status":"passed","checked":117,"unmanaged":0}

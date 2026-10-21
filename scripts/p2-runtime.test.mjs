@@ -27,6 +27,15 @@ test('recall requests receive the exact current workspace session directory befo
   }
 }));
 
+test('ordinary fixes mentioning recall do not trigger transcript mining guidance', () => extensionFixture(async ({ commands, handlers, ctx }) => {
+  await commands.get('poteto-mode')('on', ctx);
+  for (const prompt of ['fix the recall parser', 'the recall test is failing', 'add tests for recall', 'review the recall implementation']) {
+    const event = { messageType: 'user', prompt, systemPromptOptions: { sections: {} } };
+    await handlers.get('before_agent_start')(event, ctx);
+    assert.doesNotMatch(Object.values(event.systemPromptOptions.sections).join('\n'), /only authorized workspace session directory/);
+  }
+}));
+
 test('B2 module probes do not fall back to the real agent directory', () => extensionFixture(async ({ directory }) => {
   for (const script of ['check-p3-agents.mjs', 'check-p3-readonly-gate.mjs']) {
     const result = spawnSync(process.execPath, [resolve('scripts', script), '--allow-skip'], {

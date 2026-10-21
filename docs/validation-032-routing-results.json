@@ -1,0 +1,715 @@
+{
+  "model": "magpie/opendesign/deepseek-v4.1-flash",
+  "mode": "on",
+  "source": {
+    "kind": "reconstructed",
+    "note": "The original 46-case list from the 0.3.1 retest report was not supplied. These 46 cases are a reproducible reconstruction from the pinned upstream poteto-mode routing table plus the routes named in Issue #14. They are not a replay of the original report and must not be described as one.",
+    "upstream": "pstack/skills/poteto-mode/SKILL.md at f713f14203cd6420cec13cd7c55c32d598dbab68",
+    "issue": 14,
+    "reconstructedAt": "2026-10-21"
+  },
+  "layer": "Live model routing and successful target reads; recall also requires current-cwd session reads. Not complete workflow acceptance.",
+  "fullRun": {
+    "passed": 44,
+    "failed": 2,
+    "cases": [
+      {
+        "id": "pb-investigation",
+        "request": "how does the session router work, and are we sure it reads the current cwd?",
+        "expected": {
+          "playbook": "investigation"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/investigation.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 5128
+      },
+      {
+        "id": "pb-bug-fix",
+        "request": "fix the bug where recall reads another workspace's sessions",
+        "expected": {
+          "playbook": "bug-fix"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/recall/SKILL.md",
+          "skills/poteto-mode/playbooks/bug-fix.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 39611
+      },
+      {
+        "id": "pb-perf-issue",
+        "request": "the routing check got slower, profile it and fix the regression",
+        "expected": {
+          "playbook": "perf-issue"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/perf-issue.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 5963
+      },
+      {
+        "id": "pb-hillclimb",
+        "request": "improve routing accuracy from 70% to 90% with repeated measured trials",
+        "expected": {
+          "playbook": "hillclimb"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/benchmark-checklist/SKILL.md",
+          "skills/poteto-mode/playbooks/hillclimb.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 11430
+      },
+      {
+        "id": "pb-runtime-forensics",
+        "request": "diagnose the memory leak while the extension is running",
+        "expected": {
+          "playbook": "runtime-forensics"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/runtime-forensics.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 6629
+      },
+      {
+        "id": "pb-trace-forensics",
+        "request": "here is a cpuprofile from the slow run, diagnose the hotspot",
+        "expected": {
+          "playbook": "trace-forensics"
+        },
+        "passed": false,
+        "selected": [
+          "skills/poteto-mode/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 45050,
+        "promptError": "Timed out after 45000ms"
+      },
+      {
+        "id": "pb-feature",
+        "request": "add a /route command that shows the selected skill and playbook",
+        "expected": {
+          "playbook": "feature"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/feature.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 13788
+      },
+      {
+        "id": "pb-refactoring",
+        "request": "extract the routing table without changing behavior",
+        "expected": {
+          "playbook": "refactoring"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/refactoring.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 17401
+      },
+      {
+        "id": "pb-prototype",
+        "request": "prototype two routing layouts so I can compare them",
+        "expected": {
+          "playbook": "prototype"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/prototype.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 5930
+      },
+      {
+        "id": "pb-visual-parity",
+        "request": "match the new settings page to the design pixel for pixel",
+        "expected": {
+          "playbook": "visual-parity"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/visual-parity.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 6281
+      },
+      {
+        "id": "pb-authoring-a-skill",
+        "request": "write a new SKILL.md for our deployment checks",
+        "expected": {
+          "playbook": "authoring-a-skill"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/authoring-a-skill.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 5759
+      },
+      {
+        "id": "pb-eval",
+        "request": "evaluate whether the new routing prompt changes model behavior",
+        "expected": {
+          "playbook": "eval"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/eval.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 13173
+      },
+      {
+        "id": "pb-babysit",
+        "request": "babysit PR 177 until it is green",
+        "expected": {
+          "playbook": "babysit"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/babysit.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 5495
+      },
+      {
+        "id": "pb-shipping",
+        "request": "land this green stack for me",
+        "expected": {
+          "playbook": "shipping"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/shipping.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 6197
+      },
+      {
+        "id": "pb-autonomous-run",
+        "request": "run until done: fix all the routing gaps",
+        "expected": {
+          "playbook": "autonomous-run"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/autonomous-run.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 20996
+      },
+      {
+        "id": "pb-orchestrate",
+        "request": "own this multi-day migration across twenty stacked PRs",
+        "expected": {
+          "playbook": "orchestrate"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/orchestrate.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 6020
+      },
+      {
+        "id": "pb-autopilot-full",
+        "request": "autopilot this queue of independent PRs to merged",
+        "expected": {
+          "playbook": "autopilot-full"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/autopilot-full.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 5478
+      },
+      {
+        "id": "pb-autopilot-stack",
+        "request": "autopilot-stack these changes, I will land the stack",
+        "expected": {
+          "playbook": "autopilot-stack"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/autopilot-stack.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 7123
+      },
+      {
+        "id": "pb-session-pickup",
+        "request": "resume the prior session on branch fix/14-routing-coverage",
+        "expected": {
+          "playbook": "session-pickup"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/session-pickup.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 5440
+      },
+      {
+        "id": "pb-pause-safely",
+        "request": "pause this work cleanly before I restart Pi",
+        "expected": {
+          "playbook": "pause-safely"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/pause-safely.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 6449
+      },
+      {
+        "id": "pb-multi-phase-plan",
+        "request": "plan the routing migration in phases with a checkpoint per phase",
+        "expected": {
+          "playbook": "multi-phase-plan"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/multi-phase-plan.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 6508
+      },
+      {
+        "id": "pb-worktree-cleanup",
+        "request": "clean up merged worktrees and free disk space",
+        "expected": {
+          "playbook": "worktree-cleanup"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/worktree-cleanup.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 9170
+      },
+      {
+        "id": "pb-opening-a-pr",
+        "request": "open a PR for this routing branch",
+        "expected": {
+          "playbook": "opening-a-pr"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/opening-a-pr.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 12697
+      },
+      {
+        "id": "sk-how",
+        "request": "how should we split the routing work across changes?",
+        "expected": {
+          "skill": "how"
+        },
+        "passed": false,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/principle-sequence-verifiable-units/SKILL.md",
+          "skills/poteto-mode/playbooks/multi-phase-plan.md",
+          "skills/principle-never-block-on-the-human/SKILL.md",
+          "skills/principle-model-the-domain/SKILL.md",
+          "skills/principle-laziness-protocol/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 45038,
+        "promptError": "Timed out after 45000ms"
+      },
+      {
+        "id": "sk-architect",
+        "request": "design the routing boundary before implementing it",
+        "expected": {
+          "skill": "architect"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/how/SKILL.md",
+          "skills/architect/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 19800
+      },
+      {
+        "id": "sk-swarm",
+        "request": "fan out a coverage matrix across all routing cases",
+        "expected": {
+          "skill": "swarm"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/swarm/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 11813
+      },
+      {
+        "id": "sk-arena",
+        "request": "run a bakeoff between two routing designs",
+        "expected": {
+          "skill": "arena"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/arena/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 11610
+      },
+      {
+        "id": "sk-interrogate",
+        "request": "stress-test this routing design with adversarial review",
+        "expected": {
+          "skill": "interrogate"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/interrogate/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 15856
+      },
+      {
+        "id": "sk-unslop",
+        "request": "remove the AI slop from this README before I publish it",
+        "expected": {
+          "skill": "unslop"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/unslop/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 5321
+      },
+      {
+        "id": "sk-technical-writing",
+        "request": "write the RFC for changing the routing table",
+        "expected": {
+          "skill": "technical-writing"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/feature.md",
+          "skills/technical-writing/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 19292
+      },
+      {
+        "id": "sk-no-comments",
+        "request": "review this diff for comments that just narrate the code",
+        "expected": {
+          "skill": "no-comments"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/no-comments/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 5638
+      },
+      {
+        "id": "sk-benchmark-checklist",
+        "request": "we improved routing speed by 30%, check the benchmark before we report it",
+        "expected": {
+          "skill": "benchmark-checklist"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/benchmark-checklist/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 16371
+      },
+      {
+        "id": "sk-recall-what",
+        "request": "what did I work on",
+        "expected": {
+          "skill": "recall"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/recall/SKILL.md"
+        ],
+        "sessionHit": true,
+        "foreignSessionAttempt": false,
+        "durationMs": 10875
+      },
+      {
+        "id": "sk-recall-last",
+        "request": "上次我们做到哪了？",
+        "expected": {
+          "skill": "recall"
+        },
+        "passed": true,
+        "selected": [
+          "skills/recall/SKILL.md",
+          "skills/poteto-mode/SKILL.md"
+        ],
+        "sessionHit": true,
+        "foreignSessionAttempt": false,
+        "durationMs": 9206
+      },
+      {
+        "id": "sk-recall-week",
+        "request": "这周做了什么？",
+        "expected": {
+          "skill": "recall"
+        },
+        "passed": true,
+        "selected": [
+          "skills/recall/SKILL.md",
+          "skills/poteto-mode/SKILL.md"
+        ],
+        "sessionHit": true,
+        "foreignSessionAttempt": false,
+        "durationMs": 10841
+      },
+      {
+        "id": "sk-recall-prior",
+        "request": "之前的会话里那个路由修复结论是什么？",
+        "expected": {
+          "skill": "recall"
+        },
+        "passed": true,
+        "selected": [
+          "skills/recall/SKILL.md",
+          "skills/poteto-mode/SKILL.md"
+        ],
+        "sessionHit": true,
+        "foreignSessionAttempt": false,
+        "durationMs": 13185
+      },
+      {
+        "id": "sk-tdd-first",
+        "request": "test-first: add validation before wiring the implementation",
+        "expected": {
+          "skill": "tdd"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/tdd/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 13011
+      },
+      {
+        "id": "sk-tdd-rgr",
+        "request": "red green refactor the parser",
+        "expected": {
+          "skill": "tdd"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/tdd/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 5766
+      },
+      {
+        "id": "sk-tdd-tdd",
+        "request": "TDD this behavior change",
+        "expected": {
+          "skill": "tdd"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/tdd/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 12626
+      },
+      {
+        "id": "sk-sharpen-prompt",
+        "request": "sharpen this prompt: make the login page better",
+        "expected": {
+          "skill": "sharpen"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/sharpen/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 6801
+      },
+      {
+        "id": "sk-sharpen-rewrite",
+        "request": "rewrite this prompt so an agent can act on it",
+        "expected": {
+          "skill": "sharpen"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/sharpen/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 6810
+      },
+      {
+        "id": "sk-correct-wrong",
+        "request": "you got that wrong, correct it",
+        "expected": {
+          "skill": "correct"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/correct/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 7366
+      },
+      {
+        "id": "sk-correct-repeat",
+        "request": "same mistake again; correct the approach",
+        "expected": {
+          "skill": "correct"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/correct/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 6512
+      },
+      {
+        "id": "sk-automate-me",
+        "request": "turn my weekly release routine into a reusable skill",
+        "expected": {
+          "skill": "automate-me"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/automate-me/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 5655
+      },
+      {
+        "id": "sk-why",
+        "request": "why was routing built this way?",
+        "expected": {
+          "skill": "why"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/investigation.md",
+          "skills/why/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 11926
+      },
+      {
+        "id": "sk-show-work",
+        "request": "show me your work on this routing decision",
+        "expected": {
+          "skill": "show-me-your-work"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/show-me-your-work/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 24920
+      }
+    ]
+  },
+  "replay": {
+    "passed": 2,
+    "failed": 0,
+    "cases": [
+      {
+        "id": "pb-trace-forensics",
+        "request": "here is a cpuprofile from the slow run, diagnose the hotspot",
+        "expected": {
+          "playbook": "trace-forensics"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/poteto-mode/playbooks/trace-forensics.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 6278
+      },
+      {
+        "id": "sk-how",
+        "request": "how should we split the routing work across changes?",
+        "expected": {
+          "skill": "how"
+        },
+        "passed": true,
+        "selected": [
+          "skills/poteto-mode/SKILL.md",
+          "skills/how/SKILL.md"
+        ],
+        "foreignSessionAttempt": false,
+        "durationMs": 6852
+      }
+    ]
+  },
+  "combinedPassed": 46,
+  "commands": [
+    "node scripts/routing.test.mjs --live --timeout-ms 45000 --out /tmp/pstack-032-routing-integrated-all.json",
+    "node scripts/routing.test.mjs --live --cases pb-trace-forensics,sk-how --timeout-ms 45000 --out /tmp/pstack-032-route-replay-final.json"
+  ]
+}

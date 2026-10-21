@@ -9,6 +9,10 @@
 - 真实 mode-on 验收使用 `magpie/opendesign/deepseek-v4.1-flash`。首轮全量 46 例为 **40 pass / 6 fail**。针对 6 个失败做修复后定向重放，最终有 **44/46** 在真实运行中留下通过记录；**2 个 recall 变体仍未通过**，见下文。
 - 真实运行只验证 mode-on 的**路由选择层**：模型成功读取目标 skill/playbook（recall 还要求成功读取当前 cwd 的会话 fixture）。它不代表完整工作流执行、编辑质量或最终答复质量。
 
+## 主控集成后的复测
+
+生产入口已注入精确当前cwd会话目录和先读recall技能的要求，并要求逐字复制路径（保留下划线等字符）。最新集成全量真实mode-on运行44/46，两个失败为trace-forensics/how；四个recall变体全部通过。针对trace-forensics/how补触发后原request重放2/2通过。最终累计46项有实际通过记录；单次全量是44/46，不写成一次46/46。可复现命令、逐项结果见 [归档JSON](validation-032-routing-results.json)。本文件后续44/46与两个recall失败描述保留为子分支历史验收。
+
 ## 基线
 
 - 环境：Node `v22.22.2`，npm `10.9.7`。

@@ -145,7 +145,7 @@ export default function pstack(pi: ExtensionAPI) {
       const guidance = modeGuidance(mode, skillPath, {});
       if (guidance) event.systemPromptOptions.sections[MODE_SECTION] = guidance;
       if (mode.enabled && typeof event.prompt === 'string'
-        && /(?:what (?:did|have) I (?:work|been working|do)|where did (?:I|we) leave off|recall\b|catch me up|上次.*(?:做|到)|这周.*做|之前的会话)/i.test(event.prompt)) {
+        && /(?:what (?:did|have) I (?:work|been working|do)|where did (?:I|we) leave off|^\s*(?:\/skill:)?recall(?:\s+(?:my|our|the|what|work|previous|recent)\b|\s*$)|catch me up|上次.*(?:做|到)|这周.*做|之前的会话)/i.test(event.prompt)) {
         const recallPath = fileURLToPath(new URL('../../skills/recall/SKILL.md', import.meta.url));
         const sessionDir = workspaceSessionDir(ctx.cwd, { env: { ...process.env, PI_CODING_AGENT_DIR: getAgentDir() } });
         event.systemPromptOptions.sections[MODE_SECTION] += [
