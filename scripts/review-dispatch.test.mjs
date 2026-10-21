@@ -2,11 +2,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { runReviewDiffFixture, findSubagentsRoot } from './check-review-diff.mjs';
 
-test('real parallel pstack reviewers read the supplied diff, reject mutation and return lead evidence', { timeout: 90000 }, async (t) => {
-  if (!findSubagentsRoot()) {
-    t.skip('pi-subagents not found in environment');
-    return;
-  }
+test('real parallel pstack reviewers read the supplied diff, reject mutation and return lead evidence', { timeout: 90000 }, async () => {
+  assert(findSubagentsRoot(), 'pi-subagents must be installed locally (devDependency) or provided via PI_SUBAGENTS_ROOT');
   const result = await runReviewDiffFixture();
   assert.equal(result.status, 'passed');
   assert.equal(result.passed, 5);

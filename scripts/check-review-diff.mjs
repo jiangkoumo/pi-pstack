@@ -8,6 +8,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createAgentSession, DefaultResourceLoader, SessionManager, SettingsManager, ModelRuntime, getAgentDir } from '@earendil-works/pi-coding-agent';
 import { parseRoleAgent } from '../extensions/pstack/role-agents.mjs';
+import { disposeTestSession } from './test-session-lifecycle.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const seats = ['pstack.judgment-agent', 'pstack.strongest-agent', 'pstack.comment-sicko'];
@@ -15,7 +16,11 @@ const seats = ['pstack.judgment-agent', 'pstack.strongest-agent', 'pstack.commen
 // Product acceptance only: no remote model or task delegation. The public plugin
 // executes actual foreground SDK children against this deterministic local SSE fixture.
 export function findSubagentsRoot() {
-  return [process.env.PI_SUBAGENTS_ROOT, resolve(getAgentDir(), 'npm/node_modules/pi-subagents'),
+  // An explicit override wins; the repo-local devDependency is next so a clean
+  // `npm ci` can run the real review fixture without a global Pi install. The
+  // global locations stay as a fallback for installed-package usage.
+  return [process.env.PI_SUBAGENTS_ROOT, resolve(root, 'node_modules/pi-subagents'),
+    resolve(getAgentDir(), 'npm/node_modules/pi-subagents'),
     resolve(homedir(), '.pi/agent/npm/node_modules/pi-subagents')].filter(Boolean).find(path => existsSync(resolve(path, 'index.js')));
 }
 
@@ -155,7 +160,7 @@ export async function runReviewDiffFixture(options = {}) {
       cases: ['one parallel dispatch with all pstack seats and agent/task only', 'all children read lead-supplied main diff', 'write and edit rejected by actual child tool registry', 'evidence returned by all children', 'lead reads judgment framework after collection and synthesizes verdict'],
       limitation: 'Deterministic transport acceptance; no claim of live-model instruction adherence. Judgment/strongest shared production registration remains lead-owned.' };
   } finally {
-    session?.dispose();
+    await disposeTestSession(session);
     for (const registration of registrations) registration.dispose();
     server.closeAllConnections();
     if (server.listening) await new Promise(accept => server.close(accept));

@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { createAgentSession, DefaultResourceLoader, SessionManager, SettingsManager } from '@earendil-works/pi-coding-agent';
 import { parseRoleAgent } from '../extensions/pstack/role-agents.mjs';
 import { parseGitReadCommand, runGitRead } from '../extensions/pstack/git-read.mjs';
+import { disposeTestSession, trackIntervals } from './test-session-lifecycle.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const piPackageRoot = resolve(root, 'node_modules/@earendil-works/pi-coding-agent');
@@ -62,6 +63,7 @@ test('comment-sicko background child resolves a provider-extension model with th
     url: process.env.FIXTURE_PROVIDER_URL,
   };
   let session;
+  const tracker = trackIntervals();
   const textOf = message => typeof message?.content === 'string'
     ? message.content
     : (message?.content ?? []).map(part => part?.type === 'text' ? part.text : '').join('');
@@ -257,17 +259,22 @@ test('comment-sicko background child resolves a provider-extension model with th
     assert.ok(loads.some(load => load.asyncRunner === '1'), 'The ambient load must be the async runner child');
     assert.equal(definition.extensions, undefined, 'The generated comment-sicko must leave extensions unset so the background child loads ambient providers');
   } finally {
-    session?.dispose();
-    for (const registration of registrations) registration.dispose();
-    server.closeAllConnections();
-    if (server.listening) await new Promise(accept => server.close(accept));
-    for (const [key, env] of [['PI_CODING_AGENT_DIR', previous.agentDir], ['PI_SUBAGENTS_TEMP_ROOT', previous.tempRoot], ['PI_SUBAGENTS_PI_CODING_AGENT_PACKAGE_ROOT', previous.piRoot], ['FIXTURE_AMBIENT_MARKER', previous.marker], ['FIXTURE_PROVIDER_URL', previous.url]]) {
-      if (env === undefined) delete process.env[key];
-      else process.env[key] = env;
+    try {
+      await disposeTestSession(session);
+      for (const registration of registrations) registration.dispose();
+      server.closeAllConnections();
+      if (server.listening) await new Promise(accept => server.close(accept));
+      for (const [key, env] of [['PI_CODING_AGENT_DIR', previous.agentDir], ['PI_SUBAGENTS_TEMP_ROOT', previous.tempRoot], ['PI_SUBAGENTS_PI_CODING_AGENT_PACKAGE_ROOT', previous.piRoot], ['FIXTURE_AMBIENT_MARKER', previous.marker], ['FIXTURE_PROVIDER_URL', previous.url]]) {
+        if (env === undefined) delete process.env[key];
+        else process.env[key] = env;
+      }
+      await new Promise(accept => setTimeout(accept, 500));
+      await rm(directory, { recursive: true, force: true });
+    } finally {
+      tracker.restore();
     }
-    await new Promise(accept => setTimeout(accept, 500));
-    await rm(directory, { recursive: true, force: true });
   }
+  assert.deepEqual([...tracker.live], [], `Session teardown leaked ${tracker.live.size} extension interval(s)`);
 });
 
 test('git-read rejects everything except the three whitelisted read commands', () => {
