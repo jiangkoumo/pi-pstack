@@ -9,6 +9,7 @@ import { LOOP_ENTRY, LOOP_TURN_TYPE, parseLoopArgs, loopFromBranch, createInitia
 import { ROLE_AGENTS, createRoleAgentController, guardPstackTopLevelModel } from './role-agents.mjs';
 import { loadModeState, saveModeState, sessionModeStatePath } from './mode-state.mjs';
 import { runGitRead, renderGitReadResult } from './git-read.mjs';
+import { workspaceSessionDir } from '../../scripts/session-context.mjs';
 
 export default function pstack(pi: ExtensionAPI) {
   const skillPath = fileURLToPath(new URL('../../skills/poteto-mode/SKILL.md', import.meta.url));
@@ -139,6 +140,17 @@ export default function pstack(pi: ExtensionAPI) {
       ].join('\n');
       const guidance = modeGuidance(mode, skillPath, {});
       if (guidance) event.systemPromptOptions.sections[MODE_SECTION] = guidance;
+      if (mode.enabled && typeof event.prompt === 'string'
+        && /(?:what (?:did|have) I (?:work|been working|do)|where did (?:I|we) leave off|recall\b|catch me up|上次.*(?:做|到)|这周.*做|之前的会话)/i.test(event.prompt)) {
+        const recallPath = fileURLToPath(new URL('../../skills/recall/SKILL.md', import.meta.url));
+        const sessionDir = workspaceSessionDir(ctx.cwd, { env: { ...process.env, PI_CODING_AGENT_DIR: getAgentDir() } });
+        event.systemPromptOptions.sections[MODE_SECTION] += [
+          '',
+          `Read ${JSON.stringify(recallPath)} before any session discovery or transcript access for this recall request.`,
+          `The only authorized workspace session directory for this request is ${JSON.stringify(sessionDir)}.`,
+          'Never list or search the sessions root, enumerate sibling workspace directories, or infer a different agent directory from HOME. Read only matching transcripts inside the exact directory above; exclude the current session.',
+        ].join('\n');
+      }
     } catch (error) {
       event.systemPromptOptions.sections[MODE_SECTION] = `Pstack configuration/state error: ${String(error)}. Report this error and stop this task until the operator fixes configuration or disables poteto-mode. No alternative model or provider was selected.`;
     }

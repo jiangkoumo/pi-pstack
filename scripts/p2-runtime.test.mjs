@@ -14,6 +14,19 @@ test('B2 run directory and module probes respect an isolated PI_CODING_AGENT_DIR
   assert.match(Object.values(event.systemPromptOptions.sections).join('\n'), new RegExp(JSON.stringify(resolve(directory, 'agent/pstack-runs')).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }));
 
+test('recall requests receive the exact current workspace session directory before mining', () => extensionFixture(async ({ directory, commands, handlers, ctx }) => {
+  await commands.get('poteto-mode')('on', ctx);
+  for (const prompt of ['上次我们做到哪了', '之前的会话', 'what did I work on', '这周我在这个项目做了什么']) {
+    const event = { messageType: 'user', prompt, systemPromptOptions: { sections: {} } };
+    await handlers.get('before_agent_start')(event, ctx);
+    const guidance = Object.values(event.systemPromptOptions.sections).join('\n');
+    assert.match(guidance, /Read .*skills\/recall\/SKILL\.md.*before.*session/i);
+    const slug = `--${directory.replace(/^[/\\]/, '').replace(/[/\\:]/g, '-')}--`;
+    assert(guidance.includes(JSON.stringify(resolve(directory, 'agent/sessions', slug))));
+    assert.match(guidance, /Never list or search the sessions root/);
+  }
+}));
+
 test('B2 module probes do not fall back to the real agent directory', () => extensionFixture(async ({ directory }) => {
   for (const script of ['check-p3-agents.mjs', 'check-p3-readonly-gate.mjs']) {
     const result = spawnSync(process.execPath, [resolve('scripts', script), '--allow-skip'], {

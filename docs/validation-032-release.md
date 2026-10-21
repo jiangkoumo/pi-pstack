@@ -32,6 +32,10 @@
 
 主控将pi-subagents@0.79.2固定为devDependency，保留用户安装时optional peerDependency。`npm install --save-dev --save-exact --include=dev pi-subagents@0.79.2` exit0，新增5 packages，审计124 packages，0 vulnerabilities。仓库本地依赖使隔离探针由skipped变passed，修正B2错误的“必须skip”假设。重新 `npm test && git diff --check` exit0，162/162，0 skipped，59.7秒。分支合并后仍需最终clone重跑。
 
+## recall 入口修复
+
+主控在before_agent_start对recall触发请求注入精确workspaceSessionDir路径和先读recall技能的要求，禁止列sessions根或依HOME换目录。新增B2行为回归在实现前exit1，实现后p2-runtime 9/9 exit0。主仓库 `npm test && git diff --check` exit0：163 tests、0 fail、0 skipped，61.6秒。真实路由仍保留子分支44/46记录，入口修复后尚未复测，不把提示注入当作模型遵循。
+
 ## 仍待完成
 
 Issues #11–#16分支产物、独立审阅与用户批准合并，扩展机械门禁/验证工具真实接线、真实PR验收、46项真实路由验收、两脚本transcript证据、保真度报告、Changelog与0.3.2版本。
