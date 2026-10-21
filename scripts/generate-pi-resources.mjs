@@ -155,8 +155,12 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
     assert(fields.tools !== undefined && toolsList.length > 0, 'Agent must declare an explicit tool allowlist: ' + entry.destination);
 
     if (fields.acceptanceRole === 'read-only') {
-      assert(fields.extensions === '', 'Read-only agent must explicitly declare empty extensions to disable ambient extensions: ' + entry.destination);
-      const allowedReadOnly = ['read', 'grep', 'find', 'ls'];
+      // Absence, not an empty list, is what keeps ambient extensions loading. An
+      // `extensions:` key (even empty) makes pi-subagents disable every ambient
+      // extension in the child, including a provider extension needed to resolve a
+      // provider-qualified model. Read-only safety comes from the tool allowlist.
+      assert(fields.extensions === undefined, 'Read-only agent must not declare extensions; an empty list also disables ambient provider extensions: ' + entry.destination);
+      const allowedReadOnly = ['read', 'grep', 'find', 'ls', 'git_read'];
       for (const t of toolsList) {
         assert(allowedReadOnly.includes(t), 'Forbidden tool granted to read-only agent: ' + t + ' in ' + entry.destination);
       }
@@ -173,7 +177,7 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
     if (entry.source === 'pstack/agents/comment-sicko.md') {
       assert.equal(fields.acceptanceRole, 'read-only', 'comment-sicko must be read-only: ' + entry.destination);
       assert.equal(fields.excludeTools, 'contact_supervisor', 'comment-sicko must exclude runtime supervisor tool');
-      assert.deepEqual([...toolsList].sort(), ['find', 'grep', 'ls', 'read'], 'comment-sicko must strictly declare read-only allowlist: ' + entry.destination);
+      assert.deepEqual([...toolsList].sort(), ['find', 'git_read', 'grep', 'ls', 'read'], 'comment-sicko must strictly declare the read-only git allowlist: ' + entry.destination);
     }
   }
   rendered.set(entry.destination, output);

@@ -8,6 +8,7 @@ import { configPaths, loadConfig, updateConfig } from './config.mjs';
 import { LOOP_ENTRY, LOOP_TURN_TYPE, parseLoopArgs, loopFromBranch, createInitialLoopState, decideNextStep, renderLoopPrompt, registerLoopAbortHooks } from './loop.mjs';
 import { ROLE_AGENTS, createRoleAgentController, guardPstackTopLevelModel } from './role-agents.mjs';
 import { loadModeState, saveModeState } from './mode-state.mjs';
+import { runGitRead, renderGitReadResult } from './git-read.mjs';
 
 export default function pstack(pi: ExtensionAPI) {
   const skillPath = fileURLToPath(new URL('../../skills/poteto-mode/SKILL.md', import.meta.url));
@@ -15,6 +16,32 @@ export default function pstack(pi: ExtensionAPI) {
   const roleController = createRoleAgentController(pi, agentsDir);
   registerLoopAbortHooks(pi);
   const levels = (model: Model<any>) => model.reasoning ? getSupportedThinkingLevels(model) : ['off'];
+  // Hosts that predate registerTool (and narrow unit fixtures) must still load the
+  // rest of the extension; the reviewer tool is additive, not a load requirement.
+  if (typeof pi.registerTool === 'function') pi.registerTool({
+    name: 'git_read',
+    label: 'Git Read',
+    description: 'Read-only Git inspection for reviewers. Only `git diff`, `git show` and `git log` run; `diff` and `log` default to main...HEAD. Any other git command, option or shell composition is refused with a reason.',
+    parameters: {
+      type: 'object',
+      properties: {
+        command: { type: 'string', description: 'A whitelisted git command, for example "git diff --stat main...HEAD" or "git log --oneline -n 20".' },
+      },
+      required: ['command'],
+      additionalProperties: false,
+    },
+    async execute(_toolCallId: string, params: { command: string }, _signal, _onUpdate, ctx) {
+      const result = await runGitRead(params.command, { cwd: ctx.cwd });
+      return {
+        content: [{ type: 'text' as const, text: renderGitReadResult(result) }],
+        details: {
+          ok: result.ok,
+          argv: 'argv' in result ? result.argv : null,
+          reason: result.ok ? undefined : result.reason,
+        },
+      };
+    },
+  });
   const modeFilePath = (ctx: ExtensionContext) => {
     const sessionFile = ctx.sessionManager.getSessionFile();
     if (sessionFile) return sessionFile + '.pstack-mode.json';

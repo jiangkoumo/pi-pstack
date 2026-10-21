@@ -75,8 +75,11 @@ test('Pi-specific role agents preserve tool boundaries and are not attributed to
   }
   const verifier = await readFile(resolve(dir, 'agents/verifier.md'), 'utf8');
   assert.match(verifier, /^tools: read, grep, find, ls$/m);
-  assert.match(verifier, /^extensions:$/m);
+  assert.doesNotMatch(verifier, /^extensions:/m, 'Read-only agents must leave extensions unset so ambient provider extensions load');
   assert.match(verifier, /^excludeTools: contact_supervisor$/m);
+  const sicko = await readFile(resolve(dir, 'agents/comment-sicko.md'), 'utf8');
+  assert.match(sicko, /^tools: read, grep, find, ls, git_read$/m);
+  assert.doesNotMatch(sicko, /^extensions:/m);
   const writer = await readFile(resolve(dir, 'agents/prose-writer.md'), 'utf8');
   assert.match(writer, /^tools: read, edit, write, grep, find, ls$/m);
   await mutateJSON(dir, 'docs/port-map.json', map => { map.nativeResources[0].destination = 'agents/poteto-agent.md'; });
@@ -213,9 +216,18 @@ test('reject invalid package namespace in agent definition', () => fixture(async
 
 test('reject non-empty extensions in read-only agent', () => fixture(async dir => {
   const path = resolve(dir, 'adapters/pi/overrides/agents/comment-sicko.md.template');
-  const text = (await readFile(path, 'utf8')).replace('extensions:', 'extensions: ./ext.ts');
+  const text = (await readFile(path, 'utf8')).replace('systemPromptMode:', 'extensions: ./ext.ts\nsystemPromptMode:');
   await writeFile(path, text);
-  await rejectInBothModes(dir, /Read-only agent must explicitly declare empty extensions/);
+  await rejectInBothModes(dir, /Read-only agent must not declare extensions/);
+}));
+
+test('reject an explicitly empty extensions declaration in read-only agent', () => fixture(async dir => {
+  const path = resolve(dir, 'adapters/pi/overrides/agents/comment-sicko.md.template');
+  // An empty list is not neutral: pi-subagents treats the key as "disable ALL
+  // ambient extensions", including the provider extension a model may need.
+  const text = (await readFile(path, 'utf8')).replace('systemPromptMode:', 'extensions:\nsystemPromptMode:');
+  await writeFile(path, text);
+  await rejectInBothModes(dir, /Read-only agent must not declare extensions/);
 }));
 
 test('reject unauthorized tool in writer agent', () => fixture(async dir => {
@@ -239,7 +251,11 @@ test('reject missing runtime supervisor exclusion', () => fixture(async dir => {
 
 test('reject identity role tampering for comment-sicko', () => fixture(async dir => {
   const path = resolve(dir, 'adapters/pi/overrides/agents/comment-sicko.md.template');
-  const text = (await readFile(path, 'utf8')).replace('acceptanceRole: read-only', 'acceptanceRole: writer');
+  // Declare a valid writer allowlist so the identity assertion, not the tool
+  // whitelist, rejects the tampered acceptance role.
+  const text = (await readFile(path, 'utf8'))
+    .replace('tools: read, grep, find, ls, git_read', 'tools: read, edit, write, grep, find, ls, bash')
+    .replace('acceptanceRole: read-only', 'acceptanceRole: writer');
   await writeFile(path, text);
   await rejectInBothModes(dir, /comment-sicko must be read-only/);
 }));
