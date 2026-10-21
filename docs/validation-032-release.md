@@ -28,8 +28,12 @@
 - publish添加OIDC权限与npm11.5.1供Trusted Publishing使用；未配置或验收可信发布者，不能宣称可CI发布。
 - check-ci-local改为clone已提交HEAD、npm ci+test总耗时<180秒，并检查生成与保真度；已在a8e21b7验证，尚待全部分支合并后重跑。
 
+## 开发依赖实际执行
+
+主控将pi-subagents@0.79.2固定为devDependency，保留用户安装时optional peerDependency。`npm install --save-dev --save-exact --include=dev pi-subagents@0.79.2` exit0，新增5 packages，审计124 packages，0 vulnerabilities。仓库本地依赖使隔离探针由skipped变passed，修正B2错误的“必须skip”假设。重新 `npm test && git diff --check` exit0，162/162，0 skipped，59.7秒。分支合并后仍需最终clone重跑。
+
 ## 仍待完成
 
 Issues #11–#16分支产物、独立审阅与用户批准合并，扩展机械门禁/验证工具真实接线、真实PR验收、46项真实路由验收、两脚本transcript证据、保真度报告、Changelog与0.3.2版本。
 
-npm网页当前未登录，浏览器TaskSpace54已handOff；Trusted Publishing配置需登录后继续。禁止本机npm publish 0.3.2。最终CI和registry结果尚不存在。
+npm网页已登录。Trusted Publisher已填写为GitHub Actions、jiangkoumo/pi-pstack、publish.yml、Environment空，仅Allow npm publish；提交现停在Security key二次验证，TaskSpace54已handOff，连接尚未确认保存。禁止本机npm publish 0.3.2。最终CI和registry结果尚不存在。
