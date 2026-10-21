@@ -1,0 +1,295 @@
+{
+  "version": 1,
+  "source": {
+    "kind": "reconstructed",
+    "note": "The original 46-case list from the 0.3.1 retest report was not supplied. These 46 cases are a reproducible reconstruction from the pinned upstream poteto-mode routing table plus the routes named in Issue #14. They are not a replay of the original report and must not be described as one.",
+    "upstream": "pstack/skills/poteto-mode/SKILL.md at f713f14203cd6420cec13cd7c55c32d598dbab68",
+    "issue": 14,
+    "reconstructedAt": "2026-10-21"
+  },
+  "mode": "on",
+  "cases": [
+    {
+      "id": "pb-investigation",
+      "category": "playbook",
+      "request": "how does the session router work, and are we sure it reads the current cwd?",
+      "expect": { "playbook": "investigation" }
+    },
+    {
+      "id": "pb-bug-fix",
+      "category": "playbook",
+      "request": "fix the bug where recall reads another workspace's sessions",
+      "expect": { "playbook": "bug-fix" }
+    },
+    {
+      "id": "pb-perf-issue",
+      "category": "playbook",
+      "request": "the routing check got slower, profile it and fix the regression",
+      "expect": { "playbook": "perf-issue" }
+    },
+    {
+      "id": "pb-hillclimb",
+      "category": "playbook",
+      "request": "improve routing accuracy from 70% to 90% with repeated measured trials",
+      "expect": { "playbook": "hillclimb" }
+    },
+    {
+      "id": "pb-runtime-forensics",
+      "category": "playbook",
+      "request": "diagnose the memory leak while the extension is running",
+      "expect": { "playbook": "runtime-forensics" }
+    },
+    {
+      "id": "pb-trace-forensics",
+      "category": "playbook",
+      "request": "here is a cpuprofile from the slow run, diagnose the hotspot",
+      "expect": { "playbook": "trace-forensics" }
+    },
+    {
+      "id": "pb-feature",
+      "category": "playbook",
+      "request": "add a /route command that shows the selected skill and playbook",
+      "expect": { "playbook": "feature" }
+    },
+    {
+      "id": "pb-refactoring",
+      "category": "playbook",
+      "request": "extract the routing table without changing behavior",
+      "expect": { "playbook": "refactoring" }
+    },
+    {
+      "id": "pb-prototype",
+      "category": "playbook",
+      "request": "prototype two routing layouts so I can compare them",
+      "expect": { "playbook": "prototype" }
+    },
+    {
+      "id": "pb-visual-parity",
+      "category": "playbook",
+      "request": "match the new settings page to the design pixel for pixel",
+      "expect": { "playbook": "visual-parity" }
+    },
+    {
+      "id": "pb-authoring-a-skill",
+      "category": "playbook",
+      "request": "write a new SKILL.md for our deployment checks",
+      "expect": { "playbook": "authoring-a-skill" }
+    },
+    {
+      "id": "pb-eval",
+      "category": "playbook",
+      "request": "evaluate whether the new routing prompt changes model behavior",
+      "expect": { "playbook": "eval" }
+    },
+    {
+      "id": "pb-babysit",
+      "category": "playbook",
+      "request": "babysit PR 177 until it is green",
+      "expect": { "playbook": "babysit" }
+    },
+    {
+      "id": "pb-shipping",
+      "category": "playbook",
+      "request": "land this green stack for me",
+      "expect": { "playbook": "shipping" }
+    },
+    {
+      "id": "pb-autonomous-run",
+      "category": "playbook",
+      "request": "run until done: fix all the routing gaps",
+      "expect": { "playbook": "autonomous-run" }
+    },
+    {
+      "id": "pb-orchestrate",
+      "category": "playbook",
+      "request": "own this multi-day migration across twenty stacked PRs",
+      "expect": { "playbook": "orchestrate" }
+    },
+    {
+      "id": "pb-autopilot-full",
+      "category": "playbook",
+      "request": "autopilot this queue of independent PRs to merged",
+      "expect": { "playbook": "autopilot-full" }
+    },
+    {
+      "id": "pb-autopilot-stack",
+      "category": "playbook",
+      "request": "autopilot-stack these changes, I will land the stack",
+      "expect": { "playbook": "autopilot-stack" }
+    },
+    {
+      "id": "pb-session-pickup",
+      "category": "playbook",
+      "request": "resume the prior session on branch fix/14-routing-coverage",
+      "expect": { "playbook": "session-pickup" }
+    },
+    {
+      "id": "pb-pause-safely",
+      "category": "playbook",
+      "request": "pause this work cleanly before I restart Pi",
+      "expect": { "playbook": "pause-safely" }
+    },
+    {
+      "id": "pb-multi-phase-plan",
+      "category": "playbook",
+      "request": "plan the routing migration in phases with a checkpoint per phase",
+      "expect": { "playbook": "multi-phase-plan" }
+    },
+    {
+      "id": "pb-worktree-cleanup",
+      "category": "playbook",
+      "request": "clean up merged worktrees and free disk space",
+      "expect": { "playbook": "worktree-cleanup" }
+    },
+    {
+      "id": "pb-opening-a-pr",
+      "category": "playbook",
+      "request": "open a PR for this routing branch",
+      "expect": { "playbook": "opening-a-pr" }
+    },
+    {
+      "id": "sk-how",
+      "category": "skill",
+      "request": "how should we split the routing work across changes?",
+      "expect": { "skill": "how" }
+    },
+    {
+      "id": "sk-architect",
+      "category": "skill",
+      "request": "design the routing boundary before implementing it",
+      "expect": { "skill": "architect" }
+    },
+    {
+      "id": "sk-swarm",
+      "category": "skill",
+      "request": "fan out a coverage matrix across all routing cases",
+      "expect": { "skill": "swarm" }
+    },
+    {
+      "id": "sk-arena",
+      "category": "skill",
+      "request": "run a bakeoff between two routing designs",
+      "expect": { "skill": "arena" }
+    },
+    {
+      "id": "sk-interrogate",
+      "category": "skill",
+      "request": "stress-test this routing design with adversarial review",
+      "expect": { "skill": "interrogate" }
+    },
+    {
+      "id": "sk-unslop",
+      "category": "skill",
+      "request": "remove the AI slop from this README before I publish it",
+      "expect": { "skill": "unslop" }
+    },
+    {
+      "id": "sk-technical-writing",
+      "category": "skill",
+      "request": "write the RFC for changing the routing table",
+      "expect": { "skill": "technical-writing" }
+    },
+    {
+      "id": "sk-no-comments",
+      "category": "skill",
+      "request": "review this diff for comments that just narrate the code",
+      "expect": { "skill": "no-comments" }
+    },
+    {
+      "id": "sk-benchmark-checklist",
+      "category": "skill",
+      "request": "we improved routing speed by 30%, check the benchmark before we report it",
+      "expect": { "skill": "benchmark-checklist" }
+    },
+    {
+      "id": "sk-recall-what",
+      "category": "recall",
+      "request": "what did I work on",
+      "expect": { "skill": "recall" }
+    },
+    {
+      "id": "sk-recall-last",
+      "category": "recall",
+      "request": "上次我们做到哪了？",
+      "expect": { "skill": "recall" }
+    },
+    {
+      "id": "sk-recall-week",
+      "category": "recall",
+      "request": "这周做了什么？",
+      "expect": { "skill": "recall" }
+    },
+    {
+      "id": "sk-recall-prior",
+      "category": "recall",
+      "request": "之前的会话里那个路由修复结论是什么？",
+      "expect": { "skill": "recall" }
+    },
+    {
+      "id": "sk-tdd-first",
+      "category": "tdd",
+      "request": "test-first: add validation before wiring the implementation",
+      "expect": { "skill": "tdd" }
+    },
+    {
+      "id": "sk-tdd-rgr",
+      "category": "tdd",
+      "request": "red green refactor the parser",
+      "expect": { "skill": "tdd" }
+    },
+    {
+      "id": "sk-tdd-tdd",
+      "category": "tdd",
+      "request": "TDD this behavior change",
+      "expect": { "skill": "tdd" }
+    },
+    {
+      "id": "sk-sharpen-prompt",
+      "category": "sharpen",
+      "request": "sharpen this prompt: make the login page better",
+      "expect": { "skill": "sharpen" }
+    },
+    {
+      "id": "sk-sharpen-rewrite",
+      "category": "sharpen",
+      "request": "rewrite this prompt so an agent can act on it",
+      "expect": { "skill": "sharpen" }
+    },
+    {
+      "id": "sk-correct-wrong",
+      "category": "correct",
+      "request": "you got that wrong, correct it",
+      "context": [
+        { "role": "user", "content": "The router currently maps every request to the feature playbook. That is correct, right?" }
+      ],
+      "expect": { "skill": "correct" }
+    },
+    {
+      "id": "sk-correct-repeat",
+      "category": "correct",
+      "request": "same mistake again; correct the approach",
+      "context": [
+        { "role": "user", "content": "We already added a routing row once and the request still lands in the wrong playbook." }
+      ],
+      "expect": { "skill": "correct" }
+    },
+    {
+      "id": "sk-automate-me",
+      "category": "skill",
+      "request": "turn my weekly release routine into a reusable skill",
+      "expect": { "skill": "automate-me" }
+    },
+    {
+      "id": "sk-why",
+      "category": "skill",
+      "request": "why was routing built this way?",
+      "expect": { "skill": "why" }
+    },
+    {
+      "id": "sk-show-work",
+      "category": "skill",
+      "request": "show me your work on this routing decision",
+      "expect": { "skill": "show-me-your-work" }
+    }
+  ]
+}
