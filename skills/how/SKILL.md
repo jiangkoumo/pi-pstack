@@ -9,7 +9,7 @@ license: MIT
 
 Explore the codebase to answer "how does X work?" questions. Produce architectural explanations at the level of a senior engineer onboarding onto a subsystem, enough to build a working mental model, not so much that it reads like annotated source code.
 
-Every spawn uses pi-subagents `subagent` with a registered read-only pstack agent. Explorers use `pstack.verifier` (verification role); explainers use `pstack.judgment-agent` (judgment role). Configure their models and thinking through `/setup-pstack`, per the Subagents section of the **poteto-mode** skill.
+Every spawn is a `subagent` call with a registered read-only pstack agent. Explorers use the `verification` role, and every explainer uses the `judgment` role. Set the role's model and thinking through `/setup-pstack`, or leave it at the default if the role or the line is missing. Leave `model` unset when the value is `inherit`, so that seat runs on the parent model. If the host rejects a configured model, use the default and say so. If it rejects the default, use the closest valid configured model of the same family and reasoning tier, and report the substitution. Pick each subagent's thinking for the job, per the Subagents section of the **poteto-mode** skill.
 
 ## 1. Assess complexity
 
@@ -22,7 +22,7 @@ When in doubt, take the simple path.
 
 ## 2. Explore (complex only)
 
-Decompose the question into 2 to 4 angles, each a distinct slice of the subsystem. Spawn all explorers in one `subagent({workflow:"parallel",args:{tasks:[{agent:"pstack.verifier",task:"<references/explorer-prompt.md with angle 1>"},{agent:"pstack.verifier",task:"<references/explorer-prompt.md with angle 2>"}]}})` call, each with [explorer-prompt.md](references/explorer-prompt.md) and its angle filled in. Include every chosen angle in the same tasks array.
+Decompose the question into 2 to 4 angles, each a distinct slice of the subsystem. Spawn all explorers in a single message, each with [explorer-prompt.md](references/explorer-prompt.md) and its angle filled in.
 
 ## 3. Synthesize (complex only)
 
@@ -43,3 +43,14 @@ Adapted from Lauren Tan’s pstack v0.15.25, MIT, fixed revision f713f14203cd642
 Delegation requires current operator or applicable project authorization and a compatible pi-subagents integration. If unavailable or unauthorized, perform authorized stages locally, disclose self-review and missing independence, and report any required independent stage as open. Use only registered pstack.* agents. Models and thinking bind through /setup-pstack roles and user agentOverrides; never put model in a task item or on the outer subagent call. Report unavailable or identical configured models; do not silently substitute. Await native completion notices and collect every required result before synthesis.
 
 Use read for file contents, grep/find/ls for search and directories, and ffgrep/fffind when available. Batch independent reads with codemode when available. Use edit/write only for authorized changes; bash executes programs and Git in an explicit working directory, never reads or searches files. Keep one writer per worktree and isolate candidate output paths. Read-only reviewers never receive bash, edit, write, or nested delegation. Loading this skill grants no new permission: push, PR creation, merge, external messages, and destructive operations require explicit authorization in the current session. Commit only when authorized.
+
+Explorers launch together through one parallel workflow, with the angle named only in each task:
+
+```js
+subagent({ workflow: "parallel", args: { tasks: [
+  { agent: "pstack.verifier", task: "<references/explorer-prompt.md with angle 1>" },
+  { agent: "pstack.verifier", task: "<references/explorer-prompt.md with angle 2>" }
+] } })
+```
+
+Never put `model` in a task item or on the outer call.

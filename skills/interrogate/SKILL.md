@@ -25,23 +25,22 @@ Before spawning reviewers, state the intent in one clear paragraph from the user
 
 ## Step 3, Spawn Reviewers
 
-Launch all reviewers in one pi-subagents call, labeled Reviewer A, B, and C. Use the judgment, strongest, and review roles configured through `/setup-pstack`:
+Launch all reviewers in a single message with the `subagent` tool, one per entry on the configured `review` role line, labeled Reviewer A, B, and so on to match the entry count. If the role or that line is missing, use the table defaults.
 
-```js
-subagent({workflow:"parallel",args:{tasks:[
-  {agent:"pstack.judgment-agent",task:"<same complete review prompt; Reviewer A>"},
-  {agent:"pstack.strongest-agent",task:"<same complete review prompt; Reviewer B>"},
-  {agent:"pstack.comment-sicko",task:"<same complete review prompt; Reviewer C>"}
-]}})
-```
+| Subagent | Default role |
+|----------|--------------|
+| Reviewer A | `judgment` |
+| Reviewer B | `strongest` |
 
-Every seat is read-only and uses a registered pstack.* agent, never the builtin reviewer. Preserve configured model diversity and report when seats share a model. A missing or rejected configured model is an explicit gap; do not silently fall back or open a PR without current-session authorization.
+Each reviewer gets a registered read-only pstack agent, and its model set to its configured entry, or its table default when there is no configured line. Omit `model` for an `inherit` entry, so that reviewer runs on the parent model.
+
+If the host rejects a configured entry, run that reviewer on its family's table default and say so. If it rejects a table default, spawn with the closest equivalent from the valid configured models (prefer the same family and reasoning tier), and report the substitution. Do not block the review on a model-selection issue. Never treat an alias entry as a rejected model.
 
 Read [reviewer-prompt.md](references/reviewer-prompt.md) and fill in the same template for every reviewer with the stated intent, the diff or file contents, the rubric from [rubric.md](references/rubric.md), and the code-quality lens from [code-quality-review.md](references/code-quality-review.md). Pick each subagent's thinking through `/setup-pstack` for the job, per the Subagents section of the **poteto-mode** skill.
 
 ## Step 4, Synthesize
 
-Collect all required reviewer results before building a unified picture. Parse every reviewer's findings. Merge findings that describe the same issue differently, and note which models raised each one. Findings two or more models raised independently are the highest signal. Read a lone model's finding, but weight it accordingly. Note disagreements. If one model flags something and another explicitly says the opposite, that is context for the verdict.
+As results come back, build a unified picture. Parse every reviewer's findings. Merge findings that describe the same issue differently, and note which models raised each one. Findings two or more models raised independently are the highest signal. Read a lone model's finding, but weight it accordingly. Note disagreements. If one model flags something and another explicitly says the opposite, that is context for the verdict.
 
 ## Step 5, Lead Judgment
 
@@ -83,4 +82,26 @@ Delegation requires current operator or applicable project authorization and a c
 
 Use read for file contents, grep/find/ls for search and directories, and ffgrep/fffind when available. Batch independent reads with codemode when available. Use edit/write only for authorized changes; bash executes programs and Git in an explicit working directory, never reads or searches files. Keep one writer per worktree and isolate candidate output paths. Read-only reviewers never receive bash, edit, write, or nested delegation. Loading this skill grants no new permission: push, PR creation, merge, external messages, and destructive operations require explicit authorization in the current session. Commit only when authorized.
 
-The lead captures the scoped diff against `main` or the repository default branch, including working-tree changes when relevant, and passes its readable file path and surrounding context to every seat. Read-only children cannot run Git. The lead performs Steps 4 and 5 itself after collecting every result, reading `references/lead-judgment.md` before issuing the synthesized verdict.
+Launch the seats with this call. The same complete review prompt goes to every seat, and the `parallel` schema accepts `{ agent, task }` items only:
+
+```js
+subagent({ workflow: "parallel", args: { tasks: [
+  { agent: "pstack.judgment-agent", task: "<same complete review prompt; Reviewer A>" },
+  { agent: "pstack.strongest-agent", task: "<same complete review prompt; Reviewer B>" }
+] } })
+```
+
+The lead captures the scoped diff against `main` or the repository default branch, including working-tree changes when relevant, and passes its readable file path and surrounding context to every seat. Read-only children cannot run Git. The lead performs Steps 4 and 5 itself after collecting every result, reading [lead-judgment.md](references/lead-judgment.md) before issuing the synthesized verdict.
+
+### Reviewing independent worktrees
+
+Put `cwd` on the outer `subagent` call, never inside a `tasks` item. For several worktrees in one call, name the absolute worktree path in each `task` text.
+
+```js
+subagent({ workflow: "parallel", args: { tasks: [
+  { agent: "pstack.judgment-agent", task: "Review /absolute/path/to/worktree-a at SHA <sha>." },
+  { agent: "pstack.judgment-agent", task: "Review /absolute/path/to/worktree-b at SHA <sha>." }
+] } })
+```
+
+The rejected shape is `tasks: [{ agent, task, cwd }]`: the schema validates task items before any child starts and rejects the extra field.

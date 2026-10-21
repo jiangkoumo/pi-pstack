@@ -13,23 +13,17 @@ Invoke when the user says "reflect" or "/reflect". Skip when the conversation is
 
 ## 1. Locate the active transcript
 
-Before fanning out, locate only the active Pi session transcript supplied by the host, using its session path and opening user prompt to confirm identity. Read it with `read`; do not scan unrelated workspaces or chats. If the active path is unavailable, pass a tight digest of the session instead.
+Before fanning out, find this conversation's transcript in the Pi session path the system prompt names. Do not glob across unrelated project sessions or `~/.cursor/projects/*/`. That crosses workspace boundaries and reads private chats from unrelated projects.
+
+Read the active session file with `read`. When the host stores JSONL sessions in that shape, that covers the legacy flat (`<id>.jsonl`), current nested (`<id>/<id>.jsonl`), and subagent (`<parent>/subagents/<child>.jsonl`) layouts. For each candidate, read the first JSONL line. Take the file whose first entry contains the conversation's opening user prompt. If none matches, pass a tight digest of the session instead.
 
 ## 2. Spawn three reviewers in parallel
 
-One pi-subagents call launches all three reviewers:
+One message, three `subagent` calls in one parallel workflow, agent mode (`readonly: true`), one registered pstack agent each. Reviewers need MCP access to look up the tickets, chat threads, and observability traces the transcript references, and readonly strips MCPs, so the lead passes that evidence inline when those tools are unavailable.
 
-```js
-subagent({workflow:"parallel",args:{tasks:[
-  {agent:"pstack.judgment-agent",task:"<references/judgment-reviewer.md with transcript or digest>"},
-  {agent:"pstack.verifier",task:"<references/tooling-reviewer.md with transcript or digest>"},
-  {agent:"pstack.strongest-agent",task:"<references/divergent-reviewer.md with transcript or digest>"}
-]}})
-```
+Each reviewer and the synthesizer name a role line in `/setup-pstack` and a default. Set `model` to that line's value, or to the default if the rule or the line is missing. Leave `model` unset when the value is `inherit`, so that seat runs on the parent model. If the host rejects a configured model slug, use the default and say so. If it rejects the default, use the closest valid configured model slug of the same family from its error message. Never treat an alias entry as a rejected model or apply either fallback to it. Pick each subagent's thinking for the job, per the Subagents section of the **poteto-mode** skill.
 
-Use the judgment, verification, and strongest roles configured by `/setup-pstack`, with thinking appropriate to the job. Reviewers needing referenced tickets, chat threads, or traces receive only explicitly available read-only sources; otherwise the lead supplies evidence and reports gaps.
-
-| Lens | Setup role | Prompt template |
+| Lens | Role line | Prompt template |
 |---|---|---|
 | Judgment | `judgment` | [judgment-reviewer.md](references/judgment-reviewer.md) |
 | Tooling | `verification` | [tooling-reviewer.md](references/tooling-reviewer.md) |
@@ -39,7 +33,7 @@ Pass each template verbatim, substituting the transcript path or digest where ma
 
 ## 3. Synthesize
 
-One pi-subagents `subagent` call with `agent: "pstack.judgment-agent"`, using the configured judgment role. It spot-verifies citations through explicitly available read-only sources, or reports missing access. Pass [synthesizer.md](references/synthesizer.md) verbatim, with each reviewer's full output inlined where marked. It returns an Accepted / Rejected / Backlog list.
+One `subagent` call, `subagent_type` read-only, `model` from the `judgment` role line, agent mode (`readonly: true`). It spot-verifies citations through MCP where available, and readonly strips MCPs. Pass [synthesizer.md](references/synthesizer.md) verbatim, with each reviewer's full output inlined where marked. It returns an Accepted / Rejected / Backlog list.
 
 ## 4. Structural enforcement check
 
@@ -77,4 +71,14 @@ Delegation requires current operator or applicable project authorization and a c
 
 Use read for file contents, grep/find/ls for search and directories, and ffgrep/fffind when available. Batch independent reads with codemode when available. Use edit/write only for authorized changes; bash executes programs and Git in an explicit working directory, never reads or searches files. Keep one writer per worktree and isolate candidate output paths. Read-only reviewers never receive bash, edit, write, or nested delegation. Loading this skill grants no new permission: push, PR creation, merge, external messages, and destructive operations require explicit authorization in the current session. Commit only when authorized.
 
-Backlog filing is an external write. Prepare the backlog items locally and file only with explicit current-session authorization. Read-only synthesis returns proposed edits; the parent applies only the explicitly approved subset.
+Launch the three readers in one call, and keep `cwd` on the outer call when they must share a directory:
+
+```js
+subagent({ workflow: "parallel", args: { tasks: [
+  { agent: "pstack.judgment-agent", task: "<references/judgment-reviewer.md with transcript or digest>" },
+  { agent: "pstack.verifier", task: "<references/tooling-reviewer.md with transcript or digest>" },
+  { agent: "pstack.strongest-agent", task: "<references/divergent-reviewer.md with transcript or digest>" }
+] } })
+```
+
+Backlog filing is an external write. Prepare the backlog items locally and file only with explicit current-session authorization. Read-only synthesis returns proposed edits; the parent applies only the explicitly approved subset. Reviewing a worktree uses the outer `subagent` `cwd`, or an absolute path in the task text; `cwd` inside a task item is rejected.
