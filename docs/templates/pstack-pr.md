@@ -1,50 +1,40 @@
-# PR evidence template
+# PR body template
 
-Adapted from pstack by Lauren Tan, Copyright (c) 2026 Lauren Tan, MIT, pinned at `f713f14203cd6420cec13cd7c55c32d598dbab68`. See [license](../../LICENSES/pstack.txt) and [plan contract](pstack-plan.md). This template preserves independently verifiable PRs and current-head evidence while replacing automatic shipping with explicit authorization.
+Adapted from pstack by Lauren Tan, Copyright (c) 2026 Lauren Tan, MIT, pinned at `f713f14203cd6420cec13cd7c55c32d598dbab68`. See [license](../../LICENSES/pstack.txt) and [Opening a PR](../../skills/poteto-mode/playbooks/opening-a-pr.md).
 
-Copy the body below to the run's PR body file. Resolve this source template from the package root. Replace every placeholder before use. Evidence paths are relative to the plan file, not this template or the shell cwd. Creating or editing a remote PR requires authorization; prepare this local body first and use the authorized CLI's `--body-file` option. Do not interpolate review text into shell commands.
+Write the title as Conventional Commits `type(scope): subject`, with no trailing period. Use a short imperative subject and a real symbol only when it carries the change. Apply the unslop and no-comments passes to the diff. Write the title, body, and commit body with technical-writing (all layers except Diátaxis, including STE vocabulary), then apply unslop to the prose.
+
+Copy the six sections below to a local PR body file and replace the placeholders. Keep the body a one-minute briefing, under about 40 lines when it becomes the squash commit body. Keep Scope; omit another section only when there is nothing to say. Link a separate evidence artifact for full SHAs, lane receipts, measurement details, interaction-review evidence, plan dependencies, and authorization records. Do not put those records or metric tables in the body. Screenshots or videos follow the sections when they prove a claim.
+
+Prepare and display the proposed title and body when external-write authorization is absent. Pushing, creating or editing a PR, and merging require explicit authorization in the current session. Auto-merge needs its own grant; a green check or a prior PR grants none. Once authorized, use the provided PR tool, or the resolved forge with its body-file option. Never interpolate body text into a shell command.
 
 ---
 
-## Problem and resulting behavior
+## Why
 
-<Concrete trigger, previous behavior, resulting behavior, and who benefits.>
+<The problem and approach in 1–3 short sentences. No SHAs or branch genealogy.>
 
-## Scope and dependencies
+## What changed
 
-- Plan path and PR id: <path and id>.
-- Parent PR ids and accepted heads: <ids and full SHAs, or none>.
-- Branch, base and current head: <branch, base, full SHA>.
-- Allowed files and exclusions: <paths>.
-- Observable acceptance result: <scenario and pass predicate>.
+- <One of 1–3 short items. Name a symbol or path only when it carries the change; name both sides of a rename or retarget.>
 
-## Verification at the current head
+## Scope
 
-Tests alone are not sufficient verification. Unit, live and perf gates need evidence; a perf exemption needs a concrete reason. CI green is an input, not the verdict. Re-verify affected behavior at every new head.
+- <One of 1–3 short items on coverage and deliberate exclusions, follow-ups, or known gaps. No file-by-file inventory.>
 
-| Gate | Command or procedure | Exit / result | Evidence relative to plan | Head SHA |
-| --- | --- | --- | --- | --- |
-| Unit | <exact command and cwd> | <actual code and counts> | <log> | <full SHA> |
-| Live | <drive real surface, concrete scenario and pass predicate> | <actual observation> | <log or screenshot> | <full SHA> |
-| Regression | <same load-bearing scenario on trunk and head> | <actual comparison or documented trunk absence> | <artifact> | <full SHA> |
-| Perf | <metric, interleaved trunk/head probe, baseline, numeric fail threshold> | <actual measurements, or reasoned not applicable> | <artifact or exemption> | <full SHA> |
-| Independent audit | <reviewer, inspected files, finding disposition> | <pass, failed, blocked> | <report> | <full SHA> |
+## Tradeoffs
 
-For ten live lanes list each lane's scenario, drive method, saved screenshot and pass predicate. A missing or blocked lane remains incomplete. If trunk lacks the feature, isolate added work and use absolute budgets for the user's end state; never report an incomparable speed ratio.
+<A rejected alternative the reviewer would otherwise ask about. Omit this section when there was no real choice.>
 
-## Interaction review gate
+## Blast Radius
 
-<No interaction change, with reason; or screenshot paths, video path, exact operator review evidence and approval state.>
+<Who or what this touches, and why it is safe or risky, in 1–2 sentences. If main is red, state the cost of leaving it red.>
 
-## Risks and unresolved findings
+## Verification
 
-<Owner for each blocker, failures and deviations, follow-ups outside scope, rollback considerations. Do not mark a failed or blocked verifier as a pass.>
+- <One of 1–3 actual run paths and outcomes. Include the command or concrete driven scenario and its result; never report attempted or blocked evidence as passed.>
+- <For perf, one primary metric with its unit, before → after, and a link to the arena or swarm directory for the rest.>
 
-## Landing authorization
+---
 
-- Exact-head verdict: <verifier, verdict and receipt path>.
-- Frontier generation and lowest unmerged PR: <generation and PR>.
-- Owner approval / authorization: <actual grant or pending>.
-- Next authorized action: <one concrete action>.
-
-Stop at merge-ready when authorization is pending. Opening a PR, pushing, rebasing, retargeting, force-pushing, merging and deleting each retain their own operator gates. Babysitting cannot grant them. Keep the PR body aligned with the plan receipts and re-read the forge head immediately before any authorized operation.
+Keep the detailed evidence in the linked artifact: exact checked head and base; unit, live, regression, and relevant perf receipts; independent findings and dispositions; unresolved blockers; and the actual authorization for the next operation. Tests and CI are inputs to the verdict, not substitutes for real-artifact proof. Recheck affected behavior at a new head under the selected playbook's patch-id rules. Follow the [plan contract](pstack-plan.md) for a planned stack, and stop at merge-ready when landing authority is pending.

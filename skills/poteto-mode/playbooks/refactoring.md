@@ -1,15 +1,30 @@
-# Refactoring
+### Refactoring
 
-Adapted from pstack by Lauren Tan. This workflow changes structure without changing behavior; it does not commit, push, open a PR, or merge without separate authorization.
+**You own the contract. The structure changes. The behavior does not.** Distinct from Feature, which adds behavior, and Bug fix, which corrects it.
 
-Before acting, read [Poteto mode for Pi](../SKILL.md) for the mode's tool and authority rules. Resolve that link from this playbooks/ directory: ../SKILL.md is the parent poteto-mode skill. A refactor that reveals a missing feature or a real bug splits it out first.
+If the cleanup reveals a missing feature or a real bug, split it out and ship the structural change first against the pinned contract. A redesign is allowed, but name it and route to Feature. Large or cross-cutting structural work belongs to the **figure-it-out** skill. This playbook is the focused-to-medium change.
 
-1. Pin the behavior contract before moving structure. Read the affected callers and tests, then write a characterization test, snapshot, or equivalence harness that captures current behavior. Type checks and lint are not a behavior pin.
-2. Name the structure the code is missing. The change must delete branches or invalid states, not add indirection. If the shape is already clear and local, leave it alone.
-3. Name the target module layout, types, and call graph. If the target crosses a function boundary, use Architect when it is available; otherwise sketch the alternatives yourself and record the choice.
-4. Subtract before adding: delete dead code, collapse one-caller wrappers, drop redundant validators, and remove orphan references. Keep the smallest change that reaches the target shape; a cleanup that "might help" is reverted.
-5. Move in small behavior-preserving steps, each keeping the pin green. For an API reshape, migrate every caller and delete the old API in the same wave; no compatibility shims. Delegate mechanical edits only with authorization, one writer per worktree, using a configured role rather than a fixed model slug.
-6. Prove behavior is unchanged on the real artifact, not "it compiles". Replay the baseline or diff old versus new outputs. Confirm the change lowers reader load somewhere; otherwise revert it.
-7. Do not commit, push, open a PR, rebase, or merge from this workflow. If a commit is separately authorized, keep it behavior-preserving and scoped.
+1. Pin the behavior contract first. Run the **how** skill over the affected subsystem to learn the contract, then write a characterization test, snapshot, or equivalence harness that captures current behavior before any structure moves. If the area has no coverage, write the pin before touching structure. Type check and lint are not a pin.
+2. Name the structure the code is missing per **principle-model-the-domain**. Boring code stays when the shape is already clear and local. The reshape must delete branches or invalid states, not add indirection.
+3. Name the target shape. State what the module layout, types, and call graph should be if built today (**principle-foundational-thinking**, **principle-redesign-from-first-principles**). If the target crosses a function boundary, run the **architect** skill for parallel design exploration of the shape before the move.
+4. Subtract before you add. Delete dead code, collapse one-caller wrappers, drop redundant validators, and remove orphan references before introducing the new shape (**principle-subtract-before-you-add**). The smallest change that reaches the target shape ships (**principle-laziness-protocol**). A speculative cleanup that "might help" gets reverted.
+5. Move in small behavior-preserving steps, each keeping the pin green. For API reshapes, migrate every caller and delete the old API in the same wave (**principle-migrate-callers-then-delete-legacy-apis**). No compatibility shims, no parallel old-and-new paths. Spot-check every rename against the actual files. Renames silently miss usages in strings, prose, and back-references. Delegate the mechanical edits to a subagent through pi-subagents as `pstack.poteto-agent`, using your configured `code` role (Feature and Refactoring) from `/setup-pstack` with a specific scope (file paths, the names being moved, the behavior to hold). Pick each subagent's thinking level for the job, per the Subagents section.
+6. Prove behavior is unchanged on the real artifact, not "it compiles" (**principle-prove-it-works**). For larger reshapes, run an equivalence check: a script that diffs old-vs-new outputs, a recorded baseline replayed against the new code, or a smoke run on the matching surface via the relevant control skill.
+7. Confirm the change is worth keeping. The success measure is reduced reader load (**principle-minimize-reader-load**). If the diff does not lower reader load somewhere, revert it.
+8. Rebase into small ordered commits. A subtraction commit, then the reshape, then any follow-on cleanup. Shape them with the **sequence-verifiable-units** principle skill, so each behavior-preserving slice stays green before the next. Run **Opening a PR**.
 
-Report the structure that changed, the pin held against it, the equivalence proof, the reader-load delta, what shipped, and what was reverted.
+**Reply:** the structure that changed, the pin you held it against, the equivalence proof, the reader-load delta, what shipped and what got reverted. No new behavior.
+
+#### Pi adaptation
+
+Adapted from pstack by Lauren Tan, Copyright (c) 2026 Lauren Tan, MIT. Source: pinned upstream commit `f713f14203cd6420cec13cd7c55c32d598dbab68`; license: `LICENSES/pstack.txt` in the package root. The body above preserves the upstream steps with the listed Cursor tool, model, and skill substitutions. These notes govern platform and authorization differences.
+
+Read [Poteto mode for Pi](../SKILL.md) before acting. Resolve skill names through `read <package>/skills/<name>/SKILL.md` or `/skill:<name>`; load them on demand. `/unslop` replaces Cursor's deslop pass. Use Pi's `read`, `edit`, `write`, `ffgrep`/`grep`, `fffind`/`find`, and `ls` for file content; `bash` executes programs and checks. Ask the operator in plain text when a decision is needed.
+
+Store local trails, patches, resume notes, and prototype artifacts under `<run-id>/` in the pstack run directory provided in the system prompt, or another durable operator-approved local directory. Keep evidence out of the repository unless its inclusion is authorized. A path in an upstream example is not permission to write unrelated user state.
+
+The operator's current task grant governs delegation, local commits, and worktrees. Keep one writer per worktree; a replacement takes over only after the previous writer has stopped. Give every delegate the goal, allowed paths, prohibitions, approved decisions, acceptance commands, and a route back to its parent. Use configured role models and thinking from `/setup-pstack`; never put `model` on the outer `subagent` call or in a parallel task item. Wait for completion notices. If pi-subagents is unavailable or delegation is forbidden, execute the steps in sequence within the current grant, label self-review, and report `BLOCKED: independent review` where independent review is required.
+
+Pushing, opening or editing a PR, and merging require explicit authorization in the current session for the action and scope. Auto-merge needs its own explicit grant. Rebase, amend, reset, force-push, and deletion follow the operator's Git and cleanup rules; an upstream imperative does not bypass them. Without push/PR authorization, prepare and display the proposed Conventional Commits title and PR body locally, then report the branch, checks, and pending action. Green CI, a loop tick, and a previous PR do not grant authority.
+
+Mechanical edits use `subagent({ agent: "pstack.poteto-agent", task: "<paths, names, pinned behavior and acceptance command>", cwd: "<source-repo>", worktree: true })`, bound to the `code` role (Feature and Refactoring). Managed worktrees require a clean source checkout; an existing exclusive worktree can instead be passed as `cwd` with `worktree: false`. Follow architect's adapter for a parallel design run. Step 8 prepares ordered commits within the local Git grant, then follows Opening a PR's authorization gate.
