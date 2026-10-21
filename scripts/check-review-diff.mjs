@@ -8,6 +8,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createAgentSession, DefaultResourceLoader, SessionManager, SettingsManager, ModelRuntime, getAgentDir } from '@earendil-works/pi-coding-agent';
 import { parseRoleAgent } from '../extensions/pstack/role-agents.mjs';
+import { disposeTestSession } from './test-session-lifecycle.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const seats = ['pstack.judgment-agent', 'pstack.strongest-agent', 'pstack.comment-sicko'];
@@ -155,7 +156,7 @@ export async function runReviewDiffFixture(options = {}) {
       cases: ['one parallel dispatch with all pstack seats and agent/task only', 'all children read lead-supplied main diff', 'write and edit rejected by actual child tool registry', 'evidence returned by all children', 'lead reads judgment framework after collection and synthesizes verdict'],
       limitation: 'Deterministic transport acceptance; no claim of live-model instruction adherence. Judgment/strongest shared production registration remains lead-owned.' };
   } finally {
-    session?.dispose();
+    await disposeTestSession(session);
     for (const registration of registrations) registration.dispose();
     server.closeAllConnections();
     if (server.listening) await new Promise(accept => server.close(accept));
