@@ -4,6 +4,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { dirname, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { checkSkillReferences } from './check-skill-references.mjs';
 
 const root = process.argv[2] ? resolve(process.argv[2]) : fileURLToPath(new URL('..', import.meta.url));
 const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
@@ -175,6 +176,8 @@ for (const file of documents) {
     assert(included(target), 'Published doc links an omitted file: ' + target);
   }
 }
+const references = await checkSkillReferences(root, { includeGenerated: true });
+assert(references.ok, 'Invalid skill/playbook references: ' + JSON.stringify(references.errors));
 const genCheck = spawnSync(process.execPath, [resolve(root, 'scripts/generate-pi-resources.mjs'), '--check'], { encoding: 'utf8' });
 assert.equal(genCheck.status, 0, 'Resource drift detected: ' + genCheck.stderr + genCheck.stdout);
 

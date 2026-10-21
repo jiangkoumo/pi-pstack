@@ -21,3 +21,17 @@ jobs:
         run: npm run check:generate
       - name: Upstream fidelity (overall 85%, every port 70%)
         run: npm run check:fidelity
+
+  verifier-sandbox:
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci --include=dev
+      - name: Enforce real verifier sandbox coverage
+        run: node --test scripts/verification-exec.test.mjs scripts/verifier-child.test.mjs
+        env:
+          PSTACK_VERIFY_REQUIRE_SANDBOX: "1"

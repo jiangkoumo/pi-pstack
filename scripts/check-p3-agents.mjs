@@ -69,7 +69,7 @@ assert.equal(poteto.definition.inheritSkills, false);
 const verifier = parsedAgents.get("pstack.verifier");
 const prose = parsedAgents.get("pstack.prose-writer");
 assert(verifier && prose, "Pi-specific role agents must be present");
-assert.deepEqual(verifier.definition.tools, ["read", "grep", "find", "ls"]);
+assert.deepEqual(verifier.definition.tools, ["read", "grep", "find", "ls", "verification_exec"]);
 assert.equal(verifier.definition.extensions, undefined);
 assert.deepEqual(prose.definition.tools, ["read", "edit", "write", "grep", "find", "ls"]);
 

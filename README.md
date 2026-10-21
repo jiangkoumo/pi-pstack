@@ -31,7 +31,7 @@
 
 ### 3. 多代理安全隔离与运行时角色注册
 * **运行时公开事件注册**：本扩展在会话启动时通过 `pi-subagents:runtime-agent-register:v1` 公开事件动态注册 `pstack.poteto-agent`（`code`）、`pstack.comment-sicko`（`review`）、`pstack.verifier`（`verification`）和 `pstack.prose-writer`（`prose`），完全解耦静态包导出与全局命名空间；
-* **物理只读审阅者 (`pstack.comment-sicko` / `pstack.verifier`)**：强制限定工具白名单为 `read, grep, find, ls`，物理禁用 `edit, write, bash, subagent`，并阻断外部 extensions 与 supervisor 桥接；
+* **受限审阅与验证**：comment-sicko 只获得原生读取工具与 `git_read`；verifier 另获 `verification_exec`，可在可用的 macOS/Linux OS 沙箱中执行测试、构建和 lint，拒绝网络及仓库写入。缺少可用沙箱会拒绝执行，不静默授予 shell。两者均无 `edit`、`write`、原生 `bash` 或嵌套委派；ambient 模型 provider 扩展保持可加载，工具白名单约束可调用能力；
 * **机械门禁与长程编排**：代码编写委派必须生成结构化 Handoff Patch，必须通过独立 Review 与命令验收；多阶段规划提供标准计划模板（`docs/templates/pstack-plan.md`）与 Node CLI 计划检查器（`scripts/check-plan.mjs`），未通过门禁前绝不应用补丁，严禁自动 commit 或 push。
 
 ### 4. 模式控制与多角色模型配置

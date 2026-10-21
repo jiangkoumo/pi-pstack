@@ -1,6 +1,6 @@
 # pi-pstack upstream fidelity
 
-Files: 111  flagged: 7  overall kept (excluding Cursor substitutions): 4222/4502 = 94%
+Files: 111  flagged: 4  overall kept (excluding Cursor substitutions): 4229/4501 = 94%
 
 Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
@@ -8,34 +8,33 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 |---|---|---|---|---|---|---|---|---|
 | skills/make-bot-ui/SKILL.md | 73 | 0 | 0 | 73 | 2 | 0 | MISSING | ! |
 | skills/setup-pstack/SKILL.md | 47 | 0 | 0 | 47 | 9 | 0 | MISSING | ! |
-| skills/swarm/SKILL.md | 35 | 24 | 4 | 4 | 3 | 28 | 75% | ! |
-| skills/show-me-your-work/SKILL.md | 66 | 55 | 5 | 5 | 1 | 35 | 85% | ! |
-| skills/why/SKILL.md | 104 | 85 | 1 | 10 | 8 | 42 | 88% | ! |
 | skills/poteto-mode/playbooks/orchestrate.md | 204 | 183 | 15 | 4 | 2 | 45 | 91% | ! |
 | skills/poteto-help/SKILL.md | 162 | 138 | 7 | 4 | 13 | 11 | 93% | ! |
+| skills/poteto-mode/playbooks/worktree-cleanup.md | 30 | 21 | 7 | 2 | 0 | 59 | 70% |  |
 | skills/how/SKILL.md | 24 | 16 | 5 | 1 | 2 | 22 | 73% |  |
 | skills/principle-sequence-verifiable-units/SKILL.md | 15 | 11 | 1 | 3 | 0 | 6 | 73% |  |
 | skills/poteto-mode/playbooks/runtime-forensics.md | 17 | 13 | 1 | 3 | 0 | 12 | 76% |  |
 | skills/reflect/SKILL.md | 55 | 37 | 7 | 3 | 8 | 32 | 79% |  |
 | skills/interrogate/SKILL.md | 52 | 39 | 5 | 3 | 5 | 29 | 83% |  |
+| skills/swarm/SKILL.md | 35 | 27 | 2 | 3 | 3 | 35 | 84% |  |
 | skills/poteto-mode/playbooks/trace-forensics.md | 24 | 21 | 1 | 2 | 0 | 10 | 88% |  |
 | skills/arena/SKILL.md | 45 | 33 | 3 | 1 | 8 | 33 | 89% |  |
 | skills/poteto-mode/playbooks/visual-parity.md | 19 | 17 | 1 | 1 | 0 | 9 | 90% |  |
 | skills/figure-it-out/SKILL.md | 44 | 40 | 3 | 1 | 0 | 30 | 91% |  |
 | skills/automate-me/SKILL.md | 93 | 83 | 6 | 1 | 3 | 36 | 92% |  |
 | skills/principle-explain-the-number/SKILL.md | 13 | 12 | 1 | 0 | 0 | 0 | 92% |  |
+| skills/recall/SKILL.md | 53 | 49 | 4 | 0 | 0 | 46 | 92% |  |
 | skills/principle-prove-it-works/SKILL.md | 14 | 13 | 0 | 1 | 0 | 2 | 93% |  |
 | skills/why/references/sources/code-archaeology.md | 14 | 13 | 1 | 0 | 0 | 9 | 93% |  |
 | skills/architect/SKILL.md | 61 | 56 | 2 | 2 | 1 | 34 | 93% |  |
-| skills/poteto-mode/playbooks/worktree-cleanup.md | 30 | 28 | 2 | 0 | 0 | 49 | 93% |  |
 | skills/maintain-verification-skill/SKILL.md | 47 | 44 | 3 | 0 | 0 | 30 | 94% |  |
-| skills/recall/SKILL.md | 53 | 50 | 3 | 0 | 0 | 34 | 94% |  |
+| skills/why/SKILL.md | 104 | 90 | 5 | 1 | 8 | 42 | 94% |  |
 | skills/no-comments/SKILL.md | 36 | 34 | 1 | 1 | 0 | 25 | 94% |  |
 | skills/poteto-mode/playbooks/shipping.md | 40 | 37 | 2 | 0 | 1 | 22 | 95% |  |
 | skills/poteto-mode/playbooks/autonomous-run.md | 21 | 19 | 1 | 0 | 1 | 42 | 95% |  |
 | skills/poteto-mode/playbooks/session-pickup.md | 20 | 19 | 1 | 0 | 0 | 37 | 95% |  |
 | skills/why/references/sources/slack.md | 20 | 19 | 1 | 0 | 0 | 8 | 95% |  |
-| skills/poteto-mode/SKILL.md | 235 | 215 | 8 | 3 | 9 | 123 | 95% |  |
+| skills/poteto-mode/SKILL.md | 235 | 214 | 8 | 3 | 10 | 131 | 95% |  |
 | skills/poteto-help/references/prompting.md | 44 | 42 | 2 | 0 | 0 | 5 | 96% |  |
 | skills/poteto-mode/playbooks/perf-issue.md | 23 | 21 | 1 | 0 | 1 | 36 | 96% |  |
 | skills/principle-boundary-discipline/SKILL.md | 22 | 21 | 0 | 1 | 0 | 2 | 96% |  |
@@ -44,6 +43,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/poteto-mode/playbooks/multi-phase-plan.md | 53 | 48 | 2 | 0 | 3 | 21 | 96% |  |
 | skills/poteto-mode/playbooks/bug-fix.md | 27 | 25 | 1 | 0 | 1 | 19 | 96% |  |
 | skills/poteto-mode/playbooks/feature.md | 31 | 30 | 1 | 0 | 0 | 26 | 97% |  |
+| skills/show-me-your-work/SKILL.md | 66 | 63 | 1 | 1 | 1 | 36 | 97% |  |
 | skills/teach/SKILL.md | 64 | 62 | 1 | 1 | 0 | 31 | 97% |  |
 | skills/poteto-mode/playbooks/refactoring.md | 34 | 32 | 1 | 0 | 1 | 37 | 97% |  |
 | skills/poteto-mode/playbooks/eval.md | 37 | 35 | 0 | 1 | 1 | 27 | 97% |  |
@@ -54,7 +54,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/why/references/synthesizer-prompt.md | 95 | 93 | 1 | 1 | 0 | 8 | 98% |  |
 | skills/blast-radius/SKILL.md | 51 | 50 | 0 | 1 | 0 | 29 | 98% |  |
 | skills/poteto-help/references/recipes.md | 58 | 57 | 0 | 1 | 0 | 7 | 98% |  |
-| skills/poteto-mode/playbooks/babysit.md | 104 | 102 | 1 | 0 | 1 | 25 | 99% |  |
+| skills/poteto-mode/playbooks/babysit.md | 104 | 102 | 1 | 0 | 1 | 36 | 99% |  |
 | agents/comment-sicko.md | 29 | 29 | 0 | 0 | 0 | 18 | 100% |  |
 | agents/poteto-agent.md | 10 | 8 | 0 | 0 | 2 | 2 | 100% |  |
 | skills/architect/references/design-red-flags.md | 38 | 38 | 0 | 0 | 0 | 0 | 100% |  |
@@ -76,7 +76,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/poteto-mode/playbooks/autopilot-full.md | 58 | 58 | 0 | 0 | 0 | 48 | 100% |  |
 | skills/poteto-mode/playbooks/autopilot-stack.md | 24 | 24 | 0 | 0 | 0 | 35 | 100% |  |
 | skills/poteto-mode/playbooks/investigation.md | 13 | 13 | 0 | 0 | 0 | 35 | 100% |  |
-| skills/poteto-mode/playbooks/opening-a-pr.md | 73 | 72 | 0 | 0 | 1 | 43 | 100% |  |
+| skills/poteto-mode/playbooks/opening-a-pr.md | 73 | 72 | 0 | 0 | 1 | 58 | 100% |  |
 | skills/poteto-mode/playbooks/pause-safely.md | 15 | 15 | 0 | 0 | 0 | 38 | 100% |  |
 | skills/poteto-mode/playbooks/prototype.md | 28 | 28 | 0 | 0 | 0 | 34 | 100% |  |
 | skills/principle-attack-the-premise/SKILL.md | 18 | 18 | 0 | 0 | 0 | 0 | 100% |  |
@@ -233,31 +233,6 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 - workspace, user, or plugin).
 - On no, move on without pushing.
 
-### skills/swarm/SKILL.md
-- generalPurpose, environment:
-- "cloud", runinbackground:
-- true, and the step 4 model, left unset for auto or inherit-parent.
-- When a worker must start from a non-default pushed branch, pass cloudbasebranch.
-
-### skills/show-me-your-work/SKILL.md
-- Use the helper scripts/log.sh <logfile> <phase> <decision> <why> <evidence> <result>.
-- A bare printf appending a row works too, but mind those same bytes if cells come from generated or user-supplied text.
-- Read this run's transcript under the active workspace's agent-transcripts/ directory (the system prompt names the path).
-- That reads unrelated private chats.
-- Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section of the poteto-mode skill.
-
-### skills/why/SKILL.md
-- Each spawn below names a role line in the pstack-models.mdc rule and a default.
-- Set model to that line's value, or to the default if the rule or the line is missing.
-- Leave model unset when the value is auto or inherit-parent.
-- If it rejects the default, use the closest valid slug of the same family from its error message.
-- Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section of the poteto-mode skill.
-- Every spawn is generalPurpose with readonly:
-- Use the available-tools map when present.
-- Source control is always available through git and gh.
-- Don't ask one agent to cover multiple MCPs.
-- Always spawn, the only guaranteed source.
-
 ### skills/poteto-mode/playbooks/orchestrate.md
 - "cloud" unless the task needs this machine:
 - Reading local transcripts under agent-transcripts/.
@@ -269,6 +244,10 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 - Guide page 2 has examples.
 - Guide page 6 covers opening, babysitting, and landing a PR.
 - Guide page 9 covers each of these.
+
+### skills/poteto-mode/playbooks/worktree-cleanup.md
+- The transcript scan is slow, so background it.
+- Per Autonomy, clean and merged and not-in-use proceeds.
 
 ### skills/how/SKILL.md
 - generalPurpose and readonly:
@@ -293,6 +272,11 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 - generalPurpose, readonly:
 - With no family match, use Reviewer A's default.
 
+### skills/swarm/SKILL.md
+- generalPurpose, environment:
+- "cloud", runinbackground:
+- true, and the step 4 model, left unset for auto or inherit-parent.
+
 ### skills/poteto-mode/playbooks/trace-forensics.md
 - Parse large artifacts in a subagent (the principle-guard-the-context-window skill) and keep the reduced finding in the main thread.
 - Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section.
@@ -316,6 +300,9 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 - Take the runners from the architect runners line in the pstack-models.mdc rule, in place of the arena runners line.
 - Alias and rejected entries follow the runner rules in the arena skill's Phase A.
 
+### skills/why/SKILL.md
+- Every spawn is generalPurpose with readonly:
+
 ### skills/no-comments/SKILL.md
 - Spawn Task with subagenttype:
 
@@ -329,6 +316,9 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
 ### skills/benchmark-checklist/SKILL.md
 - Check the load average with uptime and the core count with nproc.
+
+### skills/show-me-your-work/SKILL.md
+- A bare printf appending a row works too, but mind those same bytes if cells come from generated or user-supplied text.
 
 ### skills/teach/SKILL.md
 - Generate that picture, don't settle for describing it in words.

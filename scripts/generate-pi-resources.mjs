@@ -160,7 +160,7 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
       // extension in the child, including a provider extension needed to resolve a
       // provider-qualified model. Read-only safety comes from the tool allowlist.
       assert(fields.extensions === undefined, 'Read-only agent must not declare extensions; an empty list also disables ambient provider extensions: ' + entry.destination);
-      const allowedReadOnly = ['read', 'grep', 'find', 'ls', 'git_read'];
+      const allowedReadOnly = ['read', 'grep', 'find', 'ls', 'git_read', ...(entry.destination === 'agents/verifier.md' ? ['verification_exec'] : [])];
       for (const t of toolsList) {
         assert(allowedReadOnly.includes(t), 'Forbidden tool granted to read-only agent: ' + t + ' in ' + entry.destination);
       }

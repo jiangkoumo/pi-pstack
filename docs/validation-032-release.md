@@ -36,8 +36,20 @@
 
 主控在before_agent_start对recall触发请求注入精确workspaceSessionDir路径和先读recall技能的要求，禁止列sessions根或依HOME换目录。新增B2行为回归在实现前exit1，实现后p2-runtime 9/9 exit0。主仓库 `npm test && git diff --check` exit0：163 tests、0 fail、0 skipped，61.6秒。真实路由仍保留子分支44/46记录，入口修复后尚未复测，不把提示注入当作模型遵循。
 
+## 分支集成与生产入口验收
+
+操作者批准后按 #11→#12→#13→#14→#15→#16 合并；第二个开始先rebase最新main并跑相关检查。集成基线bd7b1f8，后续共享接线由主控完成：publication gate在生产入口注册，verifier注册verification_exec，generator只对verifier允许该工具，check-package检查模板及生成资源引用，五项新增测试与两个生产host/child测试均进入npm test。
+
+- 最新 `npm test && npm run check:generate && git diff --check`：exit0，216 tests、216 pass、0 fail、0 skipped，53.1秒；117 checked、0 unmanaged。
+- `PSTACK_VERIFY_REQUIRE_SANDBOX=1 node --test scripts/verifier-child.test.mjs`：exit0，真实生产注册的detached pstack.verifier使用verification_exec执行fixture项目npm test，exit0；write与push请求均被拒；4个真实child provider请求。provider为本地确定性SSE，证明真实工具/子进程传输，不是live模型遵循测试。
+- `node --test scripts/publication-host.test.mjs`：exit0，生产Pi入口真实拦截坏commit与坏PR请求，并创建唯一一个Conventional commit。没有创建外部PR。
+- `npm run check:fidelity`：exit0，111文件，4229/4501=93.9569%，errors=[]。worktree-cleanup初始66.67%失败，恢复适用上游句式/简化内嵌调用后21/30=70%，无allow豁免。
+- `node scripts/routing.test.mjs --live --cases sk-recall-last,sk-recall-prior ...`：首次集成运行1pass/1fail；last错误地把目录内下划线改成连字符。入口增加逐字复制精确路径后，last定向重放exit0/1pass，prior在前轮已通过。累计46项均有真实通过记录，但尚非单次全量46/46；最终全量正在执行。
+
+CI增加macos verifier-sandbox任务并设置PSTACK_VERIFY_REQUIRE_SANDBOX=1，缺沙箱不能skip冒充通过；publish依赖此任务成功。Linux常规suite仍可明确skip未安装bwrap的沙箱用例，最终以独立macOS任务验证能力。
+
 ## 仍待完成
 
-Issues #11–#16分支产物、独立审阅与用户批准合并，扩展机械门禁/验证工具真实接线、真实PR验收、46项真实路由验收、两脚本transcript证据、保真度报告、Changelog与0.3.2版本。
+最终干净clone与远端CI、完整46路由结果、真实外部PR验收、所有最终证据归档、0.3.2版本与CI发布。swarm84.38%仍未达到90%；严格禁网下本库完整npm test无法在verifier沙箱执行（fixture项目npm test已验收）。
 
 npm网页已登录。Trusted Publisher已填写为GitHub Actions、jiangkoumo/pi-pstack、publish.yml、Environment空，仅Allow npm publish；提交现停在Security key二次验证，TaskSpace54已handOff，连接尚未确认保存。禁止本机npm publish 0.3.2。最终CI和registry结果尚不存在。

@@ -74,7 +74,7 @@ test('Pi-specific role agents preserve tool boundaries and are not attributed to
     assert.equal(await readFile(resolve(dir, entry.destination), 'utf8'), await readFile(resolve(dir, entry.adaptation.override), 'utf8'));
   }
   const verifier = await readFile(resolve(dir, 'agents/verifier.md'), 'utf8');
-  assert.match(verifier, /^tools: read, grep, find, ls$/m);
+  assert.match(verifier, /^tools: read, grep, find, ls, verification_exec$/m);
   assert.doesNotMatch(verifier, /^extensions:/m, 'Read-only agents must leave extensions unset so ambient provider extensions load');
   assert.match(verifier, /^excludeTools: contact_supervisor$/m);
   const sicko = await readFile(resolve(dir, 'agents/comment-sicko.md'), 'utf8');

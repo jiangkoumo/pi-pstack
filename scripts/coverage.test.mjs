@@ -166,7 +166,9 @@ test('task 2: diagnostic and visual playbooks preserve evidence and do not imply
   assert.match(visual, /no baseline tampering/);
   const trail = await load('show-me-your-work');
   assert(localLinks(trail).includes('references/decision-log-template.tsv'));
-  assert.doesNotMatch(trail, /scripts\/log\.sh|agent-transcripts\/|printf/);
+  assert.match(trail, /helper .*scripts\/log\.sh.*not shipped/);
+  assert.match(trail, /otherwise read only the active Pi session branch/);
+  assert.doesNotMatch(trail, /Use the helper scripts\/log\.sh/);
   assert.equal((await read('skills/show-me-your-work/references/decision-log-template.tsv')).trim(), 'ts\tphase\tdecision\twhy\tevidence\tresult');
 });
 

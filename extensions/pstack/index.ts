@@ -10,12 +10,16 @@ import { ROLE_AGENTS, createRoleAgentController, guardPstackTopLevelModel } from
 import { loadModeState, saveModeState, sessionModeStatePath } from './mode-state.mjs';
 import { runGitRead, renderGitReadResult } from './git-read.mjs';
 import { workspaceSessionDir } from '../../scripts/session-context.mjs';
+import { registerPublicationGate } from './publication-gate.mjs';
+import { createVerificationTool } from './verification-exec.mjs';
 
 export default function pstack(pi: ExtensionAPI) {
   const skillPath = fileURLToPath(new URL('../../skills/poteto-mode/SKILL.md', import.meta.url));
   const agentsDir = fileURLToPath(new URL('../../agents', import.meta.url));
   const roleController = createRoleAgentController(pi, agentsDir);
   registerLoopAbortHooks(pi);
+  registerPublicationGate(pi);
+  if (typeof pi.registerTool === 'function') pi.registerTool(createVerificationTool());
   const levels = (model: Model<any>) => model.reasoning ? getSupportedThinkingLevels(model) : ['off'];
   // Hosts that predate registerTool (and narrow unit fixtures) must still load the
   // rest of the extension; the reviewer tool is additive, not a load requirement.
@@ -147,7 +151,7 @@ export default function pstack(pi: ExtensionAPI) {
         event.systemPromptOptions.sections[MODE_SECTION] += [
           '',
           `Read ${JSON.stringify(recallPath)} before any session discovery or transcript access for this recall request.`,
-          `The only authorized workspace session directory for this request is ${JSON.stringify(sessionDir)}.`,
+          `The only authorized workspace session directory for this request is ${JSON.stringify(sessionDir)}. Copy this exact path byte-for-byte; preserve underscores and punctuation and do not recompute its slug.`,
           'Never list or search the sessions root, enumerate sibling workspace directories, or infer a different agent directory from HOME. Read only matching transcripts inside the exact directory above; exclude the current session.',
         ].join('\n');
       }
