@@ -1,15 +1,15 @@
 # pi-pstack upstream fidelity
 
-Files: 111  flagged: 4  overall kept (excluding Cursor substitutions): 4231/4501 = 94%
+Files: 114  flagged: 4  overall kept (excluding Cursor substitutions): 4443/4722 = 94%
 
 Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
 | File | Upstream | Kept | Reworded | Lost | Cursor subst | Port-only | Kept % | Flag |
 |---|---|---|---|---|---|---|---|---|
 | skills/make-bot-ui/SKILL.md | 73 | 0 | 0 | 73 | 2 | 0 | MISSING | ! |
-| skills/setup-pstack/SKILL.md | 47 | 0 | 0 | 47 | 9 | 0 | MISSING | ! |
+| skills/setup-pstack/SKILL.md | 53 | 0 | 0 | 53 | 9 | 0 | MISSING | ! |
+| skills/poteto-help/SKILL.md | 173 | 144 | 7 | 8 | 14 | 12 | 91% | ! |
 | skills/poteto-mode/playbooks/orchestrate.md | 204 | 183 | 15 | 4 | 2 | 45 | 91% | ! |
-| skills/poteto-help/SKILL.md | 162 | 138 | 7 | 4 | 13 | 11 | 93% | ! |
 | skills/poteto-mode/playbooks/worktree-cleanup.md | 30 | 21 | 7 | 2 | 0 | 59 | 70% |  |
 | skills/how/SKILL.md | 24 | 16 | 5 | 1 | 2 | 22 | 73% |  |
 | skills/principle-sequence-verifiable-units/SKILL.md | 15 | 11 | 1 | 3 | 0 | 6 | 73% |  |
@@ -34,7 +34,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/poteto-mode/playbooks/autonomous-run.md | 21 | 19 | 1 | 0 | 1 | 42 | 95% |  |
 | skills/poteto-mode/playbooks/session-pickup.md | 20 | 19 | 1 | 0 | 0 | 37 | 95% |  |
 | skills/why/references/sources/slack.md | 20 | 19 | 1 | 0 | 0 | 8 | 95% |  |
-| skills/poteto-mode/SKILL.md | 235 | 214 | 8 | 3 | 10 | 140 | 95% |  |
+| skills/poteto-mode/SKILL.md | 235 | 214 | 8 | 3 | 10 | 143 | 95% |  |
 | skills/poteto-help/references/prompting.md | 44 | 42 | 2 | 0 | 0 | 5 | 96% |  |
 | skills/poteto-mode/playbooks/perf-issue.md | 23 | 21 | 1 | 0 | 1 | 36 | 96% |  |
 | skills/principle-boundary-discipline/SKILL.md | 22 | 21 | 0 | 1 | 0 | 2 | 96% |  |
@@ -52,7 +52,6 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/reflect/references/synthesizer.md | 49 | 47 | 0 | 1 | 1 | 1 | 98% |  |
 | skills/why/references/synthesizer-prompt.md | 95 | 93 | 1 | 1 | 0 | 8 | 98% |  |
 | skills/benchmark-checklist/SKILL.md | 50 | 49 | 0 | 1 | 0 | 29 | 98% |  |
-| skills/poteto-help/references/recipes.md | 58 | 57 | 0 | 1 | 0 | 7 | 98% |  |
 | skills/poteto-mode/playbooks/babysit.md | 104 | 102 | 1 | 0 | 1 | 36 | 99% |  |
 | agents/comment-sicko.md | 29 | 29 | 0 | 0 | 0 | 18 | 100% |  |
 | agents/poteto-agent.md | 10 | 8 | 0 | 0 | 2 | 2 | 100% |  |
@@ -62,6 +61,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/blast-radius/SKILL.md | 51 | 51 | 0 | 0 | 0 | 30 | 100% |  |
 | skills/bro/SKILL.md | 3 | 3 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/correct/SKILL.md | 28 | 28 | 0 | 0 | 0 | 22 | 100% |  |
+| skills/create-formal-verification-skill/SKILL.md | 51 | 51 | 0 | 0 | 0 | 39 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/README.md | 34 | 34 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/create-note.md | 36 | 36 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/search.md | 50 | 50 | 0 | 0 | 0 | 0 | 100% |  |
@@ -71,7 +71,9 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/interrogate/references/lead-judgment.md | 29 | 29 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/interrogate/references/reviewer-prompt.md | 29 | 29 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/interrogate/references/rubric.md | 63 | 63 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/ketchup/SKILL.md | 66 | 66 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/ketchup/SKILL.md | 82 | 82 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/maintain-formal-verification-skill/SKILL.md | 81 | 81 | 0 | 0 | 0 | 29 | 100% |  |
+| skills/poteto-help/references/recipes.md | 63 | 63 | 0 | 0 | 0 | 5 | 100% |  |
 | skills/poteto-mode/playbooks/authoring-a-skill.md | 12 | 11 | 0 | 0 | 1 | 25 | 100% |  |
 | skills/poteto-mode/playbooks/autopilot-full.md | 58 | 58 | 0 | 0 | 0 | 48 | 100% |  |
 | skills/poteto-mode/playbooks/autopilot-stack.md | 24 | 24 | 0 | 0 | 0 | 35 | 100% |  |
@@ -102,10 +104,11 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/reflect/references/divergent-reviewer.md | 48 | 46 | 0 | 0 | 2 | 0 | 100% |  |
 | skills/reflect/references/judgment-reviewer.md | 44 | 42 | 0 | 0 | 2 | 0 | 100% |  |
 | skills/reflect/references/tooling-reviewer.md | 54 | 52 | 0 | 0 | 2 | 0 | 100% |  |
-| skills/sharpen/SKILL.md | 4 | 4 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/sharpen/SKILL.md | 8 | 8 | 0 | 0 | 0 | 4 | 100% |  |
+| skills/statechart/SKILL.md | 47 | 47 | 0 | 0 | 0 | 23 | 100% |  |
 | skills/tdd/SKILL.md | 32 | 32 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/technical-writing/SKILL.md | 136 | 136 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/typescript-best-practices/SKILL.md | 32 | 32 | 0 | 0 | 0 | 1 | 100% |  |
+| skills/typescript-best-practices/SKILL.md | 33 | 33 | 0 | 0 | 0 | 1 | 100% |  |
 | skills/typescript-best-practices/references/patterns.md | 67 | 67 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/unslop/SKILL.md | 64 | 64 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/why/references/epistemics.md | 72 | 72 | 0 | 0 | 0 | 7 | 100% |  |
@@ -232,18 +235,28 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 - I can generate one with /create-verification-skill." On yes, invoke /create-verification-skill (resolves wherever pstack is installed:
 - workspace, user, or plugin).
 - On no, move on without pushing.
+- Offer a formal verification skill (optional)
+- Check whether the project already has a formal verification skill (a project skill that runs a model checker, a proof, or another verifier against the code).
+- "want a formal verification skill, so agents can prove a key property of your code holds in every case in scope, not only the cases tests reach?
+- I can generate one with /create-formal-verification-skill." On yes, invoke /create-formal-verification-skill (resolves wherever pstack is installed:
+- workspace, user, or plugin).
+- On no, move on without pushing.
+
+### skills/poteto-help/SKILL.md
+- Install with /add-plugin pstack in chat, or from Customize in the sidebar.
+- Then it offers once each to generate a verification skill and a formal verification skill for the project, unless the project already has one.
+- There, each command takes a pstack:
+- prefix, such as /pstack:poteto-mode.
+- Other tools can read the skills, because they use the Agent Skills format.
+- Guide page 2 has examples.
+- Guide page 6 covers opening, babysitting, and landing a PR.
+- Guide page 9 covers each of these.
 
 ### skills/poteto-mode/playbooks/orchestrate.md
 - "cloud" unless the task needs this machine:
 - Reading local transcripts under agent-transcripts/.
 - The dead session's store lock clears itself on the next write.
 - orch replaces a lock whose holder pid is gone.
-
-### skills/poteto-help/SKILL.md
-- Install with /add-plugin pstack in chat, or from Customize in the sidebar.
-- Guide page 2 has examples.
-- Guide page 6 covers opening, babysitting, and landing a PR.
-- Guide page 9 covers each of these.
 
 ### skills/poteto-mode/playbooks/worktree-cleanup.md
 - The transcript scan is slow, so background it.
@@ -337,6 +350,3 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
 ### skills/benchmark-checklist/SKILL.md
 - Check the load average with uptime and the core count with nproc.
-
-### skills/poteto-help/references/recipes.md
-- /recall my work on <topic> from last week, then read <issue>.

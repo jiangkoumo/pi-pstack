@@ -65,13 +65,13 @@ function sessionPathScope(path, { workspace, sessionRoot, expectedSessionsDir })
 }
 
 function registerOfflineTests() {
-test('routing manifest keeps its labeled reconstruction provenance and extends it to 50 cases', () => {
+test('routing manifest keeps its labeled reconstruction provenance and extends it to 53 cases', () => {
   assert.equal(CASES.version, 1);
   assert.equal(CASES.mode, 'on');
   assert.equal(CASES.source.kind, 'reconstructed');
   assert.match(CASES.source.note, /original 46-case list .* was not supplied/i);
   assert.match(CASES.source.note, /must not be described as one/i);
-  assert.equal(CASES.cases.length, 50, 'Original 46 Issue #14 cases plus 2 Issue #20 ketchup cases plus 2 Issue #24 sharpen reversal cases');
+  assert.equal(CASES.cases.length, 53, 'Original 46 cases plus ketchup/sharpen additions and three Phase B formal/statechart routes');
 });
 
 test('every routing case has a unique id and a declared hit', () => {
@@ -132,7 +132,15 @@ test('routing manifest keeps the original 46 cases and adds two ketchup cases', 
   for (const id of ['sk-tdd-tdd', 'sk-sharpen-rewrite']) {
     assert(CASES.cases.some(item => item.id === id), `Keep the original case: ${id}`);
   }
-  assert.equal(CASES.cases.length, 50, 'Issue #20 must keep the original 46 cases and add 2, and Issue #24 adds 2 sharpen reversal cases, for 50 total');
+  assert.equal(CASES.cases.length, 53, 'Keep the original 50 cases and add three Phase B formal/statechart routes');
+});
+
+test('formal creation, maintenance and statechart each have an explicit bundled route', async () => {
+  const text = await readFile(POTETO_TEMPLATE, 'utf8');
+  for (const name of ['create-formal-verification-skill', 'maintain-formal-verification-skill', 'statechart']) {
+    assert(CASES.cases.some(item => item.expect.skill === name));
+    assert(text.includes(`../${name}/SKILL.md`));
+  }
 });
 
 test('sharpen cases exercise the deepened-then-rewritten reversal from Issue #24', async () => {
