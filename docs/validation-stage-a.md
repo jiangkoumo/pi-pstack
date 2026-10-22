@@ -27,7 +27,7 @@ The baseline was 4229/4501 = 93.956898%, which failed the exact 94% requirement 
 | `skills/poteto-help/SKILL.md` | 138 kept out of 149 non-substitution sentences; four lost sentences are the Cursor installation entry and references to guide pages 2, 6, and 9 that are not distributed with this package. |
 | `skills/poteto-mode/playbooks/orchestrate.md` | 183 kept out of 202 non-substitution sentences; four lost sentences concern cloud-default selection, Cursor transcript paths, and the upstream store-lock recovery service. The Pi adapter documents the local orchestration substitute and does not claim that service. |
 
-## Pending
+## Integration and remaining acceptance
 
 The three implementation branches were merged locally in order #18, #19, #20 after user approval. #19 and #20 were rebased onto the updated main before their checks and merges. Shared integration connects npm check/test to the bounded runner, adds verifier capability to both status commands, updates verifier documentation, and wires the ketchup override before regenerating four resources.
 
@@ -40,5 +40,7 @@ Fresh-context read-only review used two new dsh-tui conversations. The lifecycle
 Remaining acceptance gaps: p-queue external PR evidence, the same-model long-task prompting count, and OS isolation in the degraded path. A temporary worktree plus command/environment restrictions cannot enforce scratch-only writes or prevent network access; degraded results explicitly say so. Existing fixtures and earlier releases do not substitute for those checks.
 
 Final integrated `npm test` completed all 33 bounded checks in 60575ms: 243 pass, 0 fail, 0 skipped. `npm pack --dry-run --ignore-scripts --json` returned exit 0, version 0.3.3, 516 files including CHANGELOG.md. The three clean, merged worktrees were removed with `herdr worktree remove` (exit 0 for w18, w19, w1A); `herdr worktree list` and `git worktree list --porcelain` show only the main checkout. Branch refs are retained.
+
+Final clean-clone `npm run check:ci` produced `status: passed` for committed `d50262bd981c799e7ab672383a850705623c567e`. The clone started clean; `npm ci --include=dev && npm test` took 65557ms, with 243 tests passed, 0 failed, 0 skipped. Generated-resource checking passed (117 checked, 0 unmanaged), and fidelity passed at 4231/4501 (94.001333%). The check process exited and was confirmed absent; full local output is `/tmp/pi-pstack-stage-a-final-ci.log`. This is local CI-equivalent evidence, not a GitHub Actions run.
 
 Local merge/rebase and removal of the three completed worktrees were explicitly authorized. No push, tag, publish, or global installation has been performed. Remote check/publish status cannot be established for unpushed changes.
