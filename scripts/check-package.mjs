@@ -168,6 +168,18 @@ for (const file of documents) {
     assert(content.includes('license: MIT'));
   }
 }
+// The name/folder rule must hold for every skill directory, not only for the
+// SKILL.md files the document walk happened to find: a directory without a
+// SKILL.md, or one whose declared name drifts from its folder, is a discovery
+// bug in the package rather than a document to link-check.
+for (const entry of await readdir(resolve(root, 'skills'), { withFileTypes: true })) {
+  if (!entry.isDirectory()) continue;
+  const skillFile = resolve(root, 'skills', entry.name, 'SKILL.md');
+  let body;
+  try { body = await readFile(skillFile, 'utf8'); } catch { assert.fail('Skill directory has no SKILL.md: ' + entry.name); }
+  const declared = body.match(/^name: (.+)$/m)?.[1];
+  assert.equal(declared, entry.name, 'Skill name must match its folder: ' + entry.name + ' declares ' + declared);
+}
 const included = (relativePath) => ['README.md', 'package.json', 'LICENSE'].includes(relativePath) || manifest.files.some(entry => entry.endsWith('/') ? relativePath.startsWith(entry) : relativePath === entry);
 for (const file of documents) {
   const content = await readFile(file, 'utf8');
