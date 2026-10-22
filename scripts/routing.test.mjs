@@ -12,7 +12,12 @@ const execFileAsync = promisify(execFile);
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CASES_PATH = resolve(ROOT, 'scripts/routing-cases.json');
 const POTETO_TEMPLATE = resolve(ROOT, 'adapters/pi/overrides/skills/poteto-mode/SKILL.md.template');
+const RECALL_TEMPLATE = resolve(ROOT, 'adapters/pi/overrides/skills/recall/SKILL.md.template');
+const KETCHUP_TEMPLATE = resolve(ROOT, 'adapters/pi/overrides/skills/ketchup/SKILL.md.template');
 const CASES = JSON.parse(await readFile(CASES_PATH, 'utf8'));
+
+const stripFrontmatter = text => text.replace(/^---\n[\s\S]*?\n---\n/, '').trim();
+const frontmatterDescription = text => text.match(/^description: "(.*)"$/m)?.[1] ?? '';
 const LIVE = process.argv.includes('--live');
 const MAX_CASE_TIMEOUT_MS = 45000;
 
@@ -60,13 +65,13 @@ function sessionPathScope(path, { workspace, sessionRoot, expectedSessionsDir })
 }
 
 function registerOfflineTests() {
-test('routing manifest is a labeled 46-case reconstruction, not the original report', () => {
+test('routing manifest keeps its labeled reconstruction provenance and extends it to 48 cases', () => {
   assert.equal(CASES.version, 1);
   assert.equal(CASES.mode, 'on');
   assert.equal(CASES.source.kind, 'reconstructed');
   assert.match(CASES.source.note, /original 46-case list .* was not supplied/i);
   assert.match(CASES.source.note, /must not be described as one/i);
-  assert.equal(CASES.cases.length, 46, 'Issue #14 requires 46 request cases');
+  assert.equal(CASES.cases.length, 48, 'Original 46 Issue #14 cases plus 2 Issue #20 ketchup cases');
 });
 
 test('every routing case has a unique id and a declared hit', () => {
@@ -113,7 +118,56 @@ test('poteto-mode no longer keeps substitute rows or phantom skill references', 
   assert.doesNotMatch(template, /^\| recall \|/m);
   assert.doesNotMatch(template, /create-skill/);
   assert.match(template, /references\/bugbot-triage\.md/);
-  assert.match(template, /The ported \[Recall\]\(\.\.\/recall\/SKILL\.md\) and \[Automate me\]/);
+  assert.match(template, /The ported \[Ketchup\]\(\.\.\/ketchup\/SKILL\.md\), \[Recall\]\(\.\.\/recall\/SKILL\.md\) and \[Automate me\]/);
+});
+
+test('routing manifest keeps the original 46 cases and adds two ketchup cases', () => {
+  const ketchup = CASES.cases.filter(item => item.expect.skill === 'ketchup');
+  assert.equal(ketchup.length, 2, 'Issue #20 adds two current-conversation ketchup cases');
+  for (const item of ketchup) {
+    assert.equal(item.category, 'skill', `ketchup case must be a skill hit: ${item.id}`);
+    assert.match(item.request, /this conversation|总结一下这次对话/, `ketchup case must name this conversation: ${item.id}`);
+  }
+  assert.equal(CASES.cases.filter(item => item.expect.skill === 'recall').length, 4, 'Keep the four past-session recall cases');
+  for (const id of ['sk-tdd-tdd', 'sk-sharpen-rewrite']) {
+    assert(CASES.cases.some(item => item.id === id), `Keep the original case: ${id}`);
+  }
+  assert.equal(CASES.cases.length, 48, 'Issue #20 must keep the original 46 cases and add 2, for 48 total');
+});
+
+test('ketchup template keeps the pinned body and scopes itself to this chat', async () => {
+  const [template, upstream] = await Promise.all([
+    readFile(KETCHUP_TEMPLATE, 'utf8'),
+    readFile(resolve(ROOT, 'upstream/pstack/skills/ketchup/SKILL.md'), 'utf8'),
+  ]);
+  assert.equal(stripFrontmatter(template), stripFrontmatter(upstream), 'ketchup body must stay identical to the pinned upstream body');
+  const description = frontmatterDescription(template);
+  assert.match(description, /catch me up on this conversation/i);
+  assert.match(description, /总结一下这次对话/);
+  assert.match(description, /past sessions|earlier days|another session id/i);
+  assert.match(description, /ketchup, not recall|not recall/i);
+});
+
+test('recall description defers this conversation to ketchup and stays on past sessions', async () => {
+  const template = await readFile(RECALL_TEMPLATE, 'utf8');
+  const description = frontmatterDescription(template);
+  assert.match(description, /ketchup/);
+  assert.match(description, /this conversation|this chat/i);
+  assert.match(description, /past sessions|earlier sessions|earlier days|past work/i);
+});
+
+test('poteto-mode routes this-chat catch-up to ketchup and past sessions to recall', async () => {
+  const template = await readFile(POTETO_TEMPLATE, 'utf8');
+  assert(template.includes('../ketchup/SKILL.md'), 'poteto-mode must link the ketchup skill');
+  const routingLines = template.split('\n').filter(line => line.startsWith('- '));
+  const ketchupLine = routingLines.find(line => line.includes('**ketchup** skill'));
+  assert(ketchupLine, 'poteto-mode must add a ketchup route');
+  assert.match(ketchupLine, /this conversation|this chat/i);
+  assert.match(ketchupLine, /总结一下这次对话/);
+  const recallLine = routingLines.find(line => line.includes('**recall** skill'));
+  assert(recallLine, 'poteto-mode must keep a recall route');
+  assert.match(recallLine, /past sessions|earlier days|another session id/i);
+  assert.doesNotMatch(recallLine, /catch up/i);
 });
 
 test('skill reference checker fails unknown links and phantom skills, passes real reference files', async t => {

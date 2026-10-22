@@ -2,9 +2,10 @@
   "version": 1,
   "source": {
     "kind": "reconstructed",
-    "note": "The original 46-case list from the 0.3.1 retest report was not supplied. These 46 cases are a reproducible reconstruction from the pinned upstream poteto-mode routing table plus the routes named in Issue #14. They are not a replay of the original report and must not be described as one.",
+    "note": "The original 46-case list from the 0.3.1 retest report was not supplied. The original 46 cases are a reproducible reconstruction from the pinned upstream poteto-mode routing table plus the routes named in Issue #14, and all 46 stay intact. Issue #20 adds two current-conversation ketchup cases as a supplementary pair, so the manifest is 48 = original 46 + 2. These are not a replay of the original report and must not be described as one.",
     "upstream": "pstack/skills/poteto-mode/SKILL.md at f713f14203cd6420cec13cd7c55c32d598dbab68",
     "issue": 14,
+    "revisedBy": 20,
     "reconstructedAt": "2026-10-21"
   },
   "mode": "on",
@@ -200,6 +201,18 @@
       "category": "skill",
       "request": "we improved routing speed by 30%, check the benchmark before we report it",
       "expect": { "skill": "benchmark-checklist" }
+    },
+    {
+      "id": "sk-ketchup-current",
+      "category": "skill",
+      "request": "catch me up on this conversation",
+      "expect": { "skill": "ketchup" }
+    },
+    {
+      "id": "sk-ketchup-zh",
+      "category": "skill",
+      "request": "总结一下这次对话",
+      "expect": { "skill": "ketchup" }
     },
     {
       "id": "sk-recall-what",
