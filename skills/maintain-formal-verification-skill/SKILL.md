@@ -57,3 +57,27 @@ Tell the user, for each check:
 Say outright which failures were drift in the verification and which were bugs in the code. For a check that passed before you updated it and fails after, say that the old pass was on a stale description.
 
 Put the verification updates in a change of their own, separate from any product fix.
+
+## Pi execution and authority
+
+Adapted from Lauren Tan's pstack v0.15.30, MIT, fixed revision eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10. Read the [Pi adapter](../../adapters/pi/harness.md) for host mappings.
+
+### Find the checks in Pi
+
+A verify skill in this host is project-local: `.pi/skills/<verify-area>/SKILL.md`. Find a check by what it does, not by its name — search the project skills for `tlc`, `verification_exec`, `*.tla`, or the property file — then read each candidate with `read` and use the one the user named if there is a choice. If no verify skill exists, stop and point at `/skill:create-formal-verification-skill`. If a skill records no sync commit, use the last commit that touched the verification files and say that you did. A verify skill with no runnable command is not maintainable: report it as blocked and send the user back to the create skill.
+
+### Run each check for real
+
+Probe the tool before rerunning: Java 11 or later plus an operator-configured `tla2tools.jar`, declared through `TLA2TOOLS_JAR` (or the older `TLA2TOOLS`) or through `tla.tla2toolsJar` in a trusted `.pi/pstack.json`; `/setup-pstack status` and `/poteto-mode status` expose the resulting `tlc` field. Run TLC only through `verification_exec` with `{command: 'tlc', spec: 'repo/path/Spec.tla', config: 'repo/path/Spec.cfg', options: [...]}` on real repository-relative `.tla` and `.cfg` paths with whitelisted options, either through `pstack.verifier` or, where no verifier integration is available, from the parent shell with that boundary recorded. Never download, install or repoint a JDK or a jar. A pass is TLC completing with no violation and no tool error; a stub java, a generated model file, a loaded session, or an unexecuted skill body is not a result.
+
+With no TLC, report 未做形式化验证，原因是缺少 TLC and mark the check `blocked` rather than `in sync` or `updated`. A generated-input fallback can show the promise still holds on the real code, and that is worth reporting, but it is fallback test coverage, not a rerun of the formal check, and the sync commit does not move.
+
+### Verification-only edit scope in Pi
+
+Edit only the verification: the project verify skill, its models, harnesses and property files under `.pi/skills/<verify-area>/`, and the model or config files that skill names. Never edit product code during a maintenance run, even when a one-line fix would clear a counterexample; report it instead. Keep drift and bug apart: a failing or stale check whose model or harness no longer describes the current code is drift, and you fix the verification; code that breaks a promise which did not change on purpose is a bug, and you report it with the introducing commit. Say outright which one each finding was.
+
+### Keep the failing run honest
+
+After an update, rerun, then break the new real code once the way the property guards against, confirm the check fails with the counterexample in the code's words, and restore the break exactly so the tree carries nothing of it. Report that break, the command, and the exit status, because a check that passes on a new description may have lost the ability to fail. Record the new sync commit — the commit you actually re-ran at — plus the bounds and assumptions you kept or changed, and tell the reader what the verification still does not cover. Do not move the sync commit for a blocked check. Follow the verify skill once as the next agent would after updating it.
+
+Loading this skill grants no permission to commit, push, merge, deploy, delete, or send messages; put verification updates in their own change, separate from any product fix. A run that never executed the entry is a draft, and the report must say so.

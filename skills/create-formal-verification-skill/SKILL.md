@@ -40,3 +40,31 @@ Follow the generated skill once, as the next agent would, on a scratch change th
 ## Hand off
 
 Tell the user what you verified, which tool you used and why, the bounds, what the check found in plain words, how to run it, and what it does not cover. Suggest a second target only if you found a close one. Point the user at `/maintain-formal-verification-skill` for bringing the verification back in line after changes that did not recheck it.
+
+## Pi execution and authority
+
+Adapted from Lauren Tan's pstack v0.15.30, MIT, fixed revision eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10. Read the [Pi adapter](../../adapters/pi/harness.md) for host mappings.
+
+### Write the generated skill where Pi loads it
+
+Write the generated skill to `.pi/skills/<verify-area>/SKILL.md` in the target repo, with `name: <verify-area>` matching its directory and a description that names the area and the property it guards. That is the project skill path Pi discovers: read it back with `read .pi/skills/<verify-area>/SKILL.md`, or invoke it as `/skill:<verify-area>`. After writing or renaming it, reload the session with `/reload` and confirm the skill is discovered with no name or frontmatter diagnostic. Discovery is not a run; the skill still owes the breaks below before it counts as done. Do not install it into `~/.pi/agent/skills/` and do not change global Pi configuration to make it appear — a project-local verify skill belongs to the repo you generated it for.
+
+### Probe the tool before you model
+
+Check the tool the question needs before you write a model. For TLA+ the host needs Java 11 or later and an operator-configured `tla2tools.jar`, declared through `TLA2TOOLS_JAR` (or the older `TLA2TOOLS`) or through `tla.tla2toolsJar` in a trusted `.pi/pstack.json`; `/setup-pstack status` and `/poteto-mode status` report the resulting `tlc` field. Never download, install, upgrade or repoint a JDK or a jar yourself, and never copy this machine's absolute jar path into the generated skill.
+
+When no TLC or no verifier for this language is available, say exactly that: 未做形式化验证，原因是缺少 TLC. Then follow the upstream no-verifier rule — test the real code with generated inputs through the repo's existing test entry — and label the result generated-input test coverage, never a formal pass. In that case the generated skill must not claim that any property was checked, and the handoff must say which part stayed unverified.
+
+### Run the check through the restricted entry
+
+Run TLC through the host's restricted entry rather than a hand-written `java` command: `verification_exec` with `{command: 'tlc', spec: 'repo/path/Spec.tla', config: 'repo/path/Spec.cfg', options: ['-cleanup', '-noGenerateSpecTE', '-noGenerateSpecTEBin']}`. `spec` and `config` must be real repository-relative `.tla` and `.cfg` paths, and `options` may only use the whitelisted TLC switches. The read-only `pstack.verifier` agent (verification role model) carries that entry for an isolated run; where no verifier integration is available, run the same argv from the parent shell and record that capability boundary in the handoff. Only a run that TLC completes with no violation and no tool error is a pass, and a read-only model directory needs both `-noGenerateSpecTE` and `-noGenerateSpecTEBin`. A stub or substitute java, a generated model file, a loaded session, or a skill that merely reads as correct is not evidence.
+
+### Two breaks in the real code, then restore
+
+Twice, on the real code the property guards, make a deliberate break — remove the check, reorder the step, widen the range — then follow the generated skill as the next agent would and confirm it reports the counterexample in the code's words with a failing exit status. A break reported from the model alone does not count. Then undo both breaks, confirm the check is back at its pre-break result (passing, or failing only on the findings you will report), and confirm the tree carries no leftover break. Keep both breaks uncommitted and restore them exactly: a check you never saw fail, or a break you left behind, fails this step. When a break is not caught, fix the skill or the verification, never the break.
+
+### What the generated skill must record
+
+Record the tool version and how it was resolved (jar path plus Java major version), the exact command and options, the sync commit — the commit at which you actually ran the check — and the bounds and assumptions the check relies on, including what is left out. Tell the next agent to move the sync commit forward only after it re-ran the check at the new commit and confirmed the verification still describes the code there. A skill that was never executed, or that has only ever seen a passing run, is a draft, and the handoff must say `draft` instead of reporting a verified property.
+
+Loading this skill grants no permission to commit, push, merge, deploy, delete, or send messages.
