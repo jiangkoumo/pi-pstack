@@ -12,8 +12,15 @@
  * 2. `runVerification` executes the accepted argv with no shell, inside an OS
  *    sandbox (macOS seatbelt via sandbox-exec, or Linux bubblewrap). The sandbox
  *    denies network and denies file writes except a private scratch directory.
- *    If no OS sandbox can be applied, execution is refused: an argv allowlist
- *    alone is never presented as a sandbox.
+ *
+ * 3. When no OS sandbox can be applied, execution falls back to an explicitly
+ *    degraded mode: a temporary Git worktree with the current changes, a
+ *    sanitized environment, a private scratch directory, output caps and a
+ *    process-tree timeout. That fallback is NOT an OS sandbox. It does not
+ *    block network access and does not stop writes outside the temporary
+ *    worktree and scratch. Every degraded result carries that warning, the
+ *    responsible party, and `degraded: true`; the capability query exposes the
+ *    same facts to `/poteto-mode status` and `/setup-pstack status`.
  *
  * Explicit non-goals: read confinement (repository code can read everything the
  * user can read), secret confidentiality, process/signal containment beyond the
@@ -21,17 +28,30 @@
  * chain integrity. macOS sandbox-exec is a deprecated API; bubblewrap depends on
  * kernel/user-namespace support. Both are best-effort local containment.
  */
-import { spawn } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdtemp, realpath, rm } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { delimiter, isAbsolute, join, resolve } from 'node:path';
+import { delimiter, dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 
 export const TOOL_NAME = 'verification_exec';
 export const DEFAULT_TIMEOUT_MS = 10 * 60 * 1000;
 export const MAX_TIMEOUT_MS = 30 * 60 * 1000;
 export const MAX_OUTPUT_BYTES = 128 * 1024;
+export const DEGRADED_WARNING = 'DEGRADED: no OS sandbox can be applied. The command runs as the current user in a temporary Git worktree. This is NOT an OS sandbox: network access is not blocked, and writes outside the temporary worktree and scratch directory are not prevented. Credential-like environment variables are removed, output is capped, and the timeout kills the process tree.';
+export const DEGRADED_RESPONSIBLE_PARTY = 'The operator who authorizes verification on this host is responsible for accepting degraded (non-sandboxed) execution.';
+export const DEGRADED_LIMITATIONS = Object.freeze([
+  'network: not blocked; verification code can open network connections',
+  'writes: not blocked outside the temporary workspace and scratch directory; verification code can write anywhere the current user can',
+  'shared dependencies: node_modules is symlinked read-through from the source checkout, so writes through it affect the source checkout',
+  'credentials: credential-like environment variables are removed, but readable credential files remain readable',
+  'processes: same-user signals, child processes, CPU, memory and disk are not contained beyond the timeout and output cap',
+  'workspace form: when Git worktree metadata cannot be created, a temporary shared clone is used',
+]);
+const SANDBOX_KINDS = new Set(['macos-seatbelt', 'linux-bwrap']);
+const execFileAsync = promisify(execFile);
 
 const SHELL_METACHARACTERS = /[;&|<>`$()\[\]{}*?~!\\'"]/;
 const CONTROL_CHARACTERS = /[\0\n\r]/;
@@ -377,6 +397,51 @@ export function detectSandbox() {
   return sandboxProbe;
 }
 
+/**
+ * Describe the actual execution boundary without overstating it. This is the
+ * capability query `/poteto-mode status` and `/setup-pstack status` should show.
+ */
+export function capabilityFromSandbox(sandbox) {
+  if (sandbox?.available && SANDBOX_KINDS.has(sandbox.kind)) {
+    return {
+      isolation: 'os-sandbox',
+      degraded: false,
+      sandbox: sandbox.kind,
+      enforcement: sandbox.enforcement,
+      warning: null,
+      responsibleParty: null,
+      limitations: [],
+      limits: {
+        network: 'denied by the OS sandbox',
+        writes: 'denied outside the private scratch directory by the OS sandbox',
+        credentials: 'credential-like environment variables are removed; readable files remain visible',
+        resources: 'timeout, process-tree kill and output cap only',
+      },
+    };
+  }
+  return {
+    isolation: 'degraded-worktree',
+    degraded: true,
+    sandbox: sandbox?.kind ?? null,
+    unavailableReason: sandbox?.reason ?? `no OS sandbox adapter for ${sandbox?.kind ?? 'this host'}`,
+    enforcement: DEGRADED_WARNING,
+    warning: DEGRADED_WARNING,
+    responsibleParty: DEGRADED_RESPONSIBLE_PARTY,
+    limitations: [...DEGRADED_LIMITATIONS],
+    limits: {
+      network: 'not isolated',
+      writes: 'not isolated outside the temporary Git worktree and scratch directory',
+      credentials: 'credential-like environment variables are removed; readable files remain visible',
+      resources: 'timeout, process-tree kill and output cap only',
+    },
+  };
+}
+
+/** Probe the host and return the honest capability record. */
+export async function getVerificationCapability(options = {}) {
+  return capabilityFromSandbox(options.sandbox ?? await detectSandbox());
+}
+
 function buildPlan(sandbox, argv, scratchDir, cwd) {
   if (sandbox.kind === 'macos-seatbelt') {
     return { executable: sandbox.executable, args: ['-p', buildSandboxProfile(scratchDir), ...argv] };
@@ -393,35 +458,173 @@ function buildPlan(sandbox, argv, scratchDir, cwd) {
   return null;
 }
 
-function sandboxEnvironment(scratchDir, extraEnv) {
-  const values = {
+async function runGit(cwd, args, env) {
+  try {
+    const { stdout, stderr } = await execFileAsync('git', ['-C', cwd, ...args], {
+      cwd,
+      env,
+      encoding: 'buffer',
+      maxBuffer: 64 * 1024 * 1024,
+      timeout: 30_000,
+    });
+    return { ok: true, stdout, stderr };
+  } catch (error) {
+    const detail = String(error.stderr ?? error.message ?? error).trim().split('\n').filter(Boolean).at(-1) ?? '';
+    return {
+      ok: false,
+      stdout: Buffer.isBuffer(error.stdout) ? error.stdout : Buffer.from(error.stdout ?? ''),
+      stderr: Buffer.isBuffer(error.stderr) ? error.stderr : Buffer.from(error.stderr ?? ''),
+      reason: detail.slice(0, 400),
+    };
+  }
+}
+
+async function populateDegradedWorkspace(workspace, cwd, scratchDir, env) {
+  const patch = await runGit(cwd, ['diff', 'HEAD', '--binary'], env);
+  if (!patch.ok) throw new Error(`git diff HEAD failed: ${patch.reason ?? 'unknown reason'}`);
+  if (patch.stdout.length > 0) {
+    const patchPath = join(scratchDir, 'current-changes.patch');
+    await writeFile(patchPath, patch.stdout);
+    const applied = await runGit(workspace, ['apply', '--binary', '--whitespace=nowarn', patchPath], env);
+    if (!applied.ok) throw new Error(`could not apply current changes to the temporary workspace: ${applied.reason ?? 'unknown reason'}`);
+  }
+  const untracked = await runGit(cwd, ['ls-files', '--others', '--exclude-standard', '-z'], env);
+  if (!untracked.ok) throw new Error(`git ls-files failed: ${untracked.reason ?? 'unknown reason'}`);
+  for (const relativePath of untracked.stdout.toString('utf8').split('\0').filter(Boolean)) {
+    if (isAbsolute(relativePath) || relativePath.split('/').includes('..')) continue;
+    if (relativePath === 'node_modules' || relativePath.startsWith('node_modules/') || relativePath.startsWith('.git/')) continue;
+    const destination = join(workspace, relativePath);
+    await mkdir(dirname(destination), { recursive: true });
+    // A failed copy would silently produce an incomplete snapshot; fail the
+    // workspace preparation instead and let the caller report it.
+    try {
+      await copyFile(join(cwd, relativePath), destination);
+    } catch (error) {
+      throw new Error(`could not copy untracked file ${relativePath} into the temporary workspace: ${firstLine(error)}`);
+    }
+  }
+  // Most test commands need installed dependencies. Symlink the source
+  // node_modules read-through instead of copying it; dependencies are not a
+  // write boundary in degraded mode and the warning says so.
+  if (existsSync(join(cwd, 'node_modules')) && !existsSync(join(workspace, 'node_modules'))) {
+    await symlink(join(cwd, 'node_modules'), join(workspace, 'node_modules'), 'dir').catch(() => {});
+  }
+}
+
+/**
+ * Build a throwaway workspace that reflects the current working tree (HEAD
+ * plus tracked changes plus untracked files). A Git worktree is the primary
+ * form; when the host forbids writing the main Git directory, a shared clone is
+ * used instead and the result says so. Either way this is a workspace copy,
+ * not a security boundary: code can still write anywhere the user can.
+ */
+async function prepareDegradedWorkspace(cwd, scratchDir, env) {
+  const inside = await runGit(cwd, ['rev-parse', '--is-inside-work-tree'], env);
+  if (!inside.ok || inside.stdout.toString().trim() !== 'true') {
+    throw new Error('the working directory is not a Git work tree; a temporary workspace cannot be prepared');
+  }
+  const head = await runGit(cwd, ['rev-parse', '--verify', 'HEAD'], env);
+  if (!head.ok) throw new Error(`the Git work tree has no HEAD commit: ${head.reason ?? 'unknown reason'}`);
+  const worktree = join(scratchDir, 'worktree');
+  const added = await runGit(cwd, ['worktree', 'add', '--detach', worktree, 'HEAD'], env);
+  if (added.ok) {
+    try {
+      await populateDegradedWorkspace(worktree, cwd, scratchDir, env);
+      return {
+        path: worktree,
+        kind: 'worktree',
+        note: null,
+        async cleanup() {
+          // Remove only this run's worktree. Never run `git worktree prune`:
+          // it is repository-global and could delete another writer's state.
+          const removed = await runGit(cwd, ['worktree', 'remove', '--force', worktree], env);
+          if (!removed.ok) await rm(worktree, { recursive: true, force: true });
+        },
+      };
+    } catch (error) {
+      await runGit(cwd, ['worktree', 'remove', '--force', worktree], env).catch(() => {});
+      throw error;
+    }
+  }
+  // Some hosts (for example a nested agent sandbox) deny writes to the main
+  // repository's .git/worktrees directory. A shared clone needs writes only
+  // inside the private scratch directory, so it preserves the workspace copy
+  // while making the limitation explicit.
+  const checkout = join(scratchDir, 'checkout');
+  const cloned = await runGit(cwd, ['clone', '--shared', '--no-checkout', '--quiet', cwd, checkout], env);
+  if (!cloned.ok) {
+    throw new Error(`git worktree add failed (${added.reason ?? 'unknown reason'}) and the fallback clone failed (${cloned.reason ?? 'unknown reason'})`);
+  }
+  const checkedOut = await runGit(checkout, ['checkout', '--detach', 'HEAD', '--quiet'], env);
+  if (!checkedOut.ok) throw new Error(`could not check out the fallback clone: ${checkedOut.reason ?? 'unknown reason'}`);
+  try {
+    await populateDegradedWorkspace(checkout, cwd, scratchDir, env);
+  } catch (error) {
+    throw error;
+  }
+  return {
+    path: checkout,
+    kind: 'checkout',
+    note: 'git worktree metadata could not be created, so a temporary shared clone was used instead',
+    async cleanup() {},
+  };
+}
+
+// Allowlist, not a denylist: ambient credentials, proxy settings, NODE_OPTIONS,
+// npm auth config and shell injection hooks never reach the verification child.
+// HOME and the npm/git config paths point at the private scratch directory.
+const SAFE_ENV_KEYS = new Set([
+  'PATH', 'SHELL', 'TERM', 'TZ', 'USER', 'LOGNAME', 'NODE_ENV', 'CI',
+  'COLUMNS', 'LINES', 'FORCE_COLOR', 'NO_COLOR', 'COLORTERM',
+]);
+
+function buildVerificationEnvironment(scratchDir, extraEnv) {
+  const env = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (value === undefined) continue;
+    if (SAFE_ENV_KEYS.has(key) || key === 'LANG' || key.startsWith('LC_')) env[key] = value;
+  }
+  Object.assign(env, {
+    HOME: join(scratchDir, 'home'),
     TMPDIR: scratchDir,
     TMP: scratchDir,
     TEMP: scratchDir,
     npm_config_cache: join(scratchDir, 'npm-cache'),
     npm_config_logs_dir: join(scratchDir, 'npm-logs'),
+    npm_config_userconfig: join(scratchDir, 'npmrc'),
+    npm_config_globalconfig: join(scratchDir, 'npmrc-global'),
     npm_config_update_notifier: 'false',
     npm_config_audit: 'false',
     npm_config_fund: 'false',
     npm_config_progress: 'false',
     CI: '1',
+    GIT_CONFIG_NOSYSTEM: '1',
+    GIT_CONFIG_GLOBAL: join(scratchDir, 'gitconfig'),
     GIT_OPTIONAL_LOCKS: '0',
     GIT_PAGER: 'cat',
     PAGER: 'cat',
-    GIT_EXTERNAL_DIFF: '',
     GIT_TERMINAL_PROMPT: '0',
-  };
-  const env = { ...process.env };
-  for (const [key, value] of Object.entries({ ...values, ...extraEnv })) {
+  });
+  for (const [key, value] of Object.entries(extraEnv ?? {})) {
     if (value !== undefined) env[key] = String(value);
   }
   return env;
 }
 
+async function prepareEnvironmentFiles(scratchDir) {
+  await mkdir(join(scratchDir, 'home'), { recursive: true });
+  await mkdir(join(scratchDir, 'npm-cache'), { recursive: true });
+  await mkdir(join(scratchDir, 'npm-logs'), { recursive: true });
+  await writeFile(join(scratchDir, 'npmrc'), '');
+  await writeFile(join(scratchDir, 'npmrc-global'), '');
+  await writeFile(join(scratchDir, 'gitconfig'), '');
+}
+
 /**
- * Execute one parsed verification command under a real OS sandbox.
- * `ok` means the process was launched and its exit status collected; it does
- * not mean the command passed. Refusals and sandbox unavailability are `ok:false`.
+ * Execute one parsed verification command. With an OS sandbox the command runs
+ * inside it. Without one, it runs in a temporary Git worktree and every result
+ * is marked degraded. `ok` means the process was launched and its exit status
+ * collected; it does not mean the command passed. Refusals are `ok:false`.
  */
 export async function runVerification(command, options = {}) {
   const parsed = parseVerificationCommand(command);
@@ -429,12 +632,7 @@ export async function runVerification(command, options = {}) {
   const cwd = resolve(options.cwd ?? process.cwd());
   if (!existsSync(cwd)) return { ok: false, status: 'refused', command, reason: `Working directory does not exist: ${cwd}` };
   const sandbox = options.sandbox ?? await detectSandbox();
-  if (!sandbox.available) {
-    return { ok: false, status: 'unavailable', command, reason: `No usable OS sandbox, refusing to execute repository code: ${sandbox.reason}` };
-  }
-  if (!['macos-seatbelt', 'linux-bwrap'].includes(sandbox.kind)) {
-    return { ok: false, status: 'unavailable', command, reason: `No OS sandbox plan for ${sandbox.kind}` };
-  }
+  const sandboxUsable = sandbox.available && SANDBOX_KINDS.has(sandbox.kind);
   const timeoutMs = Number.isSafeInteger(options.timeoutMs) && options.timeoutMs > 0
     ? Math.min(options.timeoutMs, MAX_TIMEOUT_MS)
     : DEFAULT_TIMEOUT_MS;
@@ -443,30 +641,61 @@ export async function runVerification(command, options = {}) {
     : MAX_OUTPUT_BYTES;
   let scratchDir;
   let rawScratch;
+  let worktree;
   try {
     // Seatbelt matches canonical vnode paths. On macOS os.tmpdir() returns
     // /var/folders/..., a symlink path to /private/var/...; an uncanonicalized
     // subpath rule therefore leaves the scratch directory read-only.
     rawScratch = options.scratchDir ?? await mkdtemp(join(tmpdir(), 'pstack-verify-'));
     scratchDir = await realpath(rawScratch);
+    await prepareEnvironmentFiles(scratchDir);
   } catch (error) {
     if (!options.scratchDir && rawScratch) await rm(rawScratch, { recursive: true, force: true }).catch(() => {});
     return { ok: false, status: 'launch-failed', command, reason: `Could not prepare the scratch directory: ${firstLine(error)}` };
   }
   try {
-    const prepared = buildPlan(sandbox, [parsed.program, ...parsed.argv], scratchDir, cwd);
-    if (!prepared) return { ok: false, status: 'unavailable', command, reason: `No OS sandbox plan for ${sandbox.kind}` };
+    const env = buildVerificationEnvironment(scratchDir, options.env);
+    let prepared;
+    let executionCwd = cwd;
+    let isolation = 'os-sandbox';
+    let enforcement = sandbox.enforcement;
+    let warning = null;
+    let responsibleParty = null;
+    let workspace = 'source-working-directory';
+    if (sandboxUsable) {
+      prepared = buildPlan(sandbox, [parsed.program, ...parsed.argv], scratchDir, cwd);
+      if (!prepared) return { ok: false, status: 'unavailable', command, reason: `No OS sandbox plan for ${sandbox.kind}` };
+    } else {
+      try {
+        worktree = await prepareDegradedWorkspace(cwd, scratchDir, env);
+      } catch (error) {
+        return {
+          ok: false,
+          status: 'unavailable',
+          command,
+          reason: `No usable OS sandbox (${sandbox.reason ?? sandbox.kind ?? 'unknown'}), and the degraded workspace could not be prepared: ${firstLine(error)}`,
+          sandbox: sandbox.kind ?? null,
+        };
+      }
+      executionCwd = worktree.path;
+      prepared = { executable: parsed.program, args: parsed.argv };
+      isolation = 'degraded-worktree';
+      enforcement = DEGRADED_WARNING;
+      warning = worktree.note ? `${DEGRADED_WARNING} Workspace note: ${worktree.note}.` : DEGRADED_WARNING;
+      responsibleParty = DEGRADED_RESPONSIBLE_PARTY;
+      workspace = worktree.kind === 'worktree' ? 'temporary-git-worktree' : 'temporary-git-checkout';
+    }
     const result = await runProcess(prepared.executable, prepared.args, {
-      cwd,
-      env: sandboxEnvironment(scratchDir, options.env),
+      cwd: executionCwd,
+      env,
       timeoutMs,
       signal: options.signal,
       maxOutputBytes,
     });
     if (result.launchError) {
-      return { ok: false, status: 'launch-failed', command, reason: result.launchError, sandbox: sandbox.kind };
+      return { ok: false, status: 'launch-failed', command, reason: result.launchError, sandbox: sandbox.kind ?? null };
     }
-    if (sandbox.kind === 'macos-seatbelt' && /sandbox_apply/i.test(result.stderr)) {
+    if (sandboxUsable && sandbox.kind === 'macos-seatbelt' && /sandbox_apply/i.test(result.stderr)) {
       return { ok: false, status: 'unavailable', command, reason: `sandbox-exec could not apply the profile: ${firstLine(null, result.stderr)}`, sandbox: sandbox.kind };
     }
     const status = result.aborted ? 'aborted' : result.timedOut ? 'timed-out' : result.exitCode === 0 ? 'passed' : 'failed';
@@ -475,8 +704,14 @@ export async function runVerification(command, options = {}) {
       command,
       argv: parsed.argv,
       category: parsed.category,
-      sandbox: sandbox.kind,
-      enforcement: sandbox.enforcement,
+      sandbox: sandbox.kind ?? null,
+      isolation,
+      degraded: isolation !== 'os-sandbox',
+      enforcement,
+      warning,
+      responsibleParty,
+      limitations: isolation === 'os-sandbox' ? [] : [...DEGRADED_LIMITATIONS],
+      workspace,
       status,
       exitCode: result.exitCode,
       signal: result.signalName,
@@ -488,6 +723,7 @@ export async function runVerification(command, options = {}) {
       outputTruncated: result.outputTruncated,
     };
   } finally {
+    if (worktree) await worktree.cleanup().catch(() => {});
     if (!options.scratchDir && scratchDir) await rm(scratchDir, { recursive: true, force: true }).catch(() => {});
   }
 }
@@ -500,11 +736,15 @@ export function renderVerificationResult(result) {
   }
   const lines = [
     `COMMAND: ${result.command}`,
+    `ISOLATION: ${result.isolation}`,
     `ENFORCEMENT: ${result.enforcement}`,
     `STATUS: ${result.status}`,
     `EXIT CODE: ${result.exitCode === null ? 'null (no exit status)' : result.exitCode}${result.signal ? ` (signal ${result.signal})` : ''}`,
     `DURATION: ${result.durationMs}ms`,
   ];
+  if (result.degraded) lines.push(`WARNING: ${result.warning}`);
+  if (result.responsibleParty) lines.push(`RESPONSIBLE: ${result.responsibleParty}`);
+  for (const limitation of result.limitations ?? []) lines.push(`LIMITATION: ${limitation}`);
   if (result.timedOut) lines.push('The command was killed after the timeout; this is not a pass.');
   if (result.outputTruncated) lines.push('Output was truncated at the capture limit.');
   lines.push('', 'STDOUT:', result.stdout.trim() || '(empty)', '', 'STDERR:', result.stderr.trim() || '(empty)');
@@ -519,7 +759,7 @@ export function createVerificationTool() {
   return {
     name: TOOL_NAME,
     label: 'Verification Exec',
-    description: 'Run one restricted verification command (npm test, npm run test/lint/build/check, node --test, node --check, a repository node script, or read-only git) under an OS sandbox. Network is denied and file writes are limited to a private scratch directory. Returns the real exit code. Refuses shell composition, installs, publish, push and inline code; refuses to run at all when no OS sandbox can be applied.',
+    description: 'Run one restricted verification command (npm test, npm run test/lint/build/check, node --test, node --check, a repository node script, or read-only git) and return its real exit code. With an OS sandbox, network is denied and writes are limited to a private scratch directory. Without one, it runs in a temporary Git worktree and labels the result DEGRADED: network and writes outside that worktree are not isolated, and the result names the responsible party. Refuses shell composition, installs, publish, push and inline code.',
     parameters: {
       type: 'object',
       properties: {
@@ -540,6 +780,11 @@ export function createVerificationTool() {
           status: result.status,
           exitCode: result.exitCode ?? null,
           sandbox: result.sandbox ?? null,
+          isolation: result.isolation ?? null,
+          degraded: Boolean(result.degraded),
+          warning: result.warning ?? null,
+          responsibleParty: result.responsibleParty ?? null,
+          limitations: result.limitations ?? [],
           category: result.category ?? null,
           reason: result.ok ? undefined : result.reason,
         },
@@ -552,14 +797,20 @@ export function createVerificationTool() {
 const entry = process.argv[1] ? resolve(process.argv[1]) : '';
 if (entry && entry === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
-  const textMode = args[0] === '--text';
-  const command = textMode ? args[1] : args[0];
-  if (!command) {
-    console.error('Usage: node extensions/pstack/verification-exec.mjs [--text] "<command>"');
-    process.exitCode = 2;
+  if (args[0] === '--capability') {
+    const capability = await getVerificationCapability();
+    console.log(JSON.stringify(capability, null, 2));
+    process.exitCode = 0;
   } else {
-    const result = await runVerification(command, { cwd: process.cwd() });
-    console.log(textMode ? renderVerificationResult(result) : JSON.stringify(result, null, 2));
-    process.exitCode = result.ok ? 0 : 2;
+    const textMode = args[0] === '--text';
+    const command = textMode ? args[1] : args[0];
+    if (!command) {
+      console.error('Usage: node extensions/pstack/verification-exec.mjs [--text] "<command>" | --capability');
+      process.exitCode = 2;
+    } else {
+      const result = await runVerification(command, { cwd: process.cwd() });
+      console.log(textMode ? renderVerificationResult(result) : JSON.stringify(result, null, 2));
+      process.exitCode = result.ok ? 0 : 2;
+    }
   }
 }

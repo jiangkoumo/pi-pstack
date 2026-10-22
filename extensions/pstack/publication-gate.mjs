@@ -18,11 +18,13 @@
  * opts into the stricter PR-shaped commit body. The receipt store lives in the
  * Git directory so it never appears in the working tree.
  */
+import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, renameSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 
 export const TITLE_TYPES = Object.freeze([
   'feat', 'fix', 'docs', 'refactor', 'test', 'chore', 'perf', 'build', 'ci', 'style', 'revert',
@@ -162,6 +164,177 @@ export function validateBody(body, { receipts } = {}) {
   const verification = sections.find(section => section.heading === 'Verification');
   if (verification?.text) problems.push(...validateCountClaims(verification.text, receipts));
   return problems;
+}
+
+// ---------------------------------------------------------------------------
+// Publication completion self-check (real read-only git/gh checks)
+// ---------------------------------------------------------------------------
+
+export const COMPLETION_EXIT_CODES = Object.freeze({ complete: 0, incomplete: 1, blocked: 126 });
+const execFileAsync = promisify(execFile);
+
+function commandDetail(result) {
+  const text = String(result?.stderr ?? '').trim().split('\n').filter(Boolean).at(-1) ?? '';
+  return text.slice(0, 400);
+}
+
+/** Default runner: argv arrays only, no shell. `git`/`gh` are read-only calls. */
+async function defaultReadOnlyRun(executable, args, { cwd }) {
+  try {
+    const { stdout, stderr } = await execFileAsync(executable, args, {
+      cwd,
+      encoding: 'utf8',
+      timeout: 30_000,
+      maxBuffer: 2 * 1024 * 1024,
+    });
+    return { code: 0, stdout, stderr };
+  } catch (error) {
+    return {
+      code: error.code === 'ENOENT' ? 127 : (Number.isInteger(error.code) ? error.code : 1),
+      stdout: String(error.stdout ?? ''),
+      stderr: String(error.stderr ?? error.message ?? ''),
+    };
+  }
+}
+
+function completionResult(fields) {
+  return {
+    authorized: fields.authorized,
+    status: fields.status,
+    exitCode: COMPLETION_EXIT_CODES[fields.status],
+    missing: [...new Set(fields.missing)],
+    reason: fields.reason,
+    head: fields.head ?? null,
+    upstream: fields.upstream ?? null,
+    pr: fields.pr ?? null,
+    verification: fields.verification ?? null,
+  };
+}
+
+/**
+ * Check whether an authorized publication is actually complete. It runs only
+ * read-only commands and reads real remote/PR state:
+ *   git rev-parse HEAD
+ *   git rev-parse --abbrev-ref --symbolic-full-name @{upstream}
+ *   git rev-list --count <upstream>..HEAD
+ *   gh pr view [<number>] --json number,url,state,headRefOid,headRefName,baseRefName,body
+ *
+ * Evidence is never read from a hand-written boolean file. `run` is injectable
+ * for tests; the CLI uses the real executables. Exit 0 complete, 1 incomplete,
+ * 126 blocked (no authorization or unusable invocation). It cannot grant push
+ * or PR authority; `authorized` only records the operator's grant.
+ */
+export async function verifyPublicationCompletion(options = {}) {
+  const cwd = resolve(options.cwd ?? process.cwd());
+  const authorized = options.authorized === true;
+  if (!authorized) {
+    return completionResult({
+      authorized,
+      status: 'blocked',
+      missing: ['branch pushed', 'PR created', 'gh pr view succeeded'],
+      reason: 'Push and PR publication are not authorized in this session. The completion self-check cannot grant that authority; stop at the local branch and report the pending push/PR and the exact command that would run.',
+    });
+  }
+  if (options.pr !== undefined && !/^\d+$/.test(String(options.pr))) {
+    return completionResult({
+      authorized,
+      status: 'blocked',
+      missing: ['valid PR number'],
+      reason: `--pr must be a positive integer; got ${JSON.stringify(String(options.pr))}`,
+    });
+  }
+  const run = options.run ?? defaultReadOnlyRun;
+  const headResult = await run('git', ['rev-parse', 'HEAD'], { cwd });
+  if (headResult.code !== 0) {
+    return completionResult({
+      authorized,
+      status: 'incomplete',
+      missing: ['local HEAD'],
+      reason: `Cannot read the local HEAD: ${commandDetail(headResult) || 'git rev-parse HEAD failed'}`,
+    });
+  }
+  const head = headResult.stdout.trim();
+  const missing = [];
+  const upstreamResult = await run('git', ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}'], { cwd });
+  const upstream = upstreamResult.code === 0 ? upstreamResult.stdout.trim() : '';
+  if (!upstream) {
+    missing.push('branch pushed (no upstream branch)');
+  } else {
+    const aheadResult = await run('git', ['rev-list', '--count', `${upstream}..HEAD`], { cwd });
+    if (aheadResult.code !== 0) {
+      missing.push('branch pushed (cannot compare with upstream)');
+    } else if (Number(aheadResult.stdout.trim()) > 0) {
+      missing.push(`branch pushed (${aheadResult.stdout.trim()} local commits not on ${upstream})`);
+    }
+  }
+  const args = ['pr', 'view', ...(options.pr !== undefined ? [String(options.pr)] : []), '--json', 'number,url,state,headRefOid,headRefName,baseRefName,body'];
+  const prResult = await run('gh', args, { cwd });
+  let pr = null;
+  let body = '';
+  if (prResult.code !== 0) {
+    missing.push('PR created and gh pr view succeeded');
+  } else {
+    try {
+      pr = JSON.parse(prResult.stdout);
+    } catch {
+      missing.push('gh pr view returned parseable JSON');
+    }
+    if (pr) {
+      if (!Number.isInteger(pr.number) || typeof pr.url !== 'string' || !pr.url) missing.push('PR number and URL');
+      if (pr.headRefOid !== head) missing.push('PR head matches local HEAD');
+      if (!['OPEN', 'MERGED'].includes(pr.state)) missing.push('PR is open or merged');
+      body = typeof pr.body === 'string' ? pr.body : '';
+    }
+  }
+  let verification = null;
+  if (pr) {
+    if (!body.trim()) {
+      missing.push('PR body with the fixed headings');
+    } else {
+      const receipts = safeReceiptRuns(options.receiptPath ?? defaultReceiptPath(cwd));
+      if (validateBody(body, { receipts }).length > 0) missing.push('PR body satisfies the fixed headings and recorded counts');
+      const verificationText = parseBodySections(body).sections.find(section => section.heading === 'Verification')?.text ?? '';
+      const fail = /\bFAIL\b/.test(verificationText);
+      const pass = /\bPASS(?:\+NOTES)?\b/.test(verificationText);
+      const blocked = /\bBLOCKED\b/.test(verificationText);
+      const responsible = /responsible verifier|verification owner|verifier unavailable/i.test(verificationText);
+      const verdict = fail ? 'FAIL' : pass ? (/\bPASS\+NOTES\b/.test(verificationText) ? 'PASS+NOTES' : 'PASS') : blocked ? 'BLOCKED' : null;
+      verification = { verdict, responsible, text: verificationText };
+      if (fail) missing.push('verifier result is not FAIL');
+      else if (['PASS', 'PASS+NOTES'].includes(verdict)) { /* recorded */ }
+      else if (verdict === 'BLOCKED' && responsible) { /* verifier unavailable; owner recorded */ }
+      else if (verdict === 'BLOCKED') missing.push('responsible verifier for a BLOCKED pstack.verifier');
+      else if (!responsible) missing.push('## Verification records a pstack.verifier PASS or the responsible verifier');
+    }
+  }
+  const unique = [...new Set(missing)];
+  if (unique.length > 0) {
+    return completionResult({
+      authorized,
+      status: 'incomplete',
+      missing: unique,
+      head,
+      upstream: upstream || null,
+      pr: pr ? { number: pr.number, url: pr.url, state: pr.state, headRefOid: pr.headRefOid, headRefName: pr.headRefName, baseRefName: pr.baseRefName } : null,
+      verification,
+      reason: `Publication is incomplete: ${unique.join(', ')}. Keep working inside the current grant; a bounded /loop can continue while its budget and stop controls remain in force.`,
+    });
+  }
+  return completionResult({
+    authorized,
+    status: 'complete',
+    missing: [],
+    head,
+    upstream,
+    pr: { number: pr.number, url: pr.url, state: pr.state, headRefOid: pr.headRefOid, headRefName: pr.headRefName, baseRefName: pr.baseRefName },
+    verification,
+    reason: 'Local HEAD is on its upstream, gh pr view succeeded with the same head, the PR body is valid, and ## Verification records a passing verifier or a responsible verifier after a blocked verifier.',
+  });
+}
+
+/** Map a completion result to the CLI/loop predicate exit code. */
+export function completionExitCode(result) {
+  return Number.isInteger(result?.exitCode) ? result.exitCode : (COMPLETION_EXIT_CODES[result?.status] ?? COMPLETION_EXIT_CODES.incomplete);
 }
 
 // ---------------------------------------------------------------------------
@@ -944,6 +1117,7 @@ const USAGE = [
   '  node extensions/pstack/publication-gate.mjs inspect --command "<shell command>"',
   '  node extensions/pstack/publication-gate.mjs check --kind pr|commit --title <title> [--body <text> | --body-file <path>] [--receipt-path <path>]',
   '  node extensions/pstack/publication-gate.mjs record --command "<test command>" --output-file <path> [--failed] [--receipt-path <path>]',
+  '  node extensions/pstack/publication-gate.mjs completion --authorized [--pr <number>] [--receipt-path <path>]',
 ].join('\n');
 
 function parseFlags(argv) {
@@ -954,7 +1128,7 @@ function parseFlags(argv) {
     const body = token.slice(2);
     const equals = body.indexOf('=');
     if (equals !== -1) flags[body.slice(0, equals)] = body.slice(equals + 1);
-    else if (body === 'failed') flags.failed = true;
+    else if (body === 'failed' || body === 'authorized') flags[body] = true;
     else flags[body] = argv[++index];
   }
   return flags;
@@ -963,6 +1137,22 @@ function parseFlags(argv) {
 function safeReceiptRuns(path = defaultReceiptPath(process.cwd())) {
   try { return readReceipts(path).runs; }
   catch { return []; }
+}
+
+/** Async completion CLI. Runs only the fixed read-only git/gh checks. */
+export async function runCompletionCli(argv, io = { out: console.log, err: console.error }, { run, cwd } = {}) {
+  let flags;
+  try { flags = parseFlags(argv); }
+  catch (error) { io.err(error.message); io.err(USAGE); return 2; }
+  const result = await verifyPublicationCompletion({
+    authorized: flags.authorized === true,
+    pr: flags.pr,
+    cwd: cwd ?? process.cwd(),
+    receiptPath: flags['receipt-path'],
+    run,
+  });
+  io.out(JSON.stringify(result, null, 2));
+  return completionExitCode(result);
 }
 
 export function main(argv, io = { out: console.log, err: console.error }) {
@@ -1015,5 +1205,7 @@ export function main(argv, io = { out: console.log, err: console.error }) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  process.exitCode = main(process.argv.slice(2));
+  process.exitCode = process.argv[2] === 'completion'
+    ? await runCompletionCli(process.argv.slice(3))
+    : main(process.argv.slice(2));
 }

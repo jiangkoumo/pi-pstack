@@ -10,6 +10,7 @@ import {
   decideNextStep,
   renderLoopPrompt,
 } from '../extensions/pstack/loop.mjs';
+import { COMPLETION_EXIT_CODES } from '../extensions/pstack/publication-gate.mjs';
 
 const pstack = await createJiti(import.meta.url).import('../extensions/pstack/index.ts', { default: true });
 
@@ -357,6 +358,32 @@ test('Pi host: print/JSON refusal, multi-turn RPC budget/predicate stops, and ab
     await new Promise(accept => server.close(accept));
     await rm(directory, { recursive: true, force: true });
   }
+});
+
+test('A6: completion predicate exit 1 continues while incomplete, 126 stops blocked, budget and abort still win', () => {
+  const state = createInitialLoopState({ goal: 'publish the verified change', maxTurns: 3 });
+  const incomplete = { exitCode: COMPLETION_EXIT_CODES.incomplete };
+  const continueDecision = decideNextStep(state, incomplete);
+  assert.equal(continueDecision.action, 'continue');
+  assert.equal(continueDecision.nextState.turn, 2);
+
+  const exhausted = decideNextStep({ ...state, turn: 3 }, incomplete);
+  assert.equal(exhausted.action, 'stop');
+  assert.equal(exhausted.nextState.reason, 'budget-exhausted');
+
+  const blockedDecision = decideNextStep(state, { exitCode: COMPLETION_EXIT_CODES.blocked });
+  assert.equal(blockedDecision.action, 'stop');
+  assert.equal(blockedDecision.nextState.status, 'failed');
+  assert.equal(blockedDecision.nextState.reason, 'predicate-error');
+
+  const completeDecision = decideNextStep(state, { exitCode: COMPLETION_EXIT_CODES.complete });
+  assert.equal(completeDecision.action, 'stop');
+  assert.equal(completeDecision.nextState.status, 'completed');
+  assert.equal(completeDecision.nextState.reason, 'predicate-satisfied');
+
+  const aborted = decideNextStep(state, incomplete, { outcome: 'aborted' });
+  assert.equal(aborted.action, 'stop');
+  assert.equal(aborted.nextState.reason, 'operator-aborted');
 });
 
 test('renderLoopPrompt generates proper instructions without false commitments', () => {

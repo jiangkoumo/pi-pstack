@@ -23,6 +23,18 @@ After the sections, attach videos or screenshots when they prove a claim. Full S
 
 **Self-check before you post.** Open [the PR body template](../../../docs/templates/pstack-pr.md) and check the prepared body against its headings, in order: `## Why`, `## What changed`, `## Scope`, `## Tradeoffs`, `## Blast Radius`, `## Verification`. `## Why`, `## What changed`, `## Scope`, `## Blast Radius` and `## Verification` are required. `## Tradeoffs` is optional and appears only between Scope and Blast Radius. The check is per heading, not per sentence. A missing required heading blocks the post. When a required section truly has nothing to say, keep the heading and write the one line that says so instead of deleting it. Re-read the title too: Conventional Commits, no trailing period, no fabricated symbols.
 
+**Verifier before the PR.** Before `gh pr create` (or a PR-tool create), dispatch the read-only `pstack.verifier` through `subagent` with the pinned head, the acceptance commands and the diff range. Put its actual command/exit-code result and verdict in `## Verification`. If the verifier is unavailable, name the person responsible for verification and why it could not run; do not present a self-review as independent verification.
+
+**Completion self-check.** This playbook is complete only after the authorized actions actually happened and were read back: the branch is pushed, the PR exists, and `gh pr view <number>` succeeds. A local commit, a prepared body, green CI, or a loop tick is not completion. Without push/PR authorization, stop with an explicit `BLOCKED: push/PR not authorized` and report the branch, checks, prepared title/body and the exact pending command; the self-check cannot grant authority.
+
+With authorization, run the real read-only check from the repository:
+
+```bash
+node <package-root>/extensions/pstack/publication-gate.mjs completion --authorized [--pr <number>]
+```
+
+It runs `git rev-parse HEAD`, `git rev-parse --abbrev-ref --symbolic-full-name @{upstream}`, `git rev-list --count <upstream>..HEAD`, and `gh pr view [<number>] --json ...`; it compares the PR head with local HEAD and reads `## Verification` from the real PR body. It does not read a hand-written boolean file. Exit 0 means complete; 1 means incomplete and may continue under a bounded `/loop` while its budget, cancel and stop controls remain in force; 126 means push/PR is not authorized (or the invocation is unusable) and must stop. A `FAIL` in `## Verification` stays incomplete even when a responsible verifier is named.
+
 **Forge.** Resolve the forge before the first PR operation and keep that choice for create, edit, view, watch, and merge. GitHub CLI (`gh`) is the default. If `command -v origin` succeeds and Origin can resolve the repository, prefer `origin pr ...`. If Origin is absent or cannot resolve the repository, stay on `gh` and record the fallback. Do not require Graphite (`gt`).
 
 **Built-in PR tool.** When the run provides a built-in PR tool, create, edit, retarget, and mark ready through it, never through a forge CLI. A CLI-made PR misses what the tool tracks. Use the resolved forge for everything the tool does not cover, and for every PR operation when the run has no such tool.

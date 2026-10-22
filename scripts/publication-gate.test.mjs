@@ -1,11 +1,15 @@
 // Behavioral tests for the Pi publication gate. The suite never runs git or gh:
 // it drives the pure parser and the exported Pi handlers with fake events.
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import {
+  COMPLETION_EXIT_CODES,
+  completionExitCode,
   defaultReceiptPath,
   extractCountClaims,
   inspectCommand,
@@ -13,10 +17,12 @@ import {
   parseTestCounts,
   recordTestRun,
   registerPublicationGate,
+  runCompletionCli,
   testCommandOf,
   testInvocationsOf,
   validateBody,
   validateTitle,
+  verifyPublicationCompletion,
 } from '../extensions/pstack/publication-gate.mjs';
 
 const TAP = [
@@ -456,6 +462,180 @@ test('the Pi handler blocks bad requests and records real test results', async (
   const enabled = [];
   registerPublicationGate({ on: (name, handler) => enabled.push(handler) }, { cwd, enabled: () => false });
   assert.equal(await enabled[0]({ toolName: 'bash', input: { command: 'git commit -m "Update"' } }, { cwd }), undefined);
+});
+
+const COMPLETION_HEAD = 'a'.repeat(40);
+const gatePath = fileURLToPath(new URL('../extensions/pstack/publication-gate.mjs', import.meta.url));
+
+function completionPr(overrides = {}) {
+  return {
+    number: 177,
+    url: 'https://example.invalid/pr/177',
+    state: 'OPEN',
+    headRefOid: COMPLETION_HEAD,
+    headRefName: 'fix/19',
+    baseRefName: 'main',
+    body: body('`pstack.verifier`: PASS: `npm test` exit 0.'),
+    ...overrides,
+  };
+}
+
+function fakeCompletionRun({ head = COMPLETION_HEAD, upstream = 'origin/fix/19', ahead = '0', pr = completionPr(), ghFailure = null } = {}) {
+  const calls = [];
+  const run = async (executable, args) => {
+    calls.push([executable, ...args]);
+    if (executable === 'git' && args[0] === 'rev-parse' && args[1] === 'HEAD') return { code: 0, stdout: `${head}\n`, stderr: '' };
+    if (executable === 'git' && args[0] === 'rev-parse') {
+      return upstream ? { code: 0, stdout: `${upstream}\n`, stderr: '' } : { code: 128, stdout: '', stderr: 'fatal: no upstream' };
+    }
+    if (executable === 'git' && args[0] === 'rev-list') return { code: 0, stdout: `${ahead}\n`, stderr: '' };
+    if (executable === 'gh') return ghFailure ?? { code: 0, stdout: JSON.stringify(pr), stderr: '' };
+    return { code: 1, stdout: '', stderr: `unexpected executable ${executable}` };
+  };
+  return { calls, run };
+}
+
+test('completion runs read-only git/gh and completes only on matching remote, PR and verifier state', async () => {
+  const fake = fakeCompletionRun();
+  const complete = await verifyPublicationCompletion({ authorized: true, cwd: tmpdir(), run: fake.run });
+  assert.equal(complete.status, 'complete');
+  assert.equal(complete.exitCode, 0);
+  assert.deepEqual(complete.missing, []);
+  assert.equal(completionExitCode(complete), 0);
+  assert.equal(complete.pr.headRefOid, COMPLETION_HEAD);
+  assert.ok(fake.calls.some(([executable, ...args]) => executable === 'git' && args[0] === 'rev-parse' && args[1] === 'HEAD'));
+  assert.ok(fake.calls.some(([executable, ...args]) => executable === 'git' && args[0] === 'rev-list'));
+  assert.ok(fake.calls.some(([executable, ...args]) => executable === 'gh' && args[0] === 'pr' && args[1] === 'view'));
+
+  const ahead = await verifyPublicationCompletion({ authorized: true, cwd: tmpdir(), run: fakeCompletionRun({ ahead: '2' }).run });
+  assert.equal(ahead.status, 'incomplete');
+  assert.ok(ahead.missing.some(item => item.includes('local commits not on origin/fix/19')), ahead.missing.join('\n'));
+
+  const ghFailure = await verifyPublicationCompletion({
+    authorized: true, cwd: tmpdir(), run: fakeCompletionRun({ ghFailure: { code: 1, stdout: '', stderr: 'gh: not authenticated' } }).run,
+  });
+  assert.equal(ghFailure.status, 'incomplete');
+  assert.ok(ghFailure.missing.some(item => item.includes('gh pr view')), ghFailure.missing.join('\n'));
+
+  const mismatch = await verifyPublicationCompletion({
+    authorized: true, cwd: tmpdir(), run: fakeCompletionRun({ pr: completionPr({ headRefOid: 'b'.repeat(40) }) }).run,
+  });
+  assert.equal(mismatch.status, 'incomplete');
+  assert.ok(mismatch.missing.includes('PR head matches local HEAD'));
+});
+
+test('a recorded FAIL cannot be replaced by a responsible verifier; a blocked verifier can name an owner', async () => {
+  const failed = await verifyPublicationCompletion({
+    authorized: true,
+    cwd: tmpdir(),
+    run: fakeCompletionRun({ pr: completionPr({ body: body('`pstack.verifier`: FAIL. Responsible verifier: operator.') }) }).run,
+  });
+  assert.equal(failed.status, 'incomplete');
+  assert.equal(failed.verification.verdict, 'FAIL');
+  assert.ok(failed.missing.includes('verifier result is not FAIL'));
+
+  const blocked = await verifyPublicationCompletion({
+    authorized: true,
+    cwd: tmpdir(),
+    run: fakeCompletionRun({ pr: completionPr({ body: body('`pstack.verifier`: BLOCKED. Responsible verifier: operator.') }) }).run,
+  });
+  assert.equal(blocked.status, 'complete');
+  assert.equal(blocked.verification.verdict, 'BLOCKED');
+  assert.equal(blocked.verification.responsible, true);
+
+  const blockedNoOwner = await verifyPublicationCompletion({
+    authorized: true,
+    cwd: tmpdir(),
+    run: fakeCompletionRun({ pr: completionPr({ body: body('`pstack.verifier`: BLOCKED.') }) }).run,
+  });
+  assert.equal(blockedNoOwner.status, 'incomplete');
+  assert.ok(blockedNoOwner.missing.includes('responsible verifier for a BLOCKED pstack.verifier'));
+
+  const noVerdict = await verifyPublicationCompletion({
+    authorized: true,
+    cwd: tmpdir(),
+    run: fakeCompletionRun({ pr: completionPr({ body: body('`pstack.verifier`: ran the checks.') }) }).run,
+  });
+  assert.equal(noVerdict.status, 'incomplete');
+
+  const noVerifier = await verifyPublicationCompletion({
+    authorized: true,
+    cwd: tmpdir(),
+    run: fakeCompletionRun({ pr: completionPr({ body: body('- `npm test`: exit 0.') }) }).run,
+  });
+  assert.equal(noVerifier.status, 'incomplete');
+});
+
+test('completion without publication authorization is blocked before any git or gh call', async () => {
+  const fake = fakeCompletionRun();
+  const blocked = await verifyPublicationCompletion({ authorized: false, cwd: tmpdir(), run: fake.run });
+  assert.equal(blocked.status, 'blocked');
+  assert.equal(blocked.exitCode, COMPLETION_EXIT_CODES.blocked);
+  assert.equal(completionExitCode(blocked), 126);
+  assert.match(blocked.reason, /not authorized/);
+  assert.match(blocked.reason, /cannot grant/);
+  assert.equal(fake.calls.length, 0);
+
+  const invalidPr = await verifyPublicationCompletion({ authorized: true, pr: 'abc', cwd: tmpdir(), run: fake.run });
+  assert.equal(invalidPr.status, 'blocked');
+  assert.equal(invalidPr.exitCode, 126);
+  assert.equal(fake.calls.length, 0);
+});
+
+test('the completion CLI uses the injected runner and keeps 0/1/126', async () => {
+  const out = [];
+  const io = { out: line => out.push(line), err: () => {} };
+  assert.equal(await runCompletionCli(['--authorized'], io, { cwd: tmpdir(), run: fakeCompletionRun().run }), 0);
+  assert.match(out.at(-1), /"status": "complete"/);
+  assert.equal(await runCompletionCli(['--authorized'], io, { cwd: tmpdir(), run: fakeCompletionRun({ ahead: '1' }).run }), 1);
+  assert.match(out.at(-1), /"status": "incomplete"/);
+  assert.equal(await runCompletionCli([], io, { cwd: tmpdir(), run: fakeCompletionRun().run }), 126);
+  assert.match(out.at(-1), /"status": "blocked"/);
+});
+
+test('the production CLI executes real read-only git and gh instead of reading a boolean evidence file', () => {
+  const root = repo();
+  const bin = join(root, 'bin');
+  const callsPath = join(root, 'calls.log');
+  const prPath = join(root, 'pr.json');
+  mkdirSync(bin);
+  writeFileSync(prPath, JSON.stringify(completionPr()));
+  const gitScript = `#!/bin/sh
+printf 'git %s\\n' "$*" >> "$CALLS"
+if [ "$1" = "rev-parse" ] && [ "$2" = "HEAD" ]; then printf '${COMPLETION_HEAD}\\n'; exit 0; fi
+if [ "$1" = "rev-parse" ]; then printf 'origin/fix/19\\n'; exit 0; fi
+if [ "$1" = "rev-list" ]; then printf '0\\n'; exit 0; fi
+printf 'unexpected git %s\\n' "$*" >&2
+exit 1
+`;
+  const ghScript = `#!/bin/sh
+printf 'gh %s\\n' "$*" >> "$CALLS"
+cat "$PR_JSON"
+`;
+  writeFileSync(join(bin, 'git'), gitScript);
+  writeFileSync(join(bin, 'gh'), ghScript);
+  chmodSync(join(bin, 'git'), 0o755);
+  chmodSync(join(bin, 'gh'), 0o755);
+  const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, CALLS: callsPath, PR_JSON: prPath };
+  try {
+    const stdout = execFileSync(process.execPath, [gatePath, 'completion', '--authorized'], { cwd: root, env, encoding: 'utf8' });
+    assert.match(stdout, /"status": "complete"/);
+    const calls = readFileSync(callsPath, 'utf8');
+    assert.match(calls, /^git rev-parse HEAD$/m);
+    assert.match(calls, /^git rev-list --count origin\/fix\/19\.\.HEAD$/m);
+    assert.match(calls, /^gh pr view --json /m);
+
+    assert.throws(
+      () => execFileSync(process.execPath, [gatePath, 'completion'], { cwd: root, env, encoding: 'utf8' }),
+      error => {
+        assert.equal(error.status, 126);
+        return true;
+      },
+    );
+    assert.equal(readFileSync(callsPath, 'utf8'), calls, 'unauthorized completion must not run git or gh');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('the CLI reports the same verdicts with stable exit codes', () => {

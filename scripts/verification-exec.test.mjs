@@ -1,43 +1,53 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:net';
 import { mkdtemp, realpath, rm, stat, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  DEGRADED_LIMITATIONS,
   TOOL_NAME,
   buildSandboxProfile,
+  capabilityFromSandbox,
   createVerificationTool,
   detectSandbox,
+  getVerificationCapability,
   parseVerificationCommand,
   renderVerificationResult,
   runVerification,
 } from '../extensions/pstack/verification-exec.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const requireSandbox = process.env.PSTACK_VERIFY_REQUIRE_SANDBOX === '1';
 const sandbox = await detectSandbox();
 
-function fixture(t, files) {
+function gitFixture(t, files) {
   return (async () => {
     const dir = await mkdtemp(join(tmpdir(), 'pstack-verify-fixture-'));
     t.after(() => rm(dir, { recursive: true, force: true }));
     for (const [name, content] of Object.entries(files)) await writeFile(join(dir, name), content);
+    const git = args => execFileSync('git', args, { cwd: dir, encoding: 'utf8' });
+    git(['init', '-b', 'main']);
+    git(['add', '-A']);
+    git(['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-m', 'fixture']);
     return dir;
   })();
 }
 
-function sandboxTest(name, fn) {
-  test(name, async t => {
-    if (!sandbox.available) {
-      if (requireSandbox) assert.fail(`OS sandbox required but unavailable: ${sandbox.reason}`);
-      t.skip(`OS sandbox unavailable: ${sandbox.reason}`);
-      return;
-    }
-    await fn(t);
-  });
+// The verifier itself must never be pointed at the package checkout from its
+// own suite: `npm test` there would re-enter this file and recurse.
+function assertIsolatedFixture(cwd) {
+  const value = resolve(cwd);
+  assert.notEqual(value, root, `refusing to execute a test command in the package repository: ${value}`);
+  assert.ok(value.startsWith(resolve(tmpdir()) + sep), `refusing to execute outside the temporary test root: ${value}`);
+  assert.ok(value.includes('pstack-verify-fixture-'), `refusing to execute in an unrecognized fixture: ${value}`);
+}
+
+async function runFixture(command, options) {
+  assertIsolatedFixture(options.cwd);
+  return runVerification(command, options);
 }
 
 const ESCAPE_SCRIPT = `
@@ -152,15 +162,92 @@ test('seatbelt profile denies network and non-scratch writes', () => {
   assert.doesNotMatch(profile, /subpath "\/Users\//);
 });
 
-test('an unavailable or unknown sandbox is a refusal, never an argv-only fallback', async () => {
-  const unavailable = await runVerification('npm test', { cwd: root, sandbox: { available: false, kind: 'none', reason: 'test has no sandbox' } });
-  assert.equal(unavailable.ok, false);
-  assert.equal(unavailable.status, 'unavailable');
-  assert.match(unavailable.reason, /refusing to execute repository code/);
-  assert.match(renderVerificationResult(unavailable), /^UNAVAILABLE:/);
-  const unknown = await runVerification('npm test', { cwd: root, sandbox: { available: true, kind: 'fake-sandbox' } });
-  assert.equal(unknown.ok, false);
-  assert.equal(unknown.status, 'unavailable');
+test('the test harness refuses to execute against the package repository', () => {
+  assert.throws(() => assertIsolatedFixture(root), /package repository/);
+});
+
+test('capability query reports the real boundary and degraded limitations', async () => {
+  const degraded = await getVerificationCapability({ sandbox: { available: false, kind: 'linux-bwrap', reason: 'bwrap unavailable in test' } });
+  assert.equal(degraded.isolation, 'degraded-worktree');
+  assert.equal(degraded.degraded, true);
+  assert.match(degraded.warning, /NOT an OS sandbox/);
+  assert.match(degraded.responsibleParty, /responsible/);
+  assert.deepEqual(degraded.limitations, [...DEGRADED_LIMITATIONS]);
+  assert.ok(degraded.limitations.some(line => line.includes('network: not blocked')));
+  assert.ok(degraded.limitations.some(line => line.includes('node_modules')));
+  const sandboxed = capabilityFromSandbox({ available: true, kind: 'macos-seatbelt', enforcement: 'seatbelt test' });
+  assert.equal(sandboxed.isolation, 'os-sandbox');
+  assert.equal(sandboxed.degraded, false);
+  assert.deepEqual(sandboxed.limitations, []);
+});
+
+test('without an OS sandbox, a real npm test runs in a labeled degraded workspace', async t => {
+  const passing = await gitFixture(t, {
+    'package.json': JSON.stringify({ name: 'verify-degraded-pass', version: '1.0.0', private: true, scripts: { test: 'node pass.mjs' } }),
+    'pass.mjs': 'import { writeFileSync } from "node:fs"; writeFileSync("artifact.txt", "workspace"); console.log("DEGRADED_FIXTURE_PASS");\n',
+  });
+  const result = await runFixture('npm test', {
+    cwd: passing,
+    sandbox: { available: false, kind: 'linux-bwrap', reason: 'bwrap unavailable in test' },
+  });
+  assert.equal(result.ok, true, result.reason);
+  assert.equal(result.degraded, true);
+  assert.equal(result.isolation, 'degraded-worktree');
+  assert.equal(result.status, 'passed');
+  assert.equal(result.exitCode, 0);
+  assert.match(result.stdout, /DEGRADED_FIXTURE_PASS/);
+  assert.match(result.enforcement, /NOT an OS sandbox/);
+  assert.match(result.warning, /network access is not blocked/);
+  assert.match(result.responsibleParty, /responsible/);
+  assert.deepEqual(result.limitations, [...DEGRADED_LIMITATIONS]);
+  assert.ok(['temporary-git-worktree', 'temporary-git-checkout'].includes(result.workspace), result.workspace);
+  assert.equal(existsSync(join(passing, 'artifact.txt')), false, 'the source fixture must not receive the command write');
+  assert.match(renderVerificationResult(result), /^ISOLATION: degraded-worktree$/m);
+  assert.match(renderVerificationResult(result), /^LIMITATION: network: not blocked/m);
+
+  const failing = await gitFixture(t, {
+    'package.json': JSON.stringify({ name: 'verify-degraded-fail', version: '1.0.0', private: true, scripts: { test: 'node fail.mjs' } }),
+    'fail.mjs': 'process.exit(7);\n',
+  });
+  const failed = await runFixture('npm test', {
+    cwd: failing,
+    sandbox: { available: false, kind: 'linux-bwrap', reason: 'bwrap unavailable in test' },
+  });
+  assert.equal(failed.ok, true, failed.reason);
+  assert.equal(failed.degraded, true);
+  assert.equal(failed.exitCode, 7);
+  assert.equal(failed.status, 'failed');
+  assert.match(renderVerificationResult(failed), /^EXIT CODE: 7$/m);
+});
+
+test('degraded workspace includes current tracked and untracked changes', async t => {
+  const dir = await gitFixture(t, {
+    'package.json': JSON.stringify({ name: 'verify-degraded-change', version: '1.0.0', private: true, scripts: { test: 'node feature.mjs && node untracked.mjs' } }),
+    'feature.mjs': 'console.log("COMMITTED");\n',
+  });
+  await writeFile(join(dir, 'feature.mjs'), 'console.log("UNCOMMITTED_TRACKED");\n');
+  await writeFile(join(dir, 'untracked.mjs'), 'console.log("UNCOMMITTED_UNTRACKED");\n');
+  const result = await runFixture('npm test', {
+    cwd: dir,
+    sandbox: { available: false, kind: 'linux-bwrap', reason: 'bwrap unavailable in test' },
+  });
+  assert.equal(result.ok, true, result.reason);
+  assert.match(result.stdout, /UNCOMMITTED_TRACKED/);
+  assert.match(result.stdout, /UNCOMMITTED_UNTRACKED/);
+});
+
+test('a non-Git cwd is refused instead of silently running without a workspace copy', async t => {
+  const dir = await mkdtemp(join(tmpdir(), 'pstack-verify-fixture-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  await writeFile(join(dir, 'package.json'), JSON.stringify({ name: 'verify-not-git', version: '1.0.0', private: true, scripts: { test: 'node pass.mjs' } }));
+  await writeFile(join(dir, 'pass.mjs'), 'console.log("SHOULD_NOT_RUN");\n');
+  const result = await runFixture('npm test', {
+    cwd: dir,
+    sandbox: { available: false, kind: 'linux-bwrap', reason: 'bwrap unavailable in test' },
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.status, 'unavailable');
+  assert.match(result.reason, /degraded workspace could not be prepared/);
 });
 
 test('refused commands render as REFUSED with the parser reason', () => {
@@ -176,51 +263,63 @@ test('tool definition is the registration contract for the host', () => {
   assert.equal(typeof definition.execute, 'function');
 });
 
-sandboxTest('executes read-only git under the OS sandbox and reports a real exit code', async () => {
-  const result = await runVerification('git status --porcelain', { cwd: root });
+test('executes read-only git in the configured boundary and reports a real exit code', async t => {
+  const dir = await gitFixture(t, { 'tracked.txt': 'content\n' });
+  const result = await runFixture('git status --porcelain', { cwd: dir });
   assert.equal(result.ok, true, result.reason);
-  assert.equal(result.sandbox, sandbox.kind);
   assert.equal(result.status, 'passed');
   assert.equal(result.exitCode, 0);
-  assert.match(result.enforcement, /network denied|network namespace/);
+  if (sandbox.available) {
+    assert.equal(result.isolation, 'os-sandbox');
+    assert.equal(result.sandbox, sandbox.kind);
+    assert.match(result.enforcement, /network denied|network namespace/);
+  } else {
+    assert.equal(result.isolation, 'degraded-worktree');
+    assert.match(result.warning, /NOT an OS sandbox/);
+  }
 });
 
-sandboxTest('executes npm test in a fixture and reports exit code 0', async t => {
-  const dir = await fixture(t, {
+test('executes npm test in a fixture and reports exit code 0', async t => {
+  const dir = await gitFixture(t, {
     'package.json': JSON.stringify({ name: 'verify-pass', version: '1.0.0', private: true, scripts: { test: 'node pass.mjs' } }),
     'pass.mjs': 'console.log("FIXTURE_PASS");\n',
   });
-  const result = await runVerification('npm test', { cwd: dir });
+  const result = await runFixture('npm test', { cwd: dir });
   assert.equal(result.ok, true, result.reason);
   assert.equal(result.exitCode, 0);
   assert.equal(result.status, 'passed');
   assert.match(result.stdout, /FIXTURE_PASS/);
 });
 
-sandboxTest('reports a failing npm test exit code without treating it as launch failure', async t => {
-  const dir = await fixture(t, {
+test('reports a failing npm test exit code without treating it as launch failure', async t => {
+  const dir = await gitFixture(t, {
     'package.json': JSON.stringify({ name: 'verify-fail', version: '1.0.0', private: true, scripts: { test: 'node fail.mjs' } }),
     'fail.mjs': 'process.exit(7);\n',
   });
-  const result = await runVerification('npm test', { cwd: dir });
+  const result = await runFixture('npm test', { cwd: dir });
   assert.equal(result.ok, true, result.reason);
   assert.equal(result.exitCode, 7);
   assert.equal(result.status, 'failed');
   assert.match(renderVerificationResult(result), /^EXIT CODE: 7$/m);
 });
 
-sandboxTest('a malicious npm script cannot write outside scratch or reach the network', async t => {
+test('a malicious npm script cannot write outside scratch or reach the network when the OS sandbox is active', async t => {
+  if (!sandbox.available) {
+    assert.equal((await getVerificationCapability({ sandbox })).degraded, true);
+    t.diagnostic(`OS sandbox unavailable; degraded behavior is covered by the explicit fallback tests: ${sandbox.reason}`);
+    return;
+  }
   const token = `escape-${process.pid}-${Date.now()}`;
   let connections = 0;
   const server = createServer(socket => { connections += 1; socket.destroy(); });
   await new Promise(resolvePromise => server.listen(0, '127.0.0.1', resolvePromise));
   const port = server.address().port;
   try {
-    const dir = await fixture(t, {
+    const dir = await gitFixture(t, {
       'package.json': JSON.stringify({ name: 'verify-escape', version: '1.0.0', private: true, scripts: { test: 'node escape.mjs' } }),
       'escape.mjs': ESCAPE_SCRIPT,
     });
-    const result = await runVerification('npm test', {
+    const result = await runFixture('npm test', {
       cwd: dir,
       env: { PSTACK_ESCAPE_TOKEN: token, PSTACK_ESCAPE_PORT: port },
     });
@@ -238,15 +337,20 @@ sandboxTest('a malicious npm script cannot write outside scratch or reach the ne
   }
 });
 
-sandboxTest('a malicious direct node script cannot write outside scratch or reach the network', async t => {
+test('a malicious direct node script cannot write outside scratch or reach the network when the OS sandbox is active', async t => {
+  if (!sandbox.available) {
+    assert.equal((await getVerificationCapability({ sandbox })).degraded, true);
+    t.diagnostic(`OS sandbox unavailable; degraded behavior is covered by the explicit fallback tests: ${sandbox.reason}`);
+    return;
+  }
   const token = `node-escape-${process.pid}-${Date.now()}`;
   let connections = 0;
   const server = createServer(socket => { connections += 1; socket.destroy(); });
   await new Promise(resolvePromise => server.listen(0, '127.0.0.1', resolvePromise));
   const port = server.address().port;
   try {
-    const dir = await fixture(t, { 'escape.mjs': ESCAPE_SCRIPT });
-    const result = await runVerification('node escape.mjs', {
+    const dir = await gitFixture(t, { 'escape.mjs': ESCAPE_SCRIPT });
+    const result = await runFixture('node escape.mjs', {
       cwd: dir,
       env: { PSTACK_ESCAPE_TOKEN: token, PSTACK_ESCAPE_PORT: port },
     });
@@ -262,8 +366,8 @@ sandboxTest('a malicious direct node script cannot write outside scratch or reac
   }
 });
 
-sandboxTest('allows builds to write inside the private scratch directory', async t => {
-  const dir = await fixture(t, {
+test('allows builds to write inside the private scratch directory', async t => {
+  const dir = await gitFixture(t, {
     'probe.mjs': `
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -271,30 +375,30 @@ writeFileSync(join(process.env.TMPDIR, 'scratch-proof.txt'), 'ok');
 console.log('SCRATCH_WRITE:ok');
 `,
   });
-  const result = await runVerification('node probe.mjs', { cwd: dir });
+  const result = await runFixture('node probe.mjs', { cwd: dir });
   assert.equal(result.ok, true, result.reason);
   assert.equal(result.exitCode, 0, result.stderr);
   assert.match(result.stdout, /SCRATCH_WRITE:ok/);
 });
 
-sandboxTest('caps captured output by bytes for multi-byte text', async t => {
-  const dir = await fixture(t, {
+test('caps captured output by bytes for multi-byte text', async t => {
+  const dir = await gitFixture(t, {
     'unicode.mjs': 'process.stdout.write("汉".repeat(4000));\n',
   });
-  const result = await runVerification('node unicode.mjs', { cwd: dir, maxOutputBytes: 1024 });
+  const result = await runFixture('node unicode.mjs', { cwd: dir, maxOutputBytes: 1024 });
   assert.equal(result.ok, true, result.reason);
   assert.equal(result.outputTruncated, true);
   assert.ok(Buffer.byteLength(result.stdout, 'utf8') <= 1024, `captured ${Buffer.byteLength(result.stdout, 'utf8')} bytes`);
 });
 
-sandboxTest('timeout kills the whole process tree, not only the direct child', async t => {
+test('timeout kills the whole process tree, not only the direct child', async t => {
   const scratch = await realpath(await mkdtemp(join(tmpdir(), 'pstack-verify-tree-')));
   t.after(() => rm(scratch, { recursive: true, force: true }));
   const heartbeat = join(scratch, 'heartbeat.log');
-  const dir = await fixture(t, {
+  const dir = await gitFixture(t, {
     'tree.mjs': DESCENDANT_SCRIPT,
   });
-  const result = await runVerification('node tree.mjs', {
+  const result = await runFixture('node tree.mjs', {
     cwd: dir,
     scratchDir: scratch,
     env: { HEARTBEAT: heartbeat },
@@ -310,11 +414,11 @@ sandboxTest('timeout kills the whole process tree, not only the direct child', a
   assert.equal(second, first, 'a descendant survived the timeout and kept writing');
 });
 
-sandboxTest('times out a long-running command and reports it as not passed', async t => {
-  const dir = await fixture(t, {
+test('times out a long-running command and reports it as not passed', async t => {
+  const dir = await gitFixture(t, {
     'sleep.mjs': 'setTimeout(() => process.exit(0), 10000);\n',
   });
-  const result = await runVerification('node sleep.mjs', { cwd: dir, timeoutMs: 500 });
+  const result = await runFixture('node sleep.mjs', { cwd: dir, timeoutMs: 500 });
   assert.equal(result.ok, true, result.reason);
   assert.equal(result.timedOut, true);
   assert.equal(result.status, 'timed-out');

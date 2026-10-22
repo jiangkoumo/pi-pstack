@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { test } from 'node:test';
 import { createServer } from 'node:http';
 import { mkdtemp, mkdir, writeFile, rm, readFile } from 'node:fs/promises';
@@ -6,18 +7,11 @@ import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createAgentSession, DefaultResourceLoader, SessionManager, SettingsManager, ModelRuntime } from '@earendil-works/pi-coding-agent';
-import { detectSandbox } from '../extensions/pstack/verification-exec.mjs';
 import { disposeTestSession } from './test-session-lifecycle.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 
 test('production pstack.verifier executes npm test and refuses write and push in a detached child', { timeout: 90000 }, async t => {
-  const sandbox = await detectSandbox();
-  if (!sandbox.available) {
-    assert.notEqual(process.env.PSTACK_VERIFY_REQUIRE_SANDBOX, '1', sandbox.reason);
-    t.skip(sandbox.reason);
-    return;
-  }
   const dir = await mkdtemp(resolve(tmpdir(), 'pstack-verifier-child-'));
   const agentDir = resolve(dir, 'agent');
   const cwd = resolve(dir, 'workspace');
@@ -72,6 +66,10 @@ test('production pstack.verifier executes npm test and refuses write and push in
     await mkdir(cwd);
     await writeFile(resolve(cwd, 'package.json'), JSON.stringify({ name: 'verifier-child-fixture', version: '1.0.0', scripts: { test: 'node test.mjs' } }));
     await writeFile(resolve(cwd, 'test.mjs'), 'console.log("INDEPENDENT_FIXTURE_PASS");\n');
+    const git = args => execFileSync('git', args, { cwd, encoding: 'utf8' });
+    git(['init', '-b', 'main']);
+    git(['add', '-A']);
+    git(['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-m', 'fixture']);
     process.env.PI_CODING_AGENT_DIR = agentDir;
     process.env.PI_SUBAGENTS_TEMP_ROOT = resolve(dir, 'runs');
     process.env.PI_SUBAGENTS_PI_CODING_AGENT_PACKAGE_ROOT = resolve(root, 'node_modules/@earendil-works/pi-coding-agent');
