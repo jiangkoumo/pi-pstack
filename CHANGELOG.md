@@ -2,7 +2,7 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
-## 0.3.3 — Unreleased
+## 0.3.3
 
 - Include this changelog in the npm package and require a release heading for the current package version in the package check.
 - Require exact upstream fidelity of at least 94%, with a regression for the former score that rounded to 94% but did not meet that threshold. Restore two applicable upstream sentences while keeping the existing authorization boundaries.

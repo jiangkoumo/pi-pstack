@@ -19,7 +19,7 @@ jobs:
         run: timeout 180s npm test
       - name: Generated resources are current
         run: npm run check:generate
-      - name: Upstream fidelity (overall 85%, every port 70%)
+      - name: Upstream fidelity (overall 94%, every port 70%)
         run: npm run check:fidelity
 
   verifier-sandbox:
