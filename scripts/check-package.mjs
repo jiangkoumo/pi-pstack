@@ -193,6 +193,41 @@ for (const file of documents) {
 }
 const references = await checkSkillReferences(root, { includeGenerated: true });
 assert(references.ok, 'Invalid skill/playbook references: ' + JSON.stringify(references.errors));
+
+// --- docs-vs-tree (upstream #704) ---
+// Assert that every skill and extension command mentioned in documentation exists in the package tree.
+const treeSkills = new Set(
+  (await readdir(resolve(root, 'skills'), { withFileTypes: true }))
+    .filter(entry => entry.isDirectory())
+    .map(entry => entry.name)
+);
+const treePlaybooks = new Set(
+  (await readdir(resolve(root, 'skills/poteto-mode/playbooks'), { withFileTypes: true }))
+    .filter(entry => entry.isFile() && entry.name.endsWith('.md'))
+    .map(entry => entry.name.replace(/\.md$/, ''))
+);
+const registeredCommands = new Set(['poteto-mode', 'setup-pstack', 'loop']);
+const placeholderNames = new Set(['name', 'skill-name', 'your-task', 'topic', 'command']);
+
+for (const docFile of documents) {
+  const text = await readFile(docFile, 'utf8');
+  for (const match of text.matchAll(/\/skill:([a-z0-9]+(?:-[a-z0-9]+)*)/g)) {
+    const name = match[1];
+    if (placeholderNames.has(name)) continue;
+    assert(
+      treeSkills.has(name) || treePlaybooks.has(name),
+      `docs-vs-tree: ${relative(root, docFile)} references missing skill /skill:${name}`
+    );
+  }
+  for (const match of text.matchAll(/\/(poteto-mode|setup-pstack|loop)\b/g)) {
+    const command = match[1];
+    assert(
+      registeredCommands.has(command),
+      `docs-vs-tree: ${relative(root, docFile)} references unknown command /${command}`
+    );
+  }
+}
+
 const genCheck = spawnSync(process.execPath, [resolve(root, 'scripts/generate-pi-resources.mjs'), '--check'], { encoding: 'utf8' });
 assert.equal(genCheck.status, 0, 'Resource drift detected: ' + genCheck.stderr + genCheck.stdout);
 

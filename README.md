@@ -16,11 +16,11 @@
 
 ## 核心特性与架构
 
-### 1. 全量 82 项条目 100% 决议闭环
-上游 82 个条目已全部完成审计、适配与决议：
-* **已适配生成 (77 项 Ported)**：包含工程原则、方法技能、多代理技能与实战 Playbooks；`recall`、`automate-me`、`eval`、`authoring-a-skill` 已接入当前工作区的 Pi 会话。保留本地证据与显式 Git 授权边界；
+### 1. 全量 85 项条目 100% 决议闭环
+上游 85 个条目已全部完成审计、适配与决议：
+* **已适配生成 (80 项 Ported)**：包含工程原则、方法技能、多代理技能、实战 Playbooks、形式化验证套件（`/create-formal-verification-skill`、`/maintain-formal-verification-skill`、`/statechart`）；`recall`、`ketchup`、`sharpen`、`automate-me`、`eval`、`authoring-a-skill` 已接入当前工作区的 Pi 会话。保留本地证据与显式 Git 授权边界；
 * **替代路线定案 (5 项 Substitute)**：Benny 三项自动化、`make-bot-ui` 与由扩展命令替代的 `setup-pstack`。来源与替代范围逐项记录；
-* **延期待定 (0 项 Deferred)**：上游条目已全部清点决议完毕。
+* **延期待定 (0 项 Deferred)**：上游条目已全部清点决议完毕。Claude Code 安装树作为宿主特定组件单独归档为 deferred，不纳入包分发。
 
 ### 2. `/loop` 长任务有界续跑运行时
 基于 Pi 1.3.0 官方公开的 `agent_before_settle` 事件规范构建的原子续跑底座：
@@ -36,7 +36,8 @@
 
 ### 4. 模式控制与多角色模型配置
 * `/poteto-mode on | off | status`：在当前会话分支开启或关闭系统提示词与工程指引注入；
-* `/setup-pstack`：严格 Schema 校验，为 `code`、`bug-fix`、`perf`、`hillclimb`、`judgment`、`strongest`、`review`、`prose`、`verification` 分配精确的 `provider/id` 模型和 thinking 级别，绝不静默回退。
+* `/setup-pstack`：严格 Schema 校验，为 `code`、`bug-fix`、`perf`、`hillclimb`、`judgment`、`strongest`、`review`、`prose`、`verification` 分配精确的 `provider/id` 模型和 thinking 级别，绝不静默回退；
+* **形式化验证引导**：交互式配置引导（第 8 步）扫描项目技能与 TLC 可用性，向用户发起一次性项目形式化验证技能提议；用户选择持久化在项目隔离配置中，拒绝后不再重复提示。
 
 ---
 
@@ -110,6 +111,10 @@ TLA+ 模型检查（TLC）是可选能力：本包不打包、也不自动下载
 # 4. 直接使用特定工程技能
 /skill:poteto-mode "investigate the memory leak in worker"
 /skill:correct "audit recurring regression patterns"
+/skill:sharpen "refactor caching layer"
+/skill:ketchup
+/skill:create-formal-verification-skill "prove queue concurrency invariants"
+/skill:statechart "generate statechart from OutputFolder.tla"
 ```
 
 `/loop run` 必须提供 `--until "<command>"` 停止谓词；`--max-turns` 限制最大轮次。`/loop` 的交互入口使用 TUI；无头运行请启动 `pi --mode rpc`，通过 RPC 客户端发送 `/loop run ...` 并处理后续事件。不要使用 print/JSON 模式（`pi -p` 或 `pi --mode json`）启动 loop；这些模式不支持此续跑入口。
@@ -126,7 +131,7 @@ TLA+ 模型检查（TLC）是可选能力：本包不打包、也不自动下载
 | :--- | :---: | :--- | :--- |
 | **工程原则** | 24 | `model-the-domain`, `fix-root-causes`, `prove-it-works`, `build-the-lever` 等 | Ported（全量正文规范化生成） |
 | **工作流程** | 20 | `investigation`, `bug-fix`, `feature`, `autonomous-run`, `orchestrate`, `multi-phase-plan`, `babysit` 等 | Ported（消除自动commit，对齐Pi规范） |
-| **核心技能** | 27 | `correct`, `tdd`, `architect`, `arena`, `how`, `poteto-help`, `benchmark-checklist` 等 | Ported（接入角色模型与只读白名单） |
+| **核心技能** | 30 | `correct`, `tdd`, `architect`, `arena`, `how`, `poteto-help`, `create-formal-verification-skill`, `maintain-formal-verification-skill`, `statechart` 等 | Ported（接入角色模型与只读白名单） |
 | **代理角色** | 4 | `comment-sicko`, `poteto-agent`, `verifier`, `prose-writer` | Ported（通过运行时公共事件动态注册） |
 | **替代条目** | 5 | Benny 三项自动化、`make-bot-ui`、`setup-pstack` 扩展命令 | Substitute（逐项记录替代边界） |
 
@@ -137,7 +142,7 @@ TLA+ 模型检查（TLC）是可选能力：本包不打包、也不自动下载
 ## 质量与防漂移保障
 
 本项目采用“固定上游源码（`upstream/`）+ Pi 适配层（`adapters/pi/`）+ 生成分发资源（`skills/`, `agents/`）”的设计：
-* `npm run check:generate`：校验固定上游指纹与生成产物，拒绝漂移；当前检查 117 项资源；
+* `npm run check:generate`：校验固定上游指纹与生成产物，拒绝漂移；当前检查 131 项资源；
 * `npm test`：执行模式持久化、Loop 状态机、生成器、Writer Gate 与保真度门禁行为测试；
 * `npm run check:fidelity`：运行指定上游文本对比脚本，要求整体至少94%、每个已移植Markdown至少70%；
 * `npm run check:sim`：真实代码库端到端闭环实测。

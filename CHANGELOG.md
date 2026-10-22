@@ -2,7 +2,18 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
-## 0.3.4
+## 0.3.5
+
+- Pinned upstream pstack baseline to `eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10` (pstack 0.15.30).
+- Support restricted TLA+/TLC model checking in `verification_exec`: sandboxed OS execution, strict jar binding, whitelisted flags, `.tla`/`.cfg` path restriction, output classification with invariant violation detection (exit 12), and explicit fallback reporting `未做形式化验证，原因是缺少 TLC` with generated-input real code tests (never claimed as a formal pass).
+- Port formal verification skills: `/create-formal-verification-skill` (formal invariant verification with real code checks), `/maintain-formal-verification-skill` (specification maintenance and drift triage), and `/statechart` (Mermaid statecharts from specs/code, TLC model generation, and diagram rendering via OutputFolder).
+- Add step 8 to `/setup-pstack`: prompt once per project for formal verification skill setup, adaptively guided by host TLC capability probe, with persistent decision recording in project-local state.
+- Reverse `/skill:sharpen` behavior to deepen instead of widen tasks, returning strictly the rewritten prompt.
+- Update `/skill:ketchup` to itemize all pending user decisions with complete context while strictly preserving conversation boundary against past sessions.
+- Enforce strict type guard patterns over `as` type assertions in `skills/typescript-best-practices`.
+- Add `docs-vs-tree` verification in `scripts/check-package.mjs` ensuring all skills and slash commands mentioned in documentation exist.
+- Standardize all skill frontmatter names to kebab-case matching folder names.
+
 
 - Declare `subagentOnlyExtensions: ../extensions/pstack/index.ts` in `pstack.verifier` and `pstack.comment-sicko` agent definitions and templates so foreground child sessions (which never load ambient parent extensions) receive `verification_exec` and `git_read`.
 - Preserve ambient extension loading in background child sessions without disabling ambient provider extensions, keeping third-party provider models resolvable.
