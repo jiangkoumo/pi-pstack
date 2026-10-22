@@ -33,6 +33,7 @@ import { getAgentDir } from "@earendil-works/pi-coding-agent";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { execFileSync } from "node:child_process";
+import { closeTestServer, disposeTestSession, finalizeCheck } from "./test-session-lifecycle.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const piRoot = process.env.PI_PSTACK_PI_ROOT;
@@ -722,29 +723,32 @@ try {
       // Best effort.
     }
   }
-  session?.dispose();
-  server.closeAllConnections();
-  await new Promise(accept => server.close(accept));
-  await cleanupRunnerPids();
-  if (process.env.PI_PSTACK_KEEP_BACKGROUND_FIXTURE) {
-    console.error(`Kept fixture directory: ${directory}`);
-  } else {
-    // Session disposal can still flush run indexes right after `session.dispose()`.
-    // Remove once here and once from the exit handler, which runs after every writer
-    // in this process is done.
-    await new Promise(accept => setTimeout(accept, 750));
-    try {
-      await rm(directory, { recursive: true, force: true });
-    } catch (error) {
-      console.error(`Failed to remove fixture directory '${directory}':`, error);
-    }
-    process.once("exit", () => {
-      try {
-        rmSync(directory, { recursive: true, force: true });
-      } catch {
-        // Reporting a leftover path is worse than a silent best-effort retry here.
-      }
-    });
-  }
   process.exitCode = failed ? 1 : 0;
+  await finalizeCheck(async () => {
+    const cleanupErrors = [];
+    try { await disposeTestSession(session); } catch (error) { cleanupErrors.push(error); }
+    try { await closeTestServer(server); } catch (error) { cleanupErrors.push(error); }
+    await cleanupRunnerPids();
+    if (process.env.PI_PSTACK_KEEP_BACKGROUND_FIXTURE) {
+      console.error(`Kept fixture directory: ${directory}`);
+    } else {
+      // Session disposal can still flush run indexes right after shutdown.
+      // Remove once here and once from the exit handler, which runs after every
+      // writer in this process is done.
+      await new Promise(accept => setTimeout(accept, 750));
+      try {
+        await rm(directory, { recursive: true, force: true });
+      } catch (error) {
+        cleanupErrors.push(error);
+      }
+      process.once("exit", () => {
+        try {
+          rmSync(directory, { recursive: true, force: true });
+        } catch {
+          // Best effort after explicit exit.
+        }
+      });
+    }
+    if (cleanupErrors.length) throw new AggregateError(cleanupErrors, 'background cleanup failed');
+  });
 }

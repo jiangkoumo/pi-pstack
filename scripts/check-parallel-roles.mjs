@@ -2,11 +2,12 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { createServer } from 'node:http';
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { createAgentSession, DefaultResourceLoader, SessionManager, SettingsManager, ModelRuntime, getAgentDir } from '@earendil-works/pi-coding-agent';
 import { ROLE_AGENTS, createRoleAgentController, guardPstackTopLevelModel } from '../extensions/pstack/role-agents.mjs';
+import { closeTestServer, disposeTestSession, finalizeCheck, removeTestDirectory } from './test-session-lifecycle.mjs';
 
 // This fixture loads only pi-subagents' public package entry. The production
 // pstack entry is deliberately not loaded: the owner wires this same controller.
@@ -35,6 +36,10 @@ const controllers = [];
 let session;
 let nextInput;
 let scenario = 'parallel';
+let registry;
+const warnings = [];
+const originalWarn = console.warn;
+console.warn = (...args) => { warnings.push(args.join(' ')); originalWarn(...args); };
 const roles = Object.fromEntries(Object.keys(ROLE_AGENTS).map(role => [role, { model: `fixture-${role}/${role}`, thinking: role === 'review' ? 'high' : 'low' }]));
 let activeRoles = roles;
 let activeScriptText = '';
@@ -60,9 +65,22 @@ try {
   const settings = { defaultProjectTrust: 'never', subagents: { asyncByDefault: false, intercomBridge: { mode: 'off' } }, retry: { enabled: false }, compaction: { enabled: false } };
   await writeFile(resolve(agentDir, 'settings.json'), JSON.stringify(settings));
   for (const [role, name] of Object.entries(ROLE_AGENTS)) {
-    await writeFile(resolve(agentsDir, name.slice(7) + '.md'), `---\nname: ${name.slice(7)}\npackage: pstack\ndescription: Role fixture ${role}\ntools: read, grep, find, ls\nexcludeTools: contact_supervisor\nextensions:\nsystemPromptMode: append\ninheritProjectContext: false\ninheritGlobalContext: false\ninheritSkills: false\nasync: false\nacceptanceRole: read-only\n---\nRole fixture ${role}. Return ROLE_FIXTURE_DONE without tools.\n`);
+    await writeFile(resolve(agentsDir, name.slice(7) + '.md'), `---\nname: ${name.slice(7)}\npackage: pstack\ndescription: Role fixture ${role}\ntools: read, grep, find, ls\nexcludeTools: contact_supervisor\nsystemPromptMode: append\ninheritProjectContext: false\ninheritGlobalContext: false\ninheritSkills: false\nasync: false\nacceptanceRole: read-only\n---\nRole fixture ${role}. Return ROLE_FIXTURE_DONE without tools.\n`);
   }
   await new Promise(accept => server.listen(0, '127.0.0.1', accept));
+  // A third-party provider extension registered by the host. Foreground children
+  // inherit the provider registration, so a provider-qualified role model must
+  // launch without needing the extension's hooks inside the child.
+  const providerExtensionPath = resolve(directory, 'thirdparty-provider.mjs');
+  await writeFile(providerExtensionPath, `export default function (pi) {
+  pi.registerProvider('thirdparty', {
+    baseUrl: 'http://127.0.0.1:${server.address().port}/thirdparty/v1',
+    api: 'openai-completions',
+    apiKey: 'fixture-only',
+    models: [{ id: 'inherited-child', name: 'Inherited Child', reasoning: true, input: ['text'], contextWindow: 64000, maxTokens: 1024, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } }],
+  });
+}
+`);
   const modelsPath = resolve(agentDir, 'models.json');
   const ids = ['parent', ...Object.keys(ROLE_AGENTS), 'override'];
   await writeFile(modelsPath, JSON.stringify({ providers: Object.fromEntries(ids.map(id => [`fixture-${id}`, {
@@ -72,11 +90,12 @@ try {
   const runtime = await ModelRuntime.create({ authPath: resolve(agentDir, 'auth.json'), modelsPath, allowModelNetwork: false });
   const settingsManager = SettingsManager.inMemory(settings);
   const loader = new DefaultResourceLoader({ cwd, agentDir, settingsManager, noExtensions: true,
-    additionalExtensionPaths: [resolve(subRoot, 'index.js')], noSkills: true, noContextFiles: true, noPromptTemplates: true, noThemes: true,
+    additionalExtensionPaths: [resolve(subRoot, 'index.js'), providerExtensionPath], noSkills: true, noContextFiles: true, noPromptTemplates: true, noThemes: true,
     extensionFactories: [pi => {
       const controller = createRoleAgentController(pi, agentsDir);
       controllers.push(controller);
       pi.on('session_start', async (_event, ctx) => {
+        registry = ctx.modelRegistry;
         await controller.refresh(activeRoles, ctx.modelRegistry.getAvailable(), ctx.model, () => ['off', 'low', 'high']);
       });
       pi.on('session_shutdown', () => controller.dispose());
@@ -104,11 +123,11 @@ try {
     const children = requests.slice(before).filter(request => !request.parent);
     if (expected !== null) {
       assert.equal(children.length, expected.length, `${label}: ${JSON.stringify(toolResults.slice(previousResults))}`);
-      for (const [model, thinking] of expected) {
+      for (const [model, thinking, route] of expected) {
         const child = children.find(request => request.input.model === model);
         assert(child, `${label}: missing actual child model ${model}`);
         assert.equal(child.input.reasoning_effort, thinking, `${label}: ${model} thinking`);
-        assert.equal(child.url, `/${model}/v1/chat/completions`, 'actual provider-specific HTTP route');
+        assert.equal(child.url, route ?? `/${model}/v1/chat/completions`, 'actual provider-specific HTTP route');
         assert.deepEqual((child.input.tools ?? []).map(tool => tool.function.name).sort(), ['find', 'grep', 'ls', 'read']);
       }
     }
@@ -144,6 +163,16 @@ try {
   assert.equal(toolResults.at(-1).isError ?? false, false);
   activeScriptText = '';
 
+  // A third-party provider extension registered by the host must remain usable
+  // by children now that role fixtures no longer declare an empty extensions list.
+  // Foreground children inherit the provider registration but not ambient hooks.
+  assert(registry, 'session_start must expose the model registry');
+  activeRoles = { ...roles, code: { model: 'thirdparty/inherited-child', thinking: 'low' } };
+  await controllers[0].refresh(activeRoles, registry.getAvailable(), runtime.getModel('fixture-parent', 'parent'), () => ['off', 'low', 'high']);
+  const providerChildren = await run('thirdparty-provider-extension', { workflow: 'parallel', args: { tasks: [tasks[0]] }, ...defaults }, [['inherited-child', 'low', '/thirdparty/v1/chat/completions']]);
+  assert.equal(providerChildren.length, 1, 'Exactly one child must use the extension-provided provider');
+  assert.equal(warnings.some(warning => /extensions: \[\] override/.test(warning)), false, 'Empty extensions must not disable ambient provider extensions: ' + warnings.join('\n'));
+
   // Live refresh: inherit code role binds parent model; unset code role uses subagents.defaultModel
   activeRoles = { ...roles, code: { model: 'inherit', thinking: 'low' } };
   await controllers[0].refresh(activeRoles, await runtime.getAvailable(), runtime.getModel('fixture-parent', 'parent'), () => ['off', 'low', 'high']);
@@ -160,15 +189,25 @@ try {
     ...settings.subagents, agentOverrides: { 'pstack.comment-sicko': { model: 'fixture-override/override', thinking: 'low', tools: ['write'] } },
   } }));
   await run('user-override', { workflow: 'parallel', args: { tasks: [tasks.find(task => task.agent === ROLE_AGENTS.review)] }, ...defaults }, [['override', 'low']]);
-  console.log(JSON.stringify({ status: 'passed', passed: 5, failed: 0, childRequests: requests.filter(request => !request.parent).length,
+  console.log(JSON.stringify({ status: 'passed', passed: 6, failed: 0, childRequests: requests.filter(request => !request.parent).length,
     transport: 'real Pi SDK + pi-subagents public entry + actual foreground children + local SSE provider',
-    entryWiring: 'inline controller factory; production index not wired', cases: ['all-role named parallel', 'all-role sequential runs.run', 'parallel top model blocked', 'raw script top model blocked', 'user model/thinking override with tools preserved'] }));
+    entryWiring: 'inline controller factory; production index not wired', providerExtension: 'host-registered thirdparty provider inherited by child',
+    cases: ['all-role named parallel', 'all-role sequential runs.run', 'parallel top model blocked', 'raw script top model blocked', 'third-party provider extension child launch without empty extensions warning', 'user model/thinking override with tools preserved'] }));
+} catch (error) {
+  process.exitCode = 1;
+  console.error(error?.stack ?? String(error));
 } finally {
-  session?.dispose();
-  for (const controller of controllers) controller.dispose();
-  server.closeAllConnections();
-  if (server.listening) await new Promise(accept => server.close(accept));
-  if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
-  else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
-  await rm(directory, { recursive: true, force: true });
+  await finalizeCheck(async () => {
+    const cleanupErrors = [];
+    try { await disposeTestSession(session); } catch (error) { cleanupErrors.push(error); }
+    for (const controller of controllers) {
+      try { controller.dispose(); } catch (error) { cleanupErrors.push(error); }
+    }
+    try { await closeTestServer(server); } catch (error) { cleanupErrors.push(error); }
+    if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
+    else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
+    try { await removeTestDirectory(directory); } catch (error) { cleanupErrors.push(error); }
+    console.warn = originalWarn;
+    if (cleanupErrors.length) throw new AggregateError(cleanupErrors, 'parallel roles cleanup failed');
+  });
 }

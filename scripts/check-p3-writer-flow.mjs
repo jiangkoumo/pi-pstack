@@ -19,7 +19,7 @@
 
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { getAgentDir } from '@earendil-works/pi-coding-agent';
@@ -27,6 +27,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { closeTestServer, disposeTestSession, finalizeCheck, removeTestDirectory } from './test-session-lifecycle.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const gatePath = resolve(root, 'scripts/writer-gate.mjs');
@@ -474,9 +475,14 @@ try {
   }));
   throw error;
 } finally {
-  server.closeAllConnections();
-  await new Promise(accept => server.close(accept));
-  if (process.env.P3_FLOW_KEEP !== '1') await rm(directory, { recursive: true, force: true });
-  else console.error(JSON.stringify({ kept: directory }));
+  await finalizeCheck(async () => {
+    const cleanupErrors = [];
+    try { await disposeTestSession(session); } catch (error) { cleanupErrors.push(error); }
+    try { await closeTestServer(server); } catch (error) { cleanupErrors.push(error); }
+    if (process.env.P3_FLOW_KEEP === '1') console.error(JSON.stringify({ kept: directory }));
+    else {
+      try { await removeTestDirectory(directory); } catch (error) { cleanupErrors.push(error); }
+    }
+    if (cleanupErrors.length) throw new AggregateError(cleanupErrors, 'writer-flow cleanup failed');
+  });
 }
-process.exit(0);

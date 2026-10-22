@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtemp, mkdir, writeFile, rm, stat } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { createAgentSession, DefaultResourceLoader, SessionManager, SettingsManager, ModelRuntime } from '@earendil-works/pi-coding-agent';
 import * as loop from '../extensions/pstack/loop.mjs';
+import { closeTestServer, disposeTestSession, finalizeCheck, removeTestDirectory } from './test-session-lifecycle.mjs';
 
 // Real Pi SDK, local SSE fixture, no external child/model launch. The inline
 // factory is the entry wiring contract until the package entry imports it.
@@ -68,8 +69,13 @@ try {
   }
   console.log(JSON.stringify({ status: 'passed', passed: 2, failed: 0, host: 'real Pi SDK', transport: 'local fixture', externalChildren: 0, scenarios: ['rpc abort/status', 'tui abort/status'] }));
 } finally {
-  for (const session of sessions) session.dispose();
-  server.closeAllConnections();
-  await new Promise(accept => server.close(accept));
-  await rm(directory, { recursive: true, force: true });
+  await finalizeCheck(async () => {
+    const cleanupErrors = [];
+    for (const session of sessions) {
+      try { await disposeTestSession(session); } catch (error) { cleanupErrors.push(error); }
+    }
+    try { await closeTestServer(server); } catch (error) { cleanupErrors.push(error); }
+    try { await removeTestDirectory(directory); } catch (error) { cleanupErrors.push(error); }
+    if (cleanupErrors.length) throw new AggregateError(cleanupErrors, 'abort-state cleanup failed');
+  });
 }

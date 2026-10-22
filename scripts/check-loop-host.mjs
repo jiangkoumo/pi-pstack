@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { closeTestServer, disposeTestSession, finalizeCheck, removeTestDirectory } from './test-session-lifecycle.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const piRoot = process.env.PI_PSTACK_PI_ROOT;
@@ -25,6 +26,7 @@ const cwd = resolve(directory, 'workspace');
 
 const requests = [];
 const failures = [];
+const sessions = [];
 
 const server = createServer(async (request, response) => {
   let body = '';
@@ -109,6 +111,7 @@ try {
       sessionStartEvent: { type: 'session_start', reason }
     });
     await session.bindExtensions({ mode: 'rpc', onError: e => failures.push(e) });
+    sessions.push(session);
     return { session, manager };
   }
 
@@ -213,6 +216,13 @@ try {
   }, null, 2));
 
 } finally {
-  server.close();
-  await rm(directory, { recursive: true, force: true });
+  await finalizeCheck(async () => {
+    const cleanupErrors = [];
+    for (const session of sessions) {
+      try { await disposeTestSession(session); } catch (error) { cleanupErrors.push(error); }
+    }
+    try { await closeTestServer(server); } catch (error) { cleanupErrors.push(error); }
+    try { await removeTestDirectory(directory); } catch (error) { cleanupErrors.push(error); }
+    if (cleanupErrors.length) throw new AggregateError(cleanupErrors, 'loop-host cleanup failed');
+  });
 }

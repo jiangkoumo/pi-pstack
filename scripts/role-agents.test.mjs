@@ -7,7 +7,7 @@ import { ROLE_AGENTS, createRoleAgentController, parseRoleAgent, guardPstackTopL
 
 const catalog = [...Object.keys(ROLE_AGENTS), 'parent'].map(id => ({ provider: 'fixture', id }));
 const levels = () => ['off', 'low', 'high'];
-const content = name => `---\nname: ${name.slice(7)}\npackage: pstack\ndescription: Fixture ${name}\ntools: read, grep, find, ls\nexcludeTools: contact_supervisor\nextensions:\nsystemPromptMode: append\ninheritProjectContext: true\ninheritGlobalContext: false\ninheritSkills: false\nasync: true\nacceptanceRole: read-only\nlicense: MIT\n---\n\nPrompt ${name}.\n`;
+const content = name => `---\nname: ${name.slice(7)}\npackage: pstack\ndescription: Fixture ${name}\ntools: read, grep, find, ls\nexcludeTools: contact_supervisor\nsystemPromptMode: append\ninheritProjectContext: true\ninheritGlobalContext: false\ninheritSkills: false\nasync: true\nacceptanceRole: read-only\nlicense: MIT\n---\n\nPrompt ${name}.\n`;
 async function fixture(t) {
   const dir = await mkdtemp(resolve(tmpdir(), 'pstack-role-unit-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
@@ -44,7 +44,9 @@ test('all role bindings preserve source permissions and use separate model/think
     assert.equal(d.thinking, 'high');
     assert.deepEqual(d.tools, ['read', 'grep', 'find', 'ls']);
     assert.deepEqual(d.excludeTools, ['contact_supervisor']);
-    assert.deepEqual(d.extensions, []);
+    // An omitted extensions field keeps ambient provider extensions loadable.
+    // An explicit empty list would disable them and trigger a pi-subagents warning.
+    assert.equal(Object.hasOwn(d, 'extensions'), false);
     assert.equal(d.systemPromptMode, 'append');
     assert.equal(d.inheritProjectContext, true);
     assert.equal(d.inheritGlobalContext, false);
@@ -68,7 +70,7 @@ test('all role bindings preserve source permissions and use separate model/think
 });
 
 test('definition parser preserves supported frontmatter and rejects unsupported constraints', () => {
-  const source = content(ROLE_AGENTS.review).replace('tools: read, grep, find, ls', 'tools:\n  - read\n  - grep').replace('extensions:', 'extensions: ./readonly.ts').replace('async: true', 'async: false\ntimeoutMs: 500\ntoolTimeoutMs: 400\nmaxSubagentDepth: 0\ndefaultContext: fresh\nacceptance: {"level":"none","reason":"fixture"}');
+  const source = content(ROLE_AGENTS.review).replace('tools: read, grep, find, ls', 'tools:\n  - read\n  - grep').replace('license: MIT', 'extensions: ./readonly.ts\nlicense: MIT').replace('async: true', 'async: false\ntimeoutMs: 500\ntoolTimeoutMs: 400\nmaxSubagentDepth: 0\ndefaultContext: fresh\nacceptance: {"level":"none","reason":"fixture"}');
   const d = parseRoleAgent(source, ROLE_AGENTS.review, '/tmp/definitions');
   assert.deepEqual(d.tools, ['read', 'grep']);
   assert.deepEqual(d.extensions, ['/tmp/definitions/readonly.ts']);

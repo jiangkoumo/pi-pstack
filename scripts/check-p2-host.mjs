@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { closeTestServer, finalizeCheck, removeTestDirectory } from './test-session-lifecycle.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const piRoot = process.env.PI_PSTACK_PI_ROOT;
@@ -164,7 +165,13 @@ try {
   await controller.dispose();
   console.log(JSON.stringify({ status: 'passed', providerRequests: requests.length, expectedCommandErrors: failures.length, transport: 'real Pi SDK + local OpenAI-compatible SSE fixture; no external model calls', lifecycle: ['continuous turns', 'off', 'tree branches', 'reload', 'actual host compaction', 'resume', 'fork', 'new session', 'runtime session switch/new/fork'], config: ['exact model', 'idempotence', 'unknown model', 'unsupported thinking', 'reasoning model high/xhigh/max boundaries', 'both status error diagnostics', 'untrusted project', 'no model switch'] }));
 } finally {
-  for (const session of sessions) session.dispose();
-  await new Promise(accept => server.close(accept));
-  await rm(directory, { recursive: true, force: true });
+  await finalizeCheck(async () => {
+    const cleanupErrors = [];
+    for (const session of sessions) {
+      try { session.dispose(); } catch (error) { cleanupErrors.push(error); }
+    }
+    try { await closeTestServer(server); } catch (error) { cleanupErrors.push(error); }
+    try { await removeTestDirectory(directory); } catch (error) { cleanupErrors.push(error); }
+    if (cleanupErrors.length) throw new AggregateError(cleanupErrors, 'p2-host cleanup failed');
+  });
 }

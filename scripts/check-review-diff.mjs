@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, readFile } from 'node:fs/promises';
 import { homedir, tmpdir } from 'node:os';
 import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
@@ -8,7 +8,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createAgentSession, DefaultResourceLoader, SessionManager, SettingsManager, ModelRuntime, getAgentDir } from '@earendil-works/pi-coding-agent';
 import { parseRoleAgent } from '../extensions/pstack/role-agents.mjs';
-import { disposeTestSession } from './test-session-lifecycle.mjs';
+import { disposeTestSession, closeTestServer, removeTestDirectory } from './test-session-lifecycle.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const seats = ['pstack.judgment-agent', 'pstack.strongest-agent', 'pstack.comment-sicko'];
@@ -162,11 +162,10 @@ export async function runReviewDiffFixture(options = {}) {
   } finally {
     await disposeTestSession(session);
     for (const registration of registrations) registration.dispose();
-    server.closeAllConnections();
-    if (server.listening) await new Promise(accept => server.close(accept));
+    await closeTestServer(server);
     if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
     else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
-    await rm(directory, { recursive: true, force: true });
+    await removeTestDirectory(directory);
   }
 }
 
