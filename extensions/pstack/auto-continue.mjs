@@ -28,10 +28,11 @@ export const COMPLETION_EXIT_CODES = Object.freeze({
 const FORWARD_CONTINUATION_PATTERNS = [
   /\bNow\s+(?:let\s+me|I\s+will|I'll|we\s+will|we'll|let's|I\s+need\s+to|to)\b[^\n.!?]*/i,
   /\bNext(?:,\s*|\s+)(?:I\s+will|I'll|let\s+me|let's|step\s+is|we\s+will|we'll|I\s+need\s+to|we\s+need\s+to)\b[^\n.!?]*/i,
-  /\bNext\s+step\s*:\s*[^\n.!?]*/i,
+  /\bNext\s+steps?:\s*(?!\s*(?:you|your|user|reviewer|human|please|feel\s+free|none|nothing)\b)\S+[^\n.!?]*/i,
   /\b(?:I\s+will\s+now|I'll\s+now|let\s+me\s+now|let's\s+now)\b[^\n.!?]*/i,
   /\b(?:Let's\s+proceed\s+to|Proceeding\s+to|Moving\s+on\s+to|Continuing\s+(?:with|to))\b[^\n.!?]*/i,
-  /\b(?:Let\s+me|I\s+will|I'll|Let's|We\s+will|We'll)\s+(?:fix|add|update|implement|check|verify|run|write|rewrite|create|modify|test|investigate|handle|address|refactor|re-run|do|clean|resolve|complete|finish)\b[^\n.!?]*/i,
+  /(?:^|[.!?…\n]\s*|\b(?:now|next|so|then|and)\s+)let\s+me\s+(?:first\s+|just\s+|now\s+)?(?!know\b)[a-z]+[^\n.!?]*/i,
+  /\b(?:I\s+will|I'll|Let's|We\s+will|We'll)\s+(?:fix|add|update|implement|check|verify|run|write|rewrite|create|modify|test|investigate|handle|address|refactor|re-run|do|clean|resolve|complete|finish|follow)\b[^\n.!?]*/i,
   /(?:接下来|下一步)(?:是|要|将|需要|开始|先|我们|来|做)[^\n，。！？]*/,
   /(?:现在|马上)(?:开始|来|进行|执行|写|修改|重写|更新|核对|验证|补齐|跑)[^\n，。！？]*/,
   /(?:还有(?:以下)?(?:未完成|待完成|剩余)(?:任务|步骤|工作)|未完成任务)[^\n，。！？]*/,
@@ -136,10 +137,11 @@ export function detectUnfinishedExpression(text) {
   for (const pattern of FORWARD_CONTINUATION_PATTERNS) {
     const match = cleanProse.match(pattern);
     if (match) {
+      const cleaned = match[0].trim().replace(/^[.!?…\s]+/, '');
       return {
         incomplete: true,
-        reason: `assistant message contained unfinished intent: "${match[0]}"`,
-        pattern: match[0],
+        reason: `assistant message contained unfinished intent: "${cleaned}"`,
+        pattern: cleaned,
         uncheckedTasks: [],
       };
     }
@@ -807,7 +809,8 @@ export function registerAutoContinue(pi, { loadConfig = () => ({}), evaluateComp
     let completionResult = null;
     if (typeof runCheck === 'function') {
       try {
-        completionResult = await runCheck({ cwd: ctx.cwd, assistantText, entries: event.entries });
+        const effectiveEntries = (event.entries && event.entries.length) ? allEntries : branch;
+        completionResult = await runCheck({ cwd: ctx.cwd, assistantText, entries: effectiveEntries });
       } catch {
         completionResult = null;
       }
@@ -835,7 +838,7 @@ export function registerAutoContinue(pi, { loadConfig = () => ({}), evaluateComp
         display: true,
       };
       return {
-        entries: [...event.entries, stateDraft, turnDraft],
+        entries: [...(event.entries ?? []), stateDraft, turnDraft],
         continue: true,
       };
     } else if (branchState && branchState.status === 'running') {
@@ -845,7 +848,7 @@ export function registerAutoContinue(pi, { loadConfig = () => ({}), evaluateComp
         data: decision.nextState,
       };
       return {
-        entries: [...event.entries, stateDraft],
+        entries: [...(event.entries ?? []), stateDraft],
         continue: false,
       };
     }

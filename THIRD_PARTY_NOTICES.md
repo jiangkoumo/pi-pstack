@@ -3,13 +3,13 @@
 ## pstack
 
 - 作者：Lauren Tan（@poteto）。
-- 官方仓库：https://github.com/cursor/plugins/tree/f713f14203cd6420cec13cd7c55c32d598dbab68/pstack
-- 参考版本：0.15.25。
-- 固定提交：f713f14203cd6420cec13cd7c55c32d598dbab68。
+- 官方仓库：https://github.com/cursor/plugins/tree/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack
+- 参考版本：0.15.30。
+- 固定提交：eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10。
 - 许可：MIT，Copyright (c) 2026 Lauren Tan。
 - 许可原文：[LICENSES/pstack.txt](LICENSES/pstack.txt)。
 
-当前已导入并适配 11 个技能、三份流程以及 2 个代理定义，原始材料位于 upstream/pstack/。具体来源、文件指纹及差异见 [首批移植记录](docs/port-status.md)、[源文件清单](docs/source-files.json) 与 [逐项映射](docs/port-map.json)。保留 Lauren Tan 的原始版权与 MIT 许可。
+当前已导入并适配 55 个技能、23 份流程以及 2 个上游代理定义（及派生/角色代理），原始材料位于 upstream/pstack/。具体来源、文件指纹及差异见 [首批移植记录](docs/port-status.md)、[源文件清单](docs/source-files.json) 与 [逐项映射](docs/port-map.json)。保留 Lauren Tan 的原始版权与 MIT 许可。
 
 ## cursor-team-kit
 

@@ -79,7 +79,7 @@ export function findModifiedSkillFiles(options = {}) {
   // 2. Discover via Git status in workspace
   const matched = [];
   try {
-    const gitOut = execSync('git status --porcelain', { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    const gitOut = execSync('git status --porcelain -uall', { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
     const lines = gitOut.split('\n');
     for (const line of lines) {
       if (!line.trim()) continue;
@@ -162,24 +162,39 @@ export function detectFormalVerificationTrigger(options = {}) {
 
   // 2. Scan text corpus (prompt, assistantText, transcript entries)
   const textCorpus = [];
-  if (typeof options.prompt === 'string') textCorpus.push(options.prompt);
+  const userTextCorpus = [];
+  if (typeof options.prompt === 'string') {
+    textCorpus.push(options.prompt);
+    userTextCorpus.push(options.prompt);
+  }
   if (typeof options.assistantText === 'string') textCorpus.push(options.assistantText);
   if (Array.isArray(options.entries)) {
     for (const entry of options.entries) {
       if (typeof entry === 'string') {
         textCorpus.push(entry);
       } else if (entry && typeof entry === 'object') {
-        if (typeof entry.content === 'string') textCorpus.push(entry.content);
-        else if (Array.isArray(entry.content)) {
+        const isUser = entry.role === 'user' || entry.message?.role === 'user';
+        if (typeof entry.content === 'string') {
+          textCorpus.push(entry.content);
+          if (isUser) userTextCorpus.push(entry.content);
+        } else if (Array.isArray(entry.content)) {
           for (const part of entry.content) {
-            if (part && typeof part.text === 'string') textCorpus.push(part.text);
+            if (part && typeof part.text === 'string') {
+              textCorpus.push(part.text);
+              if (isUser) userTextCorpus.push(part.text);
+            }
           }
         }
         if (entry.message) {
-          if (typeof entry.message.content === 'string') textCorpus.push(entry.message.content);
-          else if (Array.isArray(entry.message.content)) {
+          if (typeof entry.message.content === 'string') {
+            textCorpus.push(entry.message.content);
+            if (isUser) userTextCorpus.push(entry.message.content);
+          } else if (Array.isArray(entry.message.content)) {
             for (const part of entry.message.content) {
-              if (part && typeof part.text === 'string') textCorpus.push(part.text);
+              if (part && typeof part.text === 'string') {
+                textCorpus.push(part.text);
+                if (isUser) userTextCorpus.push(part.text);
+              }
             }
           }
         }
@@ -189,21 +204,72 @@ export function detectFormalVerificationTrigger(options = {}) {
   }
 
   const combinedText = textCorpus.join('\n');
-  const hasMaintainSkill = /\bmaintain-formal-verification-skill\b/i.test(combinedText);
-  const hasCreateSkill = /\bcreate-formal-verification-skill\b/i.test(combinedText);
+  const userText = userTextCorpus.join('\n');
 
-  if (hasMaintainSkill) {
+  // Check for skill declaration or loading tags
+  const loadedCreate = /<skill\s+name=["']create-formal-verification-skill["']|name:\s*create-formal-verification-skill\b|skills\/create-formal-verification-skill\/SKILL\.md/i.test(combinedText);
+  const loadedMaintain = /<skill\s+name=["']maintain-formal-verification-skill["']|name:\s*maintain-formal-verification-skill\b|skills\/maintain-formal-verification-skill\/SKILL\.md/i.test(combinedText);
+
+  if (loadedCreate && !loadedMaintain) {
+    return {
+      triggered: true,
+      kind: 'create',
+      reason: 'Session loaded create-formal-verification-skill',
+    };
+  }
+  if (loadedMaintain && !loadedCreate) {
     return {
       triggered: true,
       kind: 'maintain',
       reason: 'Session loaded maintain-formal-verification-skill',
     };
   }
-  if (hasCreateSkill) {
+
+  // Check user requests / commands
+  const userRequestedCreate = /(?:\/skill:|\/|\b)create-formal-verification-skill\b/i.test(userText);
+  const userRequestedMaintain = /(?:\/skill:|\/|\b)maintain-formal-verification-skill\b/i.test(userText);
+
+  if (userRequestedCreate && !userRequestedMaintain) {
+    return {
+      triggered: true,
+      kind: 'create',
+      reason: 'User requested create-formal-verification-skill',
+    };
+  }
+  if (userRequestedMaintain && !userRequestedCreate) {
+    return {
+      triggered: true,
+      kind: 'maintain',
+      reason: 'User requested maintain-formal-verification-skill',
+    };
+  }
+
+  const hasCreateSkill = /\bcreate-formal-verification-skill\b/i.test(combinedText);
+  const hasMaintainSkill = /\bmaintain-formal-verification-skill\b/i.test(combinedText);
+
+  if (hasCreateSkill && !hasMaintainSkill) {
     return {
       triggered: true,
       kind: 'create',
       reason: 'Session loaded create-formal-verification-skill',
+    };
+  }
+  if (hasMaintainSkill && !hasCreateSkill) {
+    return {
+      triggered: true,
+      kind: 'maintain',
+      reason: 'Session loaded maintain-formal-verification-skill',
+    };
+  }
+  if (hasCreateSkill && hasMaintainSkill) {
+    // Both referenced in corpus (e.g. one mentions the other in recommendations).
+    // Prioritize create if userRequestedCreate or loadedCreate, else maintain if userRequestedMaintain,
+    // otherwise fallback to create.
+    const kind = (userRequestedMaintain && !userRequestedCreate) ? 'maintain' : 'create';
+    return {
+      triggered: true,
+      kind,
+      reason: `Session loaded ${kind}-formal-verification-skill`,
     };
   }
 
@@ -738,11 +804,14 @@ export function registerFormalVerificationGate(pi, options = {}) {
   return pi.on('agent_before_settle', async (event, ctx) => {
     const cwd = options.cwd ?? ctx?.cwd ?? process.cwd();
     const branch = ctx?.sessionManager?.getBranch?.() ?? [];
+    const entries = (event?.entries && event.entries.length > 0)
+      ? [...branch, ...event.entries]
+      : branch;
     const assistantText = extractLastAssistantText(event?.entries) || extractLastAssistantText(branch);
 
     const trigger = detectFormalVerificationTrigger({
       cwd,
-      entries: event?.entries || branch,
+      entries,
       assistantText,
     });
 
@@ -752,7 +821,7 @@ export function registerFormalVerificationGate(pi, options = {}) {
       cwd,
       kind: trigger.kind,
       skillPath: trigger.skillPath,
-      entries: event?.entries || branch,
+      entries,
       assistantText,
       runner: options.runner,
       tlcAvailable: options.tlcAvailable,

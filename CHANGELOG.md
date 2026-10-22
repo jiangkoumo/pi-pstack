@@ -2,6 +2,20 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
+## 0.3.8
+
+- Fix formal verification gate lifecycle in `-p` mode when `event.entries` is empty (`extensions/pstack/formal-verification-gate.mjs`):
+  - Merge historical session entries from `branch` with pending turn entries, ensuring trigger detection and completion evaluation inspect session history.
+  - Safe handling of empty or missing entries in `auto-continue.mjs` runCheck.
+- Fix untracked skill file discovery in workspace git status (`extensions/pstack/formal-verification-gate.mjs`):
+  - Pass `-uall` (`--untracked-files=all`) to `git status --porcelain` to prevent untracked directories like `.pi/` from being collapsed into `?? .pi/`.
+- Fix skill kind misclassification between `create` and `maintain` (`extensions/pstack/formal-verification-gate.mjs`):
+  - Distinguish loaded skill declarations and user prompt requests from cross-reference links in skill body text, preventing `create-formal-verification-skill` from being misclassified as `maintain`.
+- Broaden continuation intent detection and prevent false positive delivery stops (`extensions/pstack/auto-continue.mjs`):
+  - Generalize sentence-initial `Let me <verb>` intent detection while strictly excluding non-continuation pleasantries like `Let me know`.
+  - Tighten `Next step:` regex to prevent completed handovers like `Done... Next step: you can review the PR at ...` from falsely triggering continuation.
+- Update `THIRD_PARTY_NOTICES.md` to current pinned upstream baseline `eb4db2b5` (v0.15.30) with 55 adapted skills.
+
 ## 0.3.7
 
 - Formal verification completion judgment transitions from regex patterns to artifact self-check and command re-run verification (`extensions/pstack/formal-verification-gate.mjs`, #32):

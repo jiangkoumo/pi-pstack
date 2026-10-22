@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
+import { execSync } from 'node:child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { test } from 'node:test';
 import {
   COMPLETION_EXIT_CODES,
@@ -74,6 +75,26 @@ test('trigger: detects maintain-formal-verification-skill via prompt or entries'
   const resKind = detectFormalVerificationTrigger({ kind: 'maintain' });
   assert.equal(resKind.triggered, true);
   assert.equal(resKind.kind, 'maintain');
+});
+
+test('trigger: resolves to create when create-formal-verification-skill is loaded even if body text mentions maintain', () => {
+  const cfvContent = `
+<skill name="create-formal-verification-skill" location="/path/to/skills/create-formal-verification-skill/SKILL.md">
+Tell the user what you verified.
+Point the user at \`/maintain-formal-verification-skill\` for bringing the verification back in line.
+</skill>
+Work on queue invariants
+`;
+
+  const res = detectFormalVerificationTrigger({
+    entries: [
+      { role: 'user', content: cfvContent },
+      { role: 'assistant', content: 'Starting formal verification generation...' },
+    ],
+  });
+
+  assert.equal(res.triggered, true);
+  assert.equal(res.kind, 'create', 'Must be create, not maintain, because create-formal-verification-skill was the loaded skill');
 });
 
 test('trigger: detects modified .pi/skills/*/SKILL.md containing "## Run it"', () => {
@@ -778,4 +799,86 @@ test('lifecycle: registerFormalVerificationGate does not intercept when gate is 
 
   const settleDecision = await handler(event, ctx);
   assert.equal(settleDecision, undefined);
+});
+
+test('findModifiedSkillFiles discovers untracked .pi/skills/*/SKILL.md in a git repository', () => {
+  const tempDir = createTempDir('pstack-untracked-git-');
+  try {
+    execSync('git init', { cwd: tempDir, stdio: 'ignore' });
+    execSync('git config user.email "test@example.com"', { cwd: tempDir, stdio: 'ignore' });
+    execSync('git config user.name "Test"', { cwd: tempDir, stdio: 'ignore' });
+    const skillDir = join(tempDir, '.pi/skills/x');
+    mkdirSync(skillDir, { recursive: true });
+    const skillPath = join(skillDir, 'SKILL.md');
+    writeFileSync(skillPath, `
+# Verification Skill
+## Run it
+\`\`\`bash
+verification_exec --spec Model.tla
+\`\`\`
+`, 'utf8');
+
+    // Without -uall, git status --porcelain shows "?? .pi/"
+    // With -uall, git status --porcelain -uall shows "?? .pi/skills/x/SKILL.md"
+    const found = findModifiedSkillFiles({ cwd: tempDir });
+    assert.equal(found.length, 1);
+    assert.equal(found[0], resolve(skillPath));
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('lifecycle: registerFormalVerificationGate triggers with empty event.entries in -p mode when branch contains trigger', async () => {
+  const events = [];
+  const fakePi = {
+    on: (eventName, handler) => {
+      events.push({ eventName, handler });
+    },
+  };
+
+  registerFormalVerificationGate(fakePi, {
+    runner: async () => ({
+      exitCode: 0,
+      output: '20 distinct states, depth 5.',
+    }),
+  });
+
+  assert.equal(events.length, 1);
+  const handler = events[0].handler;
+
+  // In -p mode, event.entries is []
+  const event = {
+    entries: [],
+  };
+
+  const branch = [
+    { role: 'user', content: '/skill:create-formal-verification-skill' },
+    {
+      role: 'assistant',
+      content: `
+I generated the skill:
+## Run it
+\`\`\`bash
+verification_exec --spec Model.tla
+\`\`\`
+Distinct states: 42, depth: 8.
+## Record
+- Tool version: TLC 2.18
+- Sync commit: abc1234
+- Bounds: 3
+- Assumptions: none
+- Left out: none
+`,
+    },
+  ];
+
+  const ctx = {
+    cwd: process.cwd(),
+    sessionManager: { getBranch: () => branch },
+  };
+
+  const settleDecision = await handler(event, ctx);
+  assert.ok(settleDecision, 'Gate must intercept even when event.entries is empty in -p mode');
+  assert.equal(settleDecision.continue, true);
+  assert.ok(settleDecision.entries.some(e => e.customType === 'pstack.formal_verification_gate.turn.v1'));
 });

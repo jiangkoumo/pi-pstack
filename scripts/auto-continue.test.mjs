@@ -37,6 +37,8 @@ test('detectUnfinishedExpression detects English forward-looking continuation ph
     { text: "Let's proceed to running the verification commands.", pattern: /Let's proceed/i },
     { text: 'Continuing with the formal verification model updates...', pattern: /Continuing with/i },
     { text: 'Now to rewrite the verification skill for the repo.', pattern: /Now to rewrite/i },
+    { text: '... Let me follow it, use t.assert, and fix the MD fences.', pattern: /Let me follow/i },
+    { text: 'Let me follow it, use t.assert, and fix the MD fences.', pattern: /Let me follow/i },
   ];
 
   for (const c of cases) {
@@ -115,6 +117,10 @@ Here is the final report:
 
   assert.equal(detectUnfinishedExpression('').incomplete, false);
   assert.equal(detectUnfinishedExpression('   ').incomplete, false);
+  assert.equal(detectUnfinishedExpression('Done... Next step: you can review the PR at https://github.com/org/repo/pull/1').incomplete, false);
+  assert.equal(detectUnfinishedExpression('Done. Next steps: you can check the logs.').incomplete, false);
+  assert.equal(detectUnfinishedExpression('Let me know if you need anything else.').incomplete, false);
+  assert.equal(detectUnfinishedExpression('Please let me know if this works.').incomplete, false);
 });
 
 test('evaluateCompletion handles assistant_expression check type', async () => {
