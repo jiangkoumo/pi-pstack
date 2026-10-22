@@ -35,3 +35,19 @@ If the code already has a TLA+ spec, start from a copy of that spec. Add the var
 ## Hand off
 
 Give the PM the PNG and the Mermaid source of each chart. Add one line per bug with the rule it breaks, its steps as the chart numbers them, whether it reproduced, and whether the open fix fixes it. Take every count you quote from `summary.json`. Attach `stories.md` and the command that regenerates everything. Say what the model leaves out.
+
+## Pi execution and authority
+
+Adapted from Lauren Tan's pstack v0.15.30, MIT, fixed revision eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10. Read the [Pi adapter](../../adapters/pi/harness.md) for host mappings.
+
+The scripts start TLC themselves, from `TLA2TOOLS` and `JAVA`. Run them from the parent shell, and set both variables to the one `tla2tools.jar` that the operator declared in `TLA2TOOLS_JAR`/`TLA2TOOLS` or in `pstack.json` (`tla.tla2toolsJar`). This package bundles no Java and no jar, and you never download or install one to make a chart; a missing jar is a gap you report.
+
+`verification_exec` with `{"command":"tlc","spec":"<repo>/Spec.tla","config":"<repo>/Spec.cfg","options":["-cleanup","-noGenerateSpecTE","-noGenerateSpecTEBin"]}` is the restricted entry, and it runs exactly one TLC invocation per call. It resolves real paths inside the repository and refuses `..` and symlink escapes, so a spec it checks has to live in the repository, and it writes only to a private scratch directory, so it cannot draw a chart. The chart scripts are not that entry: they spawn Java, run TLC once per rule, and read a state graph. Keep those runs in the parent shell, and never report them as `verification_exec` runs.
+
+Upstream works in a scratch folder outside the repo, which the restricted entry cannot read. When a model also has to be checkable through that entry, keep the working copy inside the repository at an ignored path such as `.statechart-scratch/`, or in a scratch git repository the operator approves, with the upstream file names (`Spec.tla`, `Spec.cfg`, `Spec.map.mjs`). Copy the model in, leave tracked files untouched, and report the paths you used. That entry's no-OS-sandbox mode runs a temporary Git worktree built from HEAD plus the workspace diff and the untracked files, so a copy that is neither tracked nor an untracked file is not there.
+
+`--png` shells out to `npx -y @mermaid-js/mermaid-cli`, which needs that package and a headless browser, and getting them needs operator approval. When rendering is unavailable, report the missing dependency and hand over `chart.mmd`, `stories.md`, and `summary.json` instead of claiming a PNG exists.
+
+A chart from a run that never executed TLC proves nothing. When TLC is unavailable, say `未做形式化验证，原因是缺少 TLC`, then test the real code with generated inputs, and never report generated tests or a TLC fixture as a formal pass.
+
+Use read for contents, ls for directories, fffind/ffgrep when available and find/grep otherwise, edit/write for authorized changes, and codemode to batch independent reads. Bash is for execution and Git with an explicit working directory, never a substitute file reader or searcher. Loading this skill grants no permission to commit, push, merge, deploy, delete, or send messages.

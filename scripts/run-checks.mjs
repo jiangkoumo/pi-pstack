@@ -29,6 +29,8 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 
 const script = name => [process.execPath, [resolve(scriptsRoot, name)]];
 const testFile = name => [process.execPath, ['--test', resolve(scriptsRoot, name)]];
+// Skills ship their own upstream tests, so those resolve from the repository root.
+const skillTest = path => [process.execPath, ['--test', resolve(root, path)]];
 const withFlags = (command, ...flags) => [command[0], [...command[1], ...flags]];
 
 const preSdkTests = [
@@ -60,6 +62,10 @@ export const CHECK_PLAN = [
   { name: 'check-package', command: script('check-package.mjs') },
   ...preSdkTests.map(name => ({ name, command: testFile(name) })),
   { name: 'check-p3-agents', command: withFlags(script('check-p3-agents.mjs'), '--allow-skip') },
+  // Upstream statechart tests, verbatim. They take about 3s when no TLC is
+  // configured and about 3min when TLA2TOOLS/JAVA point at a real jar, so this
+  // check owns a longer budget. Without a jar the TLC cases skip with reasons.
+  { name: 'statechart.test.mjs', command: skillTest('skills/statechart/scripts/test/statechart.test.mjs'), timeoutMs: 300_000 },
   { name: 'check-p3-readonly-gate', command: withFlags(script('check-p3-readonly-gate.mjs'), '--allow-skip') },
   { name: 'check-abort-state', command: script('check-abort-state.mjs') },
   { name: 'check-parallel-roles', command: withFlags(script('check-parallel-roles.mjs'), '--allow-skip') },
@@ -177,7 +183,8 @@ export async function runChecks(checks, options = {}) {
   const started = Date.now();
   const results = [];
   for (const check of checks) {
-    const result = await runCheck(check, options);
+    // A check may need more time than the run-wide default (a real TLC suite does).
+    const result = await runCheck(check, { ...options, timeoutMs: check.timeoutMs ?? options.timeoutMs });
     results.push(result);
     if (result.status !== 'passed') break;
   }
