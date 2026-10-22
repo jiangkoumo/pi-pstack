@@ -12,6 +12,7 @@ import { runGitRead, renderGitReadResult } from './git-read.mjs';
 import { workspaceSessionDir } from '../../scripts/session-context.mjs';
 import { registerPublicationGate } from './publication-gate.mjs';
 import { registerAutoContinue } from './auto-continue.mjs';
+import { registerFormalVerificationGate } from './formal-verification-gate.mjs';
 import { createVerificationTool, getVerificationCapability, getTlcCapability } from './verification-exec.mjs';
 import { describeFormalSkillStatus, findFormalVerificationSkills } from './setup-formal.mjs';
 
@@ -22,6 +23,7 @@ export default function pstack(pi: ExtensionAPI) {
   registerLoopAbortHooks(pi);
   registerPublicationGate(pi);
   registerAutoContinue(pi, { loadConfig: ctx => configuration(ctx) });
+  registerFormalVerificationGate(pi);
   if (typeof pi.registerTool === 'function') pi.registerTool(createVerificationTool({ loadConfig: ctx => configuration(ctx) }));
   const levels = (model: Model<any>) => model.reasoning ? getSupportedThinkingLevels(model) : ['off'];
   // Hosts that predate registerTool (and narrow unit fixtures) must still load the

@@ -71,7 +71,8 @@ export const CHECK_PLAN = [
   { name: 'check-parallel-roles', command: withFlags(script('check-parallel-roles.mjs'), '--allow-skip') },
   { name: 'test-session-lifecycle.test.mjs', command: testFile('test-session-lifecycle.test.mjs') },
   ...['publication-gate.test.mjs', 'publication-host.test.mjs', 'verification-exec.test.mjs',
-    'verifier-child.test.mjs', 'routing.test.mjs', 'playbook-script-invocation.test.mjs', 'auto-continue.test.mjs']
+    'verifier-child.test.mjs', 'routing.test.mjs', 'playbook-script-invocation.test.mjs', 'auto-continue.test.mjs',
+    'formal-verification-gate.test.mjs']
     .map(name => ({ name, command: testFile(name) })),
 ];
 
