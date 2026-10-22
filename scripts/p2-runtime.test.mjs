@@ -98,6 +98,20 @@ test('B6 mode status reports durable mode state before the first assistant messa
   assert.equal(messages.at(-1).persistent, true);
 }));
 
+test('status commands expose verifier isolation and any degraded warning', () => extensionFixture(async ({ commands, messages, ctx }) => {
+  for (const command of ['poteto-mode', 'setup-pstack']) {
+    await commands.get(command)('status', ctx);
+    const capability = messages.at(-1).verification;
+    assert(capability, `${command} must report verification capability`);
+    assert(['os-sandbox', 'degraded-worktree'].includes(capability.isolation));
+    if (capability.degraded) {
+      assert.match(capability.warning, /NOT an OS sandbox/);
+      assert.equal(typeof capability.responsibleParty, 'string');
+      assert(capability.limitations.length > 0);
+    }
+  }
+}));
+
 test('B7 configured roles reach pstack skill requests with mode off or never enabled', () => extensionFixture(async ({ commands, handlers, ctx }) => {
   await commands.get('setup-pstack')('set user review fixture/model off', ctx);
   for (const explicitlyOff of [false, true]) {

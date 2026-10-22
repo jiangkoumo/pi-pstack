@@ -4,6 +4,8 @@
 
 ## 结论与边界
 
+分支阶段记录：ketchup override 与生成资源已在后续 main 整合完成，精确 94% 保真度门禁也已通过，见 [Stage A 验收](validation-stage-a.md)。下文保留分支交付时的未接线状态和原始 live 运行证据。
+
 - 修复目标：把“当前这轮对话/当前会话的 catch-up”路由到 `ketchup`，把过去会话、过去几天、另一 session id 的路由留给 `recall`；`recall` 的工作区范围与当前会话排除保持不变。
 - 修复前真实复现：`catch me up on this conversation` 与 `总结一下这次对话` 两条 live 用例均为 fail（读的是 `recall`，中文用例还列了 sessions 根）。修复后定向 6/6；第二次全量单次 48/48（原 46/46 + 新增 2/2）。第一次全量 47/48，唯一失败是原 `sk-recall-prior` 的 `ls` 路径分类，单项重放 1/1 通过；两次记录都保留，不把重放混进单次全量。
 - `ketchup` 只新增模板：正文与固定上游逐字一致，仅改 description；`recall` 只改 description 与 step 1 的路由句；`poteto-mode` 的路由表新增 ketchup 行并把原 recall 行收窄到过去会话。

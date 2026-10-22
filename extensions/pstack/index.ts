@@ -11,7 +11,7 @@ import { loadModeState, saveModeState, sessionModeStatePath } from './mode-state
 import { runGitRead, renderGitReadResult } from './git-read.mjs';
 import { workspaceSessionDir } from '../../scripts/session-context.mjs';
 import { registerPublicationGate } from './publication-gate.mjs';
-import { createVerificationTool } from './verification-exec.mjs';
+import { createVerificationTool, getVerificationCapability } from './verification-exec.mjs';
 
 export default function pstack(pi: ExtensionAPI) {
   const skillPath = fileURLToPath(new URL('../../skills/poteto-mode/SKILL.md', import.meta.url));
@@ -206,6 +206,7 @@ export default function pstack(pi: ExtensionAPI) {
         mode: state(ctx),
         scope: 'active session branch',
         persistent,
+        verification: await getVerificationCapability(),
         warning,
         config,
         configError,
@@ -245,7 +246,7 @@ export default function pstack(pi: ExtensionAPI) {
         let configError;
         try { config = await configuration(ctx); choices(ctx, config.roles); } catch (error) { configError = String(error); }
         const roleStatus = roleController.status();
-        show({ paths, config, configError, roleStatus, defaults: Object.fromEntries(ROLES.map(role => [role, 'inherit'])), agentRoles: ROLE_AGENTS, appliesTo: 'role preferences bind runtime-registered pstack agent definitions for direct calls and workflow children; user-level subagents.agentOverrides.<name> take precedence; top-level model overrides are blocked' }, ctx);
+        show({ paths, config, configError, roleStatus, verification: await getVerificationCapability(), defaults: Object.fromEntries(ROLES.map(role => [role, 'inherit'])), agentRoles: ROLE_AGENTS, appliesTo: 'role preferences bind runtime-registered pstack agent definitions for direct calls and workflow children; user-level subagents.agentOverrides.<name> take precedence; top-level model overrides are blocked' }, ctx);
         return;
       }
       const [, scope, role, model, thinking] = words;

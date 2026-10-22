@@ -5,6 +5,7 @@ import { createServer } from 'node:http';
 import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createAgentSession, DefaultResourceLoader, SessionManager, SettingsManager, ModelRuntime, getAgentDir } from '@earendil-works/pi-coding-agent';
 import { ROLE_AGENTS, createRoleAgentController, guardPstackTopLevelModel } from '../extensions/pstack/role-agents.mjs';
 import { closeTestServer, disposeTestSession, finalizeCheck, removeTestDirectory } from './test-session-lifecycle.mjs';
@@ -13,6 +14,7 @@ import { closeTestServer, disposeTestSession, finalizeCheck, removeTestDirectory
 // pstack entry is deliberately not loaded: the owner wires this same controller.
 const subRootCandidates = [
   process.env.PI_SUBAGENTS_ROOT,
+  fileURLToPath(new URL('../node_modules/pi-subagents', import.meta.url)),
   resolve(getAgentDir(), 'npm/node_modules/pi-subagents'),
   resolve(homedir(), '.pi/agent/npm/node_modules/pi-subagents'),
 ].filter(Boolean);

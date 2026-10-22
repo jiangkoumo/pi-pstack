@@ -7,7 +7,11 @@ Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned t
 - Include this changelog in the npm package and require a release heading for the current package version in the package check.
 - Require exact upstream fidelity of at least 94%, with a regression for the former score that rounded to 94% but did not meet that threshold. Restore two applicable upstream sentences while keeping the existing authorization boundaries.
 - Add a real Pi CLI check of immediate poteto-mode persistence status, without a model request.
-- Runtime, verifier, routing, and workflow changes are still being developed in issues [#18](https://github.com/jiangkoumo/pi-pstack/issues/18), [#19](https://github.com/jiangkoumo/pi-pstack/issues/19), and [#20](https://github.com/jiangkoumo/pi-pstack/issues/20). Their behavior and acceptance results remain pending integration.
+- Bound every npm check with a process-tree timeout; close SDK/SSE fixtures with a five-second cleanup budget, preserve failure exits, and stop detached checks on interruption.
+- Preserve ambient provider extensions in child fixtures and prefer the locked repository-local pi-subagents dependency.
+- Execute verification in a temporary Git workspace when no OS sandbox is usable; expose degraded execution, limitations, and responsibility in tool results and status commands. This fallback does not enforce network or filesystem isolation.
+- Require verifier evidence or a named responsible verifier before PR publication. Add read-only Git/PR completion checks and preserve bounded-loop stop controls.
+- Separate ketchup current-conversation recaps from recall history; preserve the original 46 routing cases and add two ketchup cases. A single branch-level live run passed 48/48; full external PR workflow acceptance remains pending.
 
 ## 0.3.2
 

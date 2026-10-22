@@ -1,6 +1,6 @@
 ---
 name: ketchup
-description: "Catch the user up on what changed in this chat since their last message, in a few plain sentences and small visuals. Give each action item just enough context to make the call. Use for /ketchup."
+description: "Catch the user up on what changed in this chat since their last message, in a few plain sentences and small visuals. Give each action item just enough context to make the call. Use for /ketchup, 'catch me up on this conversation', 'summarize this chat', 'what changed since my last message', '总结一下这次对话', '这次对话', or '刚才这轮'. This chat only, not recall: past sessions, earlier days, work from before this chat, or another session id belong to recall."
 disable-model-invocation: true
 license: MIT
 ---

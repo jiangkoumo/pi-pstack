@@ -566,6 +566,13 @@ test('a recorded FAIL cannot be replaced by a responsible verifier; a blocked ve
   assert.equal(noVerifier.status, 'incomplete');
 });
 
+test('completion requires an identified verifier verdict or blocked owner', async () => {
+  for (const text of ['Responsible verifier: operator.', 'PASS: tests worked.', '`pstack.verifier`: BLOCKED. Responsible verifier:']) {
+    const result = await verifyPublicationCompletion({ authorized: true, cwd: tmpdir(), run: fakeCompletionRun({ pr: completionPr({ body: body(text) }) }).run });
+    assert.equal(result.status, 'incomplete', text);
+  }
+});
+
 test('completion without publication authorization is blocked before any git or gh call', async () => {
   const fake = fakeCompletionRun();
   const blocked = await verifyPublicationCompletion({ authorized: false, cwd: tmpdir(), run: fake.run });

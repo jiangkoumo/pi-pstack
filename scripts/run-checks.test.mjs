@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
@@ -96,6 +96,29 @@ test('plan flags stay in the argv array and actually reach the child', async () 
     command: [process.execPath, ['-e', 'process.exit(process.argv.includes("--allow-skip") ? 0 : 3)', '--', '--allow-skip']],
   }], { timeoutMs: 5000 });
   assert.equal(summary.ok, true, 'the child must receive the flag; otherwise it exits 3');
+});
+
+test('interrupting the CLI stops its detached child tree', { timeout: 20000, skip: process.platform === 'win32' }, async t => {
+  const { pidFile } = await fixture(t);
+  const child = spawn(process.execPath, [runner, '--timeout', '10000', '--', process.execPath, '-e', hangingTree], {
+    stdio: 'ignore', env: { ...process.env, PID_FILE: pidFile },
+  });
+  const closed = new Promise(resolve => child.once('close', (code, signal) => resolve({ code, signal })));
+  let pids = [];
+  t.after(() => {
+    child.kill('SIGKILL');
+    for (const pid of pids) { try { process.kill(pid, 'SIGKILL'); } catch {} }
+  });
+  for (let i = 0; i < 100; i++) {
+    try { pids = (await readFile(pidFile, 'utf8')).trim().split('\n').map(Number); break; }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+    await new Promise(resolve => setTimeout(resolve, 20));
+  }
+  assert.equal(pids.length, 2, 'fixture must start before interruption');
+  child.kill('SIGINT');
+  const result = await closed;
+  assert.equal(result.code, 130);
+  for (const pid of pids) assert.equal(await waitForDead(pid), true, `interruption left pid ${pid} alive`);
 });
 
 test('the CLI exits non-zero on timeout and leaves no hanging fixture alive', { timeout: 20000 }, async t => {

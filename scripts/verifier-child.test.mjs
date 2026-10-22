@@ -8,10 +8,16 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createAgentSession, DefaultResourceLoader, SessionManager, SettingsManager, ModelRuntime } from '@earendil-works/pi-coding-agent';
 import { disposeTestSession } from './test-session-lifecycle.mjs';
+import { detectSandbox } from '../extensions/pstack/verification-exec.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 
 test('production pstack.verifier executes npm test and refuses write and push in a detached child', { timeout: 90000 }, async t => {
+  const requireSandbox = process.env.PSTACK_VERIFY_REQUIRE_SANDBOX === '1';
+  if (requireSandbox) {
+    const capability = await detectSandbox();
+    assert.equal(capability.available, true, `OS sandbox required: ${capability.reason}`);
+  }
   const dir = await mkdtemp(resolve(tmpdir(), 'pstack-verifier-child-'));
   const agentDir = resolve(dir, 'agent');
   const cwd = resolve(dir, 'workspace');
@@ -44,6 +50,7 @@ test('production pstack.verifier executes npm test and refuses write and push in
         else if (tools.length === 1) {
           assert.match(JSON.stringify(tools[0]), /EXIT CODE: 0/);
           assert.match(JSON.stringify(tools[0]), /INDEPENDENT_FIXTURE_PASS/);
+          if (requireSandbox) assert.match(JSON.stringify(tools[0]), /ISOLATION: os-sandbox/);
           call = { name: 'verification_exec', args: { command: 'echo unauthorized > mutation.txt' } };
         } else if (tools.length === 2) {
           assert.match(JSON.stringify(tools[1]), /REFUSED/);

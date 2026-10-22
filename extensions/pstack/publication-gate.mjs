@@ -297,14 +297,15 @@ export async function verifyPublicationCompletion(options = {}) {
       const fail = /\bFAIL\b/.test(verificationText);
       const pass = /\bPASS(?:\+NOTES)?\b/.test(verificationText);
       const blocked = /\bBLOCKED\b/.test(verificationText);
-      const responsible = /responsible verifier|verification owner|verifier unavailable/i.test(verificationText);
+      const responsible = /(?:responsible verifier|verification owner)\s*:\s*[^\s`.:][^\n]*/i.test(verificationText);
+      const identified = /\bpstack\.verifier\b/.test(verificationText);
       const verdict = fail ? 'FAIL' : pass ? (/\bPASS\+NOTES\b/.test(verificationText) ? 'PASS+NOTES' : 'PASS') : blocked ? 'BLOCKED' : null;
       verification = { verdict, responsible, text: verificationText };
       if (fail) missing.push('verifier result is not FAIL');
-      else if (['PASS', 'PASS+NOTES'].includes(verdict)) { /* recorded */ }
+      else if (['PASS', 'PASS+NOTES'].includes(verdict) && identified) { /* recorded */ }
       else if (verdict === 'BLOCKED' && responsible) { /* verifier unavailable; owner recorded */ }
       else if (verdict === 'BLOCKED') missing.push('responsible verifier for a BLOCKED pstack.verifier');
-      else if (!responsible) missing.push('## Verification records a pstack.verifier PASS or the responsible verifier');
+      else missing.push('## Verification records a pstack.verifier PASS or BLOCKED with the responsible verifier');
     }
   }
   const unique = [...new Set(missing)];

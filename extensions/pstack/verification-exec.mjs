@@ -49,6 +49,7 @@ export const DEGRADED_LIMITATIONS = Object.freeze([
   'credentials: credential-like environment variables are removed, but readable credential files remain readable',
   'processes: same-user signals, child processes, CPU, memory and disk are not contained beyond the timeout and output cap',
   'workspace form: when Git worktree metadata cannot be created, a temporary shared clone is used',
+  'workspace snapshot: Git-ignored files other than shared node_modules are omitted; local ignored configuration and generated artifacts are not verified',
 ]);
 const SANDBOX_KINDS = new Set(['macos-seatbelt', 'linux-bwrap']);
 const execFileAsync = promisify(execFile);
@@ -184,7 +185,8 @@ function parseGit(tokens) {
     argv.push(token);
   }
   if (pathMode && pathCount === 0) return refuse('`--` must be followed by a path.');
-  if (subcommand === 'rev-parse' && !revision) return refuse('git rev-parse requires a revision or ref.');
+  const informationOnly = argv.some(arg => ['--show-toplevel', '--show-prefix', '--is-inside-work-tree', '--is-inside-git-dir', '--git-dir', '--absolute-git-dir', '--show-superproject-working-tree'].includes(arg));
+  if (subcommand === 'rev-parse' && !revision && (!informationOnly || argv.includes('--verify'))) return refuse('git rev-parse requires a revision or ref.');
   return { ok: true, argv, program: 'git', category: 'git-read-only', display: `git ${argv.join(' ')}` };
 }
 

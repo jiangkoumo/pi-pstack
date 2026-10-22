@@ -293,7 +293,7 @@
       "disposition": "ported",
       "phase": "P5",
       "destination": "skills/ketchup/SKILL.md",
-      "reason": "已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查",
+      "reason": "正文保持上游；description 明确当前会话用 ketchup、历史会话用 recall；见 validation-stage-a.md 整合与路由证据",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [
@@ -302,13 +302,11 @@
         "scope": "P5 resource checks plus generation and body-integrity checks"
       },
       "adaptation": {
-        "strategy": "inherit-body",
-        "override": null
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/ketchup/SKILL.md.template"
       },
-      "evidence": "validation-p1.md",
-      "dependencies": [
-        "skills/bro/SKILL.md"
-      ]
+      "evidence": "validation-stage-a.md",
+      "dependencies": "from-template"
     },
     {
       "kind": "skills",

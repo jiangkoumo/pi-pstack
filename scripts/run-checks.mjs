@@ -113,11 +113,21 @@ export function runCheck(check, options = {}) {
     let settled = false;
     let timeout;
     let forceFinish;
+    let interrupted = null;
+    const interrupt = signal => {
+      interrupted = signal;
+      killTree(child);
+      forceFinish = setTimeout(() => finish({ status: 'interrupted', exitCode: signal === 'SIGINT' ? 130 : 143, signal }), KILL_GRACE_MS);
+    };
+    const onSigint = () => interrupt('SIGINT');
+    const onSigterm = () => interrupt('SIGTERM');
     const finish = (result) => {
       if (settled) return;
       settled = true;
       clearTimeout(timeout);
       clearTimeout(forceFinish);
+      process.off('SIGINT', onSigint);
+      process.off('SIGTERM', onSigterm);
       resolvePromise({ name: check.name, durationMs: Date.now() - started, timedOut, ...result });
     };
     try {
@@ -132,6 +142,8 @@ export function runCheck(check, options = {}) {
       finish({ status: 'error', exitCode: null, signal: null, error: String(error) });
       return;
     }
+    process.once('SIGINT', onSigint);
+    process.once('SIGTERM', onSigterm);
     timeout = setTimeout(() => {
       timedOut = true;
       killTree(child);
@@ -144,7 +156,9 @@ export function runCheck(check, options = {}) {
       finish({ status: 'error', exitCode: null, signal: null, error: String(error) });
     });
     child.once('close', (code, signal) => {
-      if (timedOut) {
+      if (interrupted) {
+        finish({ status: 'interrupted', exitCode: interrupted === 'SIGINT' ? 130 : 143, signal: interrupted });
+      } else if (timedOut) {
         finish({ status: 'timeout', exitCode: null, signal: signal ?? 'SIGKILL' });
       } else if (code === 0) {
         finish({ status: 'passed', exitCode: 0, signal: null });
@@ -230,7 +244,8 @@ export async function main(argv = process.argv.slice(2)) {
     }
   }
   console.log(JSON.stringify(summary));
-  return summary.ok ? 0 : 1;
+  const interruption = summary.results.find(result => result.status === 'interrupted');
+  return interruption?.exitCode ?? (summary.ok ? 0 : 1);
 }
 
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {

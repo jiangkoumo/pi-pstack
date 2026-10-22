@@ -4,6 +4,8 @@
 
 ## 结论
 
+分支阶段记录：共享接线已在后续 main 整合完成，当前测试与审阅修复见 [Stage A 验收](validation-stage-a.md)。下文的“仍需接线”描述原分支交付时的边界。
+
 - A2 已实现**可验证的降级执行**：没有可用 OS 沙箱时，命令在临时 Git worktree（宿主不允许写主仓库 `.git/worktrees` 时改用临时 shared clone）中真实执行，返回真实 exit code；结果、能力查询和文档都明确标注这不是沙箱。
 - A6 已实现发布完成自检：CLI 真实执行只读 `git rev-parse`/`git rev-list` 和 `gh pr view`，比对 PR head 与本地 HEAD，并读取真实 PR body；只有分支已 push、PR 已创建、`gh pr view` 成功读取，且 `## Verification` 记录了 verifier 结论或责任人，才返回 complete；未授权 push/PR 返回 blocked 126，自检不能授予权限。
 - 真实 p-queue E2E **未执行**：本机没有 p-queue checkout，且外部 push/PR 需要主控协调授权。该验收项未完成，见文末阻碍。
@@ -31,7 +33,7 @@ node extensions/pstack/verification-exec.mjs --capability
 3. 没有可用 OS 沙箱时：
    - 先尝试 `git worktree add --detach <scratch>/worktree HEAD`；宿主禁止写主仓库 Git 目录时，退回 `git clone --shared --no-checkout` 到私有 scratch；
    - 把当前 `git diff HEAD --binary`（已跟踪的已暂存和未暂存改动）应用到临时工作区；逐文件复制未跟踪文件，复制失败直接让准备失败，不产生不完整快照；
-   - 若源 checkout 有 `node_modules`，在临时工作区创建只读穿透的软链；
+   - 若源 checkout 有 `node_modules`，在临时工作区创建可读写穿透的软链；
    - 使用清理过的环境：只保留 `PATH`、`SHELL`、`TERM`、`TZ`、locale、`NODE_ENV` 等白名单变量；`HOME`、npm cache、npm 用户配置、git 全局配置都指向私有 scratch；token/secret/proxy/`NODE_OPTIONS` 等不会传入；
    - 输出按字节截断，超时/中止按进程组 `SIGKILL`，并保留 2s 强制收尾；
    - 结果带 `isolation: degraded-worktree`、`degraded: true`、`warning`、`responsibleParty` 和逐条 `limitations`；`renderVerificationResult` 打印 `WARNING`、`RESPONSIBLE` 和 `LIMITATION`。
@@ -55,7 +57,7 @@ node extensions/pstack/verification-exec.mjs --capability
 
 - 网络未阻断；验证代码可以建立网络连接。
 - 写入未阻断；临时工作区之外仍可写当前用户可写的任意路径。
-- `node_modules` 是源 checkout 的只读穿透软链；通过它写入会影响源 checkout。
+- `node_modules` 是源 checkout 的可读写穿透软链；通过它写入会影响源 checkout。
 - 只清理凭据类环境变量；当前用户可读的凭据文件仍可被读取。
 - 不限制同用户信号、子进程、CPU、内存、磁盘；只有超时和输出上限。
 - 宿主不允许创建 worktree 元数据时使用临时 shared clone，结果里的 `workspace` 会写明 `temporary-git-checkout`。

@@ -23,6 +23,14 @@ import {
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const sandbox = await detectSandbox();
 
+test('required OS sandbox coverage fails instead of accepting fallback', () => {
+  if (process.env.PSTACK_VERIFY_REQUIRE_SANDBOX === '1') {
+    assert.equal(sandbox.available, true, `OS sandbox required: ${sandbox.reason}`);
+  } else {
+    assert.equal(typeof sandbox.available, 'boolean');
+  }
+});
+
 function gitFixture(t, files) {
   return (async () => {
     const dir = await mkdtemp(join(tmpdir(), 'pstack-verify-fixture-'));
@@ -144,6 +152,7 @@ test('parser accepts the bounded verification grammar', () => {
     ['git log --oneline -n 20', ['log', '--oneline', '-n', '20'], 'git-read-only'],
     ['git show --stat HEAD', ['show', '--stat', 'HEAD'], 'git-read-only'],
     ['git rev-parse --verify HEAD', ['rev-parse', '--verify', 'HEAD'], 'git-read-only'],
+    ['git rev-parse --show-toplevel', ['rev-parse', '--show-toplevel'], 'git-read-only'],
     ['git diff -- README.md', ['diff', '--', 'README.md'], 'git-read-only'],
   ];
   for (const [command, argv, category] of accepted) {
@@ -234,6 +243,19 @@ test('degraded workspace includes current tracked and untracked changes', async 
   assert.equal(result.ok, true, result.reason);
   assert.match(result.stdout, /UNCOMMITTED_TRACKED/);
   assert.match(result.stdout, /UNCOMMITTED_UNTRACKED/);
+});
+
+test('degraded execution explicitly reports omitted Git-ignored files', async t => {
+  const dir = await gitFixture(t, {
+    '.gitignore': 'ignored.txt\n',
+    'package.json': JSON.stringify({ scripts: { test: 'node check.mjs' } }),
+    'check.mjs': 'import { existsSync } from "node:fs"; console.log("IGNORED=" + existsSync("ignored.txt"));',
+  });
+  await writeFile(join(dir, 'ignored.txt'), 'local-only');
+  const result = await runFixture('npm test', { cwd: dir, sandbox: { available: false, reason: 'forced unavailable' } });
+  assert.equal(result.exitCode, 0);
+  assert.match(result.stdout, /IGNORED=false/);
+  assert(result.limitations.some(line => /Git-ignored files.*omitted/.test(line)));
 });
 
 test('a non-Git cwd is refused instead of silently running without a workspace copy', async t => {
