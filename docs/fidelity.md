@@ -61,7 +61,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/blast-radius/SKILL.md | 51 | 51 | 0 | 0 | 0 | 30 | 100% |  |
 | skills/bro/SKILL.md | 3 | 3 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/correct/SKILL.md | 28 | 28 | 0 | 0 | 0 | 22 | 100% |  |
-| skills/create-formal-verification-skill/SKILL.md | 51 | 51 | 0 | 0 | 0 | 39 | 100% |  |
+| skills/create-formal-verification-skill/SKILL.md | 51 | 51 | 0 | 0 | 0 | 52 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/README.md | 34 | 34 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/create-note.md | 36 | 36 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/search.md | 50 | 50 | 0 | 0 | 0 | 0 | 100% |  |
@@ -72,7 +72,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/interrogate/references/reviewer-prompt.md | 29 | 29 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/interrogate/references/rubric.md | 63 | 63 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/ketchup/SKILL.md | 82 | 82 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/maintain-formal-verification-skill/SKILL.md | 81 | 81 | 0 | 0 | 0 | 29 | 100% |  |
+| skills/maintain-formal-verification-skill/SKILL.md | 81 | 81 | 0 | 0 | 0 | 41 | 100% |  |
 | skills/poteto-help/references/recipes.md | 63 | 63 | 0 | 0 | 0 | 5 | 100% |  |
 | skills/poteto-mode/playbooks/authoring-a-skill.md | 12 | 11 | 0 | 0 | 1 | 25 | 100% |  |
 | skills/poteto-mode/playbooks/autopilot-full.md | 58 | 58 | 0 | 0 | 0 | 48 | 100% |  |

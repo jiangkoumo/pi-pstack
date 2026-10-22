@@ -644,6 +644,10 @@ export function registerAutoContinue(pi, { loadConfig = () => ({}), evaluateComp
     }
 
     const branch = ctx.sessionManager?.getBranch?.() ?? [];
+    // If a pstack /loop is currently active and running on the branch, let /loop handle continuation
+    const hasRunningLoop = branch.some(e => e?.customType === 'pstack.loop.v1' && e?.data?.status === 'running');
+    if (hasRunningLoop) return;
+
     const { state: branchState } = autoContinueFromBranch(branch);
 
     const assistantText = extractLastAssistantText(event.entries) || extractLastAssistantText(branch);
@@ -681,7 +685,7 @@ export function registerAutoContinue(pi, { loadConfig = () => ({}), evaluateComp
         entries: [...event.entries, stateDraft, turnDraft],
         continue: true,
       };
-    } else {
+    } else if (branchState && branchState.status === 'running') {
       const stateDraft = {
         type: 'custom',
         customType: AUTO_CONTINUE_ENTRY,
