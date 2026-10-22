@@ -102,7 +102,7 @@ async function fixture(t) {
 }
 
 test('mode on set with only --session-id is restored by a separate process', async t => {
-  const { agentDir, run, promptAndSystem } = await fixture(t);
+  const { agentDir, run, promptAndSystem, requests } = await fixture(t);
   const sessionId = 'session-a';
 
   const activation = await run(['-p', '--session-id', sessionId, '/poteto-mode on']);
@@ -110,6 +110,12 @@ test('mode on set with only --session-id is restored by a separate process', asy
 
   const statePath = sessionModeStatePath(agentDir, sessionId);
   assert.deepEqual(JSON.parse(await readFile(statePath, 'utf8')), { version: 1, enabled: true });
+
+  const status = await run(['-p', '--session-id', sessionId, '/poteto-mode status']);
+  assert.equal(status.code, 0, status.stderr);
+  assert.match(status.stderr, /"persistent": true/);
+  assert.match(status.stderr, /"enabled": true/);
+  assert.equal(requests.length, 0, 'Immediate status must report persistence without a model turn');
 
   // A new process only knows the session id; Pi has not necessarily written the
   // transcript yet, so this must come from the id-keyed state file.

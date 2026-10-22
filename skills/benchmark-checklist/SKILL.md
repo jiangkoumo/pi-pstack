@@ -15,7 +15,7 @@ For a quick ballpark the user asked for, one run is enough. Still check question
 
 - Write down the claim you expect to make, in the words you would ship ("export is 30% faster at p50 on the 60k-row dataset"). The questions test that sentence.
 - Read the measurement script. Note what it times, counts, and ignores.
-- Check the load average with `uptime` and the core count with the platform’s supported command (`nproc` on Linux, `sysctl -n hw.ncpu` on macOS). If the machine is busy, find out what is running. Do not stop another user’s process. If authorized isolation or a quiet machine is unavailable, interleave the sides so both see the same noise, and say so in the report.
+- Check the load average with `uptime` and the core count with the platform’s supported command (`nproc` on Linux, `sysctl -n hw.ncpu` on macOS). If the machine is busy, find out what is running. Do not stop another user’s process. If you cannot stop it, interleave the sides so both see the same noise, and say so in the report.
 
 ## The questions
 

@@ -10,6 +10,9 @@ const root = process.argv[2] ? resolve(process.argv[2]) : fileURLToPath(new URL(
 const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
 const manifest = await json('package.json');
 assert(manifest.files.includes('agents/'), 'Missing agents/ in package.json files');
+assert(manifest.files.includes('CHANGELOG.md'), 'Missing CHANGELOG.md in package.json files');
+const changelog = await readFile(resolve(root, 'CHANGELOG.md'), 'utf8');
+assert(changelog.split('\n').some(line => line === `## ${manifest.version}` || line.startsWith(`## ${manifest.version} — `)), 'CHANGELOG.md must contain a release heading for the current package version');
 assert.deepEqual(manifest.pi, {
   extensions: ['./extensions/pstack/index.ts'],
   skills: ['./skills']
@@ -142,7 +145,7 @@ await walk(resolve(root, 'skills'));
 await walk(resolve(root, 'agents'));
 await walk(resolve(root, 'docs'));
 await walk(resolve(root, 'adapters'));
-documents.push(resolve(root, 'README.md'), resolve(root, 'THIRD_PARTY_NOTICES.md'));
+documents.push(resolve(root, 'README.md'), resolve(root, 'THIRD_PARTY_NOTICES.md'), resolve(root, 'CHANGELOG.md'));
 for (const file of documents) {
   const content = await readFile(file, 'utf8');
   for (const match of content.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {

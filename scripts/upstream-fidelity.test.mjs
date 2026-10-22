@@ -17,9 +17,11 @@ test('a high overall score cannot hide one port below 70%, even if allowlisted',
   assert.match(verdict.errors.join('\n'), /ported.*< 70%/);
 });
 
-test('overall 85% and per-file 70% boundaries use exact counts', () => {
-  assert.deepEqual(evaluateFidelity([row('skills/ported/SKILL.md', 70), row('skills/other/SKILL.md', 100)], map).errors, []);
-  assert.match(evaluateFidelity([row('skills/ported/SKILL.md', 849, 1000)], map).errors[0], /< 85%/);
+test('overall 94% and per-file 70% boundaries use exact counts', () => {
+  assert.deepEqual(evaluateFidelity([row('skills/ported/SKILL.md', 70), row('skills/other/SKILL.md', 400, 400)], map).errors, []);
+  assert.match(evaluateFidelity([row('skills/ported/SKILL.md', 939, 1000)], map).errors[0], /< 94%/);
+  assert.deepEqual(evaluateFidelity([row('skills/ported/SKILL.md', 940, 1000)], map).errors, []);
+  assert.match(evaluateFidelity([row('skills/ported/SKILL.md', 4229, 4501)], map).errors[0], /< 94%/);
 });
 
 test('missing ported files fail while substitute files still count in overall', () => {

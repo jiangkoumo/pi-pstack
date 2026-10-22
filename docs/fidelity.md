@@ -1,6 +1,6 @@
 # pi-pstack upstream fidelity
 
-Files: 111  flagged: 4  overall kept (excluding Cursor substitutions): 4229/4501 = 94%
+Files: 111  flagged: 4  overall kept (excluding Cursor substitutions): 4231/4501 = 94%
 
 Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
@@ -39,7 +39,6 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/poteto-mode/playbooks/perf-issue.md | 23 | 21 | 1 | 0 | 1 | 36 | 96% |  |
 | skills/principle-boundary-discipline/SKILL.md | 22 | 21 | 0 | 1 | 0 | 2 | 96% |  |
 | skills/poteto-mode/playbooks/hillclimb.md | 46 | 43 | 2 | 0 | 1 | 45 | 96% |  |
-| skills/benchmark-checklist/SKILL.md | 50 | 48 | 1 | 1 | 0 | 29 | 96% |  |
 | skills/poteto-mode/playbooks/multi-phase-plan.md | 53 | 48 | 2 | 0 | 3 | 21 | 96% |  |
 | skills/poteto-mode/playbooks/bug-fix.md | 27 | 25 | 1 | 0 | 1 | 19 | 96% |  |
 | skills/poteto-mode/playbooks/feature.md | 31 | 30 | 1 | 0 | 0 | 26 | 97% |  |
@@ -52,7 +51,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/poteto-mode/references/bugbot-triage.md | 94 | 92 | 1 | 1 | 0 | 5 | 98% |  |
 | skills/reflect/references/synthesizer.md | 49 | 47 | 0 | 1 | 1 | 1 | 98% |  |
 | skills/why/references/synthesizer-prompt.md | 95 | 93 | 1 | 1 | 0 | 8 | 98% |  |
-| skills/blast-radius/SKILL.md | 51 | 50 | 0 | 1 | 0 | 29 | 98% |  |
+| skills/benchmark-checklist/SKILL.md | 50 | 49 | 0 | 1 | 0 | 29 | 98% |  |
 | skills/poteto-help/references/recipes.md | 58 | 57 | 0 | 1 | 0 | 7 | 98% |  |
 | skills/poteto-mode/playbooks/babysit.md | 104 | 102 | 1 | 0 | 1 | 36 | 99% |  |
 | agents/comment-sicko.md | 29 | 29 | 0 | 0 | 0 | 18 | 100% |  |
@@ -60,6 +59,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/architect/references/design-red-flags.md | 38 | 38 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/architect/references/rationale-template.md | 31 | 31 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/architect/references/runner-prompt.md | 36 | 36 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/blast-radius/SKILL.md | 51 | 51 | 0 | 0 | 0 | 30 | 100% |  |
 | skills/bro/SKILL.md | 3 | 3 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/correct/SKILL.md | 28 | 28 | 0 | 0 | 0 | 22 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/README.md | 34 | 34 | 0 | 0 | 0 | 0 | 100% |  |
@@ -314,9 +314,6 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 ### skills/principle-boundary-discipline/SKILL.md
 - Trust internal code unconditionally.
 
-### skills/benchmark-checklist/SKILL.md
-- Check the load average with uptime and the core count with nproc.
-
 ### skills/show-me-your-work/SKILL.md
 - A bare printf appending a row works too, but mind those same bytes if cells come from generated or user-supplied text.
 
@@ -338,8 +335,8 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 ### skills/why/references/synthesizer-prompt.md
 - This should not happen because git and gh are always expected."
 
-### skills/blast-radius/SKILL.md
-- For a big or wide change, run it as an arena.
+### skills/benchmark-checklist/SKILL.md
+- Check the load average with uptime and the core count with nproc.
 
 ### skills/poteto-help/references/recipes.md
 - /recall my work on <topic> from last week, then read <issue>.

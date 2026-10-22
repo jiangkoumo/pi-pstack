@@ -1,6 +1,6 @@
 {
   "name": "@jiangkoumo/pi-pstack",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Pi adaptation of pstack engineering skills, workflows, and bounded autonomous execution",
   "type": "module",
   "license": "MIT",
@@ -31,6 +31,7 @@
     "scripts/",
     "tools/",
     "AGENTS.md",
+    "CHANGELOG.md",
     "LICENSE",
     "LICENSES/",
     "THIRD_PARTY_NOTICES.md"

@@ -1,5 +1,14 @@
 # Changelog
 
+Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
+
+## 0.3.3 — Unreleased
+
+- Include this changelog in the npm package and require a release heading for the current package version in the package check.
+- Require exact upstream fidelity of at least 94%, with a regression for the former score that rounded to 94% but did not meet that threshold. Restore two applicable upstream sentences while keeping the existing authorization boundaries.
+- Add a real Pi CLI check of immediate poteto-mode persistence status, without a model request.
+- Runtime, verifier, routing, and workflow changes are still being developed in issues [#18](https://github.com/jiangkoumo/pi-pstack/issues/18), [#19](https://github.com/jiangkoumo/pi-pstack/issues/19), and [#20](https://github.com/jiangkoumo/pi-pstack/issues/20). Their behavior and acceptance results remain pending integration.
+
 ## 0.3.2
 
 Published by GitHub Actions on 2026-10-21. Local and CI validation passed; evidence is in docs/validation-032-release.md.
@@ -23,3 +32,10 @@ Published by GitHub Actions on 2026-10-21. Local and CI validation passed; evide
 - Add Node implementations of PR watching, worktree auditing and local orchestration.
 - Restore playbook text and add the supplied upstream-fidelity analyzer to check and publish workflows.
 - Bundle the TypeScript patterns reference and declare pi-subagents as an optional peer dependency.
+
+## 0.3.0
+
+- Integrate playbook role selection and persistent mode state.
+- Restore upstream wording in engineering playbooks and review skills, including feature and bug-fix delegation guidance.
+- Align PR body guidance and generated templates and record upstream fidelity comparisons.
+- Standardize the repository's GitHub Issues workflow for parallel development.

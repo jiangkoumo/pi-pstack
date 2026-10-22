@@ -17,7 +17,7 @@ export function evaluateFidelity(results, map) {
     upstream += row.upstream - row.subst;
   }
   const overall = kept / Math.max(upstream, 1);
-  if (overall < 0.85) errors.push(`Overall fidelity ${(overall * 100).toFixed(2)}% < 85%`);
+  if (overall < 0.94) errors.push(`Overall fidelity ${(overall * 100).toFixed(4)}% < 94%`);
   const ports = [
     ...map.entries.filter(entry => entry.disposition === 'ported'),
     ...(map.preparedResources ?? []),
@@ -47,7 +47,7 @@ async function main() {
     const result = spawnSync('python3', [
       resolve(root, 'tools/upstream-fidelity.py'), root,
       '--out', reportPath, '--json', jsonPath,
-      '--min-overall', '0.85', '--flag-kept', '0.70',
+      '--min-overall', '0.94', '--flag-kept', '0.70',
       '--allow', resolve(root, 'docs/fidelity-allow.txt'),
     ], { cwd: root, encoding: 'utf8', timeout: 120000, maxBuffer: 1024 * 1024 });
     if (result.error) throw result.error;

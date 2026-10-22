@@ -122,7 +122,7 @@ pi install npm:pi-subagents
 本项目采用“固定上游源码（`upstream/`）+ Pi 适配层（`adapters/pi/`）+ 生成分发资源（`skills/`, `agents/`）”的设计：
 * `npm run check:generate`：校验固定上游指纹与生成产物，拒绝漂移；当前检查 117 项资源；
 * `npm test`：执行模式持久化、Loop 状态机、生成器、Writer Gate 与保真度门禁行为测试；
-* `npm run check:fidelity`：运行指定上游文本对比脚本，要求整体至少85%、每个已移植Markdown至少70%；
+* `npm run check:fidelity`：运行指定上游文本对比脚本，要求整体至少94%、每个已移植Markdown至少70%；
 * `npm run check:sim`：真实代码库端到端闭环实测。
 
 ---
