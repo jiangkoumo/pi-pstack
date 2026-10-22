@@ -12,7 +12,7 @@ import { detectSandbox } from '../extensions/pstack/verification-exec.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 
-test('production pstack.verifier executes npm test and refuses write and push in a detached child', { timeout: 90000 }, async t => {
+async function runVerifierScenario({ isAsync }) {
   const requireSandbox = process.env.PSTACK_VERIFY_REQUIRE_SANDBOX === '1';
   if (requireSandbox) {
     const capability = await detectSandbox();
@@ -35,13 +35,18 @@ test('production pstack.verifier executes npm test and refuses write and push in
       const tools = input.messages.filter(m => m.role === 'tool');
       let call;
       let content;
-      if (parent && tools.length === 0) call = { name: 'subagent', args: { agent: 'pstack.verifier', task: 'Independently run npm test, attempt forbidden write and push requests, and report the actual exit code.', async: true, options: { context: 'fresh', artifacts: false, acceptance: false, timeoutMs: 60000 } } };
-      else if (parent && tools.length === 1) {
+      if (parent && tools.length === 0) {
+        call = { name: 'subagent', args: { agent: 'pstack.verifier', task: 'Independently run npm test, attempt forbidden write and push requests, and report the actual exit code.', async: isAsync, options: { context: 'fresh', artifacts: false, acceptance: false, timeoutMs: 60000 } } };
+      } else if (parent && isAsync && tools.length === 1) {
         const text = JSON.stringify(tools[0]);
         const id = /Async[^\[]*\[([^\]\s]+)\]/.exec(text)?.[1];
         assert(id, text.slice(0, 700));
         call = { name: 'bg_wait', args: { id, timeoutMs: 60000 } };
       } else if (parent) {
+        if (!isAsync) {
+          const text = JSON.stringify(tools[0]);
+          assert.match(text, /VERIFIER_EXIT_0/);
+        }
         content = 'PARENT_VERIFIED';
       } else {
         const names = input.tools.map(x => x.function.name).sort();
@@ -82,7 +87,7 @@ test('production pstack.verifier executes npm test and refuses write and push in
     process.env.PI_SUBAGENTS_PI_CODING_AGENT_PACKAGE_ROOT = resolve(root, 'node_modules/@earendil-works/pi-coding-agent');
     await mkdir(process.env.PI_SUBAGENTS_TEMP_ROOT);
     await new Promise(done => server.listen(0, '127.0.0.1', done));
-    const settings = { defaultProjectTrust: 'never', packages: [root], retry: { enabled: false }, compaction: { enabled: false }, subagents: { asyncByDefault: true, intercomBridge: { mode: 'off' } } };
+    const settings = { defaultProjectTrust: 'never', packages: [root], retry: { enabled: false }, compaction: { enabled: false }, subagents: { asyncByDefault: isAsync, intercomBridge: { mode: 'off' } } };
     await writeFile(resolve(agentDir, 'settings.json'), JSON.stringify(settings));
     await writeFile(resolve(agentDir, 'pstack.json'), JSON.stringify({ version: 1, roles: { verification: { model: 'fixture/verifier', thinking: 'off' } } }));
     const modelsPath = resolve(agentDir, 'models.json');
@@ -95,7 +100,7 @@ test('production pstack.verifier executes npm test and refuses write and push in
     ({ session } = await createAgentSession({ cwd, agentDir, modelRuntime: runtime, model: runtime.getModel('fixture', 'parent'), resourceLoader: loader, settingsManager, sessionManager: SessionManager.inMemory(cwd) }));
     const errors = [];
     await session.bindExtensions({ mode: 'rpc', onError: e => errors.push(String(e)) });
-    session.setActiveToolsByName([...session.getActiveToolNames(), 'subagent', 'bg_wait']);
+    session.setActiveToolsByName([...session.getActiveToolNames(), 'subagent', ...(isAsync ? ['bg_wait'] : [])]);
     await session.prompt('Run the production verifier fixture.');
     await session.waitForIdle();
     assert.ifError(providerError);
@@ -114,4 +119,7 @@ test('production pstack.verifier executes npm test and refuses write and push in
       await rm(dir, { recursive: true, force: true });
     }
   }
-});
+}
+
+test('production pstack.verifier executes npm test and refuses write and push in a detached child', { timeout: 90000 }, () => runVerifierScenario({ isAsync: true }));
+test('production pstack.verifier executes npm test and refuses write and push in a foreground child', { timeout: 90000 }, () => runVerifierScenario({ isAsync: false }));

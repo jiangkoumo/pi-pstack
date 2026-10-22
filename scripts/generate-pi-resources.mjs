@@ -138,7 +138,7 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
     assert.equal(fields.license, 'MIT', 'Missing MIT license: ' + entry.destination);
     assert.equal(fields['disable-model-invocation'], 'true', 'Skill must be explicit-only: ' + entry.destination);
   } else if (isAgent) {
-    const agentAllowed = ['name', 'package', 'description', 'tools', 'excludeTools', 'extensions', 'systemPromptMode', 'inheritProjectContext', 'inheritGlobalContext', 'inheritSkills', 'async', 'acceptanceRole', 'license'];
+    const agentAllowed = ['name', 'package', 'description', 'tools', 'excludeTools', 'extensions', 'subagentOnlyExtensions', 'systemPromptMode', 'inheritProjectContext', 'inheritGlobalContext', 'inheritSkills', 'async', 'acceptanceRole', 'license'];
     const { fields } = frontmatter(output, agentAllowed, entry.destination);
     assert.equal(fields.name, posix.basename(entry.destination, '.md'), 'Agent name must match filename: ' + entry.destination);
     assert.equal(fields.package, 'pstack', 'Agent package must be declared as pstack: ' + entry.destination);
@@ -164,6 +164,12 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
       for (const t of toolsList) {
         assert(allowedReadOnly.includes(t), 'Forbidden tool granted to read-only agent: ' + t + ' in ' + entry.destination);
       }
+      const needsPstackExtension = toolsList.includes('git_read') || toolsList.includes('verification_exec');
+      if (needsPstackExtension) {
+        assert.equal(fields.subagentOnlyExtensions, '../extensions/pstack/index.ts', 'Agents requiring package extension tools must declare subagentOnlyExtensions: ' + entry.destination);
+      } else {
+        assert.equal(fields.subagentOnlyExtensions, undefined, 'Agents with only builtin tools must not declare subagentOnlyExtensions: ' + entry.destination);
+      }
     } else if (fields.acceptanceRole === 'writer') {
       const allowedWriter = ['read', 'edit', 'write', 'grep', 'find', 'ls', 'bash'];
       for (const t of toolsList) {
@@ -173,11 +179,19 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
 
     if (entry.source === 'pstack/agents/poteto-agent.md') {
       assert.equal(fields.extensions, undefined, 'Writer must not declare extensions');
+      assert.equal(fields.subagentOnlyExtensions, undefined, 'Writer must not declare subagentOnlyExtensions: ' + entry.destination);
     }
     if (entry.source === 'pstack/agents/comment-sicko.md') {
       assert.equal(fields.acceptanceRole, 'read-only', 'comment-sicko must be read-only: ' + entry.destination);
       assert.equal(fields.excludeTools, 'contact_supervisor', 'comment-sicko must exclude runtime supervisor tool');
       assert.deepEqual([...toolsList].sort(), ['find', 'git_read', 'grep', 'ls', 'read'], 'comment-sicko must strictly declare the read-only git allowlist: ' + entry.destination);
+      assert.equal(fields.subagentOnlyExtensions, '../extensions/pstack/index.ts', 'comment-sicko must supply git_read provider through subagentOnlyExtensions: ' + entry.destination);
+    }
+    if (entry.destination === 'agents/verifier.md') {
+      assert.equal(fields.acceptanceRole, 'read-only', 'verifier must be read-only: ' + entry.destination);
+      assert.equal(fields.excludeTools, 'contact_supervisor', 'verifier must exclude runtime supervisor tool');
+      assert.deepEqual([...toolsList].sort(), ['find', 'grep', 'ls', 'read', 'verification_exec'], 'verifier must declare verification allowlist: ' + entry.destination);
+      assert.equal(fields.subagentOnlyExtensions, '../extensions/pstack/index.ts', 'verifier must supply verification_exec provider through subagentOnlyExtensions: ' + entry.destination);
     }
   }
   rendered.set(entry.destination, output);

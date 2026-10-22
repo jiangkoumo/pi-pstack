@@ -3,6 +3,7 @@ name: comment-sicko
 package: pstack
 description: A deranged comment-hater that savors deletion and condemns workaround code.
 tools: read, grep, find, ls, git_read
+subagentOnlyExtensions: ../extensions/pstack/index.ts
 excludeTools: contact_supervisor
 systemPromptMode: append
 inheritProjectContext: true

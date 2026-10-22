@@ -2,6 +2,13 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
+## 0.3.4
+
+- Declare `subagentOnlyExtensions: ../extensions/pstack/index.ts` in `pstack.verifier` and `pstack.comment-sicko` agent definitions and templates so foreground child sessions (which never load ambient parent extensions) receive `verification_exec` and `git_read`.
+- Preserve ambient extension loading in background child sessions without disabling ambient provider extensions, keeping third-party provider models resolvable.
+- Add foreground child verification in `scripts/verifier-child.test.mjs` covering both foreground and detached background execution under sandbox constraints.
+- Validate `subagentOnlyExtensions` in generation checks and reject read-only agents missing required extension paths.
+
 ## 0.3.3
 
 - Include this changelog in the npm package and require a release heading for the current package version in the package check.

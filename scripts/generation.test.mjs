@@ -75,13 +75,16 @@ test('Pi-specific role agents preserve tool boundaries and are not attributed to
   }
   const verifier = await readFile(resolve(dir, 'agents/verifier.md'), 'utf8');
   assert.match(verifier, /^tools: read, grep, find, ls, verification_exec$/m);
+  assert.match(verifier, /^subagentOnlyExtensions: \.\.\/extensions\/pstack\/index\.ts$/m);
   assert.doesNotMatch(verifier, /^extensions:/m, 'Read-only agents must leave extensions unset so ambient provider extensions load');
   assert.match(verifier, /^excludeTools: contact_supervisor$/m);
   const sicko = await readFile(resolve(dir, 'agents/comment-sicko.md'), 'utf8');
   assert.match(sicko, /^tools: read, grep, find, ls, git_read$/m);
+  assert.match(sicko, /^subagentOnlyExtensions: \.\.\/extensions\/pstack\/index\.ts$/m);
   assert.doesNotMatch(sicko, /^extensions:/m);
   const writer = await readFile(resolve(dir, 'agents/prose-writer.md'), 'utf8');
   assert.match(writer, /^tools: read, edit, write, grep, find, ls$/m);
+  assert.doesNotMatch(writer, /^subagentOnlyExtensions:/m);
   await mutateJSON(dir, 'docs/port-map.json', map => { map.nativeResources[0].destination = 'agents/poteto-agent.md'; });
   await rejectInBothModes(dir, /Destination must match source/);
 }));
@@ -258,4 +261,16 @@ test('reject identity role tampering for comment-sicko', () => fixture(async dir
     .replace('acceptanceRole: read-only', 'acceptanceRole: writer');
   await writeFile(path, text);
   await rejectInBothModes(dir, /comment-sicko must be read-only/);
+}));
+
+test('reject missing subagentOnlyExtensions in verifier', () => fixture(async dir => {
+  const path = resolve(dir, 'adapters/pi/overrides/agents/verifier.md.template');
+  await writeFile(path, (await readFile(path, 'utf8')).replace('subagentOnlyExtensions: ../extensions/pstack/index.ts\n', ''));
+  await rejectInBothModes(dir, /Agents requiring package extension tools must declare subagentOnlyExtensions/);
+}));
+
+test('reject missing subagentOnlyExtensions in comment-sicko', () => fixture(async dir => {
+  const path = resolve(dir, 'adapters/pi/overrides/agents/comment-sicko.md.template');
+  await writeFile(path, (await readFile(path, 'utf8')).replace('subagentOnlyExtensions: ../extensions/pstack/index.ts\n', ''));
+  await rejectInBothModes(dir, /Agents requiring package extension tools must declare subagentOnlyExtensions/);
 }));

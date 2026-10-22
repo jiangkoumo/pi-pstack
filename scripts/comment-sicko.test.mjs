@@ -258,6 +258,7 @@ test('comment-sicko background child resolves a provider-extension model with th
     assert.notEqual(loads[1].pid, process.pid, 'The ambient load must come from the detached runner process');
     assert.ok(loads.some(load => load.asyncRunner === '1'), 'The ambient load must be the async runner child');
     assert.equal(definition.extensions, undefined, 'The generated comment-sicko must leave extensions unset so the background child loads ambient providers');
+    assert.deepEqual(definition.subagentOnlyExtensions, [resolve(root, 'extensions/pstack/index.ts')]);
   } finally {
     try {
       await disposeTestSession(session);

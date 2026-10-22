@@ -3,6 +3,7 @@ name: verifier
 package: pstack
 description: Independent read-only verifier of scoped artifacts, acceptance evidence, and current-head claims.
 tools: read, grep, find, ls, verification_exec
+subagentOnlyExtensions: ../extensions/pstack/index.ts
 excludeTools: contact_supervisor
 systemPromptMode: append
 inheritProjectContext: true

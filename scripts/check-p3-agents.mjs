@@ -47,6 +47,7 @@ assert(sicko, "Must have pstack.comment-sicko definition");
 assert.equal(sicko.definition.acceptanceRole, "read-only");
 assert.deepEqual(sicko.definition.tools, ["read", "grep", "find", "ls", "git_read"]);
 assert.equal(sicko.definition.extensions, undefined);
+assert.deepEqual(sicko.definition.subagentOnlyExtensions, [resolve(root, "extensions/pstack/index.ts")]);
 assert.deepEqual(sicko.definition.excludeTools, ["contact_supervisor"]);
 assert.equal(sicko.definition.defaultAsync, true);
 assert.equal(sicko.definition.inheritProjectContext, true);
@@ -61,6 +62,7 @@ assert(poteto, "Must have pstack.poteto-agent definition");
 assert.equal(poteto.definition.acceptanceRole, "writer");
 assert.deepEqual(poteto.definition.tools, ["read", "edit", "write", "grep", "find", "ls", "bash"]);
 assert.equal(poteto.definition.extensions, undefined, "writer must not declare extensions");
+assert.equal(poteto.definition.subagentOnlyExtensions, undefined);
 assert.equal(poteto.definition.defaultAsync, true);
 assert.equal(poteto.definition.inheritProjectContext, true);
 assert.equal(poteto.definition.inheritGlobalContext, false);
@@ -71,7 +73,9 @@ const prose = parsedAgents.get("pstack.prose-writer");
 assert(verifier && prose, "Pi-specific role agents must be present");
 assert.deepEqual(verifier.definition.tools, ["read", "grep", "find", "ls", "verification_exec"]);
 assert.equal(verifier.definition.extensions, undefined);
+assert.deepEqual(verifier.definition.subagentOnlyExtensions, [resolve(root, "extensions/pstack/index.ts")]);
 assert.deepEqual(prose.definition.tools, ["read", "edit", "write", "grep", "find", "ls"]);
+assert.equal(prose.definition.subagentOnlyExtensions, undefined);
 
 // Verify dynamic registration through controller
 const registered = [];

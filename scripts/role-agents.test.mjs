@@ -70,10 +70,11 @@ test('all role bindings preserve source permissions and use separate model/think
 });
 
 test('definition parser preserves supported frontmatter and rejects unsupported constraints', () => {
-  const source = content(ROLE_AGENTS.review).replace('tools: read, grep, find, ls', 'tools:\n  - read\n  - grep').replace('license: MIT', 'extensions: ./readonly.ts\nlicense: MIT').replace('async: true', 'async: false\ntimeoutMs: 500\ntoolTimeoutMs: 400\nmaxSubagentDepth: 0\ndefaultContext: fresh\nacceptance: {"level":"none","reason":"fixture"}');
+  const source = content(ROLE_AGENTS.review).replace('tools: read, grep, find, ls', 'tools:\n  - read\n  - grep').replace('license: MIT', 'extensions: ./readonly.ts\nsubagentOnlyExtensions: ./sub-only.ts\nlicense: MIT').replace('async: true', 'async: false\ntimeoutMs: 500\ntoolTimeoutMs: 400\nmaxSubagentDepth: 0\ndefaultContext: fresh\nacceptance: {"level":"none","reason":"fixture"}');
   const d = parseRoleAgent(source, ROLE_AGENTS.review, '/tmp/definitions');
   assert.deepEqual(d.tools, ['read', 'grep']);
   assert.deepEqual(d.extensions, ['/tmp/definitions/readonly.ts']);
+  assert.deepEqual(d.subagentOnlyExtensions, ['/tmp/definitions/sub-only.ts']);
   assert.equal(d.defaultAsync, false);
   assert.equal(d.defaultTimeoutMs, 500);
   assert.equal(d.defaultToolTimeoutMs, 400);
