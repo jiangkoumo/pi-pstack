@@ -2,6 +2,7 @@ export const MODE_ENTRY = 'pstack.mode.v1';
 export const MODE_SECTION = 'pstack_mode';
 export const ROLES = ['code', 'bug-fix', 'perf', 'hillclimb', 'judgment', 'strongest', 'review', 'prose', 'verification'];
 export const THINKING = ['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'];
+export const TLA_FIELDS = ['tla2toolsJar'];
 
 export function modeFromBranch(entries) {
   for (const entry of [...entries].reverse()) {
@@ -31,14 +32,15 @@ export function roleGuidance(roles) {
 
 /**
  * @typedef {{ model: string, thinking?: string }} RoleChoice
- * @typedef {{ version: number, roles: Record<string, RoleChoice> }} PstackConfig
+ * @typedef {{ tla2toolsJar?: string }} TlaConfig
+ * @typedef {{ version: number, roles: Record<string, RoleChoice>, tla?: TlaConfig }} PstackConfig
  */
 
 /** @returns {PstackConfig} */
 export function parseConfig(value, source = 'pstack.json') {
   const fail = message => { throw new Error(`${source}: ${message}`); };
   if (!value || typeof value !== 'object' || Array.isArray(value)) fail('expected an object');
-  for (const key of Object.keys(value)) if (!['version', 'roles'].includes(key)) fail(`unknown field ${key}`);
+  for (const key of Object.keys(value)) if (!['version', 'roles', 'tla'].includes(key)) fail(`unknown field ${key}`);
   if (value.version !== 1) fail('version must be 1');
   if (!value.roles || typeof value.roles !== 'object' || Array.isArray(value.roles)) fail('roles must be an object');
   /** @type {Record<string, RoleChoice>} */
@@ -51,7 +53,27 @@ export function parseConfig(value, source = 'pstack.json') {
     if (choice.thinking !== undefined && !THINKING.includes(choice.thinking)) fail(`roles.${name}.thinking: unknown thinking level`);
     roles[name] = { model: choice.model, ...(choice.thinking === undefined ? {} : { thinking: choice.thinking }) };
   }
-  return { version: 1, roles };
+  if (value.tla === undefined) return { version: 1, roles };
+  if (!value.tla || typeof value.tla !== 'object' || Array.isArray(value.tla)) fail('tla: expected an object');
+  for (const key of Object.keys(value.tla)) if (!TLA_FIELDS.includes(key)) fail(`tla.${key}: unknown field`);
+  const tla = {};
+  if (value.tla.tla2toolsJar !== undefined) {
+    const jar = value.tla.tla2toolsJar;
+    if (typeof jar !== 'string' || !jar.trim()) fail('tla.tla2toolsJar: expected a non-empty path string');
+    if (jar.length > 4096) fail('tla.tla2toolsJar: path is longer than 4096 characters');
+    if (/[\0\n\r]/.test(jar)) fail('tla.tla2toolsJar: path must not contain control characters');
+    tla.tla2toolsJar = jar.trim();
+  }
+  return { version: 1, roles, tla };
+}
+
+/**
+ * Read the configured tla2tools.jar path out of an already validated pstack
+ * configuration. Verification resolves the path on disk; this only returns the
+ * operator's declared value.
+ */
+export function tlcJarPathFromConfig(config) {
+  return typeof config?.tla?.tla2toolsJar === 'string' ? config.tla.tla2toolsJar : undefined;
 }
 
 export function validateChoices(roles, available, currentModel, supportedLevels) {

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:net';
-import { mkdtemp, realpath, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
@@ -10,15 +10,22 @@ import { fileURLToPath } from 'node:url';
 import {
   DEGRADED_LIMITATIONS,
   TOOL_NAME,
+  TLC_MISSING_WARNING,
   buildSandboxProfile,
   capabilityFromSandbox,
+  createTlcVerificationTool,
   createVerificationTool,
   detectSandbox,
+  detectTlc,
   getVerificationCapability,
+  parseTlcRequest,
   parseVerificationCommand,
+  renderTlcResult,
   renderVerificationResult,
+  runTlcVerification,
   runVerification,
 } from '../extensions/pstack/verification-exec.mjs';
+import { parseConfig, tlcJarPathFromConfig } from '../extensions/pstack/runtime.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const sandbox = await detectSandbox();
@@ -446,4 +453,322 @@ test('times out a long-running command and reports it as not passed', async t =>
   assert.equal(result.status, 'timed-out');
   assert.equal(result.exitCode, null);
   assert.match(renderVerificationResult(result), /killed after the timeout/);
+});
+
+// --- Restricted TLC entry -------------------------------------------------
+// The stub below stands in for `java`. It exists to check the whitelist, argv,
+// boundary, timeout and output cap plumbing. It is NOT a TLC run and nothing
+// here is evidence about real formal verification. The optional test further
+// down runs real TLC when the operator configured tla2tools.jar.
+const STUB_JAVA = [
+  '#!/bin/sh',
+  'if [ "$1" = "-version" ]; then',
+  '  printf \'openjdk version "%s" 2026-01-01\\n\' "${PSTACK_STUB_JAVA_VERSION:-21.0.4}" >&2',
+  '  exit 0',
+  'fi',
+  'if [ -n "$PSTACK_STUB_TLC_SLEEP" ]; then sleep "$PSTACK_STUB_TLC_SLEEP"; fi',
+  'echo "STUB_TLC_ARGS: $*"',
+  'echo "TLC2 Version 2.19 of 2025"',
+  'if [ -n "$PSTACK_STUB_TLC_NOISE" ]; then',
+  '  i=0',
+  '  while [ "$i" -lt "$PSTACK_STUB_TLC_NOISE" ]; do echo "TLC_TRACE_LINE_PADDING_PADDING_PADDING"; i=$((i+1)); done',
+  'fi',
+  'if [ "${PSTACK_STUB_TLC_EXIT:-0}" != "0" ]; then',
+  '  echo "Error: Invariant Safety is violated."',
+  '  exit "$PSTACK_STUB_TLC_EXIT"',
+  'fi',
+  'exit 0',
+  '',
+].join('\n');
+
+const TLC_SPEC_FILES = {
+  'spec.tla': [
+    '---- MODULE Counter ----',
+    'EXTENDS Naturals',
+    'VARIABLE x',
+    'Init == x = 0',
+    "Next == x < 5 /\\ x' = x + 1",
+    'Inv == x >= 0',
+    '====',
+    '',
+  ].join('\n'),
+  'spec.cfg': 'INIT Init\nNEXT Next\nINVARIANT Inv\n',
+  'spec.txt': 'not a TLA+ spec\n',
+  'other.cfg': 'INIT Init\n',
+};
+
+// A stub `java` on PATH plus a jar file the operator could have configured.
+async function tlcFixture(t, files = TLC_SPEC_FILES) {
+  const dir = await gitFixture(t, files);
+  const bin = join(dir, 'bin');
+  const jar = join(dir, 'tla2tools.jar');
+  await mkdir(bin, { recursive: true });
+  await writeFile(join(bin, 'java'), STUB_JAVA, { mode: 0o755 });
+  await writeFile(jar, 'stub jar, not a real TLA+ toolkit\n');
+  return { dir, bin, jar };
+}
+
+function stubEnv(bin, extra = {}) {
+  return { PATH: `${bin}:${process.env.PATH ?? ''}`, ...extra };
+}
+
+async function stubJavaBin(t) {
+  const bin = await mkdtemp(join(tmpdir(), 'pstack-tlc-stub-'));
+  t.after(() => rm(bin, { recursive: true, force: true }));
+  await writeFile(join(bin, 'java'), STUB_JAVA, { mode: 0o755 });
+  return bin;
+}
+
+test('arbitrary java invocations are refused; the restricted TLC entry is the only java path', async t => {
+  for (const command of ['java -version', 'java -jar tla2tools.jar spec.tla', 'java -Xmx1g tlc2.TLC spec.tla']) {
+    const parsed = parseVerificationCommand(command);
+    assert.equal(parsed.ok, false, command);
+    assert.match(parsed.reason, /restricted TLC runner/);
+  }
+  const { dir } = await tlcFixture(t);
+  const result = await runFixture('java -jar tla2tools.jar spec.tla', { cwd: dir });
+  assert.equal(result.ok, false);
+  assert.equal(result.status, 'refused');
+  assert.match(result.reason, /restricted TLC runner/);
+});
+
+test('TLC capability reports missing or too-old java and a missing jar instead of pretending to verify', async t => {
+  const noJava = await detectTlc({ env: { PATH: join(tmpdir(), 'pstack-no-java-on-this-path') } });
+  assert.equal(noJava.available, false);
+  assert.equal(noJava.formal, 'none');
+  assert.match(noJava.java.reason, /not found on PATH/);
+  assert.match(noJava.reason, /tla2tools\.jar/);
+  assert.match(noJava.warning, /未做形式化验证，原因是缺少 TLC/);
+  assert.equal(noJava.fallback.kind, 'generated-input-tests');
+  assert.equal(noJava.fallback.formal, false);
+
+  const noJar = await detectTlc({ env: { PATH: process.env.PATH ?? '' } });
+  assert.equal(noJar.available, false);
+  assert.equal(noJar.jar.configured, false);
+  assert.match(noJar.jar.reason, /no tla2tools\.jar is configured/);
+
+  const bin = await stubJavaBin(t);
+  const old = await detectTlc({ env: { PATH: `${bin}:${process.env.PATH ?? ''}`, PSTACK_STUB_JAVA_VERSION: '1.8.0_402' } });
+  assert.equal(old.java.available, false);
+  assert.equal(old.java.major, 8);
+  assert.equal(old.java.minimumMajor, 11);
+  assert.match(old.java.reason, /older than Java 11/);
+  assert.equal(old.available, false);
+});
+
+test('a run without TLC returns an explicit no-formal-verification result and the generated-input fallback', async t => {
+  const { dir } = await tlcFixture(t);
+  const result = await runTlcVerification({ spec: 'spec.tla', config: 'spec.cfg' }, {
+    cwd: dir,
+    env: { PATH: process.env.PATH ?? '' },
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.status, 'unavailable');
+  assert.equal(result.formalVerification, 'not-performed');
+  assert.match(result.reason, /未做形式化验证，原因是缺少 TLC/);
+  assert.equal(result.warning, TLC_MISSING_WARNING);
+  assert.equal(result.fallback.kind, 'generated-input-tests');
+  assert.equal(result.fallback.formal, false);
+  const rendered = renderTlcResult(result);
+  assert.match(rendered, /^FORMAL VERIFICATION: not performed$/m);
+  assert.match(rendered, /未做形式化验证，原因是缺少 TLC/);
+  assert.match(rendered, /^FALLBACK: generated-input tests against the real code/m);
+  assert.match(rendered, /not a formal verification pass/);
+  assert.match(rendered, /^SKIPPED: TLC did not run/m);
+  assert.doesNotMatch(rendered, /^STATUS: passed$/m);
+});
+
+test('the TLC entry refuses option injection, non-repository paths and symlink escapes', async t => {
+  const outside = await mkdtemp(join(tmpdir(), 'pstack-tlc-outside-'));
+  t.after(() => rm(outside, { recursive: true, force: true }));
+  await writeFile(join(outside, 'outside.tla'), '---- MODULE Outside ----\n====\n');
+  await writeFile(join(outside, 'outside.cfg'), 'INIT Init\n');
+  const { dir } = await tlcFixture(t);
+  await symlink(join(outside, 'outside.tla'), join(dir, 'linked.tla'));
+  await symlink(join(outside, 'outside.cfg'), join(dir, 'linked.cfg'));
+  const refused = [
+    [{ spec: 'spec.tla', config: 'spec.cfg', options: ['-javaoptions', '-Dx=y'] }, /not in the restricted whitelist/],
+    [{ spec: 'spec.tla', config: 'spec.cfg', options: ['-metadir', '/tmp/elsewhere'] }, /not in the restricted whitelist/],
+    [{ spec: 'spec.tla', config: 'spec.cfg', options: ['-workers', '4; rm -rf /'] }, /Shell composition/],
+    [{ spec: 'spec.tla', config: 'spec.cfg', options: ['-config', 'other.cfg'] }, /not accepted inside options/],
+    [{ spec: 'spec.tla', config: 'spec.cfg', options: ['-depth', 'ten'] }, /requires a numeric value/],
+    [{ spec: 'spec.tla', config: 'spec.cfg', options: '-cleanup' }, /must be an array/],
+    [{ spec: 'spec.tla', config: 'spec.cfg', jar: join(outside, 'other.jar') }, /Unknown TLC request field/],
+    [{ spec: '../outside.tla', config: 'spec.cfg' }, /must stay inside the repository/],
+    [{ spec: 'linked.tla', config: 'spec.cfg' }, /resolves outside the repository/],
+    [{ spec: 'spec.tla', config: 'linked.cfg' }, /resolves outside the repository/],
+    [{ spec: 'spec.txt', config: 'spec.cfg' }, /must be a \.tla file/],
+    [{ spec: 'spec.tla', config: 'spec.txt' }, /must be a \.cfg file/],
+    [{ spec: 'spec.tla', config: 'missing.cfg' }, /does not exist/],
+  ];
+  for (const [request, reason] of refused) {
+    const parsed = await parseTlcRequest(request, { root: dir });
+    assert.equal(parsed.ok, false, JSON.stringify(request));
+    assert.match(parsed.reason, reason, JSON.stringify(request));
+  }
+  const accepted = await parseTlcRequest({ spec: 'spec.tla', config: 'spec.cfg', options: ['-cleanup', '-workers', 'auto', '-depth', '12'] }, { root: dir });
+  assert.equal(accepted.ok, true, accepted.reason);
+  assert.deepEqual(accepted.options, ['-cleanup', '-workers', 'auto', '-depth', '12']);
+  assert.equal(accepted.spec.relative, 'spec.tla');
+  assert.equal(accepted.config.relative, 'spec.cfg');
+});
+
+test('a simulated TLC run uses the configured jar and the whitelisted argv inside the boundary', async t => {
+  const { dir, bin, jar } = await tlcFixture(t);
+  const result = await runTlcVerification(
+    { spec: 'spec.tla', config: 'spec.cfg', options: ['-cleanup', '-workers', '4'] },
+    { cwd: dir, env: stubEnv(bin, { TLA2TOOLS_JAR: jar }) },
+  );
+  assert.equal(result.ok, true, result.reason);
+  assert.equal(result.status, 'passed');
+  assert.equal(result.exitCode, 0);
+  assert.equal(result.formalVerification, 'performed');
+  assert.equal(result.tlc.outcome, 'passed');
+  assert.equal(result.tlc.jar, await realpath(jar));
+  assert.ok(['os-sandbox', 'degraded-worktree'].includes(result.isolation), result.isolation);
+  const rendered = renderTlcResult(result);
+  assert.match(rendered, /^FORMAL VERIFICATION: performed \(TLC\)$/m);
+  assert.match(rendered, /^FORMAL OUTCOME: passed$/m);
+  const echoed = result.stdout.split('\n').find(line => line.startsWith('STUB_TLC_ARGS: '));
+  assert.ok(echoed, result.stdout);
+  assert.match(echoed, /-cleanup -workers 4 -config /);
+  assert.match(echoed, /-metadir /);
+  assert.match(echoed, /-Djava\.io\.tmpdir=/);
+  assert.ok(echoed.includes(`-jar ${await realpath(jar)}`), echoed);
+  assert.match(echoed, /spec\.tla$/);
+  assert.doesNotMatch(echoed, /[;&|`$()]/);
+});
+
+test('a simulated TLC run in the degraded workspace resolves spec and config inside the temporary copy', async t => {
+  const { dir, bin, jar } = await tlcFixture(t);
+  const result = await runTlcVerification({ spec: 'spec.tla', config: 'spec.cfg' }, {
+    cwd: dir,
+    sandbox: { available: false, kind: 'linux-bwrap', reason: 'bwrap unavailable in test' },
+    env: stubEnv(bin, { TLA2TOOLS_JAR: jar }),
+  });
+  assert.equal(result.ok, true, result.reason);
+  assert.equal(result.isolation, 'degraded-worktree');
+  assert.equal(result.degraded, true);
+  assert.equal(result.status, 'passed');
+  assert.match(result.warning, /NOT an OS sandbox/);
+  const echoed = result.stdout.split('\n').find(line => line.startsWith('STUB_TLC_ARGS: '));
+  assert.ok(echoed, result.stdout);
+  assert.ok(echoed.includes(`/${result.workspace === 'temporary-git-worktree' ? 'worktree' : 'checkout'}/`), echoed);
+  assert.ok(!echoed.includes(` ${dir}/spec.cfg`), 'the degraded run must not read the source checkout paths');
+  assert.match(echoed, /-metadir .*tlc-metadir/);
+});
+
+test('a simulated TLC invariant violation returns a non-zero exit and is never reported as a pass', async t => {
+  const { dir, bin, jar } = await tlcFixture(t);
+  const result = await runTlcVerification(
+    { spec: 'spec.tla', config: 'spec.cfg' },
+    { cwd: dir, env: stubEnv(bin, { TLA2TOOLS_JAR: jar, PSTACK_STUB_TLC_EXIT: '12' }) },
+  );
+  assert.equal(result.ok, true, result.reason);
+  assert.equal(result.status, 'failed');
+  assert.equal(result.exitCode, 12);
+  assert.equal(result.tlc.outcome, 'invariant-violated');
+  const rendered = renderTlcResult(result);
+  assert.match(rendered, /^FORMAL OUTCOME: invariant-violated$/m);
+  assert.match(rendered, /do not weaken the property/);
+  assert.doesNotMatch(rendered, /^STATUS: passed$/m);
+});
+
+test('TLC runs keep the shared timeout and output caps (simulated java)', async t => {
+  const { dir, bin, jar } = await tlcFixture(t);
+  const timedOut = await runTlcVerification(
+    { spec: 'spec.tla', config: 'spec.cfg' },
+    { cwd: dir, env: stubEnv(bin, { TLA2TOOLS_JAR: jar, PSTACK_STUB_TLC_SLEEP: '5' }), timeoutMs: 700 },
+  );
+  assert.equal(timedOut.ok, true, timedOut.reason);
+  assert.equal(timedOut.status, 'timed-out');
+  assert.equal(timedOut.exitCode, null);
+  assert.equal(timedOut.tlc.outcome, 'error');
+  assert.match(renderTlcResult(timedOut), /killed after the timeout/);
+
+  const capped = await runTlcVerification(
+    { spec: 'spec.tla', config: 'spec.cfg' },
+    { cwd: dir, env: stubEnv(bin, { TLA2TOOLS_JAR: jar, PSTACK_STUB_TLC_NOISE: '2000' }), maxOutputBytes: 512 },
+  );
+  assert.equal(capped.ok, true, capped.reason);
+  assert.equal(capped.outputTruncated, true);
+  assert.ok(Buffer.byteLength(capped.stdout, 'utf8') <= 512, `captured ${Buffer.byteLength(capped.stdout, 'utf8')} bytes`);
+});
+
+test('pstack.json can declare the jar path and strict validation still rejects unknown fields', async t => {
+  assert.equal(tlcJarPathFromConfig(parseConfig({ version: 1, roles: {}, tla: { tla2toolsJar: '/opt/tla2tools.jar' } })), '/opt/tla2tools.jar');
+  assert.equal(tlcJarPathFromConfig(parseConfig({ version: 1, roles: {} })), undefined);
+  assert.throws(() => parseConfig({ version: 1, roles: {}, tla: { jar: '/opt/tla2tools.jar' } }), /tla\.jar: unknown field/);
+  assert.throws(() => parseConfig({ version: 1, roles: {}, tla: { tla2toolsJar: '' } }), /non-empty path string/);
+  assert.throws(() => parseConfig({ version: 1, roles: {}, tla: 'nope' }), /tla: expected an object/);
+  assert.throws(() => parseConfig({ version: 1, roles: {}, extra: true }), /unknown field extra/);
+
+  const { bin, jar } = await tlcFixture(t);
+  const configured = parseConfig({ version: 1, roles: {}, tla: { tla2toolsJar: jar } });
+  const capability = await detectTlc({ config: configured, env: stubEnv(bin) });
+  assert.equal(capability.available, true, capability.reason);
+  assert.equal(capability.jar.source, 'pstack.json:tla.tla2toolsJar');
+  assert.equal(capability.jar.path, await realpath(jar));
+  assert.equal(capability.java.major >= 11, true);
+
+  const conflict = await detectTlc({ config: configured, env: stubEnv(bin, { TLA2TOOLS_JAR: '/other/tla2tools.jar' }) });
+  assert.equal(conflict.available, false);
+  assert.match(conflict.reason, /conflicting tla2tools\.jar paths/);
+
+  const relative = await detectTlc({ config: parseConfig({ version: 1, roles: {}, tla: { tla2toolsJar: 'vendor/tla2tools.jar' } }), env: stubEnv(bin) });
+  assert.equal(relative.available, false);
+  assert.match(relative.jar.reason, /expected an absolute path/);
+});
+
+test('the TLC tool definition is a separate registration contract and reports the fallback at tool level', async t => {
+  const definition = createTlcVerificationTool();
+  assert.equal(definition.name, 'tlc_verify');
+  assert.deepEqual(definition.parameters.required, ['spec', 'config']);
+  assert.equal(definition.parameters.additionalProperties, false);
+  assert.equal(typeof definition.execute, 'function');
+
+  const { dir } = await tlcFixture(t);
+  const previous = process.env.TLA2TOOLS_JAR;
+  const previousAlias = process.env.TLA2TOOLS;
+  delete process.env.TLA2TOOLS_JAR;
+  delete process.env.TLA2TOOLS;
+  try {
+    const outcome = await definition.execute('call-1', { spec: 'spec.tla', config: 'spec.cfg' }, undefined, undefined, { cwd: dir });
+    assert.equal(outcome.details.formalVerification, 'not-performed');
+    assert.equal(outcome.details.fallback, 'generated-input-tests');
+    assert.match(outcome.content[0].text, /未做形式化验证，原因是缺少 TLC/);
+  } finally {
+    if (previous !== undefined) process.env.TLA2TOOLS_JAR = previous;
+    if (previousAlias !== undefined) process.env.TLA2TOOLS = previousAlias;
+  }
+});
+
+test('a real TLC run on a minimal spec passes, and an invariant violation returns non-zero', async t => {
+  const capability = await detectTlc();
+  if (!capability.available) {
+    const reason = `SKIPPED real TLC: 未做形式化验证，原因是缺少 TLC (${capability.reason}). Set TLA2TOOLS_JAR to a tla2tools.jar with Java 11+ to run this test; this package never downloads it.`;
+    t.diagnostic(reason);
+    console.error(`\n[verification-exec] ${reason}\n`);
+    if (process.env.PSTACK_TLC_REQUIRE === '1') assert.fail(reason);
+    return;
+  }
+  t.diagnostic(`real TLC available: java ${capability.java.version}, jar ${capability.jar.path}`);
+  const files = {
+    'pass.tla': ['---- MODULE Pass ----', 'EXTENDS Naturals', 'VARIABLE x', 'Init == x = 0', "Next == x < 5 /\\ x' = x + 1", 'Inv == x >= 0', '====', ''].join('\n'),
+    'pass.cfg': 'INIT Init\nNEXT Next\nINVARIANT Inv\n',
+    'fail.tla': ['---- MODULE Fail ----', 'EXTENDS Naturals', 'VARIABLE x', 'Init == x = 0', "Next == x < 5 /\\ x' = x + 1", 'Inv == x < 3', '====', ''].join('\n'),
+    'fail.cfg': 'INIT Init\nNEXT Next\nINVARIANT Inv\n',
+  };
+  const dir = await gitFixture(t, files);
+  const passing = await runTlcVerification({ spec: 'pass.tla', config: 'pass.cfg', options: ['-cleanup'] }, { cwd: dir, capability });
+  assert.equal(passing.ok, true, passing.reason);
+  assert.equal(passing.status, 'passed', `${passing.stdout}\n${passing.stderr}`);
+  assert.equal(passing.tlc.outcome, 'passed');
+
+  const failing = await runTlcVerification({ spec: 'fail.tla', config: 'fail.cfg', options: ['-cleanup'] }, { cwd: dir, capability });
+  assert.equal(failing.ok, true, failing.reason);
+  assert.notEqual(failing.exitCode, 0);
+  assert.equal(failing.status, 'failed');
+  assert.equal(failing.tlc.outcome, 'invariant-violated');
+  assert.match(renderTlcResult(failing), /^FORMAL OUTCOME: invariant-violated$/m);
 });

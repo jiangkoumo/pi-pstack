@@ -30,11 +30,12 @@
  */
 import { execFile, spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { copyFile, mkdir, mkdtemp, realpath, rm, symlink, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { delimiter, dirname, isAbsolute, join, resolve } from 'node:path';
+import { delimiter, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { tlcJarPathFromConfig } from './runtime.mjs';
 
 export const TOOL_NAME = 'verification_exec';
 export const DEFAULT_TIMEOUT_MS = 10 * 60 * 1000;
@@ -53,6 +54,21 @@ export const DEGRADED_LIMITATIONS = Object.freeze([
 ]);
 const SANDBOX_KINDS = new Set(['macos-seatbelt', 'linux-bwrap']);
 const execFileAsync = promisify(execFile);
+
+// --- Restricted TLC (TLA+ model checker) entry ----------------------------
+// Java is never bundled, downloaded or resolved from a user string. TLC runs
+// only with the operator-configured tla2tools.jar, repository .tla/.cfg files
+// and a fixed option whitelist. Every other java invocation is refused.
+export const TLC_ENV_VARS = Object.freeze(['TLA2TOOLS_JAR', 'TLA2TOOLS']);
+export const TLC_MIN_JAVA_MAJOR = 11;
+export const DEFAULT_TLC_TIMEOUT_MS = DEFAULT_TIMEOUT_MS;
+export const TLC_MISSING_WARNING = 'FORMAL VERIFICATION NOT PERFORMED: 未做形式化验证，原因是缺少 TLC. Fall back to generated-input tests that run the real code (the upstream no-verifier rule), and do not report that fallback as a formal pass.';
+export const TLC_FALLBACK_RULE = 'Upstream no-verifier rule: when no verifier runs on this language, say so, and test the real code with generated inputs, not a hand model of the function.';
+const TLC_FLAG_OPTIONS = new Set(['-cleanup', '-nowarning', '-deadlock', '-continue', '-difftrace']);
+const TLC_VALUE_OPTIONS = new Set(['-workers', '-depth', '-seed', '-coverage']);
+const TLC_SPEC_EXTENSION = '.tla';
+const TLC_CONFIG_EXTENSION = '.cfg';
+const MAX_TLC_OPTIONS = 16;
 
 const SHELL_METACHARACTERS = /[;&|<>`$()\[\]{}*?~!\\'"]/;
 const CONTROL_CHARACTERS = /[\0\n\r]/;
@@ -140,6 +156,9 @@ export function parseVerificationCommand(command) {
   if (program === 'git') return parseGit(tokens);
   if (program === 'npm') return parseNpm(tokens);
   if (program === 'node') return parseNode(tokens);
+  if (program === 'java') {
+    return refuse('java is not allowed here: the only java entry is the restricted TLC runner, which requires the configured tla2tools.jar with repository .tla/.cfg files and whitelisted TLC options.');
+  }
   return refuse(`Only npm, node and read-only git are allowed; refused: ${program}`);
 }
 
@@ -631,15 +650,39 @@ async function prepareEnvironmentFiles(scratchDir) {
 export async function runVerification(command, options = {}) {
   const parsed = parseVerificationCommand(command);
   if (!parsed.ok) return { ok: false, status: 'refused', command, reason: parsed.reason };
-  const cwd = resolve(options.cwd ?? process.cwd());
+  return executeWithinBoundary({
+    command,
+    category: parsed.category,
+    program: parsed.program,
+    argv: parsed.argv,
+    buildArgs: () => parsed.argv,
+    cwd: resolve(options.cwd ?? process.cwd()),
+    sandbox: options.sandbox,
+    timeoutMs: options.timeoutMs,
+    maxOutputBytes: options.maxOutputBytes,
+    extraEnv: options.env,
+    signal: options.signal,
+    scratchDir: options.scratchDir,
+  });
+}
+
+/**
+ * Shared boundary for every executed command: OS sandbox when available,
+ * otherwise the explicitly degraded temporary workspace. `buildArgs` receives
+ * the directory the command actually runs in and the private scratch directory,
+ * so callers can resolve paths and writable locations without knowing which
+ * boundary was chosen.
+ */
+async function executeWithinBoundary(request) {
+  const { command, category, program, buildArgs, cwd } = request;
   if (!existsSync(cwd)) return { ok: false, status: 'refused', command, reason: `Working directory does not exist: ${cwd}` };
-  const sandbox = options.sandbox ?? await detectSandbox();
+  const sandbox = request.sandbox ?? await detectSandbox();
   const sandboxUsable = sandbox.available && SANDBOX_KINDS.has(sandbox.kind);
-  const timeoutMs = Number.isSafeInteger(options.timeoutMs) && options.timeoutMs > 0
-    ? Math.min(options.timeoutMs, MAX_TIMEOUT_MS)
+  const timeoutMs = Number.isSafeInteger(request.timeoutMs) && request.timeoutMs > 0
+    ? Math.min(request.timeoutMs, MAX_TIMEOUT_MS)
     : DEFAULT_TIMEOUT_MS;
-  const maxOutputBytes = Number.isSafeInteger(options.maxOutputBytes) && options.maxOutputBytes > 0
-    ? options.maxOutputBytes
+  const maxOutputBytes = Number.isSafeInteger(request.maxOutputBytes) && request.maxOutputBytes > 0
+    ? request.maxOutputBytes
     : MAX_OUTPUT_BYTES;
   let scratchDir;
   let rawScratch;
@@ -648,15 +691,15 @@ export async function runVerification(command, options = {}) {
     // Seatbelt matches canonical vnode paths. On macOS os.tmpdir() returns
     // /var/folders/..., a symlink path to /private/var/...; an uncanonicalized
     // subpath rule therefore leaves the scratch directory read-only.
-    rawScratch = options.scratchDir ?? await mkdtemp(join(tmpdir(), 'pstack-verify-'));
+    rawScratch = request.scratchDir ?? await mkdtemp(join(tmpdir(), 'pstack-verify-'));
     scratchDir = await realpath(rawScratch);
     await prepareEnvironmentFiles(scratchDir);
   } catch (error) {
-    if (!options.scratchDir && rawScratch) await rm(rawScratch, { recursive: true, force: true }).catch(() => {});
+    if (!request.scratchDir && rawScratch) await rm(rawScratch, { recursive: true, force: true }).catch(() => {});
     return { ok: false, status: 'launch-failed', command, reason: `Could not prepare the scratch directory: ${firstLine(error)}` };
   }
   try {
-    const env = buildVerificationEnvironment(scratchDir, options.env);
+    const env = buildVerificationEnvironment(scratchDir, request.extraEnv);
     let prepared;
     let executionCwd = cwd;
     let isolation = 'os-sandbox';
@@ -665,7 +708,7 @@ export async function runVerification(command, options = {}) {
     let responsibleParty = null;
     let workspace = 'source-working-directory';
     if (sandboxUsable) {
-      prepared = buildPlan(sandbox, [parsed.program, ...parsed.argv], scratchDir, cwd);
+      prepared = buildPlan(sandbox, [program, ...await buildArgs({ workspaceCwd: cwd, scratchDir })], scratchDir, cwd);
       if (!prepared) return { ok: false, status: 'unavailable', command, reason: `No OS sandbox plan for ${sandbox.kind}` };
     } else {
       try {
@@ -680,7 +723,7 @@ export async function runVerification(command, options = {}) {
         };
       }
       executionCwd = worktree.path;
-      prepared = { executable: parsed.program, args: parsed.argv };
+      prepared = { executable: program, args: await buildArgs({ workspaceCwd: executionCwd, scratchDir }) };
       isolation = 'degraded-worktree';
       enforcement = DEGRADED_WARNING;
       warning = worktree.note ? `${DEGRADED_WARNING} Workspace note: ${worktree.note}.` : DEGRADED_WARNING;
@@ -691,7 +734,7 @@ export async function runVerification(command, options = {}) {
       cwd: executionCwd,
       env,
       timeoutMs,
-      signal: options.signal,
+      signal: request.signal,
       maxOutputBytes,
     });
     if (result.launchError) {
@@ -704,8 +747,8 @@ export async function runVerification(command, options = {}) {
     return {
       ok: true,
       command,
-      argv: parsed.argv,
-      category: parsed.category,
+      argv: request.argv,
+      category,
       sandbox: sandbox.kind ?? null,
       isolation,
       degraded: isolation !== 'os-sandbox',
@@ -726,7 +769,7 @@ export async function runVerification(command, options = {}) {
     };
   } finally {
     if (worktree) await worktree.cleanup().catch(() => {});
-    if (!options.scratchDir && scratchDir) await rm(scratchDir, { recursive: true, force: true }).catch(() => {});
+    if (!request.scratchDir && scratchDir) await rm(scratchDir, { recursive: true, force: true }).catch(() => {});
   }
 }
 
@@ -751,6 +794,357 @@ export function renderVerificationResult(result) {
   if (result.outputTruncated) lines.push('Output was truncated at the capture limit.');
   lines.push('', 'STDOUT:', result.stdout.trim() || '(empty)', '', 'STDERR:', result.stderr.trim() || '(empty)');
   return lines.join('\n');
+}
+
+/** What the no-verifier fallback is allowed to claim: generated-input tests, never a formal pass. */
+export function tlcFallbackPlan(reason) {
+  return {
+    kind: 'generated-input-tests',
+    formal: false,
+    warning: TLC_MISSING_WARNING,
+    reason: reason ?? 'TLC is not available on this host',
+    upstreamRule: TLC_FALLBACK_RULE,
+    steps: [
+      'State in the result that no formal verification ran, and name the missing TLC.',
+      'Test the real code with generated inputs for the property TLC would have checked; do not model the function by hand.',
+      'Report the result as generated-input test coverage, never as a formal verification pass.',
+    ],
+  };
+}
+
+async function probeJava(env) {
+  const found = findExecutable('java', env.PATH ?? '');
+  if (!found) return { available: false, path: null, version: null, major: null, meetsMinimum: false, reason: 'java was not found on PATH' };
+  const path = await realpath(found).catch(() => found);
+  const probe = await runProcess(found, ['-version'], { cwd: tmpdir(), env, timeoutMs: 10_000, maxOutputBytes: 64 * 1024 });
+  const text = `${probe.stdout}\n${probe.stderr}`;
+  const version = text.match(/version "([^"]+)"/)?.[1] ?? null;
+  const major = Number(version?.match(/^(?:1\.)?(\d+)/)?.[1] ?? NaN);
+  if (probe.exitCode !== 0) {
+    return { available: false, path, version, major: null, meetsMinimum: false, reason: `java -version failed: ${firstLine(null, probe.stderr) || 'unknown error'}` };
+  }
+  if (!Number.isSafeInteger(major)) {
+    return { available: false, path, version, major: null, meetsMinimum: false, reason: 'could not read a java version from java -version' };
+  }
+  if (major < TLC_MIN_JAVA_MAJOR) {
+    return { available: false, path, version, major, meetsMinimum: false, reason: `java ${version} is older than Java ${TLC_MIN_JAVA_MAJOR}, which TLC requires` };
+  }
+  return { available: true, path, version, major, meetsMinimum: true, reason: null };
+}
+
+/**
+ * Resolve the configured tla2tools.jar. The operator declares it through
+ * TLA2TOOLS_JAR (or the upstream TLA2TOOLS name) or tla.tla2toolsJar in
+ * pstack.json. Conflicting declarations are refused instead of guessed, and the
+ * path is canonicalized so a symlink swap cannot pass an identity check later.
+ */
+async function resolveTlcJar({ config, env }) {
+  const declared = [];
+  for (const name of TLC_ENV_VARS) {
+    const value = env[name];
+    if (typeof value === 'string' && value.trim()) declared.push({ value: value.trim(), source: `env:${name}` });
+  }
+  const configured = tlcJarPathFromConfig(config);
+  if (configured) declared.push({ value: configured, source: 'pstack.json:tla.tla2toolsJar' });
+  if (declared.length === 0) {
+    return { ok: false, reason: `no tla2tools.jar is configured; set ${TLC_ENV_VARS[0]} (or ${TLC_ENV_VARS[1]}) or pstack.json tla.tla2toolsJar to the jar path; this package never downloads it` };
+  }
+  const [first] = declared;
+  const conflicting = declared.find(entry => entry.value !== first.value);
+  if (conflicting) return { ok: false, reason: `conflicting tla2tools.jar paths (${first.source} vs ${conflicting.source}); keep exactly one configured path` };
+  if (CONTROL_CHARACTERS.test(first.value)) return { ok: false, reason: `${first.source}: the jar path must not contain control characters` };
+  if (!isAbsolute(first.value)) return { ok: false, reason: `${first.source}: expected an absolute path to tla2tools.jar, got ${first.value}` };
+  let canonical;
+  try {
+    const info = await stat(first.value);
+    if (!info.isFile()) return { ok: false, reason: `${first.source}: ${first.value} is not a regular file` };
+    canonical = await realpath(first.value);
+  } catch {
+    return { ok: false, reason: `${first.source}: ${first.value} does not exist` };
+  }
+  return { ok: true, path: canonical, source: first.source };
+}
+
+/**
+ * Probe Java and the configured jar. This is the capability record `/setup-pstack
+ * status` should show. It never downloads anything and never treats a missing
+ * TLC as a pass.
+ */
+export async function detectTlc(options = {}) {
+  const env = options.env ?? process.env;
+  const [java, jar] = await Promise.all([
+    probeJava(env),
+    resolveTlcJar({ config: options.config, env }),
+  ]);
+  const available = java.available && jar.ok;
+  const reasons = [];
+  if (!java.available) reasons.push(java.reason);
+  if (!jar.ok) reasons.push(jar.reason);
+  const reason = available ? null : reasons.join('; ');
+  return {
+    available,
+    formal: available ? 'tlc' : 'none',
+    java: {
+      available: java.available,
+      path: java.path,
+      version: java.version,
+      major: java.major,
+      minimumMajor: TLC_MIN_JAVA_MAJOR,
+      meetsMinimum: java.meetsMinimum,
+      reason: java.reason,
+    },
+    jar: jar.ok
+      ? { configured: true, path: jar.path, source: jar.source, reason: null }
+      : { configured: false, path: null, source: null, reason: jar.reason },
+    reason,
+    warning: available ? null : TLC_MISSING_WARNING,
+    fallback: available ? null : tlcFallbackPlan(reason),
+    limits: {
+      scope: 'TLC checks only the properties the .cfg file states, under the model and bounds written in the .tla and .cfg files',
+      invocation: 'the configured jar only, with repository .tla/.cfg paths and whitelisted TLC options; no other java command can run',
+      dependencies: 'Java and tla2tools.jar are never bundled or downloaded by this package',
+    },
+  };
+}
+
+/** Capability query for status surfaces, named like `getVerificationCapability`. */
+export async function getTlcCapability(options = {}) {
+  return detectTlc(options);
+}
+
+/** Validate the restricted TLC option list. Pure: no filesystem or process access. */
+export function parseTlcOptions(options) {
+  if (options === undefined) return { ok: true, argv: [] };
+  if (!Array.isArray(options)) return refuse('TLC options must be an array of whitelisted option strings.');
+  if (options.length > MAX_TLC_OPTIONS) return refuse(`Too many TLC options; pass at most ${MAX_TLC_OPTIONS} whitelisted options.`);
+  const argv = [];
+  for (let index = 0; index < options.length; index += 1) {
+    const token = options[index];
+    if (typeof token !== 'string' || !token) return refuse('Each TLC option must be a non-empty string.');
+    if (token.length > 64) return refuse(`TLC option is too long: ${token.slice(0, 32)}...`);
+    if (CONTROL_CHARACTERS.test(token) || SHELL_METACHARACTERS.test(token)) {
+      return refuse(`Shell composition, quoting and redirection are not allowed in TLC options: ${token}`);
+    }
+    if (TLC_FLAG_OPTIONS.has(token)) {
+      argv.push(token);
+      continue;
+    }
+    if (token === '-config' || token === '--config') {
+      return refuse('Pass the .cfg path as the request config field; -config is built from it and is not accepted inside options.');
+    }
+    if (TLC_VALUE_OPTIONS.has(token)) {
+      const value = options[index + 1];
+      if (typeof value === 'string' && (CONTROL_CHARACTERS.test(value) || SHELL_METACHARACTERS.test(value))) {
+        return refuse(`Shell composition, quoting and redirection are not allowed in TLC option values: ${value}`);
+      }
+      const pattern = token === '-workers' ? /^(?:auto|\d{1,3})$/ : /^\d{1,9}$/;
+      if (typeof value !== 'string' || !pattern.test(value)) {
+        return refuse(`TLC option ${token} requires ${token === '-workers' ? 'a worker count or auto' : 'a numeric value'}.`);
+      }
+      argv.push(token, value);
+      index += 1;
+      continue;
+    }
+    return refuse(`TLC option is not in the restricted whitelist (${[...TLC_FLAG_OPTIONS, ...TLC_VALUE_OPTIONS].join(', ')}): ${token}`);
+  }
+  return { ok: true, argv };
+}
+
+async function resolveRepositoryFile(root, token, extension, label) {
+  if (typeof token !== 'string' || !token.trim()) return refuse(`The TLC ${label} must be a repository ${extension} path.`);
+  const value = token.trim();
+  if (CONTROL_CHARACTERS.test(value) || SHELL_METACHARACTERS.test(value)) {
+    return refuse(`The TLC ${label} path must be a plain path without shell metacharacters: ${value}`);
+  }
+  if (!isAbsolute(value) && value.split('/').some(part => part === '..')) {
+    return refuse(`The TLC ${label} path must stay inside the repository: ${value}`);
+  }
+  let realRoot;
+  let canonical;
+  try {
+    realRoot = await realpath(root);
+    canonical = await realpath(isAbsolute(value) ? value : resolve(realRoot, value));
+  } catch {
+    return refuse(`The TLC ${label} does not exist: ${value}`);
+  }
+  if (canonical !== realRoot && !canonical.startsWith(realRoot + sep)) {
+    return refuse(`The TLC ${label} resolves outside the repository (path or symlink escape): ${value}`);
+  }
+  if (!canonical.endsWith(extension)) return refuse(`The TLC ${label} must be a ${extension} file: ${value}`);
+  const info = await stat(canonical).catch(() => null);
+  if (!info?.isFile()) return refuse(`The TLC ${label} is not a file: ${value}`);
+  return { ok: true, file: { path: canonical, relative: relative(realRoot, canonical) } };
+}
+
+/** Resolve and validate a TLC request against the repository the run happens in. */
+export async function parseTlcRequest(request, options = {}) {
+  if (!request || typeof request !== 'object' || Array.isArray(request)) return refuse('The TLC request must be an object with spec and config.');
+  for (const key of Object.keys(request)) if (!['spec', 'config', 'options'].includes(key)) return refuse(`Unknown TLC request field: ${key}`);
+  const optionCheck = parseTlcOptions(request.options);
+  if (!optionCheck.ok) return optionCheck;
+  const spec = await resolveRepositoryFile(resolve(options.root ?? process.cwd()), request.spec, TLC_SPEC_EXTENSION, 'spec');
+  if (!spec.ok) return spec;
+  const config = await resolveRepositoryFile(resolve(options.root ?? process.cwd()), request.config, TLC_CONFIG_EXTENSION, 'config');
+  if (!config.ok) return config;
+  return { ok: true, spec: spec.file, config: config.file, options: optionCheck.argv };
+}
+
+/**
+ * Run TLC through the restricted entry. With no configured TLC this returns an
+ * explicit `not-performed` result plus the generated-input fallback; it never
+ * reports a formal pass.
+ */
+export async function runTlcVerification(request, options = {}) {
+  const cwd = resolve(options.cwd ?? process.cwd());
+  const env = options.env ?? process.env;
+  const capability = options.capability ?? await detectTlc({ config: options.config, env });
+  if (!capability.available) {
+    return {
+      ok: false,
+      status: 'unavailable',
+      command: null,
+      formalVerification: 'not-performed',
+      warning: TLC_MISSING_WARNING,
+      reason: `${TLC_MISSING_WARNING} Cause: ${capability.reason}`,
+      capability,
+      fallback: capability.fallback ?? tlcFallbackPlan(capability.reason),
+    };
+  }
+  if (!existsSync(cwd)) {
+    return { ok: false, status: 'refused', command: null, formalVerification: 'not-performed', reason: `Working directory does not exist: ${cwd}`, capability, fallback: null };
+  }
+  const parsed = await parseTlcRequest(request, { root: cwd });
+  if (!parsed.ok) {
+    return { ok: false, status: 'refused', command: null, formalVerification: 'not-performed', reason: parsed.reason, capability, fallback: null };
+  }
+  const jarPath = capability.jar.path;
+  const shownOptions = parsed.options.length ? ` ${parsed.options.join(' ')}` : '';
+  const command = `java -jar ${jarPath} -metadir <scratch>/tlc-metadir${shownOptions} -config ${parsed.config.relative} ${parsed.spec.relative} (TLC)`;
+  const executed = await executeWithinBoundary({
+    command,
+    category: 'tlc',
+    program: 'java',
+    cwd,
+    sandbox: options.sandbox,
+    timeoutMs: options.timeoutMs ?? DEFAULT_TLC_TIMEOUT_MS,
+    maxOutputBytes: options.maxOutputBytes,
+    extraEnv: options.env,
+    signal: options.signal,
+    scratchDir: options.scratchDir,
+    buildArgs: async ({ workspaceCwd, scratchDir }) => {
+      // TLC writes its state directory and the standard modules it generates
+      // to these locations; both must sit in the private scratch directory so
+      // an OS sandbox can keep the repository and the rest of the disk read-only.
+      const metaDir = join(scratchDir, 'tlc-metadir');
+      const javaTmp = join(scratchDir, 'java-tmp');
+      await mkdir(metaDir, { recursive: true });
+      await mkdir(javaTmp, { recursive: true });
+      return [
+        `-Djava.io.tmpdir=${javaTmp}`,
+        '-jar', jarPath,
+        '-metadir', metaDir,
+        ...parsed.options,
+        '-config', join(workspaceCwd, parsed.config.relative),
+        join(workspaceCwd, parsed.spec.relative),
+      ];
+    },
+  });
+  if (!executed.ok) {
+    return {
+      ...executed,
+      formalVerification: 'not-performed',
+      capability,
+      fallback: executed.status === 'unavailable' ? tlcFallbackPlan(executed.reason) : null,
+    };
+  }
+  const output = `${executed.stdout}\n${executed.stderr}`;
+  const violated = /Invariant \S+ is violated|is violated\b/.test(output);
+  const outcome = executed.status === 'passed' ? 'passed' : violated ? 'invariant-violated' : 'error';
+  return {
+    ...executed,
+    formalVerification: 'performed',
+    capability,
+    fallback: null,
+    tlc: {
+      outcome,
+      spec: parsed.spec.relative,
+      config: parsed.config.relative,
+      options: parsed.options,
+      jar: jarPath,
+    },
+  };
+}
+
+/** Render a TLC result, keeping the formal claim and the fallback claim separate. */
+export function renderTlcResult(result) {
+  if (!result.ok) {
+    if (result.status !== 'unavailable') return `REFUSED: ${result.reason}`;
+    const capability = result.capability ?? {};
+    return [
+      'FORMAL VERIFICATION: not performed',
+      `REASON: ${result.warning ?? TLC_MISSING_WARNING}`,
+      `CAUSE: ${capability.reason ?? result.reason ?? 'unknown'}`,
+      'FALLBACK: generated-input tests against the real code (not a hand model). A passing fallback is not a formal verification pass.',
+      `JAVA: ${capability.java?.available ? `${capability.java.version ?? 'unknown version'} at ${capability.java.path}` : (capability.java?.reason ?? 'unavailable')}`,
+      `JAR: ${capability.jar?.path ?? capability.jar?.reason ?? 'not configured'}`,
+      ...(result.fallback?.steps ?? []).map(step => `FALLBACK STEP: ${step}`),
+      'SKIPPED: TLC did not run, so this request has no formal result.',
+    ].join('\n');
+  }
+  const lines = [
+    'FORMAL VERIFICATION: performed (TLC)',
+    `FORMAL OUTCOME: ${result.tlc.outcome}`,
+  ];
+  if (result.tlc.outcome !== 'passed') {
+    lines.push('TLC did not pass. Report a counterexample or a TLC error as a finding in the code\'s terms; do not weaken the property or the model until it passes.');
+  }
+  lines.push(renderVerificationResult(result));
+  return lines.join('\n');
+}
+
+/**
+ * Tool definition for a distinct TLC entry. The caller owns registration; the
+ * module owns the whitelist, the jar identity and the fallback reporting.
+ */
+export function createTlcVerificationTool() {
+  return {
+    name: 'tlc_verify',
+    label: 'TLC Verify',
+    description: 'Model-check a TLA+ spec with TLC using the operator-configured tla2tools.jar, a repository .tla file and a repository .cfg file. Accepts only whitelisted TLC options (-cleanup, -nowarning, -deadlock, -continue, -difftrace, -workers N|auto, -depth N, -seed N, -coverage N). Any other java invocation is refused. Without a configured jar and Java 11+ this returns an explicit "formal verification not performed" result with the generated-input fallback; a fallback is never a formal pass.',
+    parameters: {
+      type: 'object',
+      properties: {
+        spec: { type: 'string', description: 'Repository-relative .tla file to model check.' },
+        config: { type: 'string', description: 'Repository-relative .cfg file that states INIT, NEXT, INVARIANT and bounds.' },
+        options: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Whitelisted TLC options only, for example ["-cleanup", "-workers", "4"]. The -config path comes from the config field.',
+        },
+      },
+      required: ['spec', 'config'],
+      additionalProperties: false,
+    },
+    async execute(_toolCallId, params, signal, _onUpdate, ctx) {
+      const result = await runTlcVerification(
+        { spec: params?.spec, config: params?.config, options: params?.options },
+        { cwd: ctx?.cwd, signal },
+      );
+      return {
+        content: [{ type: 'text', text: renderTlcResult(result) }],
+        details: {
+          ok: result.ok,
+          status: result.status,
+          formalVerification: result.formalVerification,
+          formalOutcome: result.tlc?.outcome ?? null,
+          exitCode: result.exitCode ?? null,
+          reason: result.ok ? undefined : result.reason,
+          fallback: result.fallback?.kind ?? null,
+          warning: result.warning ?? null,
+        },
+      };
+    },
+  };
 }
 
 /**
@@ -803,11 +1197,16 @@ if (entry && entry === fileURLToPath(import.meta.url)) {
     const capability = await getVerificationCapability();
     console.log(JSON.stringify(capability, null, 2));
     process.exitCode = 0;
+  } else if (args[0] === '--tlc-capability') {
+    const capability = await detectTlc();
+    console.log(JSON.stringify(capability, null, 2));
+    if (!capability.available) console.log(renderTlcResult({ ok: false, status: 'unavailable', warning: TLC_MISSING_WARNING, capability, fallback: capability.fallback }));
+    process.exitCode = 0;
   } else {
     const textMode = args[0] === '--text';
     const command = textMode ? args[1] : args[0];
     if (!command) {
-      console.error('Usage: node extensions/pstack/verification-exec.mjs [--text] "<command>" | --capability');
+      console.error('Usage: node extensions/pstack/verification-exec.mjs [--text] "<command>" | --capability | --tlc-capability');
       process.exitCode = 2;
     } else {
       const result = await runVerification(command, { cwd: process.cwd() });
