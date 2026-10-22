@@ -2044,6 +2044,146 @@
         "override": "adapters/pi/overrides/skills/why/references/synthesizer-prompt.md.template"
       },
       "dependencies": "from-template"
+    },
+    {
+      "source": "pstack/skills/create-formal-verification-skill/SKILL.md",
+      "destination": "skills/create-formal-verification-skill/SKILL.md",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/create-formal-verification-skill/SKILL.md.template"
+      },
+      "dependencies": "from-template"
+    },
+    {
+      "source": "pstack/skills/maintain-formal-verification-skill/SKILL.md",
+      "destination": "skills/maintain-formal-verification-skill/SKILL.md",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/maintain-formal-verification-skill/SKILL.md.template"
+      },
+      "dependencies": "from-template"
+    },
+    {
+      "source": "pstack/skills/statechart/SKILL.md",
+      "destination": "skills/statechart/SKILL.md",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/statechart/SKILL.md.template"
+      },
+      "dependencies": "from-template"
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/chart-to-tla.mjs",
+      "destination": "skills/statechart/scripts/chart-to-tla.mjs",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/compare-charts.mjs",
+      "destination": "skills/statechart/scripts/compare-charts.mjs",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/lib.mjs",
+      "destination": "skills/statechart/scripts/lib.mjs",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/model/OutputFolder.cfg",
+      "destination": "skills/statechart/scripts/model/OutputFolder.cfg",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/model/OutputFolder.map.mjs",
+      "destination": "skills/statechart/scripts/model/OutputFolder.map.mjs",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/model/OutputFolder.tla",
+      "destination": "skills/statechart/scripts/model/OutputFolder.tla",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/statechart.mjs",
+      "destination": "skills/statechart/scripts/statechart.mjs",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/statechart.test.mjs",
+      "destination": "skills/statechart/scripts/test/statechart.test.mjs",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/sync.mmd",
+      "destination": "skills/statechart/scripts/test/sync.mmd",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/upload.mmd",
+      "destination": "skills/statechart/scripts/test/upload.mmd",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/tlc-to-chart.mjs",
+      "destination": "skills/statechart/scripts/tlc-to-chart.mjs",
+      "status": "pending-acceptance",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
     }
   ],
   "nativeResources": [

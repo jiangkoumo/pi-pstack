@@ -107,7 +107,7 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
   await pathInPackage(entry.destination, isSkill ? 'skills/' : 'agents/');
   assert(!rendered.has(entry.destination), 'Duplicate destination: ' + entry.destination);
   assert(Array.isArray(entry.dependencies) || entry.dependencies === 'from-template', 'Missing dependency list: ' + entry.source);
-  assert(entry.adaptation && ['override', 'inherit-body'].includes(entry.adaptation.strategy), 'Unknown adaptation strategy: ' + entry.source);
+  assert(entry.adaptation && ['override', 'inherit-body', 'verbatim'].includes(entry.adaptation.strategy), 'Unknown adaptation strategy: ' + entry.source);
   assert.deepEqual(Object.keys(entry.adaptation).sort(), ['override', 'strategy'], 'Unknown adaptation field: ' + entry.source);
   if (isAgent) {
     assert(isNative || ['pstack/agents/comment-sicko.md', 'pstack/agents/poteto-agent.md'].includes(entry.source), 'Unknown pinned agent source: ' + entry.source);
@@ -115,7 +115,11 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
   }
 
   let output;
-  if (entry.adaptation.strategy === 'override') {
+  if (entry.adaptation.strategy === 'verbatim') {
+    assert(isSkill && entry.source.startsWith('pstack/skills/statechart/scripts/'), 'Verbatim resources are limited to upstream statechart scripts: ' + entry.source);
+    assert.equal(entry.adaptation.override, null, 'Verbatim resources cannot have an override');
+    output = originals.get(entry.source);
+  } else if (entry.adaptation.strategy === 'override') {
     const template = entry.adaptation.override;
     assert.equal(template, 'adapters/pi/overrides/' + entry.destination + '.template', 'Override must match destination: ' + template);
     assert(!overrides.has(template), 'Duplicate override: ' + template);
@@ -206,7 +210,7 @@ for (const file of await filesUnder('adapters/pi/overrides')) assert(overrides.h
 
 for (const [dest, content] of rendered) {
   const actual = new Set();
-  for (const match of content.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
+  for (const match of (entries.get(dest).adaptation.strategy === 'verbatim' ? [] : content.matchAll(/\[[^\]]*\]\(([^)]+)\)/g))) {
     const href = match[1].split('#')[0];
     if (!href || /^[a-z][a-z0-9+.-]*:/i.test(href)) continue;
     const target = posix.normalize(posix.join(posix.dirname(dest), decodeURIComponent(href)));
