@@ -5,7 +5,7 @@
 ## 结论
 
 - 真实 TLC 出图：`from-spec OutputFolder.tla` 在 scratch 目录里成功运行，5 条不变量全部 holds，写出 `chart.mmd`、`stories.md`、`summary.json`；加 `--png` 也成功出图。
-- 上游 `statechart.test.mjs` 已接入 `scripts/run-checks.mjs` 的 `check`/`test` 计划。无 TLC 环境时 0 fail，需要 TLC 的用例带原因跳过；配好真实 jar 时 55 pass / 2 fail / 1 skip，两个失败是这些用例的 Linux 平台假设，不是端口回归（详见下文）。
+- 上游 `statechart.test.mjs` 已接入 `scripts/run-checks.mjs` 的 `check`/`test` 计划。无 TLC 环境时 0 fail，需要 TLC 的用例带原因跳过；配好真实 jar 时 55 pass / 2 fail / 1 skip。两个失败中，一个是 macOS 缺少 `LD_PRELOAD` 的平台假设，另一个（测试 #55）是上游测试对新版 TLC2（TLA+ v1.8.0）标准模块解压路径格式变更的版本敏感性，都不是端口回归（详见下文）。
 - 出图这一步走父 shell 直接调上游脚本：脚本自己启动 Java，`verification_exec` 只做单次 TLC 调用且只写私有 scratch，不能出图。本次没有把出图那一步说成走了 `verification_exec`。
 
 ## 环境
@@ -14,7 +14,7 @@
 | --- | --- |
 | 平台 | macOS（darwin），Node v22.22.2 |
 | Java | OpenJDK 21.0.11，`/opt/homebrew/opt/openjdk@21/bin/java` |
-| TLC | `~/.local/share/tlaplus/1.8.0/tla2tools.jar`（官方 prerelease，未自动下载其他工具，未装到仓库或 npm 包） |
+| TLC | `~/.local/share/tlaplus/1.8.0/tla2tools.jar`（官方 TLA+ v1.8.0 预发布版，内部版本 `TLC2 Version 2026.10.20.183001`，rev: `d2e1472`，SHA-256 `5bd7b64db99ae4c6c35f290de5e809c0ee41af43f8699cf696099ffb6452b1e2`，未自动下载其他工具，未装到仓库或 npm 包） |
 | 依赖 | `npm ci --include=dev` 退出码 0（123 个包） |
 
 本次所有 TLC 命令都显式把 `TLA2TOOLS` 与 `TLA2TOOLS_JAR` 设成同一个 jar，不依赖 shell 启动文件；`JAVA=` 显式指向 Java 21。
@@ -106,13 +106,17 @@ Wrote chart.mmd, stories.md, summary.json in OutputFolder-statechart.
 | 接入后全量 `npm test`（无 TLC 环境变量） | `npm test` | 退出码 0，34/34 检查，70.0 秒；`statechart.test.mjs` 单条 3144ms 通过 |
 | 基线（本次改动前） | `npm test` | 退出码 0，33/33 检查，87.7 秒 |
 
-真实 jar 下的两个失败与一个跳过，都是这些用例对 Linux 的假设，不是端口改动引起的：
+真实 jar 下的两个失败与一个跳过，分别属于平台环境假设与上游测试对 TLC 版本的敏感性，不是端口改动引起的：
 
 - `a run whose rename fails after it moves the output folder aside puts the folder back, or says where it is`：用例用 `LD_PRELOAD` 注入 `rename` 失败的 `.so`。macOS 不用 `LD_PRELOAD`，注入不生效，命令退出码 0，而用例期望 2。
-- `each TLC run writes the standard modules in its own temp folder, so overlapping runs cannot rewrite them under each other`：用例逐字比较 TLC 标准模块路径。macOS 上 `TMPDIR` 在 `/var/folders/…`，Java 报告 `/private/var/folders/…`，且该 TLC 版本在路径后附带 `(jar:file:…!/tla2sany/StandardModules/Naturals.tla)`，字符串必然不等。
+- `each TLC run writes the standard modules in its own temp folder, so overlapping runs cannot rewrite them under each other`（测试 #55，`skills/statechart/scripts/test/statechart.test.mjs:2611`）：**上游测试对 TLC 版本敏感**。
+  - **失败现象**：上游测试断言严格比较 `assert.equal(parsed, 'Parsing file ' + join(folder, "Naturals.tla"))`，期望解析日志精确等于临时目录下的平铺路径。而在当前已验证的 TLC 版本（TLA+ v1.8.0 / TLC2 2026.10.20）下，Java 实际输出形如 `Parsing file <tmp>/tmp/tlc-<随机数>/Naturals.tla (jar:file:.../tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)`，触发 AssertionError。
+  - **根本原因**：新版 TLC2 调整了解压逻辑，将标准模块（如 `Naturals.tla`）解压到二级独立子目录 `tmp/tlc-<随机数>/`，并在输出日志中增加了 jar 来源标识（macOS 下还伴随 `/private/var/...` 的规范化路径差异）。标准模块确实在各自独立的临时目录中解压与使用，隔离目标本身是达成的；但上游测试代码硬编码了旧版 TLC 的平铺解压路径和无后缀日志格式，从而导致断言失败。
+  - **CI 与默认环境行为**：CI 运行环境默认未安装 Java 和 TLC，所有需要 TLC 的用例均通过 `needsTlc` 判定自动优雅跳过（skip），退出码为 0，因此 CI 构建和无 TLC 的默认 `npm test` 完全不受影响。
+  - **上游反馈背景**：本项目严格遵守上游代码逐字移植规则，禁止修改上游测试和实现代码（`skills/statechart/scripts/**`）。此问题属于上游测试代码与特定 TLC 版本内部行为的紧耦合，已完整记录现象与根因，适合向上游（cursor/plugins）提交 issue，建议上游放宽该用例对日志字符串格式的严格判等。
 - 跳过的一条是 `runs in PID namespaces that hide which namespace they are in chart only their own spec`，原因是本机不能建 PID namespace（`unshare` 不存在），用例自身给出该原因。
 
-因此：没有配置 TLC 时 `npm test` 通过（需要 TLC 的用例显式跳过）；在 macOS 配好真实 jar 后，同一份 `npm test` 会被上面两个上游平台用例判红。要改这两条只能改上游测试，本次范围禁止，故如实记录，等上游更新或另开任务处理。
+因此：没有配置 TLC 时 `npm test` 通过（需要 TLC 的用例显式跳过）；在配置了真实 jar 后，全套用例中的测试 #55 会因 TLC 版本断言敏感性失败。要改该用例只能改动上游测试，本次范围严格禁止，故如实记录，等上游更新或另开任务处理。
 
 ## 定时上限与 B1 受限入口的边界
 
@@ -128,7 +132,7 @@ Wrote chart.mmd, stories.md, summary.json in OutputFolder-statechart.
 
 - 没有用 `verification_exec` 跑 statechart 模型：受限入口不能出图，且本次不允许新增脚本把两者串起来。B1 自身的真实 TLC 验收见 [阶段 B TLC 环境](validation-stage-b-tlc.md)。
 - `--png` 依赖 `npx` 拉取 `@mermaid-js/mermaid-cli` 和无头浏览器；本次成功，但没有验证离线或没有浏览器时的行为（上游脚本在该情形返回 2 并保留 Mermaid 源）。
-- macOS + 真实 jar 下两个上游平台用例仍会失败，未修（禁止改上游测试）。
+- 真实 jar 下上游测试用例（平台假设与测试 #55 的 TLC 版本敏感性）仍会失败，未修（禁止改上游测试）。
 - 阶段 B 整体保真度仍需主控同步文档后再判定，本记录只覆盖 statechart。
 
 ## 生成与保真检查
