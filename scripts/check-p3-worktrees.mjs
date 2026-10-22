@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { getAgentDir } from '@earendil-works/pi-coding-agent';
 import { resolve, isAbsolute } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { closeTestServer, disposeTestSession, finalizeCheck, removeTestDirectory } from './test-session-lifecycle.mjs';
 
 // P3 experiment: concurrent writer isolation and the writer review gate.
 //
@@ -583,11 +584,11 @@ try {
   }));
   throw error;
 } finally {
-  server.closeAllConnections();
-  await new Promise(accept => server.close(accept));
-  await rm(directory, { recursive: true, force: true });
-  // The result watcher keeps its own delivery timers; disposing the session here only makes it
-  // report stale-ctx failures for already-completed runs. Exit after cleanup instead, and let a
-  // thrown assertion terminate the process with a non-zero code.
-  if (summary) process.exit(0);
+  await finalizeCheck(async () => {
+    const cleanupErrors = [];
+    try { await disposeTestSession(session); } catch (error) { cleanupErrors.push(error); }
+    try { await closeTestServer(server); } catch (error) { cleanupErrors.push(error); }
+    try { await removeTestDirectory(directory); } catch (error) { cleanupErrors.push(error); }
+    if (cleanupErrors.length) throw new AggregateError(cleanupErrors, 'p3-worktrees cleanup failed');
+  });
 }

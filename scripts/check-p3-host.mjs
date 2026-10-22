@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { getAgentDir } from '@earendil-works/pi-coding-agent';
 import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { closeTestServer, disposeTestSession, finalizeCheck, removeTestDirectory } from './test-session-lifecycle.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const piRoot = process.env.PI_PSTACK_PI_ROOT;
@@ -157,8 +158,11 @@ try {
   assert.equal(errors.length, 0, JSON.stringify(errors));
   console.log(JSON.stringify({ status: 'passed', timeoutReturned: true, cancellationReturned: true, projectTrustVerified: true, roleCases: ['configured model + high', 'inherit + low', 'unconfigured parent default', 'missing model blocked before launch', 'provider failure returned without fallback'], transport: 'real Pi SDK + installed pi-subagents + actual child + local fixture provider', packageInstallation: 'npm tarball extracted into consumer .pi/npm/node_modules', childModel: firstChildModel, thinking: firstThinking, childTools: declared, deniedAttempts: denied.length, preservedFiles: targets }));
 } finally {
-  session?.dispose();
-  server.closeAllConnections();
-  await new Promise(accept => server.close(accept));
-  await rm(directory, { recursive: true, force: true });
+  await finalizeCheck(async () => {
+    const cleanupErrors = [];
+    try { await disposeTestSession(session); } catch (error) { cleanupErrors.push(error); }
+    try { await closeTestServer(server); } catch (error) { cleanupErrors.push(error); }
+    try { await removeTestDirectory(directory); } catch (error) { cleanupErrors.push(error); }
+    if (cleanupErrors.length) throw new AggregateError(cleanupErrors, 'p3-host cleanup failed');
+  });
 }

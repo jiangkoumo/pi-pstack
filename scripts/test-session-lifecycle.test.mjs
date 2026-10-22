@@ -2,12 +2,13 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { existsSync } from 'node:fs';
 import { mkdtemp, mkdir, realpath, rm, writeFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createAgentSession, DefaultResourceLoader, ModelRuntime, SessionManager, SettingsManager } from '@earendil-works/pi-coding-agent';
 import { findSubagentsRoot } from './check-review-diff.mjs';
-import { disposeTestSession, trackIntervals } from './test-session-lifecycle.mjs';
+import { disposeTestSession, finalizeCheck, trackIntervals } from './test-session-lifecycle.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const piPackageRoot = resolve(root, 'node_modules/@earendil-works/pi-coding-agent');
@@ -108,5 +109,55 @@ test('pi-subagents extension timers are cleared when the session is disposed', {
     if (previous.tempRoot === undefined) delete process.env.PI_SUBAGENTS_TEMP_ROOT;
     else process.env.PI_SUBAGENTS_TEMP_ROOT = previous.tempRoot;
     await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('a stuck shutdown is bounded and still disposes the session', { timeout: 5000 }, async () => {
+  let disposed = false;
+  const session = {
+    extensionRunner: { emit: () => new Promise(() => {}) },
+    dispose() { disposed = true; },
+  };
+  const started = Date.now();
+  await assert.rejects(disposeTestSession(session, { timeoutMs: 200 }), /session shutdown did not finish within 200ms/);
+  assert.equal(disposed, true, 'dispose must run even when the shutdown event hangs');
+  assert.ok(Date.now() - started < 2000, 'the shutdown wait must be bounded');
+});
+
+test('finalizeCheck exits through a referenced interval and a hung shutdown', { timeout: 20000 }, async t => {
+  const directory = await mkdtemp(resolve(tmpdir(), 'pstack-cleanup-exit-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const fixture = resolve(directory, 'fixture.mjs');
+  const helper = new URL('./test-session-lifecycle.mjs', import.meta.url).href;
+  await writeFile(fixture, `
+import { disposeTestSession, finalizeCheck } from ${JSON.stringify(helper)};
+const mode = process.env.MODE;
+// A referenced interval is invisible to _getActiveHandles() and would keep this
+// process alive forever without the explicit exit in finalizeCheck.
+setInterval(() => {}, 1000);
+const session = {
+  extensionRunner: { emit: mode === 'hang' ? () => new Promise(() => {}) : async () => {} },
+  dispose() {},
+};
+process.exitCode = 7;
+await finalizeCheck(async () => {
+  await disposeTestSession(session, { timeoutMs: 150 });
+  if (mode === 'hang-cleanup') await new Promise(() => {});
+}, { timeoutMs: 400 });
+`);
+  const cases = [
+    { mode: 'clean', expected: 7, pattern: null },
+    { mode: 'hang', expected: 1, pattern: /session shutdown did not finish within 150ms/ },
+    { mode: 'hang-cleanup', expected: 1, pattern: /cleanup exceeded 400ms/ },
+  ];
+  for (const { mode, expected, pattern } of cases) {
+    const started = Date.now();
+    const run = spawnSync(process.execPath, [fixture], {
+      encoding: 'utf8', timeout: 10000, env: { ...process.env, MODE: mode },
+    });
+    assert.equal(run.signal, null, `${mode}: the fixture must exit, not be killed by the test timeout`);
+    assert.equal(run.status, expected, `${mode}: ${run.stderr}`);
+    assert.ok(Date.now() - started < 5000, `${mode}: cleanup must stay bounded`);
+    if (pattern) assert.match(run.stderr, pattern);
   }
 });
