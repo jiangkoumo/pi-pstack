@@ -15,12 +15,12 @@ X 正文不是上游代码的完整规格；该链接中的统计数据不影响
 | --- | --- |
 | 仓库 | https://github.com/cursor/plugins |
 | 子目录 | pstack/ |
-| 提交 | f713f14203cd6420cec13cd7c55c32d598dbab68 |
-| 提交时间 | 2026-10-16T03:18:33Z |
-| 插件版本 | 0.15.25 |
+| 提交 | eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10 |
+| 提交时间 | 2026-10-22T06:55:00Z |
+| 插件版本 | 0.15.30 |
 | 作者 | Lauren Tan（@poteto） |
 | 许可 | MIT，Copyright (c) 2026 Lauren Tan |
-| 目录统计 | 57 个 SKILL.md、23 个 poteto-mode playbook、2 个代理定义 |
+| 目录统计 | 60 个 SKILL.md、23 个 poteto-mode playbook、2 个代理定义 |
 
 [完整目录清单](upstream-inventory.json) 来源于 GitHub recursive tree API，该响应的 truncated 为 false。统计仅说明文件数量，不能证明所有文件已完成兼容性审计。
 

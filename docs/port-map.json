@@ -1,12 +1,52 @@
 {
-  "commit": "f713f14203cd6420cec13cd7c55c32d598dbab68",
-  "pluginVersion": "0.15.25",
+  "commit": "eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10",
+  "pluginVersion": "0.15.30",
   "dispositions": {
     "ported": "已适配；验证强度按 reason 和 audit.scope 记录",
     "substitute": "必要子集已有替代或已决定路线，完整入口待相应阶段实现",
     "deferred": "本批不实现；已审阅依赖与归属，不代表兼容或运行验收"
   },
   "entries": [
+    {
+      "kind": "agents",
+      "source": "pstack/agents/comment-sicko.md",
+      "disposition": "ported",
+      "phase": "P3",
+      "destination": "agents/comment-sicko.md",
+      "reason": "已适配；通过适配层生成只读定义，严格限定工具白名单，见 validation-p3.md",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P3 ported agent with read-only tool allowlist"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/agents/comment-sicko.md.template"
+      },
+      "evidence": "validation-p3.md",
+      "dependencies": []
+    },
+    {
+      "kind": "agents",
+      "source": "pstack/agents/poteto-agent.md",
+      "disposition": "ported",
+      "phase": "P3",
+      "destination": "agents/poteto-agent.md",
+      "reason": "已适配；通过适配层生成代码编写代理定义，适配包清单发现与单一 writer 约束，见 validation-p3.md",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P3 ported code-writing subagent"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/agents/poteto-agent.md.template"
+      },
+      "evidence": "validation-p3.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
     {
       "kind": "skills",
       "source": "pstack/automations/benny/skills/reproduce-and-fix-issues/SKILL.md",
@@ -188,7 +228,25 @@
         "override": "adapters/pi/overrides/skills/correct/SKILL.md.template"
       },
       "evidence": "validation-p1.md",
-      "dependencies": ["adapters/pi/harness.md"]
+      "dependencies": [
+        "adapters/pi/harness.md"
+      ]
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/create-formal-verification-skill/SKILL.md",
+      "disposition": "substitute",
+      "phase": "P5",
+      "destination": null,
+      "reason": "阶段 B 规划移植：待各分支完成适配与验收",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Phase B snapshot pending port"
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
     },
     {
       "kind": "skills",
@@ -310,6 +368,22 @@
     },
     {
       "kind": "skills",
+      "source": "pstack/skills/maintain-formal-verification-skill/SKILL.md",
+      "disposition": "substitute",
+      "phase": "P5",
+      "destination": null,
+      "reason": "阶段 B 规划移植：待各分支完成适配与验收",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Phase B snapshot pending port"
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
+    },
+    {
+      "kind": "skills",
       "source": "pstack/skills/maintain-verification-skill/SKILL.md",
       "disposition": "ported",
       "phase": "P5",
@@ -360,7 +434,9 @@
         "override": "adapters/pi/overrides/skills/no-comments/SKILL.md.template"
       },
       "evidence": "validation-p1.md",
-      "dependencies": ["adapters/pi/harness.md"]
+      "dependencies": [
+        "adapters/pi/harness.md"
+      ]
     },
     {
       "kind": "skills",
@@ -440,6 +516,471 @@
       },
       "evidence": "validation-p1.md",
       "dependencies": "from-template"
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/authoring-a-skill.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/authoring-a-skill.md",
+      "reason": "已适配为 Pi 原生技能编写流程：读取安装包 docs/skills.md，使用 read/edit/write，结构校验覆盖 frontmatter、目录名和相对链接；PR 需显式授权",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks, semantic override checks, and fixture skill-validation tests"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/authoring-a-skill.md.template"
+      },
+      "evidence": "validation-authoring-a-skill.md",
+      "dependencies": "from-template"
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/autonomous-run.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/autonomous-run.md",
+      "reason": "已适配为 Pi `/loop run` 有界自治流程：先定停止谓词，迭代结果写本地证据，未授权不提交或推送",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus autonomous-run bounded-loop contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/autonomous-run.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/autopilot-full.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/autopilot-full.md",
+      "reason": "已适配为 Pi PR 队列协调流程：单人 owner、受管 worktree、独立核实与显式落地授权，默认不自动合并",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus playbook contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/autopilot-full.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/autopilot-stack.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/autopilot-stack.md",
+      "reason": "已适配为 Pi 栈式 PR 交付流程：根代理独占拓扑、operator 落地、默认不自动合并",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus playbook contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/autopilot-stack.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/babysit.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/babysit.md",
+      "reason": "已适配为 Pi PR 监视流程：模式声明、单 frontier、有界 /loop 轮询、显式推送/合并授权",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus playbook contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/babysit.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": "from-template"
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/bug-fix.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/poteto-mode/playbooks/bug-fix.md",
+      "reason": "已适配；见 validation-p1.md 的对应流程样例（手工执行），调查与修复另有新会话观察",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/bug-fix.md.template"
+      },
+      "evidence": "validation-playbook-restoration.md",
+      "dependencies": []
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/eval.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/eval.md",
+      "reason": "已适配为 Pi 盲测流程：候选在隔离 cwd 中并行运行并使用配置角色模型，执行链从子代理 sessionFile 或 transcript 读取；默认不提交或推送",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks, semantic override checks, and fixture child-transcript discovery tests"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/eval.md.template"
+      },
+      "evidence": "validation-eval.md",
+      "dependencies": "from-template"
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/feature.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/poteto-mode/playbooks/feature.md",
+      "reason": "已适配；见 validation-p1.md 的对应流程样例（手工执行），调查与修复另有新会话观察",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/feature.md.template"
+      },
+      "evidence": "validation-playbook-restoration.md",
+      "dependencies": []
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/hillclimb.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/hillclimb.md",
+      "reason": "已适配为 Pi 有界测量循环：绑定 /loop run 预算、冻结 harness 与本地决策证据，默认不提交或推送",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus playbook contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/hillclimb.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/investigation.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/poteto-mode/playbooks/investigation.md",
+      "reason": "已适配；见 validation-p1.md 的对应流程样例（手工执行），调查与修复另有新会话观察",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/investigation.md.template"
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/multi-phase-plan.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+      "reason": "已适配为 Pi 多阶段计划流程：计划为交付物、原型定悬案、执行需显式 go，默认不实现或提交",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus playbook contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/multi-phase-plan.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": "from-template"
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/opening-a-pr.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/opening-a-pr.md",
+      "reason": "已适配为 Pi PR 创建流程：推送与 PR 需显式授权、禁止 force-push/自动合并",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus playbook contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/opening-a-pr.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": [
+        "docs/templates/pstack-pr.md",
+        "skills/interrogate/SKILL.md",
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/orchestrate.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/orchestrate.md",
+      "reason": "已适配为 Pi 大型项目协调流程：本地 store、受管 worktree、有界波次与显式落地授权",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus playbook contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/orchestrate.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": "from-template"
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/pause-safely.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/pause-safely.md",
+      "reason": "已适配为 Pi 本地暂停契约：显式暂停、按 run id 停止子代理、补丁与恢复笔记；未授权不提交或推送",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus pause-safely local-evidence workflow checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/pause-safely.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/perf-issue.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/perf-issue.md",
+      "reason": "已适配为 Pi 单次性能修复流程：基线/后测、benchmark checklist、默认不提交或推送",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus playbook contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/perf-issue.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/prototype.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/prototype.md",
+      "reason": "已适配为 Pi 一次性原型流程：隔离 scratch 目录、真实表面验证、默认不提交或推送",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus playbook contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/prototype.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/refactoring.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/refactoring.md",
+      "reason": "已适配为 Pi 行为保持重构流程：先钉 contract、等价验证、默认不提交或推送",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus playbook contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/refactoring.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/runtime-forensics.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/runtime-forensics.md",
+      "reason": "依赖实时控制驱动与诊断采样；本地替代为操作者调试器 + 有界 subagent 归约",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; local substitution route recorded, no implementation/runtime acceptance"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/runtime-forensics.md.template"
+      },
+      "evidence": "validation-next.md",
+      "dependencies": "from-template"
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/session-pickup.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/session-pickup.md",
+      "reason": "已适配为 Pi 会话恢复流程：仅当前会话或操作者提供的会话文件，不扫描 Cursor transcript",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus playbook contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/session-pickup.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/shipping.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/shipping.md",
+      "reason": "已适配为 Pi 已验证 PR 落地流程：逐 PR 独立 verdict、patch-id 复核、显式落地授权",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus playbook contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/shipping.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/trace-forensics.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/trace-forensics.md",
+      "reason": "依赖解析器与 sqlite；本地替代为本地脚本 + 大文件只读子代理",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; local substitution route recorded, no implementation/runtime acceptance"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/trace-forensics.md.template"
+      },
+      "evidence": "validation-next.md",
+      "dependencies": "from-template"
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/visual-parity.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/visual-parity.md",
+      "reason": "无通用视觉驱动与 baseline gate；本地替代为操作者截图/图像 diff harness + 有界 loop",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; local substitution route recorded, no implementation/runtime acceptance"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/visual-parity.md.template"
+      },
+      "evidence": "validation-next.md",
+      "dependencies": "from-template"
+    },
+    {
+      "kind": "playbooks",
+      "source": "pstack/skills/poteto-mode/playbooks/worktree-cleanup.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/playbooks/worktree-cleanup.md",
+      "reason": "已适配为 Pi 受管清理流程：先审计与确认，删除需逐项授权，不清理活动或脏 worktree",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 resource checks plus playbook contract checks"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/worktree-cleanup.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": [
+        "skills/poteto-mode/SKILL.md"
+      ]
     },
     {
       "kind": "skills",
@@ -1021,6 +1562,22 @@
     },
     {
       "kind": "skills",
+      "source": "pstack/skills/statechart/SKILL.md",
+      "disposition": "substitute",
+      "phase": "P5",
+      "destination": null,
+      "reason": "阶段 B 规划移植：待各分支完成适配与验收",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Phase B snapshot pending port"
+      },
+      "adaptation": null,
+      "evidence": null,
+      "dependencies": null
+    },
+    {
+      "kind": "skills",
       "source": "pstack/skills/swarm/SKILL.md",
       "disposition": "ported",
       "phase": "P5",
@@ -1112,7 +1669,9 @@
         "override": "adapters/pi/overrides/skills/typescript-best-practices/SKILL.md.template"
       },
       "evidence": "validation-p1.md",
-      "dependencies": ["skills/typescript-best-practices/references/patterns.md"]
+      "dependencies": [
+        "skills/typescript-best-practices/references/patterns.md"
+      ]
     },
     {
       "kind": "skills",
@@ -1151,509 +1710,6 @@
       },
       "evidence": "validation-p1.md",
       "dependencies": "from-template"
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/authoring-a-skill.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/authoring-a-skill.md",
-      "reason": "已适配为 Pi 原生技能编写流程：读取安装包 docs/skills.md，使用 read/edit/write，结构校验覆盖 frontmatter、目录名和相对链接；PR 需显式授权",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks, semantic override checks, and fixture skill-validation tests"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/authoring-a-skill.md.template"
-      },
-      "evidence": "validation-authoring-a-skill.md",
-      "dependencies": "from-template"
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/autonomous-run.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/autonomous-run.md",
-      "reason": "已适配为 Pi `/loop run` 有界自治流程：先定停止谓词，迭代结果写本地证据，未授权不提交或推送",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus autonomous-run bounded-loop contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/autonomous-run.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": [
-        "skills/poteto-mode/SKILL.md"
-      ]
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/autopilot-full.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/autopilot-full.md",
-      "reason": "已适配为 Pi PR 队列协调流程：单人 owner、受管 worktree、独立核实与显式落地授权，默认不自动合并",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/autopilot-full.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": [
-        "skills/poteto-mode/SKILL.md"
-      ]
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/autopilot-stack.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/autopilot-stack.md",
-      "reason": "已适配为 Pi 栈式 PR 交付流程：根代理独占拓扑、operator 落地、默认不自动合并",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/autopilot-stack.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": [
-        "skills/poteto-mode/SKILL.md"
-      ]
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/babysit.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/babysit.md",
-      "reason": "已适配为 Pi PR 监视流程：模式声明、单 frontier、有界 /loop 轮询、显式推送/合并授权",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/babysit.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": "from-template"
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/bug-fix.md",
-      "disposition": "ported",
-      "phase": "P1",
-      "destination": "skills/poteto-mode/playbooks/bug-fix.md",
-      "reason": "已适配；见 validation-p1.md 的对应流程样例（手工执行），调查与修复另有新会话观察",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P1 resource checks plus workflow-level observations"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/bug-fix.md.template"
-      },
-      "evidence": "validation-playbook-restoration.md",
-      "dependencies": []
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/eval.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/eval.md",
-      "reason": "已适配为 Pi 盲测流程：候选在隔离 cwd 中并行运行并使用配置角色模型，执行链从子代理 sessionFile 或 transcript 读取；默认不提交或推送",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks, semantic override checks, and fixture child-transcript discovery tests"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/eval.md.template"
-      },
-      "evidence": "validation-eval.md",
-      "dependencies": "from-template"
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/feature.md",
-      "disposition": "ported",
-      "phase": "P1",
-      "destination": "skills/poteto-mode/playbooks/feature.md",
-      "reason": "已适配；见 validation-p1.md 的对应流程样例（手工执行），调查与修复另有新会话观察",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P1 resource checks plus workflow-level observations"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/feature.md.template"
-      },
-      "evidence": "validation-playbook-restoration.md",
-      "dependencies": []
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/hillclimb.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/hillclimb.md",
-      "reason": "已适配为 Pi 有界测量循环：绑定 /loop run 预算、冻结 harness 与本地决策证据，默认不提交或推送",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/hillclimb.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": [
-        "skills/poteto-mode/SKILL.md"
-      ]
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/investigation.md",
-      "disposition": "ported",
-      "phase": "P1",
-      "destination": "skills/poteto-mode/playbooks/investigation.md",
-      "reason": "已适配；见 validation-p1.md 的对应流程样例（手工执行），调查与修复另有新会话观察",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P1 resource checks plus workflow-level observations"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/investigation.md.template"
-      },
-      "evidence": "validation-p1.md",
-      "dependencies": ["skills/poteto-mode/SKILL.md"]
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/multi-phase-plan.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/multi-phase-plan.md",
-      "reason": "已适配为 Pi 多阶段计划流程：计划为交付物、原型定悬案、执行需显式 go，默认不实现或提交",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/multi-phase-plan.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": "from-template"
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/opening-a-pr.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/opening-a-pr.md",
-      "reason": "已适配为 Pi PR 创建流程：推送与 PR 需显式授权、禁止 force-push/自动合并",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/opening-a-pr.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": [
-        "docs/templates/pstack-pr.md",
-        "skills/interrogate/SKILL.md",
-        "skills/poteto-mode/SKILL.md"
-      ]
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/orchestrate.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/orchestrate.md",
-      "reason": "已适配为 Pi 大型项目协调流程：本地 store、受管 worktree、有界波次与显式落地授权",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/orchestrate.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": "from-template"
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/pause-safely.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/pause-safely.md",
-      "reason": "已适配为 Pi 本地暂停契约：显式暂停、按 run id 停止子代理、补丁与恢复笔记；未授权不提交或推送",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus pause-safely local-evidence workflow checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/pause-safely.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": [
-        "skills/poteto-mode/SKILL.md"
-      ]
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/perf-issue.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/perf-issue.md",
-      "reason": "已适配为 Pi 单次性能修复流程：基线/后测、benchmark checklist、默认不提交或推送",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/perf-issue.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": [
-        "skills/poteto-mode/SKILL.md"
-      ]
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/prototype.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/prototype.md",
-      "reason": "已适配为 Pi 一次性原型流程：隔离 scratch 目录、真实表面验证、默认不提交或推送",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/prototype.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": [
-        "skills/poteto-mode/SKILL.md"
-      ]
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/refactoring.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/refactoring.md",
-      "reason": "已适配为 Pi 行为保持重构流程：先钉 contract、等价验证、默认不提交或推送",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/refactoring.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": [
-        "skills/poteto-mode/SKILL.md"
-      ]
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/runtime-forensics.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/runtime-forensics.md",
-      "reason": "依赖实时控制驱动与诊断采样；本地替代为操作者调试器 + 有界 subagent 归约",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "Disposition audit only; local substitution route recorded, no implementation/runtime acceptance"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/runtime-forensics.md.template"
-      },
-      "evidence": "validation-next.md",
-      "dependencies": "from-template"
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/session-pickup.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/session-pickup.md",
-      "reason": "已适配为 Pi 会话恢复流程：仅当前会话或操作者提供的会话文件，不扫描 Cursor transcript",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/session-pickup.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": [
-        "skills/poteto-mode/SKILL.md"
-      ]
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/shipping.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/shipping.md",
-      "reason": "已适配为 Pi 已验证 PR 落地流程：逐 PR 独立 verdict、patch-id 复核、显式落地授权",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/shipping.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": [
-        "skills/poteto-mode/SKILL.md"
-      ]
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/trace-forensics.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/trace-forensics.md",
-      "reason": "依赖解析器与 sqlite；本地替代为本地脚本 + 大文件只读子代理",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "Disposition audit only; local substitution route recorded, no implementation/runtime acceptance"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/trace-forensics.md.template"
-      },
-      "evidence": "validation-next.md",
-      "dependencies": "from-template"
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/visual-parity.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/visual-parity.md",
-      "reason": "无通用视觉驱动与 baseline gate；本地替代为操作者截图/图像 diff harness + 有界 loop",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "Disposition audit only; local substitution route recorded, no implementation/runtime acceptance"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/visual-parity.md.template"
-      },
-      "evidence": "validation-next.md",
-      "dependencies": "from-template"
-    },
-    {
-      "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/worktree-cleanup.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/worktree-cleanup.md",
-      "reason": "已适配为 Pi 受管清理流程：先审计与确认，删除需逐项授权，不清理活动或脏 worktree",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/worktree-cleanup.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": [
-        "skills/poteto-mode/SKILL.md"
-      ]
-    },
-    {
-      "kind": "agents",
-      "source": "pstack/agents/comment-sicko.md",
-      "disposition": "ported",
-      "phase": "P3",
-      "destination": "agents/comment-sicko.md",
-      "reason": "已适配；通过适配层生成只读定义，严格限定工具白名单，见 validation-p3.md",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P3 ported agent with read-only tool allowlist"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/agents/comment-sicko.md.template"
-      },
-      "evidence": "validation-p3.md",
-      "dependencies": []
-    },
-    {
-      "kind": "agents",
-      "source": "pstack/agents/poteto-agent.md",
-      "disposition": "ported",
-      "phase": "P3",
-      "destination": "agents/poteto-agent.md",
-      "reason": "已适配；通过适配层生成代码编写代理定义，适配包清单发现与单一 writer 约束，见 validation-p3.md",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P3 ported code-writing subagent"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/agents/poteto-agent.md.template"
-      },
-      "evidence": "validation-p3.md",
-      "dependencies": [
-        "skills/poteto-mode/SKILL.md"
-      ]
     }
   ],
   "generator": "scripts/generate-pi-resources.mjs",
@@ -2071,6 +2127,21 @@
         "skills/technical-writing/SKILL.md",
         "skills/unslop/SKILL.md"
       ]
+    }
+  ],
+  "deferredResources": [
+    {
+      "kind": "docs",
+      "source": "pstack/docs/harness/claude-code.md",
+      "disposition": "deferred",
+      "phase": "P5",
+      "destination": null,
+      "reason": "Claude Code 安装树（harness/pstack/claude-code，#637、#705）专用于 Claude 宿主，Pi 使用自身包机制，不移植",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Disposition audit only; Claude Code harness deferred"
+      }
     }
   ]
 }

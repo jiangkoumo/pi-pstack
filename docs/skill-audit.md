@@ -132,3 +132,6 @@
 ## 后续约束
 
 ported 的技能与流程由技能清单导出。P2 的 setup-pstack 已由扩展命令替代，证据见 validation-p2.md；其余 substitute 条目仍需对应阶段实现及验收，deferred 已归零。审计归属不等于全量复刻。
+| 技能 create-formal-verification-skill | P5 | 阶段 B 规划移植：待各分支完成适配与验收 |
+| 技能 maintain-formal-verification-skill | P5 | 阶段 B 规划移植：待各分支完成适配与验收 |
+| 技能 statechart | P5 | 阶段 B 规划移植：待各分支完成适配与验收 |

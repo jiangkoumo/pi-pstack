@@ -1,5 +1,5 @@
 {
-  "commit": "f713f14203cd6420cec13cd7c55c32d598dbab68",
+  "commit": "eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10",
   "files": [
     {
       "path": "pstack/LICENSE",
@@ -52,6 +52,10 @@
     {
       "path": "pstack/skills/correct/SKILL.md",
       "blob": "c45e06f48a0982ae19f92c6e83a8cd05988097a3"
+    },
+    {
+      "path": "pstack/skills/create-formal-verification-skill/SKILL.md",
+      "blob": "b97609fd2649e95ea2960e720b3b581a6c2cb75a"
     },
     {
       "path": "pstack/skills/create-verification-skill/SKILL.md",
@@ -111,7 +115,11 @@
     },
     {
       "path": "pstack/skills/ketchup/SKILL.md",
-      "blob": "ebc3e9483266a165784df0a533d33d063292521b"
+      "blob": "9eef27f92f8029137a7bfa7378305b075df9dc4f"
+    },
+    {
+      "path": "pstack/skills/maintain-formal-verification-skill/SKILL.md",
+      "blob": "5d2f7f2228a3b771ca5b03124fc265ddfc53c5fc"
     },
     {
       "path": "pstack/skills/maintain-verification-skill/SKILL.md",
@@ -119,7 +127,7 @@
     },
     {
       "path": "pstack/skills/make-bot-ui/SKILL.md",
-      "blob": "285df7569758a70e62e9f3596a1f829a5b6ba80e"
+      "blob": "446342ca35a46af771271e0cd901354a61997589"
     },
     {
       "path": "pstack/skills/no-comments/SKILL.md",
@@ -127,7 +135,7 @@
     },
     {
       "path": "pstack/skills/poteto-help/SKILL.md",
-      "blob": "dc443648ed3f0fdce6398fddde226f184f7e3156"
+      "blob": "bf430fcd520e94748f1e1dbf93f6799e803d747a"
     },
     {
       "path": "pstack/skills/poteto-help/references/prompting.md",
@@ -135,11 +143,11 @@
     },
     {
       "path": "pstack/skills/poteto-help/references/recipes.md",
-      "blob": "d13da3a08cd27a29a68dc8bfbc93d0ca6d8a0647"
+      "blob": "048e0750451aa801a4cf7ed59fa9ed4624c0f1ec"
     },
     {
       "path": "pstack/skills/poteto-mode/SKILL.md",
-      "blob": "9295b7e4fb87eb95d3c887d79e63ec748ce20e4d"
+      "blob": "21993f546032ca37671d5f1caf39c9a82ab4fa9d"
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/authoring-a-skill.md",
@@ -431,11 +439,11 @@
     },
     {
       "path": "pstack/skills/setup-pstack/SKILL.md",
-      "blob": "90a9e575397fb59f4d9a47e6157c2106f4b4a5e2"
+      "blob": "cb61b8d3ee5d2a1b8fa403d8b99ed8d2e18f77df"
     },
     {
       "path": "pstack/skills/sharpen/SKILL.md",
-      "blob": "4f9bb4ab50fd760285dd6c4cbbfa7fe20e2d2466"
+      "blob": "5b4a7b104e709f8cded1726541be42431c334164"
     },
     {
       "path": "pstack/skills/show-me-your-work/SKILL.md",
@@ -448,6 +456,54 @@
     {
       "path": "pstack/skills/show-me-your-work/scripts/log.sh",
       "blob": "052e53b7e1090579eaec1d3d59f7a1cd2f2e452a"
+    },
+    {
+      "path": "pstack/skills/statechart/SKILL.md",
+      "blob": "1693be3b30d5d457e178a0da8da93c6d311b06b3"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/chart-to-tla.mjs",
+      "blob": "7dfa337d2426e1b9f86e727e2602382b6fd2d5d1"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/compare-charts.mjs",
+      "blob": "587125a9ff266e33c6c65490785ed59b969b7bb1"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/lib.mjs",
+      "blob": "cf72d5cd115b95f545a35b08108bf0134e5718fd"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/model/OutputFolder.cfg",
+      "blob": "68fd715a87e70ec30a433d45d1ad468db1672912"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/model/OutputFolder.map.mjs",
+      "blob": "9618338f6620e30d812c35b8ab4df605d4f71259"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/model/OutputFolder.tla",
+      "blob": "7765babcbb44a83ec14b7b8185bf531e71eac5d6"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/statechart.mjs",
+      "blob": "6e2ebfccdafff7900016b5cf2ed5384c84181545"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/test/statechart.test.mjs",
+      "blob": "a90c7e4a3a7993dc787d9963ab7ba7bc3240e1a8"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/test/sync.mmd",
+      "blob": "c780c2e4336925b66e79c2bd107c045c69e54355"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/test/upload.mmd",
+      "blob": "dcfafa73793e4475427a6897466debd40c4e3f8f"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/tlc-to-chart.mjs",
+      "blob": "ccb68fd7b549171afea2d8035f495985a2d859d1"
     },
     {
       "path": "pstack/skills/swarm/SKILL.md",
@@ -467,11 +523,11 @@
     },
     {
       "path": "pstack/skills/typescript-best-practices/SKILL.md",
-      "blob": "2c0279d9a5f800192605e47b55cae4e75a17ec27"
+      "blob": "e1e5aa7c97ed39c425d60d933a96424a3f14539e"
     },
     {
       "path": "pstack/skills/typescript-best-practices/references/patterns.md",
-      "blob": "c21d876b71b9c7afa897f2f6d982ead07db8f104"
+      "blob": "f8dd99b63ecb469a090b8fa0a7e235d3239cb9ec"
     },
     {
       "path": "pstack/skills/unslop/SKILL.md",
