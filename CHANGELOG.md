@@ -2,6 +2,25 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
+## 0.3.7
+
+- Formal verification completion judgment transitions from regex patterns to artifact self-check and command re-run verification (`extensions/pstack/formal-verification-gate.mjs`, #32):
+  - Detects activation via create/maintain-formal-verification-skill invocation in session or modified `.pi/skills/*/SKILL.md` (and `.agents/skills/*/SKILL.md`) containing `## Run it`.
+  - Re-runs every command in `## Run it` from the target directory and parses actual execution metrics (exit code `rc`, `distinct` states, `depth`, total `states`, `steps`, `members`, and `scenarios`).
+  - Itemizes exact differences when output metrics mismatch descriptions in `SKILL.md`, and includes discrepancies in continuation prompts.
+  - Requires satisfied command metrics, complete Record section, and final delivery report with deliberate breakage evidence (2 break/restore cycles for create, 1 for maintain) before marking completion.
+  - Registers `registerFormalVerificationGate` into host `agent_before_settle` lifecycle.
+- Narrow `auto-continue` activation scope and user-facing turn bounds (`extensions/pstack/auto-continue.mjs`, #33):
+  - Default activation scoped to sessions where poteto-mode is active, remaining inactive by default in plain sessions unless explicitly enabled in `pstack.json` via `autoContinue`.
+  - Halts auto-continuation whenever assistant text contains questions (`?`, `？`), approval requests (`approve`, `approval`), multi-choice queries (`which`), user decisions (`你决定`, `是否`), or authorization gate keywords.
+  - Removes `waiting for approval to proceed` from waiting continuation signals.
+  - Appends mandatory caution to `renderAutoContinuePrompt`: "不要越过任何待用户确认的授权门；如果上一条是在等用户，就原样停下。".
+  - Ignores checklist items marked with `(optional)` or `[optional]` from triggering incomplete task continuation.
+- Session state reset on new user messages and continuation intent fixes (`extensions/pstack/auto-continue.mjs`, #33):
+  - Resets continuation state and turn budget upon receiving subsequent user messages, preventing previous terminal states (`completed`, `stopped`) from blocking later turns in the session.
+  - Extends continuation intent detection to recognize action-verb leads such as `"Let me fix those and add the missing timer updates."`.
+  - Adds unit test suite with 6 regression cases (5 false-positive user gate cases + 1 true-positive continuation case) and comprehensive lifecycle tests.
+
 ## 0.3.6
 
 - Add pre-completion self-check protocol to formal verification skill templates (`/create-formal-verification-skill` and `/maintain-formal-verification-skill`): requires all "Run it" commands in generated SKILL.md to be re-executed, output counts and conclusions to match skill description, complete Record section, and final report delivery.
