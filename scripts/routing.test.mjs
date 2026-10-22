@@ -65,13 +65,13 @@ function sessionPathScope(path, { workspace, sessionRoot, expectedSessionsDir })
 }
 
 function registerOfflineTests() {
-test('routing manifest keeps its labeled reconstruction provenance and extends it to 48 cases', () => {
+test('routing manifest keeps its labeled reconstruction provenance and extends it to 50 cases', () => {
   assert.equal(CASES.version, 1);
   assert.equal(CASES.mode, 'on');
   assert.equal(CASES.source.kind, 'reconstructed');
   assert.match(CASES.source.note, /original 46-case list .* was not supplied/i);
   assert.match(CASES.source.note, /must not be described as one/i);
-  assert.equal(CASES.cases.length, 48, 'Original 46 Issue #14 cases plus 2 Issue #20 ketchup cases');
+  assert.equal(CASES.cases.length, 50, 'Original 46 Issue #14 cases plus 2 Issue #20 ketchup cases plus 2 Issue #24 sharpen reversal cases');
 });
 
 test('every routing case has a unique id and a declared hit', () => {
@@ -132,7 +132,36 @@ test('routing manifest keeps the original 46 cases and adds two ketchup cases', 
   for (const id of ['sk-tdd-tdd', 'sk-sharpen-rewrite']) {
     assert(CASES.cases.some(item => item.id === id), `Keep the original case: ${id}`);
   }
-  assert.equal(CASES.cases.length, 48, 'Issue #20 must keep the original 46 cases and add 2, for 48 total');
+  assert.equal(CASES.cases.length, 50, 'Issue #20 must keep the original 46 cases and add 2, and Issue #24 adds 2 sharpen reversal cases, for 50 total');
+});
+
+test('sharpen cases exercise the deepened-then-rewritten reversal from Issue #24', async () => {
+  const sharpen = CASES.cases.filter(item => item.expect.skill === 'sharpen');
+  assert.equal(sharpen.length, 4, 'Keep the two original sharpen cases and add the two Issue #24 reversal cases');
+  for (const item of sharpen) {
+    assert.equal(item.category, 'sharpen', `sharpen case must declare the sharpen category: ${item.id}`);
+  }
+  for (const id of ['sk-sharpen-prompt', 'sk-sharpen-rewrite']) {
+    assert.ok(sharpen.some(item => item.id === id), `Keep the original case: ${id}`);
+  }
+
+  const deepen = sharpen.find(item => item.id === 'sk-sharpen-deepen');
+  assert.ok(deepen, 'Issue #24 must add a deepen-not-enlarge case');
+  assert.match(deepen.request, /deeper, not bigger/i, 'The reversal case must ask for a deeper task, not a bigger one');
+  assert.match(deepen.request, /rewritten prompt/i, 'The reversal case must ask for the rewritten prompt');
+
+  const deepenZh = sharpen.find(item => item.id === 'sk-sharpen-deepen-zh');
+  assert.ok(deepenZh, 'Issue #24 must add a Chinese deepen/rewrite case');
+  assert.match(deepenZh.request, /加深/);
+  assert.match(deepenZh.request, /重写/);
+
+  // The cases above are only reachable if the shipped trigger text carries the
+  // same vocabulary; keep them grounded instead of inventing intents.
+  const shipped = await readFile(resolve(ROOT, 'skills/sharpen/SKILL.md'), 'utf8');
+  const description = frontmatterDescription(shipped);
+  assert.match(description, /deeper, not bigger/i, 'shipped description must state deepen-not-enlarge');
+  assert.match(description, /then rewrite the prompt/i, 'shipped description must state the rewritten prompt is returned');
+  assert.doesNotMatch(shipped, /Don't hand back a rewritten prompt/i, 'the pre-reversal behavior must be gone from the shipped body');
 });
 
 test('ketchup template keeps the pinned body and scopes itself to this chat', async () => {

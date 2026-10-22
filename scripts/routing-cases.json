@@ -2,10 +2,10 @@
   "version": 1,
   "source": {
     "kind": "reconstructed",
-    "note": "The original 46-case list from the 0.3.1 retest report was not supplied. The original 46 cases are a reproducible reconstruction from the pinned upstream poteto-mode routing table plus the routes named in Issue #14, and all 46 stay intact. Issue #20 adds two current-conversation ketchup cases as a supplementary pair, so the manifest is 48 = original 46 + 2. These are not a replay of the original report and must not be described as one.",
-    "upstream": "pstack/skills/poteto-mode/SKILL.md at f713f14203cd6420cec13cd7c55c32d598dbab68",
+    "note": "The original 46-case list from the 0.3.1 retest report was not supplied. The original 46 cases are a reproducible reconstruction from the pinned upstream poteto-mode routing table plus the routes named in Issue #14, and all 46 stay intact. Issue #20 adds two current-conversation ketchup cases as a supplementary pair, and Issue #24 adds two sharpen reversal cases (a deeper task, not a bigger one, then the rewritten prompt), so the manifest is 50 = original 46 + 2 + 2. These are not a replay of the original report and must not be described as one.",
+    "upstream": "pstack/skills/poteto-mode/SKILL.md at eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10",
     "issue": 14,
-    "revisedBy": 20,
+    "revisedBy": [20, 24],
     "reconstructedAt": "2026-10-21"
   },
   "mode": "on",
@@ -266,6 +266,18 @@
       "id": "sk-sharpen-rewrite",
       "category": "sharpen",
       "request": "rewrite this prompt so an agent can act on it",
+      "expect": { "skill": "sharpen" }
+    },
+    {
+      "id": "sk-sharpen-deepen",
+      "category": "sharpen",
+      "request": "make this task deeper, not bigger, then give me the rewritten prompt",
+      "expect": { "skill": "sharpen" }
+    },
+    {
+      "id": "sk-sharpen-deepen-zh",
+      "category": "sharpen",
+      "request": "加深这个 prompt，不要扩大范围，最后把重写后的 prompt 给我",
       "expect": { "skill": "sharpen" }
     },
     {
