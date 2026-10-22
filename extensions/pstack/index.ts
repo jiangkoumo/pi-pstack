@@ -11,7 +11,7 @@ import { loadModeState, saveModeState, sessionModeStatePath } from './mode-state
 import { runGitRead, renderGitReadResult } from './git-read.mjs';
 import { workspaceSessionDir } from '../../scripts/session-context.mjs';
 import { registerPublicationGate } from './publication-gate.mjs';
-import { createVerificationTool, getVerificationCapability } from './verification-exec.mjs';
+import { createVerificationTool, getVerificationCapability, getTlcCapability } from './verification-exec.mjs';
 
 export default function pstack(pi: ExtensionAPI) {
   const skillPath = fileURLToPath(new URL('../../skills/poteto-mode/SKILL.md', import.meta.url));
@@ -19,7 +19,7 @@ export default function pstack(pi: ExtensionAPI) {
   const roleController = createRoleAgentController(pi, agentsDir);
   registerLoopAbortHooks(pi);
   registerPublicationGate(pi);
-  if (typeof pi.registerTool === 'function') pi.registerTool(createVerificationTool());
+  if (typeof pi.registerTool === 'function') pi.registerTool(createVerificationTool({ loadConfig: ctx => configuration(ctx) }));
   const levels = (model: Model<any>) => model.reasoning ? getSupportedThinkingLevels(model) : ['off'];
   // Hosts that predate registerTool (and narrow unit fixtures) must still load the
   // rest of the extension; the reviewer tool is additive, not a load requirement.
@@ -207,6 +207,7 @@ export default function pstack(pi: ExtensionAPI) {
         scope: 'active session branch',
         persistent,
         verification: await getVerificationCapability(),
+        tlc: await getTlcCapability({ config }),
         warning,
         config,
         configError,
@@ -246,7 +247,7 @@ export default function pstack(pi: ExtensionAPI) {
         let configError;
         try { config = await configuration(ctx); choices(ctx, config.roles); } catch (error) { configError = String(error); }
         const roleStatus = roleController.status();
-        show({ paths, config, configError, roleStatus, verification: await getVerificationCapability(), defaults: Object.fromEntries(ROLES.map(role => [role, 'inherit'])), agentRoles: ROLE_AGENTS, appliesTo: 'role preferences bind runtime-registered pstack agent definitions for direct calls and workflow children; user-level subagents.agentOverrides.<name> take precedence; top-level model overrides are blocked' }, ctx);
+        show({ paths, config, configError, roleStatus, verification: await getVerificationCapability(), tlc: await getTlcCapability({ config }), defaults: Object.fromEntries(ROLES.map(role => [role, 'inherit'])), agentRoles: ROLE_AGENTS, appliesTo: 'role preferences bind runtime-registered pstack agent definitions for direct calls and workflow children; user-level subagents.agentOverrides.<name> take precedence; top-level model overrides are blocked' }, ctx);
         return;
       }
       const [, scope, role, model, thinking] = words;
@@ -264,7 +265,7 @@ export default function pstack(pi: ExtensionAPI) {
         const roles = { ...current.roles };
         if (action === 'set') roles[role] = choice;
         else delete roles[role];
-        return { version: 1, roles };
+        return { ...current, version: 1, roles };
       });
       await refreshRoles(ctx);
       show({ changed, path: paths[scope], scope, role, choice: action === 'set' ? choice : null, currentModelChanged: false }, ctx);

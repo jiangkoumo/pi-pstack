@@ -1173,7 +1173,7 @@ export function createTlcVerificationTool(options = {}) {
       let config;
       if (loadConfig) {
         try {
-          config = await loadConfig();
+          config = await loadConfig(ctx);
         } catch (error) {
           const reason = `pstack.json could not be loaded, so the TLC entry did not run: ${firstLine(error)}`;
           return {
@@ -1207,23 +1207,29 @@ export function createTlcVerificationTool(options = {}) {
  * Tool definition for the host to register. The caller owns registration
  * (`pi.registerTool(createVerificationTool())`); the module performs execution.
  */
-export function createVerificationTool() {
+export function createVerificationTool(options = {}) {
+  const tlcTool = createTlcVerificationTool(options);
   return {
     name: TOOL_NAME,
     label: 'Verification Exec',
-    description: 'Run one restricted verification command (npm test, npm run test/lint/build/check, node --test, node --check, a repository node script, or read-only git) and return its real exit code. With an OS sandbox, network is denied and writes are limited to a private scratch directory. Without one, it runs in a temporary Git worktree and labels the result DEGRADED: network and writes outside that worktree are not isolated, and the result names the responsible party. Refuses shell composition, installs, publish, push and inline code.',
+    description: 'Run one restricted verification command (npm test, npm run test/lint/build/check, node --test, node --check, a repository node script, or read-only git) and return its real exit code. For TLC use command="tlc" with spec, config and optional options fields; only the configured jar and repository .tla/.cfg files are accepted. Missing TLC explicitly returns the generated-input fallback, never a formal pass. With an OS sandbox, network is denied and writes are limited to a private scratch directory. Without one, it runs in a temporary Git worktree and labels the result DEGRADED: network and writes outside that worktree are not isolated, and the result names the responsible party. Refuses shell composition, installs, publish, push and inline code.',
     parameters: {
       type: 'object',
       properties: {
+        ...tlcTool.parameters.properties,
         command: {
           type: 'string',
-          description: 'One argv-style command, for example "npm test", "npm run lint", "node --test scripts/foo.test.mjs", "git diff --stat main...HEAD". Shell operators, quotes and inline code are refused.',
+          description: 'One argv-style command, for example "npm test", "npm run lint", "node --test scripts/foo.test.mjs", "git diff --stat main...HEAD", or "tlc" with the structured TLC fields. Shell operators, quotes and inline code are refused.',
         },
       },
       required: ['command'],
       additionalProperties: false,
     },
     async execute(_toolCallId, params, signal, _onUpdate, ctx) {
+      if (params?.command === 'tlc') return tlcTool.execute(_toolCallId, params, signal, _onUpdate, ctx);
+      if (['spec', 'config', 'options'].some(key => params?.[key] !== undefined)) {
+        return { content: [{ type: 'text', text: 'REFUSED: TLC fields require command="tlc".' }], details: { ok: false, status: 'refused' } };
+      }
       const result = await runVerification(params?.command, { cwd: ctx?.cwd, signal });
       return {
         content: [{ type: 'text', text: renderVerificationResult(result) }],

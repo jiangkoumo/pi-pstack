@@ -60,6 +60,7 @@ async function extensionFixture(run) {
   process.env.PI_CODING_AGENT_DIR = resolve(directory, 'agent');
   const handlers = new Map();
   const commands = new Map();
+  const tools = new Map();
   const messages = [];
   const manager = SessionManager.create(directory, resolve(directory, 'sessions'));
   const model = { provider: 'fixture', id: 'model', reasoning: false };
@@ -71,10 +72,11 @@ async function extensionFixture(run) {
   pstack({
     on: (name, handler) => handlers.set(name, handler),
     registerCommand: (name, command) => commands.set(name, command.handler),
+    registerTool: tool => tools.set(tool.name, tool),
     appendEntry: (type, data) => manager.appendCustomEntry(type, data),
     sendMessage: message => messages.push(JSON.parse(message.content)),
   });
-  try { await run({ directory, handlers, commands, messages, manager, ctx }); }
+  try { await run({ directory, handlers, commands, tools, messages, manager, ctx }); }
   finally {
     if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
     else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
@@ -110,6 +112,32 @@ test('status commands expose verifier isolation and any degraded warning', () =>
       assert(capability.limitations.length > 0);
     }
   }
+}));
+
+test('TLC configuration survives trusted merging and role edits, and reaches status and verification_exec', () => extensionFixture(async ({ directory, commands, tools, messages, ctx }) => {
+  const paths = configPaths(resolve(directory, 'agent'), directory, '.pi');
+  const userJar = resolve(directory, 'missing-user-tla2tools.jar');
+  const projectJar = resolve(directory, 'missing-project-tla2tools.jar');
+  await updateConfig(paths.user, () => ({ version: 1, roles: {}, tla: { tla2toolsJar: userJar } }));
+  await updateConfig(paths.project, () => ({ version: 1, roles: {}, tla: { tla2toolsJar: projectJar } }));
+  assert.equal((await loadConfig(paths, false)).tla.tla2toolsJar, userJar);
+  assert.equal((await loadConfig(paths, true)).tla.tla2toolsJar, projectJar);
+  await updateConfig(paths.project, () => ({ version: 1, roles: {}, tla: {} }));
+  assert.equal((await loadConfig(paths, true)).tla.tla2toolsJar, userJar, 'An empty project block does not erase the user jar');
+  await commands.get('setup-pstack')('set user review fixture/model off', ctx);
+  await commands.get('setup-pstack')('unset user review', ctx);
+  assert.equal(JSON.parse(await readFile(paths.user, 'utf8')).tla.tla2toolsJar, userJar);
+  for (const command of ['setup-pstack', 'poteto-mode']) {
+    await commands.get(command)('status', ctx);
+    const capability = messages.at(-1).tlc;
+    assert.equal(capability.available, false);
+    assert.match(capability.reason, /missing-user-tla2tools.jar|conflicting/);
+    assert.match(capability.warning, /未做形式化验证，原因是缺少 TLC/);
+  }
+  const outcome = await tools.get('verification_exec').execute('tlc-missing', { command: 'tlc', spec: 'Spec.tla', config: 'Spec.cfg' }, undefined, undefined, ctx);
+  assert.equal(outcome.details.formalVerification, 'not-performed');
+  assert.equal(outcome.details.fallback, 'generated-input-tests');
+  assert.match(outcome.content[0].text, /未做形式化验证，原因是缺少 TLC/);
 }));
 
 test('B7 configured roles reach pstack skill requests with mode off or never enabled', () => extensionFixture(async ({ commands, handlers, ctx }) => {

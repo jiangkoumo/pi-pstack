@@ -60,9 +60,14 @@ async function runVerifierScenario({ isAsync }) {
         } else if (tools.length === 2) {
           assert.match(JSON.stringify(tools[1]), /REFUSED/);
           call = { name: 'verification_exec', args: { command: 'git push' } };
-        } else {
+        } else if (tools.length === 3) {
           assert.match(JSON.stringify(tools[2]), /REFUSED/);
-          content = 'VERIFIER_EXIT_0: npm test executed independently; write and push refused.';
+          call = { name: 'verification_exec', args: { command: 'tlc', spec: 'Spec.tla', config: 'Spec.cfg' } };
+        } else {
+          assert.match(JSON.stringify(tools[3]), /未做形式化验证，原因是缺少 TLC/);
+          assert.match(JSON.stringify(tools[3]), /generated-input tests/);
+          assert.match(JSON.stringify(tools[3]), /missing-child-tla2tools.jar|conflicting/);
+          content = 'VERIFIER_EXIT_0: npm test executed independently; write and push refused; missing TLC explicitly reported.';
         }
       }
       const base = { id: 'verifier-fixture', object: 'chat.completion.chunk', created: 1, model: input.model };
@@ -89,7 +94,7 @@ async function runVerifierScenario({ isAsync }) {
     await new Promise(done => server.listen(0, '127.0.0.1', done));
     const settings = { defaultProjectTrust: 'never', packages: [root], retry: { enabled: false }, compaction: { enabled: false }, subagents: { asyncByDefault: isAsync, intercomBridge: { mode: 'off' } } };
     await writeFile(resolve(agentDir, 'settings.json'), JSON.stringify(settings));
-    await writeFile(resolve(agentDir, 'pstack.json'), JSON.stringify({ version: 1, roles: { verification: { model: 'fixture/verifier', thinking: 'off' } } }));
+    await writeFile(resolve(agentDir, 'pstack.json'), JSON.stringify({ version: 1, roles: { verification: { model: 'fixture/verifier', thinking: 'off' } }, tla: { tla2toolsJar: resolve(dir, 'missing-child-tla2tools.jar') } }));
     const modelsPath = resolve(agentDir, 'models.json');
     await writeFile(modelsPath, JSON.stringify({ providers: { fixture: { baseUrl: `http://127.0.0.1:${server.address().port}/v1`, api: 'openai-completions', apiKey: 'fixture-only', models: ['parent', 'verifier'].map(id => ({ id, name: id, reasoning: false, input: ['text'], contextWindow: 64000, maxTokens: 2048, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } })) } } }));
     const runtime = await ModelRuntime.create({ authPath: resolve(agentDir, 'auth.json'), modelsPath, allowModelNetwork: false });
@@ -107,7 +112,7 @@ async function runVerifierScenario({ isAsync }) {
     assert.deepEqual(errors, []);
     assert.match(session.getLastAssistantText(), /PARENT_VERIFIED/);
     const childRequests = requests.filter(x => !x.parent);
-    assert.equal(childRequests.length, 4);
+    assert.equal(childRequests.length, 5);
     assert.match(JSON.stringify(childRequests.at(-1).input.messages), /INDEPENDENT_FIXTURE_PASS/);
     assert.match(JSON.stringify(childRequests.at(-1).input.messages), /EXIT CODE: 0/);
     await assert.rejects(readFile(resolve(cwd, 'mutation.txt')), { code: 'ENOENT' });

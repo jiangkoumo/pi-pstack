@@ -84,10 +84,10 @@ TLA+ 模型检查（TLC）是可选能力：本包不打包、也不自动下载
   - 环境变量 `TLA2TOOLS_JAR=/absolute/path/to/tla2tools.jar`（兼容上游脚本使用的 `TLA2TOOLS`）；或
   - `pstack.json` 中的 `{"version": 1, "roles": {}, "tla": {"tla2toolsJar": "/absolute/path/to/tla2tools.jar"}}`。
   - 两处声明不同路径时会被拒绝，而不是任选其一；相对路径会被拒绝。
-- **受限执行**：只能启动已配置的那一个 jar，只接受仓库内的 `.tla` 与 `.cfg` 路径（按真实路径解析，拒绝 `..` 和符号链接越界）以及白名单 TLC 选项：`-cleanup`、`-nowarning`、`-deadlock`、`-continue`、`-difftrace`、`-workers <n|auto>`、`-depth <n>`、`-seed <n>`、`-coverage <n>`；`.cfg` 由请求的 `config` 字段给出（选项里的 `-config` 不被接受）。其他任何 java 调用一律拒绝。
+- **受限执行**：通过 `verification_exec` 的结构化入口 `{"command":"tlc","spec":"models/Spec.tla","config":"models/Spec.cfg","options":["-cleanup"]}` 调用。只能启动已配置的那一个 jar，只接受仓库内的 `.tla` 与 `.cfg` 路径（按真实路径解析，拒绝 `..` 和符号链接越界）以及白名单 TLC 选项：`-cleanup`、`-nowarning`、`-deadlock`、`-continue`、`-difftrace`、`-workers <n|auto>`、`-depth <n>`、`-seed <n>`、`-coverage <n>`；`.cfg` 由请求的 `config` 字段给出（选项里的 `-config` 不被接受）。其他任何 java 调用一律拒绝。
 - **执行边界**：沿用 `verification_exec` 的规则（有 OS 沙箱时在其中运行，否则在临时 Git 工作区降级运行并明确标注），并使用同一超时与输出截断上限；TLC 的状态目录（`-metadir`）与 `java.io.tmpdir` 都指向私有 scratch 目录，仓库保持只读。
 - **缺少 TLC 时**：结果明确写「未做形式化验证，原因是缺少 TLC」，并给出上游的 no-verifier fallback——用生成式输入测试真实代码，而不是函数的手工模型。该 fallback 只能报告为生成式测试覆盖，**不能**算作 formal pass。
-- **状态与 CI**：能力探测结果由扩展的 `getTlcCapability()`（`detectTlc`）提供，`/setup-pstack status` 的 TLC 字段在共享入口接线后展示。CI 不安装 Java、也不提交 jar，真实 TLC 的可选测试会打印跳过原因（`SKIPPED real TLC: 未做形式化验证，原因是缺少 TLC ...`）；设置 `PSTACK_TLC_REQUIRE=1` 可让缺少 TLC 直接失败。需要真实运行的环境自行配置上述 jar，再执行 `node --test scripts/verification-exec.test.mjs`。
+- **状态与 CI**：`/setup-pstack status` 与 `/poteto-mode status` 的 `tlc` 字段展示 Java、jar 和 fallback 探测结果。用户配置位于 Pi agent 目录的 `pstack.json`，项目配置位于 `.pi/pstack.json`；可信项目的 jar 设置覆盖用户设置。CI 不安装 Java、也不提交 jar，真实 TLC 的可选测试会打印跳过原因（`SKIPPED real TLC: 未做形式化验证，原因是缺少 TLC ...`）；设置 `PSTACK_TLC_REQUIRE=1` 可让缺少 TLC 直接失败。需要真实运行的环境自行配置上述 jar，再执行 `node --test scripts/verification-exec.test.mjs`。
 
 上述获取与配置路径来自 TLA+ 官方发布说明和上游 `statechart` 技能脚本；本项目尚未在本机或 CI 完成一次真实 TLC 通过运行的验收（待验证）。
 

@@ -1528,17 +1528,17 @@
       "disposition": "ported",
       "phase": "P5",
       "destination": "skills/sharpen/SKILL.md",
-      "reason": "已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查",
+      "reason": "已适配；上游正文逐字保留，追加 Pi 只返回重写 prompt 的输出约束；见 validation-stage-b-batch-one.md",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],
-        "scope": "P5 resource checks plus generation and body-integrity checks"
+        "scope": "P5 resource checks plus live sharpen output acceptance"
       },
       "adaptation": {
-        "strategy": "inherit-body",
-        "override": null
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/sharpen/SKILL.md.template"
       },
-      "evidence": "validation-p1.md",
+      "evidence": "validation-stage-b-batch-one.md",
       "dependencies": []
     },
     {

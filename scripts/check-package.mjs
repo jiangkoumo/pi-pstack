@@ -109,7 +109,6 @@ const unchangedBodies = [
   'principle-separate-before-serializing-shared-state',
   'principle-subtract-before-you-add',
   'principle-type-system-discipline',
-  'sharpen',
   'technical-writing',
   'unslop',
 ];
@@ -119,11 +118,12 @@ const changedBodies = [
   'architect', 'arena', 'interrogate', 'no-comments', 'reflect', 'swarm', 'why',
   'how', 'poteto-help', 'figure-it-out', 'blast-radius', 'benchmark-checklist', 'teach',
   'show-me-your-work', 'create-verification-skill', 'maintain-verification-skill',
-  'recall', 'automate-me'
+  'recall', 'automate-me', 'sharpen'
 ];
 for (const skill of unchangedBodies) {
   assert.equal(await bodyOf(skill), upstreamBodies.get('pstack/skills/' + skill + '/SKILL.md'), 'Adaptation record says the body is unchanged: ' + skill);
 }
+assert((await bodyOf('sharpen')).startsWith(upstreamBodies.get('pstack/skills/sharpen/SKILL.md') + '\n\n'), 'sharpen must preserve the pinned upstream body before Pi additions');
 for (const skill of changedBodies) {
   assert.notEqual(await bodyOf(skill), upstreamBodies.get('pstack/skills/' + skill + '/SKILL.md'), 'Adaptation record says the body changed: ' + skill);
 }

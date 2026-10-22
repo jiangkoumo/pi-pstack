@@ -19,7 +19,8 @@ export async function readConfig(path) {
 export async function loadConfig(paths, trusted) {
   const user = await readConfig(paths.user);
   const project = trusted ? await readConfig(paths.project) : { version: 1, roles: {} };
-  return { version: 1, roles: { ...user.roles, ...project.roles }, projectIgnored: !trusted };
+  const tla = user.tla || project.tla ? { ...user.tla, ...project.tla } : undefined;
+  return { version: 1, roles: { ...user.roles, ...project.roles }, ...(tla ? { tla } : {}), projectIgnored: !trusted };
 }
 /**
  * @param {string} path

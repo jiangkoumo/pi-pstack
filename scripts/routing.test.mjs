@@ -108,7 +108,7 @@ test('poteto-mode names the restored recall, tdd, sharpen, correct and automate-
   assert.match(template, /之前的会话/);
   assert.match(template, /test-first/i);
   assert.match(template, /red \/ green \/ refactor/i);
-  assert.match(template, /sharpen, tighten, or rewrite a prompt/i);
+  assert.match(template, /sharpen, tighten, deepen, or rewrite a prompt/i);
   assert.match(template, /got it wrong, to correct it/i);
 });
 

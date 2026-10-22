@@ -15,3 +15,7 @@ I want a deeper version of this task, not a bigger one. Before rewriting it, do 
 Then rewrite my prompt to ask for exactly that.
 
 Leave choices that are mine to make open instead of deciding them.
+
+## Pi adaptation
+
+Use the four questions above as internal preparation. Return only the rewritten prompt, ready for the user to send. Do not prepend answers to the four questions, analysis, commentary, a greeting, or a separate “Rewritten prompt” heading. Preserve the user’s choices and keep the task deeper, not bigger.
