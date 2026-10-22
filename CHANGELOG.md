@@ -2,6 +2,13 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
+## 0.3.6
+
+- Add pre-completion self-check protocol to formal verification skill templates (`/create-formal-verification-skill` and `/maintain-formal-verification-skill`): requires all "Run it" commands in generated SKILL.md to be re-executed, output counts and conclusions to match skill description, complete Record section, and final report delivery.
+- Implement unified auto-continue and unfinished expression detection mechanism (`extensions/pstack/auto-continue.mjs`): inspects assistant messages for forward-looking unfinished intent (e.g. "Now let me...", "接下来要做...", uncompleted task lists) and automatically triggers continuation under `autoContinue` configuration with strict max turn limits.
+- Wire auto-continue lifecycle into `extensions/pstack/index.ts` and add full unit test suite `scripts/auto-continue.test.mjs` to `run-checks.mjs`.
+- Document verified TLC2 version recommendations and note upstream `statechart.test.mjs` test #55 sensitivity to TLC2 standard module extraction path formatting in `README.md` and `docs/validation-statechart-outputfolder.md`.
+
 ## 0.3.5
 
 - Pinned upstream pstack baseline to `eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10` (pstack 0.15.30).
