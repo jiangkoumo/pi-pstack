@@ -990,6 +990,29 @@ export async function parseTlcRequest(request, options = {}) {
 }
 
 /**
+ * Classify a TLC run from its output, not from its exit code alone. With
+ * `-continue` TLC exits 0 while reporting broken invariants, so a pass needs a
+ * positive `Model checking completed.` line and no other `Error:` line. This
+ * mirrors the upstream integrity check in the statechart helper.
+ */
+function classifyTlcOutput(executed) {
+  const output = `${executed.stdout}\n${executed.stderr}`;
+  const completed = /^Model checking completed\./m.test(output);
+  const violation = /Invariant \S+ is violated/.test(output);
+  const toolError = output
+    .split('\n')
+    .find(line => line.startsWith('Error: ') && !/^Error: (Invariant \S+ is violated|The behavior up to this point is)/.test(line)) ?? null;
+  const outcome = toolError
+    ? 'error'
+    : violation
+      ? 'invariant-violated'
+      : completed
+        ? (executed.exitCode === 0 ? 'passed' : 'error')
+        : 'incomplete';
+  return { outcome, completed, violation, toolError };
+}
+
+/**
  * Run TLC through the restricted entry. With no configured TLC this returns an
  * explicit `not-performed` result plus the generated-input fallback; it never
  * reports a formal pass.
@@ -1023,7 +1046,10 @@ export async function runTlcVerification(request, options = {}) {
   const executed = await executeWithinBoundary({
     command,
     category: 'tlc',
-    program: 'java',
+    // Run the same java binary the capability probe resolved. Re-resolving
+    // `java` through PATH could start a different interpreter than the one whose
+    // version was checked.
+    program: capability.java.path,
     cwd,
     sandbox: options.sandbox,
     timeoutMs: options.timeoutMs ?? DEFAULT_TLC_TIMEOUT_MS,
@@ -1057,16 +1083,17 @@ export async function runTlcVerification(request, options = {}) {
       fallback: executed.status === 'unavailable' ? tlcFallbackPlan(executed.reason) : null,
     };
   }
-  const output = `${executed.stdout}\n${executed.stderr}`;
-  const violated = /Invariant \S+ is violated|is violated\b/.test(output);
-  const outcome = executed.status === 'passed' ? 'passed' : violated ? 'invariant-violated' : 'error';
+  const classification = classifyTlcOutput(executed);
+  const status = executed.status === 'passed' && classification.outcome !== 'passed' ? 'failed' : executed.status;
   return {
     ...executed,
+    status,
     formalVerification: 'performed',
     capability,
     fallback: null,
     tlc: {
-      outcome,
+      ...classification,
+      java: capability.java.path,
       spec: parsed.spec.relative,
       config: parsed.config.relative,
       options: parsed.options,
@@ -1097,6 +1124,12 @@ export function renderTlcResult(result) {
   ];
   if (result.tlc.outcome !== 'passed') {
     lines.push('TLC did not pass. Report a counterexample or a TLC error as a finding in the code\'s terms; do not weaken the property or the model until it passes.');
+    if (result.exitCode === 0) {
+      lines.push('TLC exited 0, but its output is not a pass: a violated invariant (often with -continue), another TLC error, or no "Model checking completed." line. The exit code is kept as-is and must not be read as success.');
+    }
+    if (result.tlc.outcome === 'incomplete') {
+      lines.push('TLC stopped before "Model checking completed.", so its findings are incomplete and prove nothing; this is not a pass.');
+    }
   }
   lines.push(renderVerificationResult(result));
   return lines.join('\n');
@@ -1105,8 +1138,19 @@ export function renderTlcResult(result) {
 /**
  * Tool definition for a distinct TLC entry. The caller owns registration; the
  * module owns the whitelist, the jar identity and the fallback reporting.
+ *
+ * `loadConfig` is the explicit contract for pstack.json: the host injects an
+ * async callback that returns an already validated config, for example
+ * `() => readConfig(paths.project)` or a merged `loadConfig` result. It is read
+ * per execution, so a configuration edit applies without a restart. A callback
+ * that throws is reported as a refusal; a config problem must not be presented
+ * as "TLC is missing".
  */
-export function createTlcVerificationTool() {
+export function createTlcVerificationTool(options = {}) {
+  const { loadConfig } = options;
+  if (loadConfig !== undefined && typeof loadConfig !== 'function') {
+    throw new TypeError('createTlcVerificationTool: loadConfig must be a function that returns a validated pstack config');
+  }
   return {
     name: 'tlc_verify',
     label: 'TLC Verify',
@@ -1126,9 +1170,21 @@ export function createTlcVerificationTool() {
       additionalProperties: false,
     },
     async execute(_toolCallId, params, signal, _onUpdate, ctx) {
+      let config;
+      if (loadConfig) {
+        try {
+          config = await loadConfig();
+        } catch (error) {
+          const reason = `pstack.json could not be loaded, so the TLC entry did not run: ${firstLine(error)}`;
+          return {
+            content: [{ type: 'text', text: `REFUSED: ${reason}` }],
+            details: { ok: false, status: 'refused', formalVerification: 'not-performed', formalOutcome: null, exitCode: null, reason, fallback: null, warning: null },
+          };
+        }
+      }
       const result = await runTlcVerification(
         { spec: params?.spec, config: params?.config, options: params?.options },
-        { cwd: ctx?.cwd, signal },
+        { cwd: ctx?.cwd, signal, config },
       );
       return {
         content: [{ type: 'text', text: renderTlcResult(result) }],

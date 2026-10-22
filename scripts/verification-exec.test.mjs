@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:net';
-import { mkdir, mkdtemp, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, realpath, rename, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
@@ -467,15 +467,24 @@ const STUB_JAVA = [
   '  exit 0',
   'fi',
   'if [ -n "$PSTACK_STUB_TLC_SLEEP" ]; then sleep "$PSTACK_STUB_TLC_SLEEP"; fi',
+  'echo "STUB_JAVA_SELF: $0"',
   'echo "STUB_TLC_ARGS: $*"',
   'echo "TLC2 Version 2.19 of 2025"',
   'if [ -n "$PSTACK_STUB_TLC_NOISE" ]; then',
   '  i=0',
   '  while [ "$i" -lt "$PSTACK_STUB_TLC_NOISE" ]; do echo "TLC_TRACE_LINE_PADDING_PADDING_PADDING"; i=$((i+1)); done',
   'fi',
-  'if [ "${PSTACK_STUB_TLC_EXIT:-0}" != "0" ]; then',
+  'if [ "${PSTACK_STUB_TLC_TOOL_ERROR:-}" = "1" ]; then',
+  '  echo "Error: Parsing or semantic analysis failed."',
+  'fi',
+  'if [ "${PSTACK_STUB_TLC_VIOLATION:-}" = "1" ]; then',
   '  echo "Error: Invariant Safety is violated."',
+  'fi',
+  'if [ "${PSTACK_STUB_TLC_EXIT:-0}" != "0" ]; then',
   '  exit "$PSTACK_STUB_TLC_EXIT"',
+  'fi',
+  'if [ "${PSTACK_STUB_TLC_INCOMPLETE:-}" != "1" ]; then',
+  '  echo "Model checking completed. No error has been found."',
   'fi',
   'exit 0',
   '',
@@ -624,13 +633,20 @@ test('a simulated TLC run uses the configured jar and the whitelisted argv insid
   assert.equal(result.exitCode, 0);
   assert.equal(result.formalVerification, 'performed');
   assert.equal(result.tlc.outcome, 'passed');
+  assert.equal(result.tlc.completed, true);
+  assert.equal(result.tlc.toolError, null);
   assert.equal(result.tlc.jar, await realpath(jar));
+  assert.equal(result.tlc.java, await realpath(join(bin, 'java')));
   assert.ok(['os-sandbox', 'degraded-worktree'].includes(result.isolation), result.isolation);
   const rendered = renderTlcResult(result);
   assert.match(rendered, /^FORMAL VERIFICATION: performed \(TLC\)$/m);
   assert.match(rendered, /^FORMAL OUTCOME: passed$/m);
   const echoed = result.stdout.split('\n').find(line => line.startsWith('STUB_TLC_ARGS: '));
   assert.ok(echoed, result.stdout);
+  // The executed java must be the binary the capability probe checked, not a
+  // PATH lookup that could resolve elsewhere.
+  const self = result.stdout.split('\n').find(line => line.startsWith('STUB_JAVA_SELF: '));
+  assert.equal(self, `STUB_JAVA_SELF: ${await realpath(join(bin, 'java'))}`, result.stdout);
   assert.match(echoed, /-cleanup -workers 4 -config /);
   assert.match(echoed, /-metadir /);
   assert.match(echoed, /-Djava\.io\.tmpdir=/);
@@ -662,7 +678,7 @@ test('a simulated TLC invariant violation returns a non-zero exit and is never r
   const { dir, bin, jar } = await tlcFixture(t);
   const result = await runTlcVerification(
     { spec: 'spec.tla', config: 'spec.cfg' },
-    { cwd: dir, env: stubEnv(bin, { TLA2TOOLS_JAR: jar, PSTACK_STUB_TLC_EXIT: '12' }) },
+    { cwd: dir, env: stubEnv(bin, { TLA2TOOLS_JAR: jar, PSTACK_STUB_TLC_EXIT: '12', PSTACK_STUB_TLC_VIOLATION: '1' }) },
   );
   assert.equal(result.ok, true, result.reason);
   assert.equal(result.status, 'failed');
@@ -674,6 +690,69 @@ test('a simulated TLC invariant violation returns a non-zero exit and is never r
   assert.doesNotMatch(rendered, /^STATUS: passed$/m);
 });
 
+test('a -continue style exit 0 with a violated invariant is a failure, not a pass (simulated java)', async t => {
+  const { dir, bin, jar } = await tlcFixture(t);
+  const result = await runTlcVerification({ spec: 'spec.tla', config: 'spec.cfg' }, {
+    cwd: dir,
+    env: stubEnv(bin, { TLA2TOOLS_JAR: jar, PSTACK_STUB_TLC_VIOLATION: '1' }),
+  });
+  assert.equal(result.ok, true, result.reason);
+  assert.equal(result.exitCode, 0, 'the real exit code must be preserved');
+  assert.equal(result.status, 'failed');
+  assert.equal(result.tlc.outcome, 'invariant-violated');
+  assert.equal(result.tlc.completed, true);
+  const rendered = renderTlcResult(result);
+  assert.match(rendered, /^FORMAL OUTCOME: invariant-violated$/m);
+  assert.match(rendered, /^STATUS: failed$/m);
+  assert.match(rendered, /^EXIT CODE: 0$/m);
+  assert.match(rendered, /must not be read as success/);
+  assert.doesNotMatch(rendered, /^STATUS: passed$/m);
+});
+
+test('an exit 0 run with another TLC error or without completion is not a formal pass (simulated java)', async t => {
+  const { dir, bin, jar } = await tlcFixture(t);
+  const toolError = await runTlcVerification({ spec: 'spec.tla', config: 'spec.cfg' }, {
+    cwd: dir,
+    env: stubEnv(bin, { TLA2TOOLS_JAR: jar, PSTACK_STUB_TLC_TOOL_ERROR: '1' }),
+  });
+  assert.equal(toolError.ok, true, toolError.reason);
+  assert.equal(toolError.exitCode, 0);
+  assert.equal(toolError.status, 'failed');
+  assert.equal(toolError.tlc.outcome, 'error');
+  assert.match(toolError.tlc.toolError, /Parsing or semantic analysis failed/);
+  assert.doesNotMatch(renderTlcResult(toolError), /^STATUS: passed$/m);
+
+  const incomplete = await runTlcVerification({ spec: 'spec.tla', config: 'spec.cfg' }, {
+    cwd: dir,
+    env: stubEnv(bin, { TLA2TOOLS_JAR: jar, PSTACK_STUB_TLC_INCOMPLETE: '1' }),
+  });
+  assert.equal(incomplete.ok, true, incomplete.reason);
+  assert.equal(incomplete.exitCode, 0);
+  assert.equal(incomplete.status, 'failed');
+  assert.equal(incomplete.tlc.outcome, 'incomplete');
+  assert.equal(incomplete.tlc.completed, false);
+  const rendered = renderTlcResult(incomplete);
+  assert.match(rendered, /^FORMAL OUTCOME: incomplete$/m);
+  assert.match(rendered, /stopped before "Model checking completed\.", so its findings are incomplete/);
+  assert.doesNotMatch(rendered, /^STATUS: passed$/m);
+});
+
+test('the restricted TLC run starts the java binary the capability probe resolved, even through a symlink', async t => {
+  const { dir, bin, jar } = await tlcFixture(t);
+  const real = join(bin, 'java-real');
+  await rename(join(bin, 'java'), real);
+  await symlink(real, join(bin, 'java'));
+  const result = await runTlcVerification({ spec: 'spec.tla', config: 'spec.cfg' }, {
+    cwd: dir,
+    env: stubEnv(bin, { TLA2TOOLS_JAR: jar }),
+  });
+  assert.equal(result.ok, true, result.reason);
+  assert.equal(result.tlc.java, await realpath(real));
+  const self = result.stdout.split('\n').find(line => line.startsWith('STUB_JAVA_SELF: '));
+  assert.equal(self, `STUB_JAVA_SELF: ${await realpath(real)}`, result.stdout);
+  assert.notEqual(self, `STUB_JAVA_SELF: ${join(bin, 'java')}`);
+});
+
 test('TLC runs keep the shared timeout and output caps (simulated java)', async t => {
   const { dir, bin, jar } = await tlcFixture(t);
   const timedOut = await runTlcVerification(
@@ -683,7 +762,7 @@ test('TLC runs keep the shared timeout and output caps (simulated java)', async 
   assert.equal(timedOut.ok, true, timedOut.reason);
   assert.equal(timedOut.status, 'timed-out');
   assert.equal(timedOut.exitCode, null);
-  assert.equal(timedOut.tlc.outcome, 'error');
+  assert.equal(timedOut.tlc.outcome, 'incomplete');
   assert.match(renderTlcResult(timedOut), /killed after the timeout/);
 
   const capped = await runTlcVerification(
@@ -726,6 +805,7 @@ test('the TLC tool definition is a separate registration contract and reports th
   assert.deepEqual(definition.parameters.required, ['spec', 'config']);
   assert.equal(definition.parameters.additionalProperties, false);
   assert.equal(typeof definition.execute, 'function');
+  assert.throws(() => createTlcVerificationTool({ loadConfig: 'nope' }), /loadConfig must be a function/);
 
   const { dir } = await tlcFixture(t);
   const previous = process.env.TLA2TOOLS_JAR;
@@ -743,29 +823,71 @@ test('the TLC tool definition is a separate registration contract and reports th
   }
 });
 
+test('the TLC tool consumes an injected pstack.json loader per execution and reports a loader failure as a refusal', async t => {
+  const { dir } = await tlcFixture(t);
+  const previous = process.env.TLA2TOOLS_JAR;
+  const previousAlias = process.env.TLA2TOOLS;
+  delete process.env.TLA2TOOLS_JAR;
+  delete process.env.TLA2TOOLS;
+  try {
+    const configuredJar = join(dir, 'missing-tla2tools.jar');
+    let calls = 0;
+    const withConfig = createTlcVerificationTool({
+      loadConfig: async () => {
+        calls += 1;
+        return parseConfig({ version: 1, roles: {}, tla: { tla2toolsJar: configuredJar } });
+      },
+    });
+    const injected = await withConfig.execute('call-a', { spec: 'spec.tla', config: 'spec.cfg' }, undefined, undefined, { cwd: dir });
+    assert.equal(calls, 1);
+    assert.equal(injected.details.formalVerification, 'not-performed');
+    assert.match(injected.details.reason, /missing-tla2tools\.jar/);
+    assert.doesNotMatch(injected.details.reason, /no tla2tools\.jar is configured/);
+    await withConfig.execute('call-b', { spec: 'spec.tla', config: 'spec.cfg' }, undefined, undefined, { cwd: dir });
+    assert.equal(calls, 2, 'the loader must be read per execution');
+
+    const failing = createTlcVerificationTool({
+      loadConfig: async () => { throw new Error('roles.code.model: fuzzy is not available'); },
+    });
+    const failed = await failing.execute('call-c', { spec: 'spec.tla', config: 'spec.cfg' }, undefined, undefined, { cwd: dir });
+    assert.equal(failed.details.ok, false);
+    assert.equal(failed.details.status, 'refused');
+    assert.equal(failed.details.formalVerification, 'not-performed');
+    assert.match(failed.content[0].text, /^REFUSED: pstack\.json could not be loaded/m);
+    assert.doesNotMatch(failed.content[0].text, /TLC is missing|未做形式化验证/);
+  } finally {
+    if (previous !== undefined) process.env.TLA2TOOLS_JAR = previous;
+    if (previousAlias !== undefined) process.env.TLA2TOOLS = previousAlias;
+  }
+});
+
 test('a real TLC run on a minimal spec passes, and an invariant violation returns non-zero', async t => {
   const capability = await detectTlc();
   if (!capability.available) {
-    const reason = `SKIPPED real TLC: 未做形式化验证，原因是缺少 TLC (${capability.reason}). Set TLA2TOOLS_JAR to a tla2tools.jar with Java 11+ to run this test; this package never downloads it.`;
+    const reason = `real TLC did not run: 未做形式化验证，原因是缺少 TLC (${capability.reason}). Set TLA2TOOLS_JAR to a tla2tools.jar with Java 11+ to run this test; this package never downloads it.`;
     t.diagnostic(reason);
-    console.error(`\n[verification-exec] ${reason}\n`);
+    console.error(`\n[verification-exec] SKIPPED ${reason}\n`);
     if (process.env.PSTACK_TLC_REQUIRE === '1') assert.fail(reason);
+    t.skip(reason);
     return;
   }
   t.diagnostic(`real TLC available: java ${capability.java.version}, jar ${capability.jar.path}`);
+  // TLC requires the module name to match the file base name, so the files are
+  // Pass.tla / Fail.tla. Next always has a successor (an explicit stutter at the
+  // bound), so a pass proves the invariant and not the absence of a deadlock.
   const files = {
-    'pass.tla': ['---- MODULE Pass ----', 'EXTENDS Naturals', 'VARIABLE x', 'Init == x = 0', "Next == x < 5 /\\ x' = x + 1", 'Inv == x >= 0', '====', ''].join('\n'),
-    'pass.cfg': 'INIT Init\nNEXT Next\nINVARIANT Inv\n',
-    'fail.tla': ['---- MODULE Fail ----', 'EXTENDS Naturals', 'VARIABLE x', 'Init == x = 0', "Next == x < 5 /\\ x' = x + 1", 'Inv == x < 3', '====', ''].join('\n'),
-    'fail.cfg': 'INIT Init\nNEXT Next\nINVARIANT Inv\n',
+    'Pass.tla': ['---- MODULE Pass ----', 'EXTENDS Naturals', 'VARIABLE x', 'Init == x = 0', "Next == (x < 5 /\\ x' = x + 1) \\/ (x = 5 /\\ UNCHANGED x)", 'Inv == x >= 0', '====', ''].join('\n'),
+    'Pass.cfg': 'INIT Init\nNEXT Next\nINVARIANT Inv\n',
+    'Fail.tla': ['---- MODULE Fail ----', 'EXTENDS Naturals', 'VARIABLE x', 'Init == x = 0', "Next == (x < 5 /\\ x' = x + 1) \\/ (x = 5 /\\ UNCHANGED x)", 'Inv == x < 3', '====', ''].join('\n'),
+    'Fail.cfg': 'INIT Init\nNEXT Next\nINVARIANT Inv\n',
   };
   const dir = await gitFixture(t, files);
-  const passing = await runTlcVerification({ spec: 'pass.tla', config: 'pass.cfg', options: ['-cleanup'] }, { cwd: dir, capability });
+  const passing = await runTlcVerification({ spec: 'Pass.tla', config: 'Pass.cfg', options: ['-cleanup'] }, { cwd: dir, capability });
   assert.equal(passing.ok, true, passing.reason);
   assert.equal(passing.status, 'passed', `${passing.stdout}\n${passing.stderr}`);
   assert.equal(passing.tlc.outcome, 'passed');
 
-  const failing = await runTlcVerification({ spec: 'fail.tla', config: 'fail.cfg', options: ['-cleanup'] }, { cwd: dir, capability });
+  const failing = await runTlcVerification({ spec: 'Fail.tla', config: 'Fail.cfg', options: ['-cleanup'] }, { cwd: dir, capability });
   assert.equal(failing.ok, true, failing.reason);
   assert.notEqual(failing.exitCode, 0);
   assert.equal(failing.status, 'failed');
