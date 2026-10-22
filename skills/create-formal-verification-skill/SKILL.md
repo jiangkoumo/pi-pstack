@@ -67,4 +67,15 @@ Twice, on the real code the property guards, make a deliberate break — remove 
 
 Record the tool version and how it was resolved (jar path plus Java major version), the exact command and options, the sync commit — the commit at which you actually ran the check — and the bounds and assumptions the check relies on, including what is left out. Tell the next agent to move the sync commit forward only after it re-ran the check at the new commit and confirmed the verification still describes the code there. A skill that was never executed, or that has only ever seen a passing run, is a draft, and the handoff must say `draft` instead of reporting a verified property.
 
+### Completion self-check
+
+Before declaring this task complete or handing off, execute the completion self-check. The generation is not complete until every item below is satisfied:
+- Re-run every "Run it" command documented in the generated SKILL.md from the target repository. Confirm that all quantities, counts, and conclusions in the command output (such as step counts, state counts, distinct states, queue/member counts, and scenario totals) match the descriptions in SKILL.md exactly. Any discrepancy between execution output and the written skill must be reconciled before finishing.
+- The Record section in the generated skill must be fully written, specifying the tool version and resolution (jar path plus Java major version), exact command and options, sync commit, bounds, assumptions, and explicit exclusions of what is left out.
+- Deliver the final completion report covering:
+  1. The verified scope and target promise;
+  2. Concrete evidence of deliberate breakage: the two break-and-restore cycles on the real code, citing the modified code, the observed counterexample in code terms, and non-zero failing exit status;
+  3. What remains unverified or out of scope.
+All of these must be completed before the task counts as finished. A run ending at a draft, with unexecuted commands, mismatched quantities, an incomplete Record section, or without the final report is incomplete.
+
 Loading this skill grants no permission to commit, push, merge, deploy, delete, or send messages.

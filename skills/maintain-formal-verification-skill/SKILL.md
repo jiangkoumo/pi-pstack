@@ -80,4 +80,15 @@ Edit only the verification: the project verify skill, its models, harnesses and 
 
 After an update, rerun, then break the new real code once the way the property guards against, confirm the check fails with the counterexample in the code's words, and restore the break exactly so the tree carries nothing of it. Report that break, the command, and the exit status, because a check that passes on a new description may have lost the ability to fail. Record the new sync commit — the commit you actually re-ran at — plus the bounds and assumptions you kept or changed, and tell the reader what the verification still does not cover. Do not move the sync commit for a blocked check. Follow the verify skill once as the next agent would after updating it.
 
+### Completion self-check
+
+Before declaring maintenance complete, execute the completion self-check. Maintenance is not complete until every item below is satisfied:
+- Re-run every "Run it" command documented in the updated verify skill. Confirm that all quantities, counts, and conclusions in the command output (such as step counts, state counts, distinct states, queue/member counts, and scenario totals) match the descriptions in the verify skill exactly.
+- The Record section in the updated skill must be fully written, recording the tool version and resolution, exact command and options, the new sync commit, bounds, assumptions, and explicit exclusions of what remains unverified.
+- Deliver the final completion report covering:
+  1. The verified coverage and check outcome (in sync, updated, bug, or blocked);
+  2. Concrete evidence of deliberate breakage: the break-and-restore cycle showing the updated check can still fail, citing the modified code, observed counterexample in code terms, and non-zero failing exit status;
+  3. What remains unverified or out of scope.
+All of these must be completed before the maintenance task counts as finished. A run ending at a draft, with unexecuted commands, mismatched quantities, an incomplete Record section, or without the final report is incomplete.
+
 Loading this skill grants no permission to commit, push, merge, deploy, delete, or send messages; put verification updates in their own change, separate from any product fix. A run that never executed the entry is a draft, and the report must say so.
