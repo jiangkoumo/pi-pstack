@@ -882,12 +882,14 @@ test('a real TLC run on a minimal spec passes, and an invariant violation return
     'Fail.cfg': 'INIT Init\nNEXT Next\nINVARIANT Inv\n',
   };
   const dir = await gitFixture(t, files);
-  const passing = await runTlcVerification({ spec: 'Pass.tla', config: 'Pass.cfg', options: ['-cleanup'] }, { cwd: dir, capability });
+  const tlcOptions = ['-cleanup', '-noGenerateSpecTE', '-noGenerateSpecTEBin'];
+  const passing = await runTlcVerification({ spec: 'Pass.tla', config: 'Pass.cfg', options: tlcOptions }, { cwd: dir, capability });
   assert.equal(passing.ok, true, passing.reason);
   assert.equal(passing.status, 'passed', `${passing.stdout}\n${passing.stderr}`);
   assert.equal(passing.tlc.outcome, 'passed');
 
-  const failing = await runTlcVerification({ spec: 'Fail.tla', config: 'Fail.cfg', options: ['-cleanup'] }, { cwd: dir, capability });
+  const failing = await runTlcVerification({ spec: 'Fail.tla', config: 'Fail.cfg', options: tlcOptions }, { cwd: dir, capability });
+  t.diagnostic(JSON.stringify({ pass: { status: passing.status, exitCode: passing.exitCode, isolation: passing.isolation }, fail: { status: failing.status, exitCode: failing.exitCode, isolation: failing.isolation, outcome: failing.tlc?.outcome } }));
   assert.equal(failing.ok, true, failing.reason);
   assert.notEqual(failing.exitCode, 0);
   assert.equal(failing.status, 'failed');

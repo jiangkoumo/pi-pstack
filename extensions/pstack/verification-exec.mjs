@@ -64,7 +64,7 @@ export const TLC_MIN_JAVA_MAJOR = 11;
 export const DEFAULT_TLC_TIMEOUT_MS = DEFAULT_TIMEOUT_MS;
 export const TLC_MISSING_WARNING = 'FORMAL VERIFICATION NOT PERFORMED: 未做形式化验证，原因是缺少 TLC. Fall back to generated-input tests that run the real code (the upstream no-verifier rule), and do not report that fallback as a formal pass.';
 export const TLC_FALLBACK_RULE = 'Upstream no-verifier rule: when no verifier runs on this language, say so, and test the real code with generated inputs, not a hand model of the function.';
-const TLC_FLAG_OPTIONS = new Set(['-cleanup', '-nowarning', '-deadlock', '-continue', '-difftrace']);
+const TLC_FLAG_OPTIONS = new Set(['-cleanup', '-nowarning', '-deadlock', '-continue', '-difftrace', '-noGenerateSpecTE', '-noGenerateSpecTEBin']);
 const TLC_VALUE_OPTIONS = new Set(['-workers', '-depth', '-seed', '-coverage']);
 const TLC_SPEC_EXTENSION = '.tla';
 const TLC_CONFIG_EXTENSION = '.cfg';
@@ -1154,7 +1154,7 @@ export function createTlcVerificationTool(options = {}) {
   return {
     name: 'tlc_verify',
     label: 'TLC Verify',
-    description: 'Model-check a TLA+ spec with TLC using the operator-configured tla2tools.jar, a repository .tla file and a repository .cfg file. Accepts only whitelisted TLC options (-cleanup, -nowarning, -deadlock, -continue, -difftrace, -workers N|auto, -depth N, -seed N, -coverage N). Any other java invocation is refused. Without a configured jar and Java 11+ this returns an explicit "formal verification not performed" result with the generated-input fallback; a fallback is never a formal pass.',
+    description: 'Model-check a TLA+ spec with TLC using the operator-configured tla2tools.jar, a repository .tla file and a repository .cfg file. Accepts only whitelisted TLC options (-cleanup, -nowarning, -deadlock, -continue, -difftrace, -noGenerateSpecTE, -noGenerateSpecTEBin, -workers N|auto, -depth N, -seed N, -coverage N). Any other java invocation is refused. Without a configured jar and Java 11+ this returns an explicit "formal verification not performed" result with the generated-input fallback; a fallback is never a formal pass.',
     parameters: {
       type: 'object',
       properties: {

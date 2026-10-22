@@ -8,11 +8,11 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createAgentSession, DefaultResourceLoader, SessionManager, SettingsManager, ModelRuntime } from '@earendil-works/pi-coding-agent';
 import { disposeTestSession } from './test-session-lifecycle.mjs';
-import { detectSandbox } from '../extensions/pstack/verification-exec.mjs';
+import { detectSandbox, detectTlc } from '../extensions/pstack/verification-exec.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 
-async function runVerifierScenario({ isAsync }) {
+async function runVerifierScenario({ isAsync, tlcCapability }) {
   const requireSandbox = process.env.PSTACK_VERIFY_REQUIRE_SANDBOX === '1';
   if (requireSandbox) {
     const capability = await detectSandbox();
@@ -62,7 +62,16 @@ async function runVerifierScenario({ isAsync }) {
           call = { name: 'verification_exec', args: { command: 'git push' } };
         } else if (tools.length === 3) {
           assert.match(JSON.stringify(tools[2]), /REFUSED/);
-          call = { name: 'verification_exec', args: { command: 'tlc', spec: 'Spec.tla', config: 'Spec.cfg' } };
+          call = { name: 'verification_exec', args: { command: 'tlc', spec: 'Spec.tla', config: 'Spec.cfg', ...(tlcCapability ? { options: ['-cleanup', '-noGenerateSpecTE', '-noGenerateSpecTEBin'] } : {}) } };
+        } else if (tlcCapability && tools.length === 4) {
+          assert.match(JSON.stringify(tools[3]), /FORMAL OUTCOME: passed/);
+          assert.match(JSON.stringify(tools[3]), /EXIT CODE: 0/);
+          if (requireSandbox) assert.match(JSON.stringify(tools[3]), /ISOLATION: os-sandbox/);
+          call = { name: 'verification_exec', args: { command: 'tlc', spec: 'Spec.tla', config: 'Broken.cfg', options: ['-cleanup', '-noGenerateSpecTE', '-noGenerateSpecTEBin'] } };
+        } else if (tlcCapability) {
+          assert.match(JSON.stringify(tools[4]), /FORMAL OUTCOME: invariant-violated/);
+          assert.match(JSON.stringify(tools[4]), /EXIT CODE: 12/);
+          content = 'VERIFIER_EXIT_0: real TLC passed the good invariant and rejected the broken invariant with exit 12.';
         } else {
           assert.match(JSON.stringify(tools[3]), /未做形式化验证，原因是缺少 TLC/);
           assert.match(JSON.stringify(tools[3]), /generated-input tests/);
@@ -83,6 +92,11 @@ async function runVerifierScenario({ isAsync }) {
     await mkdir(cwd);
     await writeFile(resolve(cwd, 'package.json'), JSON.stringify({ name: 'verifier-child-fixture', version: '1.0.0', scripts: { test: 'node test.mjs' } }));
     await writeFile(resolve(cwd, 'test.mjs'), 'console.log("INDEPENDENT_FIXTURE_PASS");\n');
+    if (tlcCapability) {
+      await writeFile(resolve(cwd, 'Spec.tla'), "---- MODULE Spec ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == (x < 5 /\\ x' = x + 1) \\/ (x = 5 /\\ UNCHANGED x)\nGood == x >= 0\nBroken == x < 3\n====\n");
+      await writeFile(resolve(cwd, 'Spec.cfg'), 'INIT Init\nNEXT Next\nINVARIANT Good\n');
+      await writeFile(resolve(cwd, 'Broken.cfg'), 'INIT Init\nNEXT Next\nINVARIANT Broken\n');
+    }
     const git = args => execFileSync('git', args, { cwd, encoding: 'utf8' });
     git(['init', '-b', 'main']);
     git(['add', '-A']);
@@ -94,7 +108,7 @@ async function runVerifierScenario({ isAsync }) {
     await new Promise(done => server.listen(0, '127.0.0.1', done));
     const settings = { defaultProjectTrust: 'never', packages: [root], retry: { enabled: false }, compaction: { enabled: false }, subagents: { asyncByDefault: isAsync, intercomBridge: { mode: 'off' } } };
     await writeFile(resolve(agentDir, 'settings.json'), JSON.stringify(settings));
-    await writeFile(resolve(agentDir, 'pstack.json'), JSON.stringify({ version: 1, roles: { verification: { model: 'fixture/verifier', thinking: 'off' } }, tla: { tla2toolsJar: resolve(dir, 'missing-child-tla2tools.jar') } }));
+    await writeFile(resolve(agentDir, 'pstack.json'), JSON.stringify({ version: 1, roles: { verification: { model: 'fixture/verifier', thinking: 'off' } }, tla: { tla2toolsJar: tlcCapability?.jar.path ?? resolve(dir, 'missing-child-tla2tools.jar') } }));
     const modelsPath = resolve(agentDir, 'models.json');
     await writeFile(modelsPath, JSON.stringify({ providers: { fixture: { baseUrl: `http://127.0.0.1:${server.address().port}/v1`, api: 'openai-completions', apiKey: 'fixture-only', models: ['parent', 'verifier'].map(id => ({ id, name: id, reasoning: false, input: ['text'], contextWindow: 64000, maxTokens: 2048, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } })) } } }));
     const runtime = await ModelRuntime.create({ authPath: resolve(agentDir, 'auth.json'), modelsPath, allowModelNetwork: false });
@@ -112,7 +126,11 @@ async function runVerifierScenario({ isAsync }) {
     assert.deepEqual(errors, []);
     assert.match(session.getLastAssistantText(), /PARENT_VERIFIED/);
     const childRequests = requests.filter(x => !x.parent);
-    assert.equal(childRequests.length, 5);
+    assert.equal(childRequests.length, tlcCapability ? 6 : 5, `Child execution missing: ${JSON.stringify(requests.filter(x => x.parent).map(x => x.input.messages.filter(m => m.role === 'tool')))}`);
+    if (tlcCapability) {
+      assert.match(JSON.stringify(childRequests.at(-1).input.messages), /FORMAL OUTCOME: invariant-violated/);
+      assert.match(JSON.stringify(childRequests.at(-1).input.messages), /EXIT CODE: 12/);
+    }
     assert.match(JSON.stringify(childRequests.at(-1).input.messages), /INDEPENDENT_FIXTURE_PASS/);
     assert.match(JSON.stringify(childRequests.at(-1).input.messages), /EXIT CODE: 0/);
     await assert.rejects(readFile(resolve(cwd, 'mutation.txt')), { code: 'ENOENT' });
@@ -121,10 +139,42 @@ async function runVerifierScenario({ isAsync }) {
       server.closeAllConnections();
       if (server.listening) await new Promise(done => server.close(done));
       for (const [key, value] of Object.entries(previous)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; }
-      await rm(dir, { recursive: true, force: true });
+      if (process.env.PSTACK_KEEP_VERIFIER_FIXTURE === '1') console.error(`Verifier fixture: ${dir}`);
+      else await rm(dir, { recursive: true, force: true });
     }
   }
 }
 
 test('production pstack.verifier executes npm test and refuses write and push in a detached child', { timeout: 90000 }, () => runVerifierScenario({ isAsync: true }));
 test('production pstack.verifier executes npm test and refuses write and push in a foreground child', { timeout: 90000 }, () => runVerifierScenario({ isAsync: false }));
+
+for (const isAsync of [false, true]) {
+  test(`production verifier runs real TLC through verification_exec (${isAsync ? 'background' : 'foreground'})`, { timeout: 90000 }, async t => {
+    const tlcCapability = await detectTlc();
+    if (!tlcCapability.available) {
+      const reason = `Real child TLC not run: ${tlcCapability.reason}`;
+      t.diagnostic(reason);
+      if (process.env.PSTACK_TLC_REQUIRE === '1') assert.fail(reason);
+      t.skip(reason);
+      return;
+    }
+    if (process.env.PSTACK_REAL_TLC_CHILD_PROCESS === '1') {
+      await runVerifierScenario({ isAsync, tlcCapability });
+      return;
+    }
+    // Detached-run registries are process-scoped. Each real-TLC child scenario
+    // owns its host process, just as separate Pi sessions do in production.
+    const name = `production verifier runs real TLC through verification_exec (${isAsync ? 'background' : 'foreground'})`;
+    const childEnv = { ...process.env, PSTACK_REAL_TLC_CHILD_PROCESS: '1' };
+    delete childEnv.NODE_TEST_CONTEXT;
+    const output = execFileSync(process.execPath, ['--test', '--test-reporter=tap', `--test-name-pattern=^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, fileURLToPath(import.meta.url)], {
+      cwd: root,
+      env: childEnv,
+      encoding: 'utf8',
+      timeout: 60000,
+    });
+    assert.match(output, /# pass 1/);
+    assert.match(output, /# fail 0/);
+    t.diagnostic(`Real TLC child ${isAsync ? 'background' : 'foreground'}: pass=0, violated invariant=12`);
+  });
+}
