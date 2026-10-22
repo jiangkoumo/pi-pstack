@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { verifyPublicationCompletion } from './publication-gate.mjs';
+import { modeFromBranch } from './runtime.mjs';
+import { loadModeState, sessionModeStatePath } from './mode-state.mjs';
 
 export const AUTO_CONTINUE_ENTRY = 'pstack.auto_continue.v1';
 export const AUTO_CONTINUE_TURN_TYPE = 'pstack.auto_continue.turn.v1';
@@ -29,14 +31,27 @@ const FORWARD_CONTINUATION_PATTERNS = [
   /\bNext\s+step\s*:\s*[^\n.!?]*/i,
   /\b(?:I\s+will\s+now|I'll\s+now|let\s+me\s+now|let's\s+now)\b[^\n.!?]*/i,
   /\b(?:Let's\s+proceed\s+to|Proceeding\s+to|Moving\s+on\s+to|Continuing\s+(?:with|to))\b[^\n.!?]*/i,
+  /\b(?:Let\s+me|I\s+will|I'll|Let's|We\s+will|We'll)\s+(?:fix|add|update|implement|check|verify|run|write|rewrite|create|modify|test|investigate|handle|address|refactor|re-run|do|clean|resolve|complete|finish)\b[^\n.!?]*/i,
   /(?:接下来|下一步)(?:是|要|将|需要|开始|先|我们|来|做)[^\n，。！？]*/,
   /(?:现在|马上)(?:开始|来|进行|执行|写|修改|重写|更新|核对|验证|补齐|跑)[^\n，。！？]*/,
   /(?:还有(?:以下)?(?:未完成|待完成|剩余)(?:任务|步骤|工作)|未完成任务)[^\n，。！？]*/,
 ];
 
 const WAITING_CONTINUATION_PATTERNS = [
-  /(?:waiting for (?:continuation|next step|approval to proceed)|please (?:say|reply) ["']?continue["']?)/i,
+  /(?:waiting for (?:continuation|next step)|please (?:say|reply) ["']?continue["']?)/i,
   /(?:等待继续|请回复[“"']?继续[”"']?)/,
+];
+
+/**
+ * Patterns indicating user questions, waiting for approval, user decisions, or authorization gates.
+ * Auto-continue must NOT proceed when any of these are present.
+ */
+const USER_GATE_OR_QUESTION_PATTERNS = [
+  /[?？]/,
+  /\b(?:approve|approval|which)\b/i,
+  /(?:你决定|是否)/,
+  /(?:授权门|等待授权|待授权|需授权|申请授权|待确认|请确认|等(?:你|您)确认|等待确认|等待批准|请批准|需要批准|待批准|等待决定|请决定)/,
+  /(?:waiting\s+for\s+(?:approval|confirmation|permission|decision|input|response)|awaiting\s+(?:approval|confirmation|permission|decision)|need(?:s)?\s+(?:your\s+)?(?:approval|confirmation|decision)|approval\s+to\s+proceed|pending\s+(?:approval|confirmation))/i,
 ];
 
 /**
@@ -48,8 +63,13 @@ function stripCodeBlocks(text) {
     .replace(/`[^`\n]+`/g, '');
 }
 
+function isOptionalTask(task) {
+  return /(?:[\(\[（【]\s*(?:optional|可选)\s*[\)\]）】]|\boptional\b|\b可选\b)/i.test(task);
+}
+
 /**
  * Detect unchecked Markdown task list items: `- [ ] ...`, `* [ ] ...`, `1. [ ] ...`.
+ * Items marked as (optional) / [optional] are ignored and do not count as incomplete.
  */
 function extractUncheckedTasks(text) {
   const tasks = [];
@@ -57,7 +77,7 @@ function extractUncheckedTasks(text) {
   let match;
   while ((match = regex.exec(text)) !== null) {
     const task = match[1]?.trim();
-    if (task) tasks.push(task);
+    if (task && !isOptionalTask(task)) tasks.push(task);
   }
   return tasks;
 }
@@ -75,7 +95,17 @@ export function detectUnfinishedExpression(text) {
     return { incomplete: false, reason: '', uncheckedTasks: [] };
   }
 
-  // 1. Check for unchecked markdown task list items
+  const prose = stripCodeBlocks(raw);
+  const cleanProse = prose.replace(/\[([^\]]*)\]\([^)]+\)/g, '$1').replace(/https?:\/\/\S+/g, '');
+
+  // 1. Check for questions, approval requests, user decisions, or gate signals
+  for (const pattern of USER_GATE_OR_QUESTION_PATTERNS) {
+    if (pattern.test(cleanProse)) {
+      return { incomplete: false, reason: '', uncheckedTasks: [] };
+    }
+  }
+
+  // 2. Check for unchecked markdown task list items (optional items excluded)
   const uncheckedTasks = extractUncheckedTasks(raw);
   if (uncheckedTasks.length > 0) {
     const summary = uncheckedTasks.length === 1
@@ -89,11 +119,9 @@ export function detectUnfinishedExpression(text) {
     };
   }
 
-  const prose = stripCodeBlocks(raw);
-
-  // 2. Check for waiting/continuation request signals
+  // 3. Check for waiting/continuation request signals
   for (const pattern of WAITING_CONTINUATION_PATTERNS) {
-    const match = prose.match(pattern);
+    const match = cleanProse.match(pattern);
     if (match) {
       return {
         incomplete: true,
@@ -104,9 +132,9 @@ export function detectUnfinishedExpression(text) {
     }
   }
 
-  // 3. Check for forward-looking continuation phrases
+  // 4. Check for forward-looking continuation phrases
   for (const pattern of FORWARD_CONTINUATION_PATTERNS) {
-    const match = prose.match(pattern);
+    const match = cleanProse.match(pattern);
     if (match) {
       return {
         incomplete: true,
@@ -402,24 +430,37 @@ export async function evaluateCompletion(type, options = {}) {
  * Parse and validate autoContinue configuration with bounds.
  *
  * @param {boolean | object | undefined | null} config
+ * @param {{ potetoMode?: boolean } | boolean} [options]
  * @returns {{ enabled: boolean, maxTurns: number }}
  */
-export function parseAutoContinueConfig(config) {
-  let enabled = true;
+export function parseAutoContinueConfig(config, options = {}) {
+  const potetoMode = typeof options === 'boolean'
+    ? options
+    : Boolean(options?.potetoMode ?? (typeof config === 'object' && config !== null ? config.potetoMode : false));
+
+  let enabled = false;
   let maxTurns = DEFAULT_MAX_AUTO_CONTINUE_TURNS;
+  let explicitEnabled = false;
 
   if (config === false) {
     enabled = false;
-  } else if (config === true || config === undefined || config === null) {
+    explicitEnabled = true;
+  } else if (config === true) {
     enabled = true;
-  } else if (typeof config === 'object') {
+    explicitEnabled = true;
+  } else if (typeof config === 'object' && config !== null) {
     const target = config.autoContinue !== undefined ? config.autoContinue : config;
     if (target === false) {
       enabled = false;
+      explicitEnabled = true;
     } else if (target === true) {
       enabled = true;
+      explicitEnabled = true;
     } else if (typeof target === 'object' && target !== null) {
-      if (typeof target.enabled === 'boolean') enabled = target.enabled;
+      if (typeof target.enabled === 'boolean') {
+        enabled = target.enabled;
+        explicitEnabled = true;
+      }
       if (target.maxTurns !== undefined) {
         const n = Number(target.maxTurns);
         if (Number.isInteger(n)) {
@@ -428,7 +469,59 @@ export function parseAutoContinueConfig(config) {
       }
     }
   }
+
+  // If not explicitly configured, default to enabled ONLY in sessions where poteto-mode is active
+  if (!explicitEnabled) {
+    enabled = potetoMode;
+  }
+
   return { enabled, maxTurns };
+}
+
+/**
+ * Determine whether poteto-mode is active on the given branch or session context.
+ */
+export async function isPotetoModeEnabled(options = {}) {
+  const { branch, ctx } = options;
+
+  if (ctx) {
+    try {
+      const sessionFile = ctx.sessionManager?.getSessionFile?.();
+      if (sessionFile) {
+        const persisted = loadModeState(`${sessionFile}.pstack-mode.json`);
+        if (persisted.enabled) return true;
+      }
+    } catch {}
+
+    try {
+      const sessionId = ctx.sessionManager?.getSessionId?.();
+      if (sessionId) {
+        let agentDir = process.env.PI_CODING_AGENT_DIR;
+        if (!agentDir) {
+          try {
+            const piAgent = await import('@earendil-works/pi-coding-agent');
+            if (typeof piAgent.getAgentDir === 'function') {
+              agentDir = piAgent.getAgentDir();
+            }
+          } catch {}
+        }
+        if (agentDir) {
+          const persisted = loadModeState(sessionModeStatePath(agentDir, sessionId));
+          if (persisted.enabled) return true;
+        }
+      }
+    } catch {}
+  }
+
+  const b = branch || (ctx?.sessionManager?.getBranch?.());
+  if (Array.isArray(b)) {
+    try {
+      const mode = modeFromBranch(b);
+      if (mode.explicit) return mode.enabled;
+    } catch {}
+  }
+
+  return false;
 }
 
 /**
@@ -451,22 +544,48 @@ export function createInitialAutoContinueState(options = {}) {
 
 /**
  * Reconstruct auto-continue state from branch entries.
+ * Resets state when a new user message has arrived since the last auto-continue entry.
  */
 export function autoContinueFromBranch(entries) {
   if (!Array.isArray(entries)) return { active: false, state: null };
 
-  for (const entry of [...entries].reverse()) {
-    if (entry.type !== 'custom' || entry.customType !== AUTO_CONTINUE_ENTRY) continue;
-    const data = entry.data;
-    if (!data || data.version !== 1 || typeof data.runId !== 'string' || typeof data.status !== 'string') {
-      throw new Error('Unsupported or malformed pstack auto_continue entry on active branch');
+  let lastAutoContinueIdx = -1;
+  let lastData = null;
+
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const entry = entries[i];
+    if (entry?.type === 'custom' && entry?.customType === AUTO_CONTINUE_ENTRY) {
+      const data = entry.data;
+      if (!data || data.version !== 1 || typeof data.runId !== 'string' || typeof data.status !== 'string') {
+        throw new Error('Unsupported or malformed pstack auto_continue entry on active branch');
+      }
+      lastAutoContinueIdx = i;
+      lastData = data;
+      break;
     }
-    return {
-      active: data.status === 'running',
-      state: data,
-    };
   }
-  return { active: false, state: null };
+
+  if (!lastData) {
+    return { active: false, state: null };
+  }
+
+  // Check if a new user message arrived after the last auto_continue entry
+  const hasNewUserMessage = entries.slice(lastAutoContinueIdx + 1).some(entry => {
+    if (!entry) return false;
+    if (entry.type === 'message' && entry.message?.role === 'user') return true;
+    if (entry.role === 'user') return true;
+    if (entry.type === 'user_message') return true;
+    return false;
+  });
+
+  if (hasNewUserMessage) {
+    return { active: false, state: null, reset: true };
+  }
+
+  return {
+    active: lastData.status === 'running',
+    state: lastData,
+  };
 }
 
 /**
@@ -476,14 +595,29 @@ export function autoContinueFromBranch(entries) {
  * @param {object} [params.state] - Current auto-continue state.
  * @param {string} [params.assistantText] - Last assistant message text.
  * @param {object} [params.config] - Raw or parsed configuration.
+ * @param {boolean} [params.potetoMode] - Whether poteto-mode is active.
+ * @param {Array} [params.branch] - Active session branch entries.
+ * @param {boolean} [params.newUserMessage] - Explicit signal that a new user message arrived.
+ * @param {boolean} [params.resetState] - Explicit signal to reset state.
  * @param {'completed' | 'aborted' | 'error'} [params.outcome] - Run outcome.
  * @param {object} [params.completionResult] - Result from an evaluated completion check.
  * @returns {{ action: 'continue' | 'stop', nextState: object, prompt?: string, reason?: string, missing?: string[] }}
  */
 export function decideAutoContinueStep(params = {}) {
   const now = new Date().toISOString();
-  const config = parseAutoContinueConfig(params.config);
-  const state = params.state ? { ...params.state } : createInitialAutoContinueState({ maxTurns: config.maxTurns });
+  let potetoMode = Boolean(params.potetoMode);
+  if (params.potetoMode === undefined && Array.isArray(params.branch)) {
+    try {
+      const mode = modeFromBranch(params.branch);
+      if (mode.explicit) potetoMode = mode.enabled;
+    } catch {}
+  }
+
+  const config = parseAutoContinueConfig(params.config, { potetoMode });
+  let state = params.state ? { ...params.state } : createInitialAutoContinueState({ maxTurns: config.maxTurns });
+  if (params.newUserMessage || params.resetState) {
+    state = createInitialAutoContinueState({ maxTurns: config.maxTurns });
+  }
 
   // 1. Host outcome flags
   if (params.outcome === 'aborted') {
@@ -518,6 +652,20 @@ export function decideAutoContinueStep(params = {}) {
       action: 'stop',
       nextState: { ...state, status: 'stopped', reason: 'max-turns-reached', updatedAt: now },
     };
+  }
+
+  // 5. Block on user question, approval, decision or authorization gates in assistantText
+  if (params.assistantText) {
+    const prose = stripCodeBlocks(params.assistantText);
+    const cleanProse = prose.replace(/\[([^\]]*)\]\([^)]+\)/g, '$1').replace(/https?:\/\/\S+/g, '');
+    for (const pattern of USER_GATE_OR_QUESTION_PATTERNS) {
+      if (pattern.test(cleanProse)) {
+        return {
+          action: 'stop',
+          nextState: { ...state, status: 'completed', reason: 'waiting-user-decision', updatedAt: now },
+        };
+      }
+    }
   }
 
   // 5. Completion checks and expression detection
@@ -596,6 +744,7 @@ export function renderAutoContinuePrompt(options = {}) {
     }
   }
   parts.push('Please continue to complete all remaining tasks, perform the completion self-check, and deliver the final report.');
+  parts.push('不要越过任何待用户确认的授权门；如果上一条是在等用户，就原样停下。');
   return parts.join('\n');
 }
 
@@ -648,7 +797,10 @@ export function registerAutoContinue(pi, { loadConfig = () => ({}), evaluateComp
     const hasRunningLoop = branch.some(e => e?.customType === 'pstack.loop.v1' && e?.data?.status === 'running');
     if (hasRunningLoop) return;
 
-    const { state: branchState } = autoContinueFromBranch(branch);
+    const potetoMode = await isPotetoModeEnabled({ branch, ctx });
+
+    const allEntries = [...branch, ...(event.entries ?? [])];
+    const { state: branchState } = autoContinueFromBranch(allEntries);
 
     const assistantText = extractLastAssistantText(event.entries) || extractLastAssistantText(branch);
 
@@ -665,6 +817,7 @@ export function registerAutoContinue(pi, { loadConfig = () => ({}), evaluateComp
       state: branchState,
       assistantText,
       config,
+      potetoMode,
       outcome: event.outcome,
       completionResult,
     });

@@ -386,15 +386,28 @@ test('custom completion checker registration and dispatch', async () => {
 });
 
 test('parseAutoContinueConfig parses boolean, object, and clamps turn limits', () => {
-  assert.deepEqual(parseAutoContinueConfig(undefined), { enabled: true, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
-  assert.deepEqual(parseAutoContinueConfig(null), { enabled: true, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
+  // Default is disabled when poteto-mode is not active
+  assert.deepEqual(parseAutoContinueConfig(undefined), { enabled: false, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
+  assert.deepEqual(parseAutoContinueConfig(null), { enabled: false, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
+  assert.deepEqual(parseAutoContinueConfig({}), { enabled: false, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
+
+  // When poteto-mode is active, defaults to enabled
+  assert.deepEqual(parseAutoContinueConfig(undefined, { potetoMode: true }), { enabled: true, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
+  assert.deepEqual(parseAutoContinueConfig({}, { potetoMode: true }), { enabled: true, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
+  assert.deepEqual(parseAutoContinueConfig({ autoContinue: { maxTurns: 5 } }, { potetoMode: true }), { enabled: true, maxTurns: 5 });
+  assert.deepEqual(parseAutoContinueConfig({ autoContinue: { maxTurns: 5 } }, { potetoMode: false }), { enabled: false, maxTurns: 5 });
+
+  // Explicit boolean overrides
   assert.deepEqual(parseAutoContinueConfig(true), { enabled: true, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
   assert.deepEqual(parseAutoContinueConfig(false), { enabled: false, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
 
+  // Explicit object configuration in pstack.json
   assert.deepEqual(parseAutoContinueConfig({ autoContinue: false }), { enabled: false, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
   assert.deepEqual(parseAutoContinueConfig({ autoContinue: true }), { enabled: true, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
   assert.deepEqual(parseAutoContinueConfig({ autoContinue: { enabled: false } }), { enabled: false, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
   assert.deepEqual(parseAutoContinueConfig({ autoContinue: { enabled: true, maxTurns: 5 } }), { enabled: true, maxTurns: 5 });
+  assert.deepEqual(parseAutoContinueConfig({ autoContinue: true }, { potetoMode: false }), { enabled: true, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
+  assert.deepEqual(parseAutoContinueConfig({ autoContinue: false }, { potetoMode: true }), { enabled: false, maxTurns: DEFAULT_MAX_AUTO_CONTINUE_TURNS });
 
   // Clamp maxTurns bounds [MIN_AUTO_CONTINUE_TURNS, MAX_AUTO_CONTINUE_TURNS]
   assert.equal(parseAutoContinueConfig({ autoContinue: { maxTurns: 0 } }).maxTurns, MIN_AUTO_CONTINUE_TURNS);
@@ -536,4 +549,289 @@ test('registerAutoContinue integrates with Pi lifecycle (before_settle and settl
   handlers.get('agent_settled')({ aborted: true }, ctx);
   const lastEntry = branch.at(-1);
   assert.equal(lastEntry.data.status, 'interrupted');
+});
+
+test('detectUnfinishedExpression handles the 6 regression cases (5 blocked/completed + 1 incomplete)', () => {
+  // 1. 问句 (contains ? or ？)
+  const qEn = 'Should I proceed with running the tests now?';
+  const qZh = '请问接下来需要我修改代码吗？';
+  assert.equal(detectUnfinishedExpression(qEn).incomplete, false, 'English question should not be incomplete');
+  assert.equal(detectUnfinishedExpression(qZh).incomplete, false, 'Chinese question should not be incomplete');
+
+  // 2. 请求批准 (approval to proceed / waiting for approval)
+  const app1 = 'Waiting for approval to proceed.';
+  const app2 = 'I need your approval to proceed with the release.';
+  assert.equal(detectUnfinishedExpression(app1).incomplete, false, 'Approval request should not trigger continuation');
+  assert.equal(detectUnfinishedExpression(app2).incomplete, false, 'Approval request should not trigger continuation');
+
+  // 3. 多选提问 (which)
+  const whichCase = 'Which option should we choose for the database migration: Option A or Option B';
+  assert.equal(detectUnfinishedExpression(whichCase).incomplete, false, 'Multiple choice question with which should not continue');
+
+  // 4. 询问用户决定 (你决定 / 是否)
+  const decisionZh1 = '由你决定接下来是否继续执行测试。';
+  const decisionZh2 = '请确认是否批准该重构方案。';
+  assert.equal(detectUnfinishedExpression(decisionZh1).incomplete, false, 'User decision prompt with 你决定/是否 should not continue');
+  assert.equal(detectUnfinishedExpression(decisionZh2).incomplete, false, 'Confirmation prompt with 是否 should not continue');
+
+  // 5. 仅含 (optional) / [optional] 未勾选项的任务总结
+  const optionalSummary = `
+## Final Task Summary
+All core features delivered and verified:
+- [x] Implemented core logic
+- [ ] (optional) Add benchmark tests
+- [ ] [optional] Clean up extra logs
+`;
+  const optRes = detectUnfinishedExpression(optionalSummary);
+  assert.equal(optRes.incomplete, false, 'Task summary with only optional unchecked tasks should not continue');
+  assert.equal(optRes.uncheckedTasks.length, 0);
+
+  // 6. 漏判修复用例: "Let me fix those and add the missing timer updates." (应判为 incomplete: true)
+  const missedCase = 'Let me fix those and add the missing timer updates.';
+  const missedRes = detectUnfinishedExpression(missedCase);
+  assert.equal(missedRes.incomplete, true, 'Forward-looking intent starting with Let me fix must be detected');
+  assert.match(missedRes.reason, /Let me fix those/i);
+});
+
+test('decideAutoContinueStep blocks on user questions, approvals, decisions, and authorization gates', () => {
+  const config = { enabled: true, maxTurns: 3 };
+
+  // 1. Question mark blocks
+  const d1 = decideAutoContinueStep({
+    config,
+    assistantText: 'Next, I will run the test suite. Would you like me to start now?',
+  });
+  assert.equal(d1.action, 'stop');
+  assert.equal(d1.nextState.status, 'completed');
+  assert.match(d1.nextState.reason, /waiting-user-decision/);
+
+  // 2. Waiting for approval blocks
+  const d2 = decideAutoContinueStep({
+    config,
+    assistantText: 'Waiting for approval to proceed.',
+  });
+  assert.equal(d2.action, 'stop');
+  assert.equal(d2.nextState.status, 'completed');
+  assert.match(d2.nextState.reason, /waiting-user-decision/);
+
+  // 3. Which question blocks
+  const d3 = decideAutoContinueStep({
+    config,
+    assistantText: 'Which branch should we merge into main?',
+  });
+  assert.equal(d3.action, 'stop');
+  assert.equal(d3.nextState.status, 'completed');
+
+  // 4. 你决定 / 是否 blocks
+  const d4 = decideAutoContinueStep({
+    config,
+    assistantText: '由你决定接下来是否继续跑测试。',
+  });
+  assert.equal(d4.action, 'stop');
+  assert.equal(d4.nextState.status, 'completed');
+
+  // 5. 授权门 keywords block
+  const d5 = decideAutoContinueStep({
+    config,
+    assistantText: '触碰授权门，等待确认。',
+  });
+  assert.equal(d5.action, 'stop');
+  assert.equal(d5.nextState.status, 'completed');
+
+  // 6. Optional tasks only -> stops
+  const d6 = decideAutoContinueStep({
+    config,
+    assistantText: `
+Summary:
+- [x] Core complete
+- [ ] (optional) Stress test
+`,
+  });
+  assert.equal(d6.action, 'stop');
+  assert.equal(d6.nextState.status, 'completed');
+
+  // 7. Legitimate forward intent continues
+  const d7 = decideAutoContinueStep({
+    config,
+    assistantText: 'Let me fix those and add the missing timer updates.',
+  });
+  assert.equal(d7.action, 'continue');
+  assert.equal(d7.nextState.turn, 2);
+});
+
+test('renderAutoContinuePrompt appends authorization gate caution sentence', () => {
+  const prompt = renderAutoContinuePrompt({
+    turn: 2,
+    maxTurns: 3,
+    reason: 'incomplete task intent',
+    missing: ['unit tests'],
+  });
+  assert.ok(prompt.includes('不要越过任何待用户确认的授权门；如果上一条是在等用户，就原样停下。'));
+  assert.ok(prompt.includes('[pstack auto-continue turn 2/3]'));
+  assert.ok(prompt.includes('- unit tests'));
+});
+
+test('decideAutoContinueStep respects poteto-mode session scope and config override', () => {
+  // 1. By default with empty config and poteto-mode not active -> disabled
+  const d1 = decideAutoContinueStep({
+    assistantText: 'Let me fix those and add the missing timer updates.',
+  });
+  assert.equal(d1.action, 'stop');
+  assert.equal(d1.nextState.reason, 'auto-continue-disabled');
+
+  // 2. Active poteto-mode on branch -> enabled
+  const branchWithModeOn = [
+    { type: 'custom', customType: 'pstack.mode.v1', data: { version: 1, enabled: true } },
+  ];
+  const d2 = decideAutoContinueStep({
+    branch: branchWithModeOn,
+    assistantText: 'Let me fix those and add the missing timer updates.',
+  });
+  assert.equal(d2.action, 'continue');
+  assert.equal(d2.nextState.turn, 2);
+
+  // 3. Inactive poteto-mode on branch -> disabled
+  const branchWithModeOff = [
+    { type: 'custom', customType: 'pstack.mode.v1', data: { version: 1, enabled: false } },
+  ];
+  const d3 = decideAutoContinueStep({
+    branch: branchWithModeOff,
+    assistantText: 'Let me fix those and add the missing timer updates.',
+  });
+  assert.equal(d3.action, 'stop');
+  assert.equal(d3.nextState.reason, 'auto-continue-disabled');
+
+  // 4. Explicit autoContinue: true in config enables even when poteto-mode is off
+  const d4 = decideAutoContinueStep({
+    config: { autoContinue: true },
+    branch: branchWithModeOff,
+    assistantText: 'Let me fix those and add the missing timer updates.',
+  });
+  assert.equal(d4.action, 'continue');
+
+  // 5. Explicit autoContinue: false in config disables even when poteto-mode is on
+  const d5 = decideAutoContinueStep({
+    config: { autoContinue: false },
+    branch: branchWithModeOn,
+    assistantText: 'Let me fix those and add the missing timer updates.',
+  });
+  assert.equal(d5.action, 'stop');
+  assert.equal(d5.nextState.reason, 'auto-continue-disabled');
+});
+
+test('autoContinueFromBranch and decideAutoContinueStep reset state and turns on new user messages', () => {
+  const completedState = {
+    version: 1,
+    runId: 'run-1',
+    status: 'completed',
+    turn: 2,
+    maxTurns: 3,
+    reason: 'completed',
+    startedAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:10.000Z',
+  };
+
+  // Branch where the completed entry is the latest -> no new user message -> not active, returns old state
+  const branch1 = [
+    { type: 'message', message: { role: 'user', content: 'initial command' } },
+    { type: 'custom', customType: AUTO_CONTINUE_ENTRY, data: completedState },
+  ];
+  const r1 = autoContinueFromBranch(branch1);
+  assert.equal(r1.active, false);
+  assert.equal(r1.state.status, 'completed');
+
+  // Branch where a NEW user message arrived after completed -> state is reset (returns null state)
+  const branch2 = [
+    ...branch1,
+    { type: 'message', message: { role: 'user', content: 'new command from user' } },
+  ];
+  const r2 = autoContinueFromBranch(branch2);
+  assert.equal(r2.active, false);
+  assert.equal(r2.state, null, 'State should be null (reset) when a new user message arrives');
+  assert.equal(r2.reset, true);
+
+  // If previous state reached max turns (stopped), a new user message also resets it
+  const stoppedState = { ...completedState, status: 'stopped', turn: 3, reason: 'max-turns-reached' };
+  const branch3 = [
+    { type: 'custom', customType: AUTO_CONTINUE_ENTRY, data: stoppedState },
+    { type: 'message', message: { role: 'user', content: 'another command' } },
+  ];
+  const r3 = autoContinueFromBranch(branch3);
+  assert.equal(r3.state, null, 'State should be reset when new user message follows stopped state');
+
+  // In decideAutoContinueStep, starting from reset state allows continuation again
+  const d = decideAutoContinueStep({
+    state: r2.state,
+    config: { enabled: true, maxTurns: 3 },
+    assistantText: 'Let me fix those and add the missing timer updates.',
+  });
+  assert.equal(d.action, 'continue');
+  assert.equal(d.nextState.turn, 2);
+  assert.notEqual(d.nextState.runId, completedState.runId);
+
+  // Direct newUserMessage flag also resets state
+  const dDirect = decideAutoContinueStep({
+    state: completedState,
+    newUserMessage: true,
+    config: { enabled: true, maxTurns: 3 },
+    assistantText: 'Let me fix those and add the missing timer updates.',
+  });
+  assert.equal(dDirect.action, 'continue');
+  assert.equal(dDirect.nextState.turn, 2);
+});
+
+test('registerAutoContinue resets auto-continue state across multiple user messages in a session', async () => {
+  const handlers = new Map();
+  const branch = [];
+  const pi = {
+    on: (evt, fn) => { handlers.set(evt, fn); return () => handlers.delete(evt); },
+    appendEntry: (customType, data) => branch.push({ type: 'custom', customType, data }),
+  };
+
+  registerAutoContinue(pi, {
+    loadConfig: () => ({ autoContinue: { enabled: true, maxTurns: 2 } }),
+  });
+
+  const ctx = {
+    sessionManager: { getBranch: () => branch },
+  };
+
+  // Turn 1 of User Request A:
+  branch.push({ type: 'message', message: { role: 'user', content: 'Task A' } });
+  const event1 = {
+    outcome: 'completed',
+    entries: [
+      { type: 'message', message: { role: 'assistant', content: 'Now let me implement Task A.' } },
+    ],
+  };
+  const res1 = await handlers.get('agent_before_settle')(event1, ctx);
+  assert.equal(res1.continue, true);
+  branch.push(...res1.entries);
+
+  // Turn 2 of User Request A: completes cleanly
+  const event2 = {
+    outcome: 'completed',
+    entries: [
+      { type: 'message', message: { role: 'assistant', content: 'Task A implementation complete and verified.' } },
+    ],
+  };
+  const res2 = await handlers.get('agent_before_settle')(event2, ctx);
+  assert.equal(res2.continue, false);
+  branch.push(...res2.entries); // Branch now contains completed AUTO_CONTINUE_ENTRY
+
+  // Now, user issues a NEW request (Task B)
+  branch.push({ type: 'message', message: { role: 'user', content: 'Task B' } });
+  const event3 = {
+    outcome: 'completed',
+    entries: [
+      { type: 'message', message: { role: 'assistant', content: 'Let me fix those and add the missing timer updates.' } },
+    ],
+  };
+
+  // Turn 1 of User Request B should NOT be blocked by Task A's completed state:
+  const res3 = await handlers.get('agent_before_settle')(event3, ctx);
+  assert.equal(res3.continue, true, 'New user message must trigger auto-continue and not be stuck in completed');
+  const newAutoEntry = res3.entries.find(e => e.customType === AUTO_CONTINUE_ENTRY);
+  assert.equal(newAutoEntry.data.turn, 2);
+  assert.equal(newAutoEntry.data.status, 'running');
 });
