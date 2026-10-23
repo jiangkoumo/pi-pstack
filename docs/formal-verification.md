@@ -23,7 +23,7 @@ TLA+ 模型检查（TLC）是可选能力：本包不打包、也不自动下载
 - **CI 与默认环境**：CI 默认未安装 Java 和 TLC，所有需要 TLC 的用例在无 jar 环境下均优雅跳过（skip，退出码 0），CI 门禁与默认 `npm test` 完全不受影响。
 - **上游反馈背景**：本项目严格遵守上游代码逐字移植约束（严禁私自修改上游测试和实现），该断言敏感性已如实记录，可作为 issue 向上游（cursor/plugins）反馈以改进测试断言兼容性。
 
-版本、校验值、测试敏感性与命令详见 [真实 TLC 验收](docs/validation-stage-b-tlc.md) 与 [statechart 出图与测试验收](docs/validation-statechart-outputfolder.md)。
+版本、校验值、测试敏感性与命令详见 [真实 TLC 验收](validation-stage-b-tlc.md) 与 [statechart 出图与测试验收](validation-statechart-outputfolder.md)。
 
 ## 完成门与续跑预算
 
