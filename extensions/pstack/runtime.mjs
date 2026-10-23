@@ -40,7 +40,7 @@ export function roleGuidance(roles) {
 export function parseConfig(value, source = 'pstack.json') {
   const fail = message => { throw new Error(`${source}: ${message}`); };
   if (!value || typeof value !== 'object' || Array.isArray(value)) fail('expected an object');
-  for (const key of Object.keys(value)) if (!['version', 'roles', 'tla'].includes(key)) fail(`unknown field ${key}`);
+  for (const key of Object.keys(value)) if (!['version', 'roles', 'tla', 'autoContinue'].includes(key)) fail(`unknown field ${key}`);
   if (value.version !== 1) fail('version must be 1');
   if (!value.roles || typeof value.roles !== 'object' || Array.isArray(value.roles)) fail('roles must be an object');
   /** @type {Record<string, RoleChoice>} */
@@ -53,7 +53,19 @@ export function parseConfig(value, source = 'pstack.json') {
     if (choice.thinking !== undefined && !THINKING.includes(choice.thinking)) fail(`roles.${name}.thinking: unknown thinking level`);
     roles[name] = { model: choice.model, ...(choice.thinking === undefined ? {} : { thinking: choice.thinking }) };
   }
-  if (value.tla === undefined) return { version: 1, roles };
+  const continuation = {};
+  if (value.autoContinue !== undefined) {
+    const setting = value.autoContinue;
+    if (typeof setting === 'boolean') continuation.autoContinue = setting;
+    else {
+      if (!setting || typeof setting !== 'object' || Array.isArray(setting)) fail('autoContinue: expected a boolean or object');
+      for (const key of Object.keys(setting)) if (!['enabled', 'maxTurns'].includes(key)) fail(`autoContinue.${key}: unknown field`);
+      if (setting.enabled !== undefined && typeof setting.enabled !== 'boolean') fail('autoContinue.enabled: expected boolean');
+      if (setting.maxTurns !== undefined && (!Number.isInteger(setting.maxTurns) || setting.maxTurns < 1 || setting.maxTurns > 10)) fail('autoContinue.maxTurns: expected integer from 1 to 10');
+      continuation.autoContinue = { ...setting };
+    }
+  }
+  if (value.tla === undefined) return { version: 1, roles, ...continuation };
   if (!value.tla || typeof value.tla !== 'object' || Array.isArray(value.tla)) fail('tla: expected an object');
   for (const key of Object.keys(value.tla)) if (!TLA_FIELDS.includes(key)) fail(`tla.${key}: unknown field`);
   const tla = {};
@@ -64,7 +76,7 @@ export function parseConfig(value, source = 'pstack.json') {
     if (/[\0\n\r]/.test(jar)) fail('tla.tla2toolsJar: path must not contain control characters');
     tla.tla2toolsJar = jar.trim();
   }
-  return { version: 1, roles, tla };
+  return { version: 1, roles, tla, ...continuation };
 }
 
 /**

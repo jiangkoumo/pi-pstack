@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { extractRunItCommands, formalGateState } from './formal-commands.mjs';
 import { verifyPublicationCompletion } from './publication-gate.mjs';
 import { modeFromBranch } from './runtime.mjs';
 import { loadModeState, sessionModeStatePath } from './mode-state.mjs';
@@ -275,22 +276,7 @@ export function evaluateFormalVerificationCompletion(options = {}) {
   if (!skillText) {
     missing.push('SKILL.md content is required');
   } else {
-    // Find "Run it" section
-    const runItSectionMatch = skillText.match(/##+\s*Run\s+it\b([\s\S]*?)(?:##+|$)/i);
-    const runItBody = runItSectionMatch ? runItSectionMatch[1] : '';
-
-    // Extract commands (from code blocks or verification_exec invocations)
-    const commandMatches = [];
-    const blockRegex = /```(?:bash|sh)?\s*\n([\s\S]*?)\n```/g;
-    let bMatch;
-    while ((bMatch = blockRegex.exec(runItBody || skillText)) !== null) {
-      const lines = bMatch[1].split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
-      commandMatches.push(...lines);
-    }
-    if (commandMatches.length === 0) {
-      const execMatches = (runItBody || skillText).match(/(?:verification_exec|tlc\b)[^\n]+/g) || [];
-      commandMatches.push(...execMatches.map(m => m.trim()));
-    }
+    const commandMatches = extractRunItCommands(skillText);
 
     if (commandMatches.length === 0) {
       missing.push('SKILL.md must contain at least one "Run it" command');
@@ -298,7 +284,7 @@ export function evaluateFormalVerificationCompletion(options = {}) {
       for (const cmd of commandMatches) {
         const found = commandRuns.find(run => {
           if (!run || typeof run.command !== 'string') return false;
-          return run.command.includes(cmd) || cmd.includes(run.command);
+          return run.command.trim() === cmd;
         });
         if (!found) {
           missing.push(`Re-run command: ${cmd}`);
@@ -802,6 +788,8 @@ export function registerAutoContinue(pi, { loadConfig = () => ({}), evaluateComp
     const potetoMode = await isPotetoModeEnabled({ branch, ctx });
 
     const allEntries = [...branch, ...(event.entries ?? [])];
+    // The formal gate owns continuation through its terminal report turn.
+    if (formalGateState(allEntries)) return;
     const { state: branchState } = autoContinueFromBranch(allEntries);
 
     const assistantText = extractLastAssistantText(event.entries) || extractLastAssistantText(branch);

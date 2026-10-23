@@ -13,13 +13,19 @@
  */
 import { execFile, execSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { isAbsolute, join, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { extractRunItCommands, FORMAL_VERIFICATION_ENTRY, formalGateState } from './formal-commands.mjs';
+import { runProcess, runTlcVerification, renderTlcResult } from './verification-exec.mjs';
+export { extractRunItCommands } from './formal-commands.mjs';
 import { promisify } from 'node:util';
 import {
   COMPLETION_EXIT_CODES,
   COMPLETION_STATUS,
   evaluateFormalVerificationCompletion,
   extractLastAssistantText,
+  parseAutoContinueConfig,
+  AUTO_CONTINUE_ENTRY,
+  AUTO_CONTINUE_TURN_TYPE,
 } from './auto-continue.mjs';
 
 const execFileAsync = promisify(execFile);
@@ -301,39 +307,47 @@ export function detectFormalVerificationTrigger(options = {}) {
 // 2. Command Extraction & Execution
 // ---------------------------------------------------------------------------
 
-/**
- * Extract commands from the "## Run it" section of a SKILL.md text.
- *
- * @param {string} skillText
- * @returns {string[]} List of executable command strings
- */
-export function extractRunItCommands(skillText) {
-  if (typeof skillText !== 'string' || !skillText.trim()) return [];
+export const DEFAULT_FORMAL_COMMAND_TIMEOUT_MS = 30_000;
 
-  const runItSectionMatch = skillText.match(/(?:^|\n)##+\s*Run\s+it\b([\s\S]*?)(?=(?:\n##+\s+[^\n]+)|\Z)/i);
-  const sectionBody = runItSectionMatch ? runItSectionMatch[1].trim() : '';
-  const searchBody = sectionBody || skillText;
+/** Execute shell commands from the owning repository; TLC uses the tool backend. */
+export function createFormalCommandRunner(pi, { loadConfig = () => ({}) } = {}) {
+  return async (command, { cwd, ctx, timeoutMs = DEFAULT_FORMAL_COMMAND_TIMEOUT_MS } = {}) => {
+    if (/^verification_exec\s/.test(command)) {
+      const invocation = command.replace(/^verification_exec\s+/, '').trim();
+      let request;
+      if (invocation.startsWith('{')) {
+        request = JSON.parse(invocation);
+      } else {
+        const tokens = invocation.split(/\s+/);
+        request = { command: 'tlc', options: [] };
+        while (tokens.length) {
+          const token = tokens.shift();
+          if (token === '--spec') request.spec = tokens.shift();
+          else if (token === '--config') request.config = tokens.shift();
+          else throw new Error('Use verification_exec with a JSON TLC request or --spec and --config.');
+        }
+      }
+      if (request.command !== 'tlc') throw new Error('verification_exec requires command="tlc".');
+      const result = await runTlcVerification(request, { cwd, config: await loadConfig(ctx), timeoutMs });
+      return { exitCode: result.exitCode ?? 126, output: renderTlcResult(result),
+        blocked: result.status === 'unavailable', reason: result.reason };
+    }
+    const result = await runProcess('bash', ['-c', command], { cwd, env: process.env, timeoutMs });
+    return {
+      exitCode: result.timedOut ? 124 : (result.exitCode ?? 127),
+      stdout: result.stdout, stderr: result.stderr || result.launchError || '',
+    };
+  };
+}
 
-  const commands = [];
-
-  // Match fenced code blocks
-  const fenceRegex = /```(?:bash|sh|shell)?\s*\n([\s\S]*?)\n```/g;
-  let match;
-  while ((match = fenceRegex.exec(sectionBody || skillText)) !== null) {
-    const lines = match[1]
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0 && !line.startsWith('#'));
-    commands.push(...lines);
+function skillRepositoryRoot(skillPath, fallback) {
+  if (!skillPath) return fallback;
+  let directory = dirname(resolve(fallback, skillPath));
+  while (directory !== dirname(directory)) {
+    if (/^(?:\.pi|\.agents)$/.test(directory.split(/[\\/]/).at(-1))) return dirname(directory);
+    directory = dirname(directory);
   }
-
-  // Fallback: verification_exec or tlc invocations
-  if (commands.length === 0) {
-    const execMatches = searchBody.match(/(?:verification_exec|tlc\b)[^\n]+/g) || [];
-    commands.push(...execMatches.map(m => m.trim()).filter(Boolean));
-  }
-
-  return [...new Set(commands)];
+  return fallback;
 }
 
 /**
@@ -477,6 +491,8 @@ export async function rerunVerificationCommands(commands, options = {}) {
           stdout,
           stderr,
           output,
+          blocked: Boolean(res.blocked),
+          reason: res.reason,
           metrics: {
             ...extractMetrics(output),
             rc: exitCode,
@@ -662,9 +678,10 @@ export async function evaluateFormalVerificationGate(options = {}) {
   let commandRuns = Array.isArray(options.commandRuns) ? [...options.commandRuns] : [];
 
   if (typeof options.runner === 'function' && runItCommands.length > 0) {
-    const executedRuns = await rerunVerificationCommands(runItCommands, { cwd, runner: options.runner });
+    const executionCwd = skillRepositoryRoot(skillPath, cwd);
+    const executedRuns = await rerunVerificationCommands(runItCommands, { cwd: executionCwd, runner: options.runner });
     for (const execRun of executedRuns) {
-      const idx = commandRuns.findIndex(r => r && (r.command === execRun.command || execRun.command.includes(r.command) || r.command.includes(execRun.command)));
+      const idx = commandRuns.findIndex(r => r?.command === execRun.command);
       if (idx !== -1) {
         commandRuns[idx] = execRun;
       } else {
@@ -694,6 +711,15 @@ export async function evaluateFormalVerificationGate(options = {}) {
       }
     }
     run.counts = counts;
+  }
+
+  const blockedRun = commandRuns.find(run => run?.blocked);
+  if (blockedRun) {
+    return {
+      complete: false, status: COMPLETION_STATUS.BLOCKED, exitCode: COMPLETION_EXIT_CODES.blocked,
+      missing: [blockedRun.reason || '未做形式化验证，原因是缺少 TLC'],
+      discrepancies: [], reason: blockedRun.reason, details: { kind },
+    };
   }
 
   // 5. Evaluate baseline criteria via evaluateFormalVerificationCompletion
@@ -795,49 +821,71 @@ export async function evaluateFormalVerificationGate(options = {}) {
 /**
  * Register formal verification gate lifecycle hooks on the host Pi instance.
  *
- * @param {Pick<import('@earendil-works/pi-coding-agent').ExtensionAPI, 'on'>} pi
+ * @param {Pick<import('@earendil-works/pi-coding-agent').ExtensionAPI, 'on' | 'exec'>} pi
  * @param {object} [options]
  * @param {Function} [options.runner]
  * @param {boolean} [options.tlcAvailable]
  */
 export function registerFormalVerificationGate(pi, options = {}) {
+  const loadConfig = options.loadConfig ?? (() => ({}));
+  const runner = options.runner ?? createFormalCommandRunner(pi, { loadConfig });
   return pi.on('agent_before_settle', async (event, ctx) => {
+    if (event.outcome && event.outcome !== 'completed') return;
     const cwd = options.cwd ?? ctx?.cwd ?? process.cwd();
     const branch = ctx?.sessionManager?.getBranch?.() ?? [];
-    const entries = (event?.entries && event.entries.length > 0)
-      ? [...branch, ...event.entries]
-      : branch;
-    const assistantText = extractLastAssistantText(event?.entries) || extractLastAssistantText(branch);
-
-    const trigger = detectFormalVerificationTrigger({
-      cwd,
-      entries,
-      assistantText,
-    });
-
+    const entries = [...branch, ...(event.entries ?? [])];
+    const previous = formalGateState(entries);
+    // A terminal report is allowed exactly once. Only a new user request resets it.
+    if (previous && previous.status !== 'running') return { entries: event.entries ?? [], continue: false };
+    const assistantText = extractLastAssistantText(event.entries) || extractLastAssistantText(branch);
+    let requestStart = 0;
+    for (let i = 0; i < entries.length; i++) {
+      if (entries[i]?.role === 'user' || entries[i]?.message?.role === 'user' || entries[i]?.type === 'user_message') requestStart = i;
+    }
+    const trigger = detectFormalVerificationTrigger({ cwd, entries: entries.slice(requestStart), assistantText });
     if (!trigger.triggered) return;
 
-    const evaluation = await evaluateFormalVerificationGate({
+    let config;
+    let configError;
+    try { config = await loadConfig(ctx); }
+    catch (error) { configError = `Configuration unavailable: ${String(error?.message ?? error)}`; }
+    const { maxTurns } = parseAutoContinueConfig(config);
+    const evaluation = configError ? {
+      complete: false, status: COMPLETION_STATUS.BLOCKED, missing: [configError],
+    } : await evaluateFormalVerificationGate({
       cwd,
       kind: trigger.kind,
       skillPath: trigger.skillPath,
       entries,
       assistantText,
-      runner: options.runner,
+      runner: (command, execution) => runner(command, { ...execution, ctx }),
       tlcAvailable: options.tlcAvailable,
     });
-
-    if (!evaluation.complete && evaluation.status === COMPLETION_STATUS.INCOMPLETE) {
-      const turnDraft = {
-        type: 'custom_message',
-        customType: FORMAL_VERIFICATION_TURN_TYPE,
-        content: evaluation.prompt,
-        display: true,
-      };
-      return {
-        entries: [...(event?.entries || []), turnDraft],
-        continue: true,
-      };
-    }
+    const missing = [...evaluation.missing].sort();
+    const turn = (previous?.turn ?? 0) + 1;
+    const unchanged = previous && JSON.stringify(previous.missing) === JSON.stringify(missing);
+    const terminal = evaluation.complete || evaluation.status === COMPLETION_STATUS.BLOCKED || unchanged || turn >= maxTurns;
+    const reason = evaluation.complete ? 'complete' : evaluation.status === COMPLETION_STATUS.BLOCKED
+      ? 'blocked' : unchanged ? 'unchanged-missing' : turn >= maxTurns ? 'max-turns' : 'incomplete';
+    const stateDraft = {
+      type: 'custom', customType: FORMAL_VERIFICATION_ENTRY,
+      data: { version: 1, turn, maxTurns, missing, status: terminal ? reason : 'running' },
+    };
+    // Remove a generic continuation proposed earlier at this boundary. The formal
+    // gate owns this request's budget and final reporting turn.
+    const drafts = (event.entries ?? []).filter(e => ![AUTO_CONTINUE_ENTRY, AUTO_CONTINUE_TURN_TYPE].includes(e.customType));
+    if (evaluation.complete) return { entries: [...drafts, stateDraft], continue: false };
+    const content = terminal
+      ? [`[pstack formal verification stopped: ${reason}]`,
+        'Stop verification attempts. Deliver the final report now; explicitly label these items as 未验证 / unverified:',
+        ...missing.map(item => `- ${item}`),
+        'Do not claim a formal pass or modify artifacts to satisfy this gate. No further automatic retry is allowed for this request.'].join('\n')
+      : evaluation.prompt;
+    return {
+      entries: [...drafts, stateDraft, {
+        type: 'custom_message', customType: FORMAL_VERIFICATION_TURN_TYPE, content, display: true,
+      }],
+      continue: true,
+    };
   });
 }

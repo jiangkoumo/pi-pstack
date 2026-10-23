@@ -13,6 +13,7 @@ import { workspaceSessionDir } from '../../scripts/session-context.mjs';
 import { registerPublicationGate } from './publication-gate.mjs';
 import { registerAutoContinue } from './auto-continue.mjs';
 import { registerFormalVerificationGate } from './formal-verification-gate.mjs';
+import { formalGateState } from './formal-commands.mjs';
 import { createVerificationTool, getVerificationCapability, getTlcCapability } from './verification-exec.mjs';
 import { describeFormalSkillStatus, findFormalVerificationSkills } from './setup-formal.mjs';
 
@@ -23,7 +24,7 @@ export default function pstack(pi: ExtensionAPI) {
   registerLoopAbortHooks(pi);
   registerPublicationGate(pi);
   registerAutoContinue(pi, { loadConfig: ctx => configuration(ctx) });
-  registerFormalVerificationGate(pi);
+  registerFormalVerificationGate(pi, { loadConfig: ctx => configuration(ctx) });
   if (typeof pi.registerTool === 'function') pi.registerTool(createVerificationTool({ loadConfig: ctx => configuration(ctx) }));
   const levels = (model: Model<any>) => model.reasoning ? getSupportedThinkingLevels(model) : ['off'];
   // Hosts that predate registerTool (and narrow unit fixtures) must still load the
@@ -285,6 +286,8 @@ export default function pstack(pi: ExtensionAPI) {
     },
   });
   pi.on('agent_before_settle', async (event, ctx) => {
+    // Formal retries/reporting already own this boundary, including terminal stop.
+    if (formalGateState([...ctx.sessionManager.getBranch(), ...(event.entries ?? [])])) return;
     let loopInfo;
     try { loopInfo = loopFromBranch(ctx.sessionManager.getBranch()); }
     catch { return; }

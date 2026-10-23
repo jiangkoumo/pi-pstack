@@ -227,6 +227,24 @@ test('resolveSubagentModel strictly resolves role, dispatches configured catalog
     /roles\.review\.thinking: max is unsupported by magpie\/opendesign\/deepseek-v4.1-flash/
   );
 });
+test('autoContinue config validates bounds, respects project trust, and survives role edits', () => extensionFixture(async ({ directory, commands, ctx }) => {
+  const paths = configPaths(resolve(directory, 'agent'), directory, '.pi');
+  for (const setting of [false, true, { enabled: false, maxTurns: 1 }, { maxTurns: 10 }]) {
+    assert.deepEqual(parseConfig({ version: 1, roles: {}, autoContinue: setting }).autoContinue, setting);
+  }
+  for (const setting of [null, [], { enabled: 'yes' }, { maxTurns: 0 }, { maxTurns: 11 }, { maxTurns: 1.5 }, { unexpected: true }]) {
+    assert.throws(() => parseConfig({ version: 1, roles: {}, autoContinue: setting }), /autoContinue/);
+  }
+  await updateConfig(paths.user, () => ({ version: 1, roles: {}, autoContinue: { maxTurns: 2 } }));
+  await updateConfig(paths.project, () => ({ version: 1, roles: {}, autoContinue: { maxTurns: 5 } }));
+  assert.equal((await loadConfig(paths, false)).autoContinue.maxTurns, 2);
+  assert.equal((await loadConfig(paths, true)).autoContinue.maxTurns, 5);
+  await updateConfig(paths.project, () => ({ version: 1, roles: {}, autoContinue: { enabled: true } }));
+  assert.deepEqual((await loadConfig(paths, true)).autoContinue, { enabled: true, maxTurns: 2 });
+  await commands.get('setup-pstack')('set user review fixture/model off', ctx);
+  assert.equal((await loadConfig(paths, false)).autoContinue.maxTurns, 2);
+}));
+
 test('configuration merges per role only for trusted projects, and writes atomically and idempotently', async () => {
   const dir = await mkdtemp(resolve(tmpdir(), 'pstack-config-test-'));
   try {

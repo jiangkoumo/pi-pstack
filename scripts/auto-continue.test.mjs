@@ -339,7 +339,7 @@ Report:
   const createRes = evaluateFormalVerificationCompletion({
     kind: 'create',
     skillText: skill,
-    commandRuns: [{ command: 'verification_exec', exitCode: 0, output: 'ok' }],
+    commandRuns: [{ command: 'verification_exec --spec Model.tla --config Model.cfg', exitCode: 0, output: 'ok' }],
     reportText: singleBreakReport,
   });
   assert.equal(createRes.complete, false);
@@ -349,7 +349,7 @@ Report:
   const maintainRes = evaluateFormalVerificationCompletion({
     kind: 'maintain',
     skillText: skill,
-    commandRuns: [{ command: 'verification_exec', exitCode: 0, output: 'ok' }],
+    commandRuns: [{ command: 'verification_exec --spec Model.tla --config Model.cfg', exitCode: 0, output: 'ok' }],
     reportText: singleBreakReport,
   });
   assert.equal(maintainRes.complete, true);

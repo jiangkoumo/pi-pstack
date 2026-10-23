@@ -20,7 +20,11 @@ export async function loadConfig(paths, trusted) {
   const user = await readConfig(paths.user);
   const project = trusted ? await readConfig(paths.project) : { version: 1, roles: {} };
   const tla = user.tla || project.tla ? { ...user.tla, ...project.tla } : undefined;
-  return { version: 1, roles: { ...user.roles, ...project.roles }, ...(tla ? { tla } : {}), projectIgnored: !trusted };
+  const autoContinue = typeof project.autoContinue === 'object' && typeof user.autoContinue === 'object'
+    ? { ...user.autoContinue, ...project.autoContinue }
+    : project.autoContinue ?? user.autoContinue;
+  return { version: 1, roles: { ...user.roles, ...project.roles }, ...(tla ? { tla } : {}),
+    ...(autoContinue !== undefined ? { autoContinue } : {}), projectIgnored: !trusted };
 }
 /**
  * @param {string} path

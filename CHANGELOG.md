@@ -2,6 +2,13 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
+## 0.3.9
+
+- Connect the production formal gate to real shell execution from the generated skill's repository root, with a 30-second command timeout; route explicit `verification_exec` TLC requests through the existing restricted TLC backend.
+- Share Run it parsing between execution and completion checks: accept `sh`/`bash` blocks and explicit tool invocations, exclude output examples, and match execution receipts by the complete command.
+- Bound formal retries with `autoContinue.maxTurns` (default 3); stop on two identical missing-item lists, request one final report listing unverified items, and suppress further automatic continuation until a new user message.
+- Accept and preserve autoContinue settings in user/project configuration. Add production registration and real Pi host tests for successful execution, failed checks, budget exhaustion, and reset.
+
 ## 0.3.8
 
 - Fix formal verification gate lifecycle in `-p` mode when `event.entries` is empty (`extensions/pstack/formal-verification-gate.mjs`):

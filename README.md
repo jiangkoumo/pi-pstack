@@ -100,6 +100,16 @@ TLA+ 模型检查（TLC）是可选能力：本包不打包、也不自动下载
 
 版本、校验值、测试敏感性与命令详见 [真实 TLC 验收](docs/validation-stage-b-tlc.md) 与 [statechart 出图与测试验收](docs/validation-statechart-outputfolder.md)。
 
+### 形式化验证完成门与续跑预算
+
+生成或维护项目形式化验证技能时，完成门会从 `SKILL.md` 所属项目根目录执行 `## Run it` 中标为 `sh` / `bash` 的代码块；每条命令限时 30 秒，超时终止进程组，输出按流限制为 128 KiB。无语言标记或 `text` 的预期输出块不作为命令。命令可以包含 shell 引号、环境变量及组合语法。TLC 使用同一受限后端，记录为独立一行的 JSON 调用，例如：
+
+```text
+verification_exec {"command":"tlc","spec":"models/Spec.tla","config":"models/Spec.cfg","options":["-cleanup","-noGenerateSpecTE","-noGenerateSpecTEBin"]}
+```
+
+项目 `.pi/pstack.json` 或用户 `pstack.json` 可以配置 `"autoContinue":{"enabled":true,"maxTurns":3}`（与 `version:1`、`roles:{}` 同级，轮数范围 1–10）。形式化门共用这个 `maxTurns` 配置，默认最多 3 轮检查；连续两次缺项完全相同会提前停止。停止时只追加一次最终报告提示，列出“未验证”项，然后结束本次请求；不会把预算耗尽视为验证通过。新的用户消息会重置预算；历史技能引用不会单独触发新请求。缺 TLC 或配置无法读取时，最终提示会列出阻塞原因。`enabled` 控制普通 auto-continue，形式化门仍独立执行自身检查；活动 `/loop` 会让位给形式化门的续跑与停止决定。
+
 ### 常用命令
 
 ```bash

@@ -274,7 +274,8 @@ function firstLine(error, stderr) {
   return detail.split('\n')[0].slice(0, 400);
 }
 
-function runProcess(executable, args, { cwd, env, timeoutMs, signal, maxOutputBytes = MAX_OUTPUT_BYTES }) {
+// Shared bounded process runner: callers choose the execution boundary/argv.
+export function runProcess(executable, args, { cwd, env, timeoutMs, signal, maxOutputBytes = MAX_OUTPUT_BYTES }) {
   return new Promise(resolvePromise => {
     let child;
     try {

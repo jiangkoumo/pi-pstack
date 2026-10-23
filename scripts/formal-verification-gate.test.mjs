@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { execSync } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { createJiti } from 'jiti';
+import { createServer } from 'node:http';
+import { createAgentSession, DefaultResourceLoader, SessionManager, SettingsManager, ModelRuntime } from '@earendil-works/pi-coding-agent';
+import { disposeTestSession, withTimeout, closeTestServer } from './test-session-lifecycle.mjs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
@@ -8,6 +12,7 @@ import {
   COMPLETION_EXIT_CODES,
   COMPLETION_STATUS,
   compareMetrics,
+  createFormalCommandRunner,
   detectFormalVerificationTrigger,
   evaluateFormalVerificationGate,
   extractMetrics,
@@ -213,14 +218,14 @@ node scripts/check-counts.mjs
   ]);
 });
 
-test('commands: extracts commands from unlabelled fences or direct invocations', () => {
+test('commands: ignores unlabelled output fences but accepts direct tool invocations', () => {
   const skillUnlabelled = `
 ## Run it
 \`\`\`
 tlc -cleanup Model.tla
 \`\`\`
 `;
-  assert.deepEqual(extractRunItCommands(skillUnlabelled), ['tlc -cleanup Model.tla']);
+  assert.deepEqual(extractRunItCommands(skillUnlabelled), []);
 
   const skillDirect = `
 ## Run it
@@ -228,6 +233,20 @@ Run the checker using:
 verification_exec --spec Spec.tla
 `;
   assert.deepEqual(extractRunItCommands(skillDirect), ['verification_exec --spec Spec.tla']);
+});
+
+test('commands: scopes shell fences, joins continuations, and retains explicit structured TLC calls', () => {
+  const text = [
+    '```bash', 'node unrelated.mjs', '```', '## Run it',
+    '```bash', 'node formal/check.mjs \\', '  --verbose', '```',
+    '```text', 'done: 7 scenarios', '```',
+    '```', 'verification_exec {"command":"tlc","spec":"M.tla","config":"M.cfg"}', '```',
+    '## Record', '```sh', 'node excluded.mjs', '```',
+  ].join('\n');
+  assert.deepEqual(extractRunItCommands(text), [
+    'node formal/check.mjs --verbose',
+    'verification_exec {"command":"tlc","spec":"M.tla","config":"M.cfg"}',
+  ]);
 });
 
 test('rerun: executes commands in directory and captures output metrics', async () => {
@@ -882,3 +901,219 @@ Distinct states: 42, depth: 8.
   assert.equal(settleDecision.continue, true);
   assert.ok(settleDecision.entries.some(e => e.customType === 'pstack.formal_verification_gate.turn.v1'));
 });
+
+const finalReport = `Coverage scope: queue concurrency.
+Break 1: removed guard, counterexample detected, exit 1, restored.
+Break 2: inverted predicate, counterexample detected, exit 1, restored.
+Unverified scope: crash recovery.`;
+
+const productionPstack = (await createJiti(import.meta.url).import('../extensions/pstack/index.ts')).default;
+async function productionFixture(run) {
+  const cwd = createTempDir('pstack-formal-production-');
+  const previous = process.env.PI_CODING_AGENT_DIR;
+  process.env.PI_CODING_AGENT_DIR = join(cwd, 'agent');
+  const handlers = [];
+  let branch = [{ role: 'user', content: '/skill:create-formal-verification-skill' }];
+  const skillDir = join(cwd, '.pi/skills/x');
+  mkdirSync(skillDir, { recursive: true });
+  mkdirSync(join(cwd, 'formal'));
+  const script = join(cwd, 'formal/check.mjs');
+  const marker = join(cwd, 'runs.txt');
+  writeFileSync(marker, '');
+  const passingScript = "import { appendFileSync } from 'node:fs';\nappendFileSync('runs.txt', 'run\\n');\nconsole.log('done: 7 scenarios, 67152 schedules, 149159 property checks');\n";
+  const failingScript = passingScript + 'process.exit(1);\n';
+  writeFileSync(script, passingScript);
+  const runCount = () => readFileSync(marker, 'utf8').split('\n').filter(Boolean).length;
+  const skillPath = join(skillDir, 'SKILL.md');
+  const skill = `# Queue verification
+## Run it
+\`\`\`bash
+node formal/check.mjs
+\`\`\`
+Expected output:
+\`\`\`
+done: 7 scenarios, 67152 schedules, 149159 property checks
+\`\`\`
+## Record
+Tool version: Node 22. Sync commit: deadbeef. Bounds: 2 workers.
+Assumptions: ordered. Exclusions: crash recovery.
+`;
+  writeFileSync(skillPath, skill);
+  const ctx = { cwd, isProjectTrusted: () => true, sessionManager: { getBranch: () => branch } };
+  productionPstack({
+    on: (name, handler) => { if (name === 'agent_before_settle') handlers.push(handler); },
+    registerCommand() {}, registerTool() {},
+
+  });
+  async function settle(report = finalReport) {
+    branch.push({ role: 'assistant', content: report });
+    let event = { entries: [], continue: false, outcome: 'completed' };
+    for (const handler of handlers) {
+      const result = await handler(event, ctx);
+      if (result) event = { ...event, ...result };
+    }
+    branch.push(...event.entries);
+    return event;
+  }
+  try { await run({ cwd, script, skillPath, skill, settle, runCount, branch, passingScript, failingScript }); }
+  finally {
+    if (previous === undefined) delete process.env.PI_CODING_AGENT_DIR;
+    else process.env.PI_CODING_AGENT_DIR = previous;
+    rmSync(cwd, { recursive: true, force: true });
+  }
+}
+
+test('production registration: real root command passes, output example is not executed', () => productionFixture(async h => {
+  const decision = await h.settle();
+  assert.equal(decision.continue, false);
+  assert.equal(h.runCount(), 1);
+  assert.equal(decision.entries.find(e => e.customType === 'pstack.formal_verification_gate.v1')?.data.status, 'complete');
+}));
+
+test('production registration: identical failures stop after a final unverified report prompt', () => productionFixture(async h => {
+  writeFileSync(h.script, h.failingScript);
+  assert.equal((await h.settle()).continue, true);
+  const terminal = await h.settle();
+  assert.equal(terminal.continue, true);
+  assert.match(terminal.entries.at(-1).content, /未验证/);
+  assert.match(terminal.entries.at(-1).content, /unchanged-missing/);
+  const count = h.runCount();
+  for (let i = 0; i < 5; i++) assert.equal((await h.settle('Next I will fix remaining work.')).continue, false);
+  assert.equal(h.runCount(), count, 'terminal report must not re-execute commands');
+}));
+
+test('production registration: changing missing items still obeys configured shared maxTurns', () => productionFixture(async h => {
+  mkdirSync(join(h.cwd, '.pi'), { recursive: true });
+  writeFileSync(join(h.cwd, '.pi/pstack.json'), JSON.stringify({ version: 1, roles: {}, autoContinue: { enabled: true, maxTurns: 3 } }));
+  writeFileSync(h.script, h.failingScript);
+  for (let turn = 1; turn <= 3; turn++) {
+    writeFileSync(h.skillPath, h.skill.replace('node formal/check.mjs', `node formal/check.mjs ${turn}`));
+    const decision = await h.settle('Next I will finish the work.');
+    assert.equal(decision.continue, true);
+    assert.equal(decision.entries.filter(e => e.customType === 'pstack.auto_continue.turn.v1').length, 0);
+    if (turn === 3) assert.match(decision.entries.at(-1).content, /max-turns/);
+  }
+  assert.equal((await h.settle()).continue, false);
+  assert.equal(h.runCount(), 3);
+}));
+
+test('production registration: a new user message resets the stopped gate', () => productionFixture(async h => {
+  writeFileSync(h.script, h.failingScript);
+  await h.settle();
+  await h.settle();
+  assert.equal((await h.settle()).continue, false);
+  writeFileSync(h.script, h.passingScript);
+  h.branch.push({ role: 'user', content: 'Run create-formal-verification-skill to verify the restored commands again.' });
+  const result = await h.settle();
+  assert.equal(result.continue, false);
+  assert.equal(result.entries.at(-1).data.status, 'complete');
+  assert.equal(h.runCount(), 3);
+}));
+
+test('production registration: historical skill references do not trigger a new unrelated request', () => productionFixture(async h => {
+  await h.settle();
+  rmSync(h.skillPath);
+  h.branch.push({ role: 'user', content: 'Explain a JavaScript closure.' });
+  const result = await h.settle('A closure captures variables from its enclosing scope.');
+  assert.equal(result.continue, false);
+  assert.equal(result.entries.length, 0);
+  assert.equal(h.runCount(), 1);
+}));
+
+test('production registration: invalid config produces one blocked report instead of throwing', () => productionFixture(async h => {
+  writeFileSync(join(h.cwd, '.pi/pstack.json'), '{broken');
+  const result = await h.settle();
+  assert.match(result.entries.at(-1).content, /Configuration unavailable/);
+  assert.equal(h.runCount(), 0);
+  assert.equal((await h.settle()).continue, false);
+}));
+
+test('production registration: active loop cannot override formal terminal state', () => productionFixture(async h => {
+  h.branch.push({ type: 'custom', customType: 'pstack.loop.v1', data: { version: 1, status: 'running' } });
+  const result = await h.settle();
+  assert.equal(result.continue, false);
+  assert.equal(h.runCount(), 1);
+  for (let i = 0; i < 3; i++) assert.equal((await h.settle()).continue, false);
+  assert.equal(h.runCount(), 1);
+}));
+
+test('gate: unavailable TLC returns its explicit blocked reason', async () => {
+  const result = await evaluateFormalVerificationGate({
+    skillText: '## Run it\n```sh\nverification_exec --spec M.tla --config M.cfg\n```',
+    runner: async () => ({ exitCode: 126, blocked: true, reason: '未做形式化验证，原因是缺少 TLC' }),
+  });
+  assert.equal(result.status, 'blocked');
+  assert.deepEqual(result.missing, ['未做形式化验证，原因是缺少 TLC']);
+});
+
+test('runner: preserves shell quoting and kills the process tree on real timeout', async () => {
+  const runner = createFormalCommandRunner({});
+  const result = await runner('NAME="two words"; printf "%s" "$NAME" && sleep 30 & wait', { cwd: process.cwd(), timeoutMs: 200 });
+  assert.equal(result.stdout, 'two words');
+  assert.equal(result.exitCode, 124);
+});
+
+test('runner: verification_exec TLC uses the configured backend, never a shell executable', async () => {
+  let loaded = 0;
+  const runner = createFormalCommandRunner({ exec: () => assert.fail('TLC must not use shell') }, {
+    loadConfig: async () => { loaded++; throw Error('fixture TLC config unavailable'); },
+  });
+  await assert.rejects(runner('verification_exec {"command":"tlc","spec":"Model.tla","config":"Model.cfg"}', { cwd: process.cwd() }), /fixture TLC config unavailable/);
+  assert.equal(loaded, 1);
+});
+
+test('actual Pi host: production index executes real commands and settles failed gates', { timeout: 30000 }, () => productionFixture(async h => {
+  const agentDir = join(h.cwd, 'agent');
+  mkdirSync(agentDir, { recursive: true });
+  writeFileSync(join(agentDir, 'pstack.json'), JSON.stringify({ version: 1, roles: {}, autoContinue: { enabled: true, maxTurns: 3 } }));
+  let requests = 0;
+  let stoppedPrompt = '';
+  const server = createServer(async (req, res) => {
+    let raw = '';
+    for await (const chunk of req) raw += chunk;
+    requests++;
+    if (raw.includes('unchanged-missing')) stoppedPrompt = raw;
+    const base = { id: 'formal-host', object: 'chat.completion.chunk', created: 1, model: 'parent' };
+    res.writeHead(200, { 'Content-Type': 'text/event-stream' });
+    res.write(`data: ${JSON.stringify({ ...base, choices: [{ index: 0, delta: { role: 'assistant', content: finalReport }, finish_reason: null }] })}\n\n`);
+    res.write(`data: ${JSON.stringify({ ...base, choices: [{ index: 0, delta: {}, finish_reason: 'stop' }] })}\n\n`);
+    res.end('data: [DONE]\n\n');
+  });
+  let session;
+  try {
+    await new Promise(done => server.listen(0, '127.0.0.1', done));
+    const modelsPath = join(agentDir, 'models.json');
+    writeFileSync(modelsPath, JSON.stringify({ providers: { fixture: {
+      baseUrl: `http://127.0.0.1:${server.address().port}/v1`, api: 'openai-completions', apiKey: 'test-only',
+      models: [{ id: 'parent', name: 'Fixture', reasoning: false, input: ['text'], contextWindow: 64000, maxTokens: 2048,
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } }],
+    } } }));
+    const runtime = await ModelRuntime.create({ authPath: join(agentDir, 'auth.json'), modelsPath, allowModelNetwork: false });
+    for (const failing of [false, true]) {
+      const marker = join(h.cwd, 'runs.txt');
+      writeFileSync(marker, '');
+      writeFileSync(h.script, `import { appendFileSync } from 'node:fs';\nappendFileSync('runs.txt', 'run\\n');\nconsole.log('7 scenarios');\nprocess.exit(${failing ? 1 : 0});\n`);
+      const settingsManager = SettingsManager.inMemory({ defaultProjectTrust: 'never', compaction: { enabled: false }, retry: { enabled: false } });
+      const loader = new DefaultResourceLoader({ cwd: h.cwd, agentDir, settingsManager, noExtensions: true,
+        additionalExtensionPaths: [resolve('extensions/pstack/index.ts')], noSkills: true, noContextFiles: true, noPromptTemplates: true, noThemes: true });
+      await loader.reload();
+      assert.deepEqual(loader.getExtensions().errors, []);
+      const errors = [];
+      ({ session } = await createAgentSession({ cwd: h.cwd, agentDir, modelRuntime: runtime, model: runtime.getModel('fixture', 'parent'),
+        resourceLoader: loader, settingsManager, sessionManager: SessionManager.inMemory(h.cwd), tools: [] }));
+      await session.bindExtensions({ mode: 'rpc', onError: error => errors.push(error) });
+      const before = requests;
+      await withTimeout(session.prompt('Run create-formal-verification-skill for this queue.'), 10000, 'formal host settle');
+      await session.waitForIdle();
+      assert.equal(requests - before, failing ? 3 : 1);
+      assert.equal(readFileSync(marker, 'utf8'), failing ? 'run\nrun\n' : 'run\n');
+      assert.deepEqual(errors, []);
+      if (failing) assert.match(stoppedPrompt, /未验证/);
+      await disposeTestSession(session);
+      session = undefined;
+    }
+  } finally {
+    await disposeTestSession(session);
+    await closeTestServer(server);
+  }
+}));
