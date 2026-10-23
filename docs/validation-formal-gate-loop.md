@@ -36,6 +36,14 @@ After this follow-up, `npm test` exited 0: 36/36 check commands passed, 0 failed
 
 These regression texts are synthetic reproductions of the reported wording. The original p-queue Record text was not available in this checkout; it has not been validated verbatim.
 
+## Chinese report follow-up
+
+Formal completion now accepts Chinese coverage labels (`覆盖`, `范围`, `已验证`, `验证了`, `检查范围`) and unverified-scope labels (`未验证`, `未覆盖`, `没有覆盖`, `不覆盖`, `不在范围`, `遗留`, `未包含`). Chinese tool-version, sync-commit, bounds/assumption, and exclusion fields are also recognized within Record. Exclusion-only text cannot establish positive coverage.
+
+The Chinese acceptance regression failed before the fix. Afterward, `node --test scripts/auto-continue.test.mjs scripts/formal-verification-gate.test.mjs` exited 0 (70 passed, 0 failed). The production registration fixture executes a real command and accepts a Chinese final report and Chinese Record fields without appending a gate reminder. Negative cases still reject missing report/Record fields.
+
+`npm test` exited 0: 36/36 check commands passed, 0 failed, 0 timed out (69.5 seconds); TAP suites totaled 395 tests, 361 passed, 0 failed, and 34 skipped. Log: `/tmp/pi-pstack-chinese-report-test.log`. `git diff --check` exited 0.
+
 ## Limits
 
 This fixture proves production registration, command execution, and Pi settlement behavior. It does not establish that a live model follows the final reporting instruction, repeat the original p-queue E2E, or validate real TLC on a configured jar. The p-queue forwarder scripts and generated skill prose mentioned in the operator report are outside this repository and have not been cleaned up. No global Pi installation/configuration, commit, push, or release was performed.

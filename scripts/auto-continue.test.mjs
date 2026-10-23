@@ -403,6 +403,52 @@ test('formal breakage: does not count output-only, unrelated sections, or succes
   assert.equal(breakageCompletion().complete, false);
 });
 
+const chineseFormalSkill = `## Run it
+\`\`\`sh
+node formal/check.mjs
+\`\`\`
+## Record
+工具版本：Node 22。
+同步提交：deadbeef。
+边界：2 个工作任务。假设：按顺序运行。
+未覆盖：取消操作。
+### 破坏记录
+第 1 轮：删除限流保护，发现反例，退出码：1，恢复。
+第 2 轮：反转检查条件，发现反例，退出码：1，恢复。
+`;
+
+function chineseCompletion(reportText, skillText = chineseFormalSkill) {
+  return evaluateFormalVerificationCompletion({
+    skillText, reportText,
+    commandRuns: [{ command: 'node formal/check.mjs', exitCode: 0, output: 'ok' }],
+  });
+}
+
+test('formal completion: accepts Chinese reports and Record fields', () => {
+  const report = '覆盖范围：已验证限流。\n破坏证据详见记录。\n未验证：abort。';
+  assert.equal(chineseCompletion(report).complete, true);
+  for (const scope of ['覆盖', '范围', '已验证', '验证了', '检查范围']) {
+    for (const exclusion of ['未验证', '未覆盖', '没有覆盖', '不覆盖', '不在范围', '遗留', '未包含']) {
+      const result = chineseCompletion(`${scope}：限流。\n${exclusion}：取消操作。`);
+      assert.equal(result.complete, true, `${scope} / ${exclusion}: ${result.missing}`);
+    }
+  }
+});
+
+test('formal completion: Chinese omissions still fail the corresponding checks', () => {
+  assert.ok(chineseCompletion('未覆盖范围：取消操作。').missing.includes('Final report missing coverage scope'));
+  assert.ok(chineseCompletion('已验证限流。').missing.includes('Final report missing unverified scope / what remains unverified'));
+  const report = '覆盖范围：限流。\n未验证：取消操作。';
+  for (const [field, missing] of [
+    ['工具版本：Node 22。', 'Record section missing tool version and resolution'],
+    ['同步提交：deadbeef。', 'Record section missing sync commit'],
+    ['边界：2 个工作任务。假设：按顺序运行。', 'Record section missing bounds and assumptions'],
+    ['未覆盖：取消操作。', 'Record section missing what is left out / exclusions'],
+  ]) {
+    assert.ok(chineseCompletion(report, chineseFormalSkill.replace(field, '')).missing.includes(missing), missing);
+  }
+});
+
 test('evaluateFormalVerificationCompletion: handles TLC unavailable', () => {
   // With required statement -> blocked
   const res1 = evaluateFormalVerificationCompletion({

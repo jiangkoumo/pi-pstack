@@ -2,6 +2,10 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
+## 0.3.11
+
+- Accept Chinese coverage and unverified-scope labels in formal completion reports, plus Chinese tool-version, sync-commit, bounds/assumption, and exclusion fields in Record. Exclusion-only text cannot establish positive coverage. Add Chinese-report unit and production registration regressions.
+
 ## 0.3.10
 
 - Recognize `Break cycle N`, `cycle N`, and Chinese numbered round labels in formal breakage evidence; count distinct cycle numbers and accept common nonzero exit-code notation.

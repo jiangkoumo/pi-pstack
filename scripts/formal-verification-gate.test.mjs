@@ -982,6 +982,18 @@ Break cycle 2: inverted interval-cap check, counterexample detected, exit code 1
   assert.equal(h.runCount(), 1);
 }));
 
+test('production registration: Chinese report and Record pass without a gate reminder', () => productionFixture(async h => {
+  writeFileSync(h.skillPath, h.skill.replace(
+    'Tool version: Node 22. Sync commit: deadbeef. Bounds: 2 workers.\nAssumptions: ordered. Exclusions: crash recovery.',
+    '工具版本：Node 22。同步提交：deadbeef。边界：2 个工作任务。\n假设：按顺序运行。未覆盖：取消操作。',
+  ) + '\n### 破坏记录\n第 1 轮：删除保护，发现反例，退出码：1，恢复。\n第 2 轮：反转条件，发现反例，退出码：1，恢复。\n');
+  const result = await h.settle('覆盖范围：已验证限流。\n两轮破坏证据已记入记录。\n未验证：abort。');
+  assert.equal(result.continue, false);
+  assert.equal(result.entries.at(-1).data.status, 'complete');
+  assert.equal(result.entries.some(entry => entry.customType === 'pstack.formal_verification_gate.turn.v1'), false);
+  assert.equal(h.runCount(), 1);
+}));
+
 test('production registration: identical failures stop after a final unverified report prompt', () => productionFixture(async h => {
   writeFileSync(h.script, h.failingScript);
   assert.equal((await h.settle()).continue, true);

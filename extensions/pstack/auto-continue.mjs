@@ -352,10 +352,10 @@ export function evaluateFormalVerificationCompletion(options = {}) {
     if (!hasRecordHeading) {
       missing.push('SKILL.md missing "Record" section');
     } else {
-      const hasToolVersion = /(?:tool\s*version|java\s*\d+|tla2tools|tlc)/i.test(recordBody);
-      const hasSyncCommit = /(?:sync\s*commit|commit\s*[:\s]+[0-9a-f]{7,40})/i.test(recordBody);
-      const hasBounds = /(?:bounds?|assumptions?)/i.test(recordBody);
-      const hasExclusions = /(?:left\s*out|unverified|not\s*cover(?:ed)?|exclusions?)/i.test(recordBody);
+      const hasToolVersion = /(?:tool\s*version|java\s*\d+|tla2tools|tlc|工具版本)/i.test(recordBody);
+      const hasSyncCommit = /(?:sync\s*commit|commit\s*[:\s]+[0-9a-f]{7,40}|同步提交)/i.test(recordBody);
+      const hasBounds = /(?:bounds?|assumptions?|边界|假设)/i.test(recordBody);
+      const hasExclusions = /(?:left\s*out|unverified|not\s*cover(?:ed)?|exclusions?|未验证|未覆盖|没有覆盖|不覆盖|不在范围|遗留|未包含)/i.test(recordBody);
 
       if (!hasToolVersion) missing.push('Record section missing tool version and resolution');
       if (!hasSyncCommit) missing.push('Record section missing sync commit');
@@ -369,7 +369,10 @@ export function evaluateFormalVerificationCompletion(options = {}) {
     missing.push('Final completion report is missing');
   } else {
     // 1. Coverage scope
-    const hasCoverage = /(?:coverage|scope|verified|guarding|target\s*promise)/i.test(reportText);
+    // Exclusion labels also contain 覆盖/范围/验证; they cannot establish
+    // positive coverage on their own.
+    const coverageText = reportText.replace(/(?:未验证|未覆盖|没有覆盖|不覆盖|不在范围|遗留|未包含)[^\n。；]*/g, '');
+    const hasCoverage = /(?:coverage|scope|verified|guarding|target\s*promise|覆盖|范围|已验证|验证了|检查范围)/i.test(coverageText);
     if (!hasCoverage) missing.push('Final report missing coverage scope');
 
     // 2. Deliberate breakage evidence
@@ -388,7 +391,7 @@ export function evaluateFormalVerificationCompletion(options = {}) {
     }
 
     // 3. Unverified scope
-    const hasUnverified = /(?:unverified|not\s*cover(?:ed)?|out\s*of\s*scope|left\s*out|remaining)/i.test(reportText);
+    const hasUnverified = /(?:unverified|not\s*cover(?:ed)?|out\s*of\s*scope|left\s*out|remaining|未验证|未覆盖|没有覆盖|不覆盖|不在范围|遗留|未包含)/i.test(reportText);
     if (!hasUnverified) missing.push('Final report missing unverified scope / what remains unverified');
   }
 
