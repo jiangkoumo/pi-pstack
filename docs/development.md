@@ -22,7 +22,7 @@
 
 ## 发布
 
-发布由 tag 驱动：推送 `v*` tag 后，`.github/workflows/publish.yml` 校验 tag 与 `package.json` 版本一致，运行 `npm test`、`npm run check:generate` 和 `npm run check:fidelity`，再发布 npm。0.3.2 的发布目标是由 CI 完成；可信发布者配置与实际结果记录在 [集成验收](docs/validation-032-release.md)。
+发布由 tag 驱动：推送 `v*` tag 后，`.github/workflows/publish.yml` 校验 tag 与 `package.json` 版本一致，运行 `npm test`、`npm run check:generate` 和 `npm run check:fidelity`，再发布 npm。0.3.2 的发布目标是由 CI 完成；可信发布者配置与实际结果记录在 [集成验收](validation-032-release.md)。
 
 本地一键发布：
 
