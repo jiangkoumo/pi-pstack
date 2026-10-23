@@ -970,6 +970,18 @@ test('production registration: real root command passes, output example is not e
   assert.equal(decision.entries.find(e => e.customType === 'pstack.formal_verification_gate.v1')?.data.status, 'complete');
 }));
 
+test('production registration: Record break cycles pass without repeating evidence in the final report', () => productionFixture(async h => {
+  writeFileSync(h.skillPath, h.skill + `
+### Deliberate breakage
+Break cycle 1: removed rate-limit guard, counterexample detected, exit code 1, restored.
+Break cycle 2: inverted interval-cap check, counterexample detected, exit code 1, restored.
+`);
+  const result = await h.settle('Coverage scope: rate limiting. Breakage evidence is recorded in SKILL.md. Unverified scope: crash recovery.');
+  assert.equal(result.continue, false);
+  assert.equal(result.entries.at(-1).data.status, 'complete');
+  assert.equal(h.runCount(), 1);
+}));
+
 test('production registration: identical failures stop after a final unverified report prompt', () => productionFixture(async h => {
   writeFileSync(h.script, h.failingScript);
   assert.equal((await h.settle()).continue, true);

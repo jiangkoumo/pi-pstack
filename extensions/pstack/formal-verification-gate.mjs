@@ -736,7 +736,9 @@ export async function evaluateFormalVerificationGate(options = {}) {
 
   // 6. Deep metric cross-checking and exit code validation
   if (skillText && commandRuns.length > 0) {
-    const skillMetrics = extractMetrics(skillText);
+    // Run it checks the restored artifact. Record may describe intentionally
+    // failing mutation runs; their exit codes must not redefine a passing run.
+    const skillMetrics = { ...extractMetrics(skillText), rc: 0 };
 
     for (const run of commandRuns) {
       if (!run || typeof run.command !== 'string') continue;

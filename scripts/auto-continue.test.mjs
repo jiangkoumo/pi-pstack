@@ -355,6 +355,54 @@ Report:
   assert.equal(maintainRes.complete, true);
 });
 
+function breakageCompletion({ evidence = '', recordEvidence = '', kind = 'create' } = {}) {
+  return evaluateFormalVerificationCompletion({
+    kind,
+    skillText: `## Run it
+\`\`\`sh
+node formal/check.mjs
+\`\`\`
+## Record
+Tool version: Node 22. Sync commit: deadbeef. Bounds: 2 workers.
+Assumptions: ordered. Exclusions: crash recovery.
+${recordEvidence}
+## Other notes
+`,
+    commandRuns: [{ command: 'node formal/check.mjs', exitCode: 0, output: 'ok' }],
+    reportText: `Coverage scope: rate limiting.\n${evidence}\nUnverified scope: crash recovery.`,
+  });
+}
+
+test('formal breakage: accepts numbered break cycles and translated cycle labels', () => {
+  for (const label of [n => `Break cycle ${n}`, n => `Cycle ${n}`, n => `第 ${n} 轮`, n => `第${['一', '二'][n - 1]}轮`]) {
+    const evidence = `${label(1)}: removed guard, counterexample, exit code: 1, restored.\n${label(2)}: inverted check, counterexample, rc=1, restored.`;
+    assert.equal(breakageCompletion({ evidence }).complete, true, evidence);
+  }
+});
+
+test('formal breakage: reads nested Record evidence when final report omits cycle details', () => {
+  // Synthetic regression using the reported phrasing; the operator's original
+  // p-queue Record was not available in this checkout.
+  const recordEvidence = `### Deliberate breakage
+Break cycle 1: removed rate-limit guard → counterexample → exit code 1 → restored.
+Break cycle 2: inverted interval-cap check → counterexample → exit code 1 → restored.`;
+  assert.equal(breakageCompletion({ recordEvidence }).complete, true);
+  assert.equal(breakageCompletion({ evidence: 'Break cycle 1: counterexample, exit 1, restored.', recordEvidence }).complete, true);
+});
+
+test('formal breakage: one cycle repeated cannot satisfy create, but satisfies maintain', () => {
+  const evidence = 'Break cycle 1: removed guard, counterexample, exit 1, restored.\nBreak cycle 1: repeated summary, exit 1.';
+  assert.equal(breakageCompletion({ evidence }).complete, false);
+  assert.equal(breakageCompletion({ evidence, kind: 'maintain' }).complete, true);
+});
+
+test('formal breakage: does not count output-only, unrelated sections, or successful cycles', () => {
+  assert.equal(breakageCompletion({ evidence: 'Cycle 1: passed, exit code 0. Cycle 2: passed, exit code 0.' }).complete, false);
+  assert.equal(breakageCompletion({ evidence: 'Cycle 1: regular test, exit 1. Cycle 2: regular test, exit 1.' }).complete, false);
+  assert.equal(breakageCompletion({ recordEvidence: '## Unrelated\nBreak cycle 1: counterexample, exit 1.\nBreak cycle 2: counterexample, exit 1.' }).complete, false);
+  assert.equal(breakageCompletion().complete, false);
+});
+
 test('evaluateFormalVerificationCompletion: handles TLC unavailable', () => {
   // With required statement -> blocked
   const res1 = evaluateFormalVerificationCompletion({

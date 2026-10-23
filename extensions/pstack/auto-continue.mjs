@@ -236,6 +236,40 @@ function extractQuantities(text) {
   return quantities;
 }
 
+/** Preserve nested evidence headings while excluding sections after Record. */
+function extractFormalRecord(skillText) {
+  const lines = skillText.split(/\r?\n/);
+  const start = lines.findIndex(line => /^(?:#{2,6}\s*(?:Record|What the generated skill must record)\b|\*\*Record\*\*)/i.test(line));
+  if (start < 0) return '';
+  const level = lines[start].match(/^#+/)?.[0].length ?? 2;
+  const body = [];
+  for (const line of lines.slice(start + 1)) {
+    const heading = line.match(/^(#{1,6})\s/);
+    if (heading && heading[1].length <= level) break;
+    body.push(line);
+  }
+  return body.join('\n');
+}
+
+function hasFormalBreakageEvidence(text, requiredCycles) {
+  const hasFailure = /(?:exit\s*(?:status|code)?\s*[:=]?\s*(?:[1-9]\d*|non[- ]zero)|\brc\s*[:=]\s*[1-9]\d*|failing|非零退出|退出(?:码|状态)?\s*[:：=]?\s*[1-9]\d*)/i.test(text);
+  const hasBreakage = /(?:break|broken|counterexample|破坏|反例)/i.test(text);
+  if (!hasFailure || !hasBreakage) return false;
+  if (requiredCycles === 1) return true;
+
+  // Count cycle identities, not mentions: repeating cycle 1 is still one cycle.
+  const labels = [...text.matchAll(/\b(?:break\s*(?:cycle\s*)?|cycle\s*)(\d+)\b|第\s*([\d一二三四五六七八九十]+)\s*轮/gi)];
+  const chineseNumbers = { 一: '1', 二: '2', 三: '3', 四: '4', 五: '5', 六: '6', 七: '7', 八: '8', 九: '9', 十: '10' };
+  const cycles = new Set(labels.map(match => {
+    const label = match[1] ?? match[2];
+    return chineseNumbers[label] ?? String(Number(label));
+  }));
+  if (labels.length) return cycles.size >= requiredCycles;
+  // Preserve unnumbered summaries already supported by the completion contract.
+  const descriptions = text.match(/(?:deliberate\s*break|breakage|break\s*(?:and|&)\s*restore)/gi) ?? [];
+  return descriptions.length >= requiredCycles || /(?:two\s+breaks|twice|both\s+breaks)/i.test(text);
+}
+
 /**
  * Evaluate formal verification completion (create-formal-verification-skill and
  * maintain-formal-verification-skill).
@@ -254,6 +288,7 @@ export function evaluateFormalVerificationCompletion(options = {}) {
   const commandRuns = Array.isArray(options.commandRuns) ? options.commandRuns : [];
   const kind = options.kind === 'maintain' ? 'maintain' : 'create';
   const tlcAvailable = options.tlcAvailable !== false;
+  const recordBody = extractFormalRecord(skillText);
 
   // A. TLC tool availability check
   if (!tlcAvailable) {
@@ -317,9 +352,6 @@ export function evaluateFormalVerificationCompletion(options = {}) {
     if (!hasRecordHeading) {
       missing.push('SKILL.md missing "Record" section');
     } else {
-      const recordSectionMatch = skillText.match(/(?:##+\s*(?:Record|What the generated skill must record)\b|\*\*Record\*\*)([\s\S]*?)(?:##+|$)/i);
-      const recordBody = recordSectionMatch ? recordSectionMatch[1] : '';
-
       const hasToolVersion = /(?:tool\s*version|java\s*\d+|tla2tools|tlc)/i.test(recordBody);
       const hasSyncCommit = /(?:sync\s*commit|commit\s*[:\s]+[0-9a-f]{7,40})/i.test(recordBody);
       const hasBounds = /(?:bounds?|assumptions?)/i.test(recordBody);
@@ -341,12 +373,12 @@ export function evaluateFormalVerificationCompletion(options = {}) {
     if (!hasCoverage) missing.push('Final report missing coverage scope');
 
     // 2. Deliberate breakage evidence
-    const breakEvidenceMatches = reportText.match(/(?:break\s*\d+|deliberate\s*break|breakage|break\s*(?:and|&)\s*restore)/gi) || [];
-    const hasBreakEvidence = /(?:break|broken|counterexample)/i.test(reportText) && /(?:exit\s*(?:status|code)?\s*(?:[1-9]|non-zero)|failing)/i.test(reportText);
+    const requiredCycles = kind === 'create' ? 2 : 1;
+    const hasBreakEvidence = hasFormalBreakageEvidence(reportText, requiredCycles)
+      || hasFormalBreakageEvidence(recordBody, requiredCycles);
 
     if (kind === 'create') {
-      const hasTwoBreaks = breakEvidenceMatches.length >= 2 || /(?:two\s+breaks|twice|both\s+breaks)/i.test(reportText);
-      if (!hasBreakEvidence || !hasTwoBreaks) {
+      if (!hasBreakEvidence) {
         missing.push('Final report missing evidence of deliberate breakage (two break and restore cycles with counterexample and failing exit status)');
       }
     } else {

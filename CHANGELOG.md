@@ -2,6 +2,11 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
+## 0.3.10
+
+- Recognize `Break cycle N`, `cycle N`, and Chinese numbered round labels in formal breakage evidence; count distinct cycle numbers and accept common nonzero exit-code notation.
+- Fall back to breakage evidence in the generated skill's Record section, including nested headings, when the final report omits the cycle details. Keep deliberate mutation failures separate from the restored Run it commands' expected successful exit. Add unit and production registration regressions.
+
 ## 0.3.9
 
 - Connect the production formal gate to real shell execution from the generated skill's repository root, with a 30-second command timeout; route explicit `verification_exec` TLC requests through the existing restricted TLC backend.
