@@ -1,191 +1,91 @@
-# @jiangkoumo/pi-pstack
+# pi-pstack
 
 [![CI](https://github.com/jiangkoumo/pi-pstack/actions/workflows/check.yml/badge.svg)](https://github.com/jiangkoumo/pi-pstack/actions/workflows/check.yml)
+[![npm](https://img.shields.io/npm/v/@jiangkoumo/pi-pstack.svg)](https://www.npmjs.com/package/@jiangkoumo/pi-pstack)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-将 Lauren Tan（[@poteto](https://github.com/poteto)）的 **pstack** 工业级工程技能与工作流移植为原生的 **Pi Package**。
+把 Lauren Tan（[@poteto](https://github.com/poteto)）为 Cursor 写的 [pstack](https://github.com/cursor/plugins/tree/main/pstack) 移植到 [Pi](https://github.com/earendil-works/pi) coding agent。
 
-提供开箱即用的一站式安装体验，为 Pi 用户带来包含软件工程准则、调查/修复/重构/自主运行流程、多模型只读审阅以及有界循环执行在内的完整软件工程方法论。
+pstack 是一套工程方法：24 条工程原则、23 个工作流程（调查、修 bug、做功能、重构、自主运行……）、独立审阅、多模型分工，以及形式化验证。这个包把它们做成原生的 Pi 技能和扩展，装上就能用。
 
-> **可选依赖与优雅降级说明**：
-> 本包将 `pi-subagents`（范围 `^0.79.0`，已在 `0.79.x` 严格验证）声明为可选对等依赖（optional peerDependency）。
-> - **已安装兼容的 `pi-subagents` 时**：启用完整的多代理协同与角色路由能力。通过公开事件注册 `pstack.*` 角色代理，支持 `how`、`architect`、`arena`、`swarm`、`interrogate`、`comment-sicko` 以及隔离 worktree 代码委派；
-> - **未安装或不可用时**：系统保持单代理完整可用，不阻断包加载。所有的工程原则、方法技能、实战 Playbooks、`/poteto-mode` 模式控制、以及 `/loop` 有界循环长任务底座均照常工作。遇有多代理审阅流程时，Playbook 优雅降级为单代理顺序执行，结果明确标注为自审并记录 `BLOCKED: independent review`，不冒充独立审查。
+> 非官方移植。上游固定在 pstack 0.15.30（`eb4db2b5`）。
 
----
+## 能做什么
 
-## 核心特性与架构
+- **`/poteto-mode`**：开启后，Pi 会按 pstack 的流程干活：先判断任务类型，再走对应的工作流程，关键步骤停下来等你批准，不会自动 commit 或 push。
+- **独立审阅与分工**：配合 `pi-subagents`，代码由 `pstack.poteto-agent` 在隔离 worktree 里写，`pstack.comment-sicko` 只读审阅，`pstack.verifier` 在沙箱里跑测试。每个角色可以用不同的模型。
+- **`/loop`**：有轮数上限的长任务续跑，每轮跑一次你给的检查命令（比如 `npm test`），通过就停。
+- **形式化验证**：`/skill:create-formal-verification-skill` 为你的项目生成 TLA+ 模型和真实代码检查，完成前会自动重跑并核对结果。需要 Java 和 TLC，没有也能用其余功能。
+- **单独使用的技能**：`correct`、`tdd`、`how`、`architect`、`sharpen`、`ketchup`、`recall`、`statechart` 等。
 
-### 1. 全量 85 项条目 100% 决议闭环
-上游 85 个条目已全部完成审计、适配与决议：
-* **已适配生成 (80 项 Ported)**：包含工程原则、方法技能、多代理技能、实战 Playbooks、形式化验证套件（`/create-formal-verification-skill`、`/maintain-formal-verification-skill`、`/statechart`）；`recall`、`ketchup`、`sharpen`、`automate-me`、`eval`、`authoring-a-skill` 已接入当前工作区的 Pi 会话。保留本地证据与显式 Git 授权边界；
-* **替代路线定案 (5 项 Substitute)**：Benny 三项自动化、`make-bot-ui` 与由扩展命令替代的 `setup-pstack`。来源与替代范围逐项记录；
-* **延期待定 (0 项 Deferred)**：上游条目已全部清点决议完毕。Claude Code 安装树作为宿主特定组件单独归档为 deferred，不纳入包分发。
-
-### 2. `/loop` 长任务有界续跑运行时
-基于 Pi 1.3.0 官方公开的 `agent_before_settle` 事件规范构建的原子续跑底座：
-* **硬性轮次预算**：支持 `--max-turns <n>`（默认 8 轮），防止无界死循环；
-* **可执行停止谓词**：启动 loop 必须提供 `--until "<command>"`（如 `--until "npm test"`），每轮结算时在子进程执行检查，exit code 0 自动达标停止；
-* **分支绑定与隔离**：状态持久化在会话分支的自定义 entry `pstack.loop.v1` 中；会话重载或切换分支时，仍在运行的 loop 会置为 `interrupted`。普通输入不会自动将 loop 标记为中断；需要主动停止时使用 `/loop stop`；
-* **安全守卫**：默认拒绝在脏工作区启动（可传 `--allow-dirty`），绝不向模型授予未经授权的自动 Git 操作权限。
-
-### 3. 多代理安全隔离与运行时角色注册
-* **运行时公开事件注册**：本扩展在会话启动时通过 `pi-subagents:runtime-agent-register:v1` 公开事件动态注册 `pstack.poteto-agent`（`code`）、`pstack.comment-sicko`（`review`）、`pstack.verifier`（`verification`）和 `pstack.prose-writer`（`prose`），完全解耦静态包导出与全局命名空间；
-* **受限审阅与验证**：comment-sicko 只获得原生读取工具与 `git_read`；verifier 另获 `verification_exec`，可在可用的 macOS/Linux OS 沙箱中执行测试、构建和 lint，拒绝网络及仓库写入。缺少可用 OS 沙箱时会在临时 Git 工作区降级执行，并在结果及 `/setup-pstack status` 中明确告警、列出限制和验证责任人；降级模式不阻断网络或工作区外写入，不能作为 OS 隔离验收依据。无法准备工作区时明确拒绝。两者均无 `edit`、`write`、原生 `bash` 或嵌套委派工具；验证命令中的项目代码仍受上述实际执行边界约束；ambient 模型 provider 扩展保持可加载，工具白名单约束可调用能力；
-* **机械门禁与长程编排**：代码编写委派必须生成结构化 Handoff Patch，必须通过独立 Review 与命令验收；多阶段规划提供标准计划模板（`docs/templates/pstack-plan.md`）与 Node CLI 计划检查器（`scripts/check-plan.mjs`），未通过门禁前绝不应用补丁，严禁自动 commit 或 push。
-
-### 4. 模式控制与多角色模型配置
-* `/poteto-mode on | off | status`：在当前会话分支开启或关闭系统提示词与工程指引注入；
-* `/setup-pstack`：严格 Schema 校验，为 `code`、`bug-fix`、`perf`、`hillclimb`、`judgment`、`strongest`、`review`、`prose`、`verification` 分配精确的 `provider/id` 模型和 thinking 级别，绝不静默回退；
-* **形式化验证引导**：交互式配置引导（第 8 步）扫描项目技能与 TLC 可用性，向用户发起一次性项目形式化验证技能提议；用户选择持久化在项目隔离配置中，拒绝后不再重复提示。
-
----
-
-## 真实代码库场景实测验证（`npm run check:sim`）
-
-本项目不仅通过了纯逻辑单测，还在真实的业务代码库（`ledger-app` 金融计算工程）中完成了端到端全链路闭环模拟实测：
-1. **真实 Bug 注入**：计算模块存在浮点精度漂移 Bug，单元测试真实失败（exit code 1）；
-2. **模式与循环驱动**：激活 `/poteto-mode on`，启动 `/loop run --max-turns 4 --until "node --test test/calculator.test.mjs"`；
-3. **真实谓词收敛**：经过 2 轮迭代，模型修复业务精度，测试命令返回 exit code 0，系统自动检测并标记 `completed (predicate-satisfied)` 停止；
-4. **机械门禁安全合入**：生成二进制补丁，恢复源工作区，经只读审阅报告校验通过后由 `writer-gate.mjs --apply` 安全合入代码。
-
----
-
-## 安装与使用
-
-### 安装
-
-使用 Pi 官方包管理器进行全局或项目安装：
+## 安装
 
 ```bash
-# 全局安装
-pi install @jiangkoumo/pi-pstack
+pi install npm:@jiangkoumo/pi-pstack
 
-# 本地调试加载
-pi -e /path/to/pi-pstack
-```
-
-使用多代理审阅或 writer 委派前，必须先安装提供 `subagent` 工具的可选扩展（要求版本 `>=0.79.2`）：
-
-```bash
+# 可选：多代理审阅和委派需要它（0.79.x）
 pi install npm:pi-subagents
 ```
 
-安装后重新启动 Pi，使扩展加载。`pi-pstack` 通过公共运行时事件动态注册角色代理，`subagent` 工具由 `pi-subagents` 提供。未安装该扩展时，仍可使用单代理技能、模式与 `/loop`，多代理流程不可用。
+装完重启 Pi。没装 `pi-subagents` 时，单代理功能全部可用；需要独立审阅的流程会降级为自审，并明确标注 `BLOCKED: independent review`，不会冒充独立审查。
 
-从源码运行测试或二次开发时，执行 `npm ci --include=dev && npm test`，安装锁文件中的开发依赖（包含 `jiti`）。显式包含开发依赖可覆盖本机的 `NODE_ENV=production` 或 npm `omit=dev` 设置；更改依赖时执行 `npm install --include=dev` 并提交更新后的锁文件。
-
-### 可选依赖：形式化验证（Java 11+ 与 tla2tools.jar）
-
-TLA+ 模型检查（TLC）是可选能力：本包不打包、也不自动下载 Java 或 `tla2tools.jar`，缺少它们时其余功能照常工作。
-
-- **Java 11+**：扩展用 `java -version` 探测版本，低于 11 视为不可用（例如 `1.8.0_x` 会被拒绝）。
-- **tla2tools.jar**：从 TLA+ 官方发布页 <https://github.com/tlaplus/tlaplus/releases> 取得（上游 `statechart` 技能脚本使用同一来源），由操作者自行保存。
-- **配置 jar 路径**（只认显式声明，不做猜测）：
-  - 环境变量 `TLA2TOOLS_JAR=/absolute/path/to/tla2tools.jar`（兼容上游脚本使用的 `TLA2TOOLS`）；或
-  - `pstack.json` 中的 `{"version": 1, "roles": {}, "tla": {"tla2toolsJar": "/absolute/path/to/tla2tools.jar"}}`。
-  - 两处声明不同路径时会被拒绝，而不是任选其一；相对路径会被拒绝。
-- **受限执行**：通过 `verification_exec` 的结构化入口 `{"command":"tlc","spec":"models/Spec.tla","config":"models/Spec.cfg","options":["-cleanup","-noGenerateSpecTE","-noGenerateSpecTEBin"]}` 调用。只能启动已配置的那一个 jar，只接受仓库内的 `.tla` 与 `.cfg` 路径（按真实路径解析，拒绝 `..` 和符号链接越界）以及白名单 TLC 选项：`-cleanup`、`-nowarning`、`-deadlock`、`-continue`、`-difftrace`、`-noGenerateSpecTE`、`-noGenerateSpecTEBin`、`-workers <n|auto>`、`-depth <n>`、`-seed <n>`、`-coverage <n>`；`.cfg` 由请求的 `config` 字段给出（选项里的 `-config` 不被接受）。其他任何 java 调用一律拒绝。
-- **执行边界**：沿用 `verification_exec` 的规则（有 OS 沙箱时在其中运行，否则在临时 Git 工作区降级运行并明确标注），并使用同一超时与输出截断上限；TLC 的状态目录（`-metadir`）与 `java.io.tmpdir` 都指向私有 scratch 目录，仓库保持只读。
-- **缺少 TLC 时**：结果明确写「未做形式化验证，原因是缺少 TLC」，并给出上游的 no-verifier fallback——用生成式输入测试真实代码，而不是函数的手工模型。该 fallback 只能报告为生成式测试覆盖，**不能**算作 formal pass。
-- **状态与 CI**：`/setup-pstack status` 与 `/poteto-mode status` 的 `tlc` 字段展示 Java、jar 和 fallback 探测结果。用户配置位于 Pi agent 目录的 `pstack.json`，项目配置位于 `.pi/pstack.json`；可信项目的 jar 设置覆盖用户设置。CI 不安装 Java、也不提交 jar，真实 TLC 的可选测试会打印跳过原因（`SKIPPED real TLC: 未做形式化验证，原因是缺少 TLC ...`）；设置 `PSTACK_TLC_REQUIRE=1` 可让缺少 TLC 直接失败。需要真实运行的环境自行配置上述 jar，再执行 `node --test scripts/verification-exec.test.mjs`。
-
-本机真实验收使用 Java 21.0.11 与官方 [v1.8.0](https://github.com/tlaplus/tlaplus/releases/tag/v1.8.0) jar（GitHub 标记为预发布版，内部标识为 `TLC2 Version 2026.10.20.183001`，rev `d2e1472`，SHA-256 `5bd7b64db99ae4c6c35f290de5e809c0ee41af43f8699cf696099ffb6452b1e2`）：最小模型通过，违反不变量返回 12，前台/后台 verifier 均在 OS 沙箱内执行，`statechart` 真实模型（`OutputFolder.tla`）出图完整通过。该版本默认往模型目录生成反例探索文件；仓库只读时需传 `-noGenerateSpecTE` 与 `-noGenerateSpecTEBin`，文本反例仍保留。官方稳定版 v1.7.4 在当前 macOS 禁网沙箱内因内部 RMI 监听失败而未通过；不能仅凭能力探测可用就宣称该组合兼容。
-
-**TLC 版本敏感性与测试说明**：
-- 在配置了 TLA+ v1.8.0（TLC2 2026.10.20）的完整环境中运行上游 `skills/statechart/scripts/test/statechart.test.mjs` 时，第 55 条测试“each TLC run writes the standard modules in its own temp folder”会出现断言失败（57/58 通过）。
-- **原因**：新版 TLC2 调整了标准模块解压行为，将 `Naturals.tla` 等解压到 `tmp/tlc-<随机数>/` 子目录并在解析日志后标注来自 jar（如 `(jar:file:.../tla2sany/StandardModules/Naturals.tla)`）；而上游测试断言严格匹配旧版 TLC 平铺解压的路径格式。此问题属于上游测试对 TLC 内部日志与临时路径格式的版本敏感性，实际模型检查与出图功能不受影响。
-- **CI 与默认环境**：CI 默认未安装 Java 和 TLC，所有需要 TLC 的用例在无 jar 环境下均优雅跳过（skip，退出码 0），CI 门禁与默认 `npm test` 完全不受影响。
-- **上游反馈背景**：本项目严格遵守上游代码逐字移植约束（严禁私自修改上游测试和实现），该断言敏感性已如实记录，可作为 issue 向上游（cursor/plugins）反馈以改进测试断言兼容性。
-
-版本、校验值、测试敏感性与命令详见 [真实 TLC 验收](docs/validation-stage-b-tlc.md) 与 [statechart 出图与测试验收](docs/validation-statechart-outputfolder.md)。
-
-### 形式化验证完成门与续跑预算
-
-生成或维护项目形式化验证技能时，完成门会从 `SKILL.md` 所属项目根目录执行 `## Run it` 中标为 `sh` / `bash` 的代码块；每条命令限时 30 秒，超时终止进程组，输出按流限制为 128 KiB。无语言标记或 `text` 的预期输出块不作为命令。命令可以包含 shell 引号、环境变量及组合语法。TLC 使用同一受限后端，记录为独立一行的 JSON 调用，例如：
-
-```text
-verification_exec {"command":"tlc","spec":"models/Spec.tla","config":"models/Spec.cfg","options":["-cleanup","-noGenerateSpecTE","-noGenerateSpecTEBin"]}
-```
-
-项目 `.pi/pstack.json` 或用户 `pstack.json` 可以配置 `"autoContinue":{"enabled":true,"maxTurns":3}`（与 `version:1`、`roles:{}` 同级，轮数范围 1–10）。形式化门共用这个 `maxTurns` 配置，默认最多 3 轮检查；连续两次缺项完全相同会提前停止。停止时只追加一次最终报告提示，列出“未验证”项，然后结束本次请求；不会把预算耗尽视为验证通过。新的用户消息会重置预算；历史技能引用不会单独触发新请求。缺 TLC 或配置无法读取时，最终提示会列出阻塞原因。`enabled` 控制普通 auto-continue，形式化门仍独立执行自身检查；活动 `/loop` 会让位给形式化门的续跑与停止决定。
-
-### 常用命令
+## 快速上手
 
 ```bash
-# 1. 开启或查看当前会话的 poteto-mode 状态
+# 开启 pstack 模式，然后照常提需求
 /poteto-mode on
 /poteto-mode status
 
-# 2. 配置多模型角色（例如分配审查模型）
-/setup-pstack set project review opendesign/deepseek-v4.1-flash high
+# 给不同角色配模型（provider/model + thinking 级别）
+/setup-pstack set project code     <provider>/<model> high
+/setup-pstack set project review   <provider>/<model> high
 /setup-pstack status
 
-# 3. 启动有界自主推进循环
+# 有界续跑：最多 6 轮，npm test 通过就停
 /loop run --max-turns 6 --until "npm test" "fix the edge cases in parser"
 /loop status
 /loop stop
 
-# 4. 直接使用特定工程技能
-/skill:poteto-mode "investigate the memory leak in worker"
-/skill:correct "audit recurring regression patterns"
+# 直接调用某个技能
+/skill:how "这个 worker 的内存是怎么涨上去的"
 /skill:sharpen "refactor caching layer"
-/skill:ketchup
-/skill:create-formal-verification-skill "prove queue concurrency invariants"
-/skill:statechart "generate statechart from OutputFolder.tla"
+/skill:create-formal-verification-skill "queue concurrency invariants"
 ```
 
-`/loop run` 必须提供 `--until "<command>"` 停止谓词；`--max-turns` 限制最大轮次。`/loop` 的交互入口使用 TUI；无头运行请启动 `pi --mode rpc`，通过 RPC 客户端发送 `/loop run ...` 并处理后续事件。不要使用 print/JSON 模式（`pi -p` 或 `pi --mode json`）启动 loop；这些模式不支持此续跑入口。
+几点说明：
 
-### 角色优先级与调用规则
+- 可配置的角色有 `code`、`bug-fix`、`perf`、`hillclimb`、`judgment`、`strongest`、`review`、`prose`、`verification`。没配的角色不会静默换成别的模型。
+- 用户级配置在 Pi agent 目录的 `pstack.json`，项目级配置在 `.pi/pstack.json`，项目级优先。`subagents.agentOverrides.<name>` 可以单独覆盖某个代理。
+- 调用 pstack 代理时不要传顶层 `model` 参数，会被拦下，以保证各角色用你配的模型。
+- `/loop` 要在 TUI 或 RPC 模式（`pi --mode rpc`）下用，`pi -p` 和 `--mode json` 不支持。默认拒绝在有未提交改动的工作区启动，可以加 `--allow-dirty`。
 
-通过 `/setup-pstack` 配置的角色模型直接绑定到各角色的运行时定义中。调用任何包含 pstack 代理的工作流或子代理时，禁止传入顶层 `model` 参数（否则会被机械拦截），以确保各角色使用预设的专属模型。用户级配置 `subagents.agentOverrides.<name>` 优先级高于 `pstack.json`，可按需覆盖特定代理模型与 thinking。
+## 和上游的对应关系
 
----
+上游 85 项全部有去处：
 
-## 支持条目索引与映射
+| 类别 | 数量 | 处理方式 |
+| :--- | :---: | :--- |
+| 工程原则 | 24 | 移植 |
+| 工作流程（playbooks） | 23 | 移植，去掉自动 commit，加上 Pi 的授权门 |
+| 技能 | 31 | 移植，接入角色模型与只读工具白名单 |
+| 代理 | 2 | 移植（`poteto-agent`、`comment-sicko`），另加 `verifier`、`prose-writer` 等角色代理 |
+| 替代 | 5 | Benny 三项自动化、`make-bot-ui`、`setup-pstack`（改成扩展命令） |
 
-| 模块 | 数量 | 典型代表 | 状态与实现依据 |
-| :--- | :---: | :--- | :--- |
-| **工程原则** | 24 | `model-the-domain`, `fix-root-causes`, `prove-it-works`, `build-the-lever` 等 | Ported（全量正文规范化生成） |
-| **工作流程** | 20 | `investigation`, `bug-fix`, `feature`, `autonomous-run`, `orchestrate`, `multi-phase-plan`, `babysit` 等 | Ported（消除自动commit，对齐Pi规范） |
-| **核心技能** | 30 | `correct`, `tdd`, `architect`, `arena`, `how`, `poteto-help`, `create-formal-verification-skill`, `maintain-formal-verification-skill`, `statechart` 等 | Ported（接入角色模型与只读白名单） |
-| **代理角色** | 4 | `comment-sicko`, `poteto-agent`, `verifier`, `prose-writer` | Ported（通过运行时公共事件动态注册） |
-| **替代条目** | 5 | Benny 三项自动化、`make-bot-ui`、`setup-pstack` 扩展命令 | Substitute（逐项记录替代边界） |
+逐项对照见 [port-map.json](docs/port-map.json) 和 [skill-audit.md](docs/skill-audit.md)。上游正文按句子做保真度检查，整体不低于 94%（`npm run check:fidelity`）。
 
-详细的逐项审计、源码指纹与适配说明请参阅 [逐项移植映射 (port-map.json)](docs/port-map.json) 与 [逐项审计清单 (skill-audit.md)](docs/skill-audit.md)。
+## 安全边界
 
----
+- 不会自动 commit、push 或开 PR，这些都要你批准。
+- 审阅代理只有读文件和只读 git 工具，没有 `edit`、`write`、`bash`。
+- `verifier` 在 macOS/Linux 的 OS 沙箱里跑测试，禁网、不能写仓库。没有沙箱时会退到临时 git 工作区执行，并明确提示这种情况不算隔离验证。
+- TLC 只能通过受限入口启动你配置的那个 jar，只接受仓库内的 `.tla`/`.cfg` 和白名单选项。
 
-## 质量与防漂移保障
+## 更多文档
 
-本项目采用“固定上游源码（`upstream/`）+ Pi 适配层（`adapters/pi/`）+ 生成分发资源（`skills/`, `agents/`）”的设计：
-* `npm run check:generate`：校验固定上游指纹与生成产物，拒绝漂移；当前检查 131 项资源；
-* `npm test`：执行模式持久化、Loop 状态机、生成器、Writer Gate 与保真度门禁行为测试；
-* `npm run check:fidelity`：运行指定上游文本对比脚本，要求整体至少94%、每个已移植Markdown至少70%；
-* `npm run check:sim`：真实代码库端到端闭环实测。
+- [形式化验证：安装 TLC、完成门、版本说明](docs/formal-verification.md)
+- [开发、测试与发布](docs/development.md)
+- [来源与固定版本](docs/sources.md)
 
----
+## 许可证
 
-## 发布
-
-发布由 tag 驱动：推送 `v*` tag 后，`.github/workflows/publish.yml` 校验 tag 与 `package.json` 版本一致，运行 `npm test`、`npm run check:generate` 和 `npm run check:fidelity`，再发布 npm。0.3.2 的发布目标是由 CI 完成；可信发布者配置与实际结果记录在 [集成验收](docs/validation-032-release.md)。
-
-本地一键发布：
-
-```bash
-npm run release -- patch --dry-run   # 跑门禁、显示下一版本，不改文件
-npm run release -- patch             # 仅本地 commit + annotated tag
-npm run release -- patch --push      # 再 push commit 与 tag
-npm run release -- patch --publish   # npm publish 并 push commit 与 tag（需先 npm login）
-```
-
-`--publish` 隐含 `--push`；脚本默认只接受 `main` 分支、要求工作区干净，并在任何写入前跑完门禁。支持 `patch` / `minor` / `major`。CI 发布前需在仓库 Settings → Secrets 配置 `NPM_TOKEN`；预发布版本会自动使用 `next` tag。本地 `--publish` 后 tag 仍会触发 workflow；workflow 会检查该版本是否已存在于 npm，已发布则跳过，避免重复发布。
-
----
-
-## 许可证与来源
-
-- 本项目遵循 [MIT 许可证](LICENSE)；
-- pstack 技能与工作流版权归原作者 Lauren Tan（[@poteto](https://github.com/poteto)）所有，上游许可证见 [LICENSES/pstack.txt](LICENSES/pstack.txt)；
-- 详细第三方声明参见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+[MIT](LICENSE)。pstack 原文版权归 Lauren Tan，许可证见 [LICENSES/pstack.txt](LICENSES/pstack.txt)，完整第三方声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
