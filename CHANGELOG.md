@@ -2,7 +2,7 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
-## Unreleased
+## 0.3.13
 
 - Fix #35 (part 2): formal verification gate triggers on read tool calls only when upgraded in the same turn by write/edit to workspace skill directories (`.pi/skills/**` or `.agents/skills/**`); read alone no longer triggers the gate (read 单独不再触发).
 - Remove standalone workspace dirty skill fallback trigger: uncommitted skills in workspace cannot trigger the gate on their own or upgrade read calls without current-round skill writes (单独脏技能、read 加脏技能但本轮未写入均不触发). The workspace state is only used to identify the target skill and kind once triggered by current-round evidence.
