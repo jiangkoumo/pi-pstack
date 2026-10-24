@@ -34,8 +34,8 @@ test('mode on before first message persists immediately to file and survives new
       sendMessage: () => {},
     });
 
-    // Run /poteto-mode on before ANY assistant or user message
-    await commands.get('poteto-mode')('on', ctx);
+    // Run /poteto on before ANY assistant or user message
+    await commands.get('poteto')('on', ctx);
 
     // Verify before_agent_start immediately injects poteto-mode guidance
     const startEvent = { messageType: 'user', prompt: 'hello', systemPromptOptions: { sections: {} } };
@@ -83,7 +83,7 @@ test('mode guidance and role context are re-injected on before_agent_start after
       sendMessage: () => {},
     });
 
-    await commands.get('poteto-mode')('on', ctx);
+    await commands.get('poteto')('on', ctx);
 
     // Turn 1
     const t1 = { messageType: 'user', prompt: 'turn 1', systemPromptOptions: { sections: {} } };

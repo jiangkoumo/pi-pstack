@@ -284,7 +284,7 @@ function normalizeAnswer(answer) {
 }
 
 /**
- * Read-only status view for `/setup-pstack status` and `/poteto-mode status`.
+ * Read-only status view for `/setup-pstack status` and `/poteto status`.
  * Never prompts.
  */
 export function describeFormalSkillStatus({ tlc, formalSkills = [], state, scanErrors = [] } = {}) {

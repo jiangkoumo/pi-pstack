@@ -68,9 +68,9 @@ try {
   }
   await prompt('initial', 'absent');
   const baselineLeaf = manager.getLeafId();
-  await session.prompt('/poteto-mode on');
+  await session.prompt('/poteto on');
   assert.deepEqual(failures, [], 'activation command errors');
-  await session.prompt('/poteto-mode on');
+  await session.prompt('/poteto on');
   check('on is idempotent', manager.getBranch().filter(e => e.customType === 'pstack.mode.v1').length === 1);
   const onLeaf = manager.getLeafId();
   await prompt('first enabled request', 'is ON');
@@ -78,14 +78,14 @@ try {
   check('prompt contains only concise skill pointer', onPrompt.includes('Read ') && !onPrompt.includes('## Route the task'));
   await session.reload();
   await prompt('after reload', 'is ON');
-  await session.prompt('/poteto-mode off');
+  await session.prompt('/poteto off');
   await prompt('after off', 'is OFF');
   check('off removes on reminder', !session.systemPrompt.includes('is ON'));
   await session.navigateTree(onLeaf, { summarize: false });
   await prompt('back to enabled branch', 'is ON');
   await session.navigateTree(baselineLeaf, { summarize: false });
   await prompt('before activation', 'absent');
-  await session.prompt('/poteto-mode on');
+  await session.prompt('/poteto on');
   await prompt('request before compaction', 'is ON');
   await session.compact('Summarize this fixture');
   check('actual host compaction recorded', manager.getBranch().some(e => e.type === 'compaction'));
@@ -131,16 +131,16 @@ try {
   check('trusted project overrides role', records.some(m => m.customType === 'pstack.command' && /"code":\s*\{\s*"model": "inherit"/.test(String(m.content))));
   await session.prompt('/setup-pstack unset project code');
   check('unset restores user preference', JSON.parse(await readFile(resolve(cwd, CONFIG_DIR_NAME, 'pstack.json'), 'utf8')).roles.code === undefined);
-  await session.prompt('/poteto-mode on');
+  await session.prompt('/poteto on');
   await writeFile(configFile, '{bad json');
   const statusStart = records.length;
   const errorsBeforeStatus = failures.length;
   await session.prompt('/setup-pstack status');
-  await session.prompt('/poteto-mode status');
+  await session.prompt('/poteto status');
   check('both statuses show malformed config without failing', failures.length === errorsBeforeStatus && records.slice(statusStart).filter(m => m.customType === 'pstack.command' && String(m.content).includes('configError') && String(m.content).includes('pstack.json')).length === 2);
   await prompt('malformed active config', 'Pstack configuration/state error:');
   check('malformed config is visible in provider request', JSON.stringify(requests.at(-1)).includes('Pstack configuration/state error:'));
-  await session.prompt('/poteto-mode off');
+  await session.prompt('/poteto off');
   await writeFile(configFile, firstConfig);
   const afterConfigErrorRequest = requests.length;
   await session.prompt('/setup-pstack models');

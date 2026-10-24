@@ -165,11 +165,9 @@ export default function pstack(pi: ExtensionAPI) {
       event.systemPromptOptions.sections[MODE_SECTION] = `Pstack configuration/state error: ${String(error)}. Report this error and stop this task until the operator fixes configuration or disables poteto-mode. No alternative model or provider was selected.`;
     }
   });
-  pi.registerCommand('poteto-mode', {
-    description: 'Enable, disable, or inspect branch-local poteto-mode: on | off | status',
-    handler: async (args, ctx) => {
+  const handlePoteto: Parameters<ExtensionAPI['registerCommand']>[1]['handler'] = async (args, ctx) => {
       const action = args.trim() || 'status';
-      if (!['on', 'off', 'status'].includes(action)) throw new Error('Usage: /poteto-mode on|off|status');
+      if (!['on', 'off', 'status'].includes(action)) throw new Error('Usage: /poteto on|off|status');
       if (action !== 'status') {
         if (!ctx.isIdle()) throw new Error('Wait for the current run to finish before changing poteto-mode');
         const enabled = action === 'on';
@@ -236,6 +234,20 @@ export default function pstack(pi: ExtensionAPI) {
         },
         skillPath,
       }, ctx);
+  };
+  pi.registerCommand('poteto', {
+    description: 'Enable, disable, or inspect branch-local poteto-mode: on | off | status',
+    handler: handlePoteto,
+  });
+  // Pi 1.4's public RegisteredCommand API has no hidden completion flag.
+  pi.registerCommand('poteto-mode', {
+    description: '[已弃用] 请改用 /poteto on|off|status；将在 0.5.0 移除',
+    handler: async (args, ctx) => {
+      const warning = '/poteto-mode 已弃用，请改用 /poteto on|off|status，将在 0.5.0 移除';
+      if (ctx.mode === 'print') console.error(warning);
+      else if (typeof ctx.ui?.notify === 'function') ctx.ui.notify(warning, 'warning');
+      else show({ warning }, ctx);
+      await handlePoteto(args, ctx);
     },
   });
   pi.registerCommand('setup-pstack', {

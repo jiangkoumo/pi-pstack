@@ -558,7 +558,7 @@ async function runLive(argv) {
           }
         });
 
-        await session.prompt('/poteto-mode on');
+        await session.prompt('/poteto on');
         const mode = manager.getBranch().filter(entry => entry.customType === 'pstack.mode.v1').at(-1)?.data;
 
         let promptError;

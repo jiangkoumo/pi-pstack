@@ -1,6 +1,6 @@
 # pi-pstack upstream fidelity
 
-Files: 114  flagged: 4  overall kept (excluding Cursor substitutions): 4443/4722 = 94%
+Files: 114  flagged: 4  overall kept (excluding Cursor substitutions): 4439/4722 = 94%
 
 Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
@@ -8,7 +8,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 |---|---|---|---|---|---|---|---|---|
 | skills/make-bot-ui/SKILL.md | 73 | 0 | 0 | 73 | 2 | 0 | MISSING | ! |
 | skills/setup-pstack/SKILL.md | 53 | 0 | 0 | 53 | 9 | 0 | MISSING | ! |
-| skills/poteto-help/SKILL.md | 173 | 144 | 7 | 8 | 14 | 12 | 91% | ! |
+| skills/poteto-help/SKILL.md | 173 | 140 | 8 | 11 | 14 | 18 | 88% | ! |
 | skills/poteto-mode/playbooks/orchestrate.md | 204 | 183 | 15 | 4 | 2 | 45 | 91% | ! |
 | skills/poteto-mode/playbooks/worktree-cleanup.md | 30 | 21 | 7 | 2 | 0 | 59 | 70% |  |
 | skills/how/SKILL.md | 24 | 16 | 5 | 1 | 2 | 22 | 73% |  |
@@ -34,7 +34,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/poteto-mode/playbooks/autonomous-run.md | 21 | 19 | 1 | 0 | 1 | 42 | 95% |  |
 | skills/poteto-mode/playbooks/session-pickup.md | 20 | 19 | 1 | 0 | 0 | 37 | 95% |  |
 | skills/why/references/sources/slack.md | 20 | 19 | 1 | 0 | 0 | 8 | 95% |  |
-| skills/poteto-mode/SKILL.md | 235 | 214 | 8 | 3 | 10 | 143 | 95% |  |
+| skills/poteto-mode/SKILL.md | 235 | 214 | 8 | 3 | 10 | 145 | 95% |  |
 | skills/poteto-help/references/prompting.md | 44 | 42 | 2 | 0 | 0 | 5 | 96% |  |
 | skills/poteto-mode/playbooks/perf-issue.md | 23 | 21 | 1 | 0 | 1 | 36 | 96% |  |
 | skills/principle-boundary-discipline/SKILL.md | 22 | 21 | 0 | 1 | 0 | 2 | 96% |  |
@@ -249,6 +249,9 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 - prefix, such as /pstack:poteto-mode.
 - Other tools can read the skills, because they use the Agent Skills format.
 - Guide page 2 has examples.
+- Whether /poteto-mode stays on depends on how the user starts it:
+- It fades as the chat moves on.
+- It stays in context every turn until the user exits the mode, and it stays out of casual turns.
 - Guide page 6 covers opening, babysitting, and landing a PR.
 - Guide page 9 covers each of these.
 

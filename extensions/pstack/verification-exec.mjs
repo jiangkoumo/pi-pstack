@@ -20,7 +20,7 @@
  *    block network access and does not stop writes outside the temporary
  *    worktree and scratch. Every degraded result carries that warning, the
  *    responsible party, and `degraded: true`; the capability query exposes the
- *    same facts to `/poteto-mode status` and `/setup-pstack status`.
+ *    same facts to `/poteto status` and `/setup-pstack status`.
  *
  * Explicit non-goals: read confinement (repository code can read everything the
  * user can read), secret confidentiality, process/signal containment beyond the
@@ -421,7 +421,7 @@ export function detectSandbox() {
 
 /**
  * Describe the actual execution boundary without overstating it. This is the
- * capability query `/poteto-mode status` and `/setup-pstack status` should show.
+ * capability query `/poteto status` and `/setup-pstack status` should show.
  */
 export function capabilityFromSandbox(sandbox) {
   if (sandbox?.available && SANDBOX_KINDS.has(sandbox.kind)) {

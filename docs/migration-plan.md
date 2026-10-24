@@ -67,11 +67,13 @@ Pi 提供的宿主包按官方文档声明为 peerDependencies，不打进运行
 | 入口 | 预期行为 |
 | --- | --- |
 | /skill:poteto-mode <任务> | 本轮显式应用主技能 |
-| /poteto-mode on | 开启当前会话后续轮次的模式 |
-| /poteto-mode off | 关闭后续轮次自动应用 |
-| /poteto-mode status | 显示模式和能力状态 |
+| /poteto on | 开启当前会话后续轮次的模式 |
+| /poteto off | 关闭后续轮次自动应用 |
+| /poteto status（或无参数 /poteto） | 显示模式和能力状态 |
 | /setup-pstack | 检测实际可用模型并配置角色 |
 | /skill:correct <范围> | 在任务授权范围内识别重复错误并落实约束 |
+
+持续模式命令现使用 `/poteto on|off|status`；显式 `/skill:poteto-mode <任务>` 不改变持续状态。原状态格式与恢复行为保持兼容，无需迁移。旧 `/poteto-mode` 在 0.3.x 和 0.4.x 保留，每次执行先显示「/poteto-mode 已弃用，请改用 /poteto on|off|status，将在 0.5.0 移除」，0.5.0 移除。Pi 1.4 的公开 RegisteredCommand API 不支持隐藏补全，因此旧别名仍可见，描述以 `[已弃用]` 开头。
 
 P2 已通过 before_agent_start 更新单个系统区块，通过 appendEntry 记录非模型模式状态，并按活动分支恢复；生成式迁移保留该行为，不将完整技能每轮重复塞进上下文。
 

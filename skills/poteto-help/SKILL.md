@@ -1,6 +1,6 @@
 ---
 name: poteto-help
-description: Guides users through pstack setup, /poteto-mode, and picking the skill, playbook, or principle for a task. Use for help about pstack.
+description: Guides users through pstack setup, /skill:poteto-mode, and picking the skill, playbook, or principle for a task. Use for help about pstack.
 disable-model-invocation: true
 license: MIT
 ---
@@ -9,7 +9,7 @@ license: MIT
 
 Answer the user's question about pstack, hand them a prompt they can send, and link the file the answer came from. For a help question, don't start the work. The user asked how, and a pstack run spends real tokens, so let them send the prompt.
 
-A message that asks for work, such as "use pstack to fix this bug", is not a help question. Read [poteto-mode](../poteto-mode/SKILL.md), do the work under it, and mention once that `/poteto-mode on` keeps it on.
+A message that asks for work, such as "use pstack to fix this bug", is not a help question. Read [poteto-mode](../poteto-mode/SKILL.md), do the work under it, and mention once that `/poteto on` keeps it on.
 
 This file maps questions to the skills and reference pages that hold the answers. Those files own the details. Read the file you route to before you quote it, and trust it when it disagrees with this map. The links here point into the installed package, which the user may not be able to open, so give the user the file's path and installed location as well as the link.
 
@@ -18,7 +18,7 @@ This file maps questions to the skills and reference pages that hold the answers
 Infer the need from the message and the conversation. A named situation, such as "which skill reviews a PR?", goes straight to its section. If the need is still unclear, ask one multiple-choice question with these options, then answer only the section they pick:
 
 - Get set up
-- Start a task with `/poteto-mode`
+- Start a task with `/skill:poteto-mode`
 - Pick a skill for a situation
 - Fix a run that went wrong
 - Make pstack my own
@@ -42,29 +42,29 @@ When the model rule is missing and it matters, ask whether the user wants to pic
 
 Installing changes nothing until the user invokes a skill. Only `/setup-pstack` loads from the user's words. The [Pi adapter](../../adapters/pi/harness.md) and [migration plan](../../docs/migration-plan.md) have the details. Offer to word their first prompt with them, per [prompting.md](references/prompting.md).
 
-If cost is the worry, say where the tokens go and how to spend fewer. pstack spends extra tokens on subagents and review panels. Rerun `/setup-pstack` and pick a smaller budget or cheaper models. A role set to `inherit` or unset runs on the chat's model, which saves tokens when the chat runs on a cheaper model. A shorter review panel runs fewer subagents, one for each seat. Save `/poteto-mode` for work that needs rigor.
+If cost is the worry, say where the tokens go and how to spend fewer. pstack spends extra tokens on subagents and review panels. Rerun `/setup-pstack` and pick a smaller budget or cheaper models. A role set to `inherit` or unset runs on the chat's model, which saves tokens when the chat runs on a cheaper model. A shorter review panel runs fewer subagents, one for each seat. Save `/skill:poteto-mode` for work that needs rigor.
 
-pstack began on Cursor. Its skills use the Agent Skills format, so other tools can read them. This Pi package replaces Cursor subagents with pi-subagents, Custom Modes with `/poteto-mode on` and `/poteto-mode off`, and Cursor transcripts with Pi sessions, so parts written against Cursor features may not behave the same way.
+pstack began on Cursor. Its skills use the Agent Skills format, so other tools can read them. This Pi package replaces Cursor subagents with pi-subagents, Custom Modes with `/poteto on` and `/poteto off`, and Cursor transcripts with Pi sessions, so parts written against Cursor features may not behave the same way.
 
-## Start a task with `/poteto-mode`
+## Start a task with `/skill:poteto-mode`
 
-`/poteto-mode` matches the task to a playbook, copies the playbook's steps into the todo list, and runs the other skills as the steps need them. A step it skips stays in the list as `skip: <reason>`. A good prompt states the goal and how to tell it's done. It doesn't list skills, because a hand-written sequence tends to drop or reorder steps the playbook would keep. Read [prompting.md](references/prompting.md) before you help word one.
+`/skill:poteto-mode` matches the task to a playbook, copies the playbook's steps into the todo list, and runs the other skills as the steps need them. A step it skips stays in the list as `skip: <reason>`. A good prompt states the goal and how to tell it's done. It doesn't list skills, because a hand-written sequence tends to drop or reorder steps the playbook would keep. Read [prompting.md](references/prompting.md) before you help word one.
 
-Whether `/poteto-mode` stays on depends on how the user starts it:
+Enter on `/skill:poteto-mode` attaches the skill to one message. Explicit skill invocation does not change persistent mode.
 
-- Enter on `/skill:poteto-mode` attaches the skill to one message. It fades as the chat moves on.
-- `/poteto-mode on`, or Use as Mode from the skill entry, keeps the mode on. It stays in context every turn until the user runs `/poteto-mode off`, and it stays out of casual turns.
-- Elsewhere, start each new task with `/skill:poteto-mode`. `/poteto-mode status` reports the current state.
+- `/poteto on` enables persistent mode for later turns until `/poteto off`.
+- `/poteto status`, or `/poteto` without arguments, reports the current state.
+- `/poteto-mode` remains a deprecated alias throughout 0.3.x and 0.4.x and will be removed in 0.5.0. Every invocation warns first. Pi 1.4 has no public command API to hide it from completion, so it remains visible with a `[已弃用]` description.
 
-Link the Pi skills docs when this comes up. Mid-chat, "new task" makes the mode match a fresh playbook. `/poteto-mode` already uses `poteto-agent` for the subagents its playbook steps spawn. To get the same style from a subagent of your own, spawn it with `agent: "pstack.poteto-agent"`.
+Link the Pi skills docs when this comes up. Mid-chat, "new task" makes the mode match a fresh playbook. `/skill:poteto-mode` already uses `poteto-agent` for the subagents its playbook steps spawn. To get the same style from a subagent of your own, spawn it with `agent: "pstack.poteto-agent"`.
 
 ## Pick a skill
 
-The default answer is `/poteto-mode`, which runs most of the others when its steps need them. Name a skill directly when the user wants more or less of something than the playbook gives. Read the skill before you recommend it, and give one example prompt.
+The default answer is `/skill:poteto-mode`, which runs most of the others when its steps need them. Name a skill directly when the user wants more or less of something than the playbook gives. Read the skill before you recommend it, and give one example prompt.
 
 | The user wants to | Skill |
 |---|---|
-| Do any non-trivial task with rigor | [`/poteto-mode`](../poteto-mode/SKILL.md) |
+| Do any non-trivial task with rigor | [`/skill:poteto-mode`](../poteto-mode/SKILL.md) |
 | Check that the agent understood their goal and the problem before it starts | [`/in-your-own-words`](../in-your-own-words/SKILL.md) |
 | Get a prompt rewritten deeper, not bigger, before sending it: what a top professional would add, their raw material and methods, and an outside check. It returns the prompt and doesn't do the task | [`/sharpen`](../sharpen/SKILL.md) |
 | Know how code works now, or where new code should live | [`/how`](../how/SKILL.md) |
@@ -112,11 +112,11 @@ Not shipped as skills in this package:
 
 - `/deslop`, `control-cli`, and `control-ui` come from Cursor's `cursor-team-kit`. Here `/unslop` and `/no-comments` cover the local cleanup, and app verification uses the operator's available browser or CLI driver.
 - `/loop` and `/setup-pstack` are Pi extension commands. `/create-skill` is not shipped; use the manual authoring procedure in the [Pi adapter](../../adapters/pi/harness.md).
-- pstack has no `/orchestrate` skill. Orchestrate is a `/poteto-mode` playbook. If the slash menu shows `/orchestrate`, another plugin provides it.
+- pstack has no `/orchestrate` skill. Orchestrate is a `/skill:poteto-mode` playbook. If the slash menu shows `/orchestrate`, another plugin provides it.
 
 ## Playbooks and principles
 
-Playbooks are step lists inside `/poteto-mode`, not skills, so they have no slash command. Inside `/poteto-mode`, describing the task picks one, and these phrases name one directly:
+Playbooks are step lists inside `/skill:poteto-mode`, not skills, so they have no slash command. Inside `/skill:poteto-mode`, describing the task picks one, and these phrases name one directly:
 
 - "babysit this pr" or "check on pr 123" runs Babysit. It drives the PR to merge-ready and stops there. It doesn't merge unless the user asks to merge, land, or ship.
 - "land the stack" runs Shipping.
@@ -125,21 +125,21 @@ Playbooks are step lists inside `/poteto-mode`, not skills, so they have no slas
 - "full autopilot on this queue" runs Autopilot-full. "stack them, don't ship" runs Autopilot-stack.
 - "run the eval playbook" runs [Eval](../poteto-mode/playbooks/eval.md).
 
-Outside `/poteto-mode`, a phrase such as "babysit this pr" does not start a hidden skill here; read the playbook directly or turn the mode on. The Playbooks section of [poteto-mode](../poteto-mode/SKILL.md) lists every playbook and when it applies.
+Outside `/skill:poteto-mode`, a phrase such as "babysit this pr" does not start a hidden skill here; read the playbook directly or turn the mode on. The Playbooks section of [poteto-mode](../poteto-mode/SKILL.md) lists every playbook and when it applies.
 
-pstack has no planning skill. The host's plan mode works alongside it. For work that spans phases or stacked PRs, asking `/poteto-mode` for a plan runs the [Multi-phase plan playbook](../poteto-mode/playbooks/multi-phase-plan.md), which writes the plan and doesn't implement it. For a design question, the Prototype playbook or `/architect` settles it in code first.
+pstack has no planning skill. The host's plan mode works alongside it. For work that spans phases or stacked PRs, asking `/skill:poteto-mode` for a plan runs the [Multi-phase plan playbook](../poteto-mode/playbooks/multi-phase-plan.md), which writes the plan and doesn't implement it. For a design question, the Prototype playbook or `/architect` settles it in code first.
 
-Principles are one-rule skills that `/poteto-mode` reads and cites in its replies. The user rarely invokes one. They steer with the names instead, as in "apply prove it works. show me the real output." Typing `/principle-<name>` still loads one on demand.
+Principles are one-rule skills that `/skill:poteto-mode` reads and cites in its replies. The user rarely invokes one. They steer with the names instead, as in "apply prove it works. show me the real output." Typing `/principle-<name>` still loads one on demand.
 
 ## Fix a run that went wrong
 
 | Symptom | Fix |
 |---|---|
-| The mode stopped applying after a few turns | It was started with `/skill:poteto-mode`. Run `/poteto-mode on`, or start each task with `/skill:poteto-mode`. |
+| The mode stopped applying after a few turns | It was started with `/skill:poteto-mode`. Run `/poteto on`, or start each task with `/skill:poteto-mode`. |
 | A question got treated as the next step of the last task | Say "new task", or say the turn doesn't need the mode. |
 | A new model choice had no effect | The config from `/setup-pstack` applies to new sessions and must match an available model. Inspect the actual dispatched model. Start a new session. |
 | Runs cost more than expected | See the cost paragraph under Get set up. |
-| A skill didn't load on its own | Only `/setup-pstack` loads from the user's words. The others load when the user types them or when `/poteto-mode` runs them, and it doesn't run every skill. |
+| A skill didn't load on its own | Only `/setup-pstack` loads from the user's words. The others load when the user types them or when `/skill:poteto-mode` runs them, and it doesn't run every skill. |
 | Parallel agents overwrote each other | Give each agent its own worktree and keep one writer per worktree. |
 | An overnight run moved but finished nothing | `/loop` needs a check that can pass or fail, not a duration. Give it a bounded budget and an exit-0 predicate. |
 | The reply claims success from a green build | Ask for the real command, flow, stored value, or profile. That's the prove-it-works principle. |
@@ -148,9 +148,9 @@ For a run that drifts, [prompting.md](references/prompting.md) has one-line stee
 
 ## Make pstack my own
 
-- [`/automate-me`](../automate-me/SKILL.md) drafts a personal mode skill from the user's own history, to use alongside `/poteto-mode`.
+- [`/automate-me`](../automate-me/SKILL.md) drafts a personal mode skill from the user's own history, to use alongside `/skill:poteto-mode`.
 - [reflect](../reflect/SKILL.md) after a session turns its lessons into skill edits the user approves.
-- `/poteto-mode write a skill for <workflow>` runs the [authoring playbook](../poteto-mode/playbooks/authoring-a-skill.md). The [eval playbook](../poteto-mode/playbooks/eval.md) tests a skill change blind.
+- `/skill:poteto-mode write a skill for <workflow>` runs the [authoring playbook](../poteto-mode/playbooks/authoring-a-skill.md). The [eval playbook](../poteto-mode/playbooks/eval.md) tests a skill change blind.
 - Fix a misbehaving skill in its own PR, not inside the feature work where it went wrong.
 
 ## Reply
