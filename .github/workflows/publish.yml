@@ -18,8 +18,8 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "22"
       - run: npm ci --include=dev
@@ -33,9 +33,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
@@ -61,6 +61,13 @@ jobs:
           npm run check:generate
           npm run check:fidelity
 
+      - name: Real Pi smoke (pinned Pi, no model calls)
+        env:
+          PI_PSTACK_PI_ROOT: ${{ github.workspace }}/node_modules/@earendil-works/pi-coding-agent
+        run: |
+          timeout 60s node scripts/check-pi-discovery.mjs
+          timeout 60s node scripts/check-pi-commands.mjs
+
       - name: Publish to npm
         run: |
           NAME="$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('package.json', 'utf8')).name)")"
@@ -70,9 +77,9 @@ jobs:
             exit 0
           fi
           if [[ "$VERSION" == *-* ]]; then
-            npm publish --access public --tag next
+            npm publish --provenance --access public --tag next
           else
-            npm publish --access public
+            npm publish --provenance --access public
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
