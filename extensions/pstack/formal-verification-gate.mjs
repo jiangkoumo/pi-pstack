@@ -135,6 +135,29 @@ function isPathInsideCwd(targetPath, cwd) {
   return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel));
 }
 
+function isSkillDirWrite(targetPath, cwd) {
+  if (typeof targetPath !== 'string' || !targetPath.trim()) return false;
+  const resolved = isAbsolute(targetPath) ? resolve(targetPath) : resolve(cwd, targetPath);
+  const rel = relative(cwd, resolved).replace(/\\/g, '/');
+  if (rel.startsWith('..') || isAbsolute(rel)) return false;
+  return /^(?:\.pi|\.agents)\/skills\//i.test(rel);
+}
+
+function checkRunItSkillFile(targetPath, cwd) {
+  if (!isSkillDirWrite(targetPath, cwd)) return null;
+  const resolved = isAbsolute(targetPath) ? resolve(targetPath) : resolve(cwd, targetPath);
+  const rel = relative(cwd, resolved).replace(/\\/g, '/');
+  if (!/(?:^|\/)(?:\.pi|\.agents)\/skills\/[^/]+\/SKILL\.md$/i.test(rel)) return null;
+  if (!existsSync(resolved)) return null;
+  try {
+    const content = readFileSync(resolved, 'utf8');
+    if (/(?:^|\n)##+\s*Run\s+it\b/i.test(content)) {
+      return resolved;
+    }
+  } catch {}
+  return null;
+}
+
 function parseStrongUserEvidence(text) {
   if (typeof text !== 'string') return null;
   const command = text.match(/^\s*\/skill:(create|maintain)-formal-verification-skill(?=\s|$)/);
@@ -276,17 +299,9 @@ export function detectFormalVerificationTrigger(options = {}) {
 
   const currentRoundEntries = lastUserIdx >= 0 ? entries.slice(lastUserIdx) : entries;
 
-  // Check workspace for modified skill files with ## Run it
-  const modifiedSkills = findModifiedSkillFiles({
-    cwd,
-    changedFiles: options.changedFiles,
-    scanWorkspace: false,
-  });
-  const hasModifiedSkillInWorkspace = modifiedSkills.length > 0;
-
   let latestEvidence = null;
   let activeCandidateReads = [];
-  const cwdWriteEdits = [];
+  const skillDirWrites = [];
 
   for (const entry of currentRoundEntries) {
     const message = entry?.message ?? entry;
@@ -309,20 +324,24 @@ export function detectFormalVerificationTrigger(options = {}) {
         }
       } else if (call.name === 'write' || call.name === 'edit') {
         const path = typeof call.arguments?.path === 'string' ? call.arguments.path.replace(/\\/g, '/') : '';
-        if (isPathInsideCwd(path, cwd)) {
-          cwdWriteEdits.push({ path });
+        if (isSkillDirWrite(path, cwd)) {
+          skillDirWrites.push({ path });
+          const runItSkill = checkRunItSkillFile(path, cwd);
+
           if (activeCandidateReads.length > 0) {
+            // 证据 2：本轮 read 形式化 SKILL.md 之后，又有 write/edit 写到当前 cwd 的 .pi/skills/** 或 .agents/skills/**
             const kinds = new Set(activeCandidateReads.map(c => c.kind));
             if (kinds.size === 1) {
               const chosen = activeCandidateReads.at(-1);
               latestEvidence = {
                 triggered: true,
                 kind: chosen.kind,
-                reason: `Session read ${chosen.path} upgraded with workspace write/edit`,
+                skillPath: runItSkill || resolve(cwd, path),
+                reason: `Session read ${chosen.path} upgraded with workspace skill write/edit`,
               };
             } else {
               // Ambiguous: resolve by workspace target skill state
-              const targetSkill = resolveSkillFromWorkspace({ cwd, writeEdits: cwdWriteEdits, changedFiles: options.changedFiles });
+              const targetSkill = runItSkill || resolveSkillFromWorkspace({ cwd, writeEdits: skillDirWrites, changedFiles: options.changedFiles });
               const statusKind = judgeSkillStatus(targetSkill, cwd);
               if (statusKind) {
                 latestEvidence = {
@@ -336,6 +355,15 @@ export function detectFormalVerificationTrigger(options = {}) {
               }
             }
             activeCandidateReads = [];
+          } else if (runItSkill) {
+            // 证据 3：本轮有 write/edit 写到当前 cwd 里某个含 "## Run it" 的技能文件
+            const statusKind = judgeSkillStatus(runItSkill, cwd) || 'create';
+            latestEvidence = {
+              triggered: true,
+              kind: statusKind,
+              skillPath: runItSkill,
+              reason: `Workspace formal verification skill containing "## Run it" modified by tool call: ${relative(cwd, runItSkill)}`,
+            };
           }
         }
       }
@@ -351,45 +379,24 @@ export function detectFormalVerificationTrigger(options = {}) {
     }
   }
 
-  // Candidate upgrade via workspace modified skill if candidates remain
-  if (activeCandidateReads.length > 0 && hasModifiedSkillInWorkspace) {
-    const kinds = new Set(activeCandidateReads.map(c => c.kind));
-    if (kinds.size === 1) {
-      const chosen = activeCandidateReads.at(-1);
-      latestEvidence = {
-        triggered: true,
-        kind: chosen.kind,
-        reason: `Session read ${chosen.path} upgraded with workspace modified skill`,
-      };
-    } else {
-      const targetSkill = resolveSkillFromWorkspace({ cwd, writeEdits: cwdWriteEdits, changedFiles: options.changedFiles });
-      const statusKind = judgeSkillStatus(targetSkill, cwd);
-      if (statusKind) {
-        latestEvidence = {
+  // Explicit changedFiles without entries (e.g. offline testing harness for modified skills)
+  if (!latestEvidence && Array.isArray(options.changedFiles) && currentRoundEntries.length === 0) {
+    for (const f of options.changedFiles) {
+      const runItSkill = checkRunItSkillFile(f, cwd);
+      if (runItSkill) {
+        const statusKind = judgeSkillStatus(runItSkill, cwd) || 'create';
+        return {
           triggered: true,
           kind: statusKind,
-          skillPath: targetSkill,
-          reason: `Session candidate reads resolved to ${statusKind} by workspace target skill state`,
+          skillPath: runItSkill,
+          skillPaths: [runItSkill],
+          reason: `Workspace formal verification skill containing "## Run it" modified: ${relative(cwd, runItSkill)}`,
         };
-      } else {
-        latestEvidence = null;
       }
     }
-    activeCandidateReads = [];
   }
 
   if (latestEvidence) return latestEvidence;
-
-  // Fallback: workspace formal verification skill modified
-  if (hasModifiedSkillInWorkspace) {
-    return {
-      triggered: true,
-      kind: 'create',
-      skillPath: modifiedSkills[0],
-      skillPaths: modifiedSkills,
-      reason: `Workspace formal verification skill containing "## Run it" modified: ${relative(cwd, modifiedSkills[0])}`,
-    };
-  }
 
   return {
     triggered: false,

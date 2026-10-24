@@ -150,7 +150,7 @@ for (const kind of ['create', 'maintain']) {
   });
   test(`trigger: assistant read call followed by write upgrades ${kind} without relying on output`, () => {
     const result = detectFormalVerificationTrigger({ entries: [
-      { type: 'message', message: { role: 'assistant', content: [readCall(kind), { type: 'toolCall', id: `write-${kind}`, name: 'write', arguments: { path: `src/${kind}.txt` } }] } },
+      { type: 'message', message: { role: 'assistant', content: [readCall(kind), { type: 'toolCall', id: `write-${kind}`, name: 'write', arguments: { path: `.pi/skills/${kind}/SKILL.md` } }] } },
     ], changedFiles: [] });
     assert.equal(result.kind, kind);
     assert.match(result.reason, /read.*SKILL\.md/);
@@ -158,7 +158,7 @@ for (const kind of ['create', 'maintain']) {
   test(`trigger: recorded nested read call followed by write upgrades ${kind}`, () => {
     const { id, name, arguments: args } = readCall(kind);
     const result = detectFormalVerificationTrigger({ entries: [
-      { role: 'toolResult', toolName: 'codemode', content: [], nestedCalls: { complete: true, calls: [{ id, name, arguments: args, status: 'ok' }, { id: 'w1', name: 'write', arguments: { path: 'src/out.txt' }, status: 'ok' }] } },
+      { role: 'toolResult', toolName: 'codemode', content: [], nestedCalls: { complete: true, calls: [{ id, name, arguments: args, status: 'ok' }, { id: 'w1', name: 'write', arguments: { path: '.pi/skills/verify/SKILL.md' }, status: 'ok' }] } },
     ], changedFiles: [] });
     assert.equal(result.kind, kind);
     assert.match(result.reason, /read.*SKILL\.md/);
@@ -169,7 +169,7 @@ for (const [older, newer] of [['create', 'maintain'], ['maintain', 'create']]) {
   test(`trigger: latest explicit evidence wins ${older} to ${newer}`, () => {
     const entries = [
       { role: 'user', content: `/skill:${older}-formal-verification-skill` },
-      { role: 'assistant', content: [readCall(newer), { type: 'toolCall', id: 'write-newer', name: 'write', arguments: { path: 'Model.tla' } }] },
+      { role: 'assistant', content: [readCall(newer), { type: 'toolCall', id: 'write-newer', name: 'write', arguments: { path: '.pi/skills/model/Model.tla' } }] },
       { role: 'assistant', content: `I recommend ${older}-formal-verification-skill` },
     ];
     const read = detectFormalVerificationTrigger({ entries, changedFiles: [] });
@@ -1660,6 +1660,144 @@ test('prompt: continuation and terminal prompts specify workspace scope and rela
     assert.ok(stoppedMsg);
     assert.ok(stoppedMsg.content.includes('检查范围只限当前 cwd 仓库'));
     assert.ok(stoppedMsg.content.includes('.pi/skills/verify-sample/SKILL.md'));
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+// ===========================================================================
+// Regression #35 part 3: workspace dirty skill cannot trigger without current-turn evidence
+// ===========================================================================
+
+function createGitRepo(prefix = 'pstack-git-test-') {
+  const dir = createTempDir(prefix);
+  execSync('git init -b main', { cwd: dir, stdio: 'ignore' });
+  execSync('git config user.name "Test"', { cwd: dir, stdio: 'ignore' });
+  execSync('git config user.email "test@example.com"', { cwd: dir, stdio: 'ignore' });
+  writeFileSync(join(dir, 'a.txt'), 'hi', 'utf8');
+  execSync('git add a.txt && git commit -m "initial commit"', { cwd: dir, stdio: 'ignore' });
+  return dir;
+}
+
+test('trigger: dirty workspace skill + ordinary question does not trigger', () => {
+  const cwd = createGitRepo('pstack-dirty-ordinary-');
+  try {
+    const skillDir = join(cwd, '.pi/skills/verify-x');
+    mkdirSync(skillDir, { recursive: true });
+    writeFileSync(join(skillDir, 'SKILL.md'), '# Verify X\n## Run it\n```bash\ntlc X.tla\n```', 'utf8');
+
+    const entries = [
+      { role: 'user', content: '用一句话告诉我 a.txt 里写了什么，不要做别的。' },
+      { role: 'assistant', content: 'a.txt 里写了 hi。' },
+    ];
+
+    const result = detectFormalVerificationTrigger({ cwd, entries });
+    assert.equal(result.triggered, false);
+    assert.equal(result.kind, null);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('trigger: dirty workspace skill + read maintain without writing does not trigger', () => {
+  const cwd = createGitRepo('pstack-dirty-read-');
+  try {
+    const skillDir = join(cwd, '.pi/skills/verify-x');
+    mkdirSync(skillDir, { recursive: true });
+    writeFileSync(join(skillDir, 'SKILL.md'), '# Verify X\n## Run it\n```bash\ntlc X.tla\n```\n## Record\n- Sync commit: 1234567\n', 'utf8');
+
+    const entries = [
+      { role: 'user', content: '查一下 maintain 技能怎么写的' },
+      {
+        role: 'assistant',
+        content: [
+          readCall('maintain'),
+        ],
+      },
+      { role: 'assistant', content: 'maintain 技能是用来维护已有形式化验证的。' },
+    ];
+
+    const result = detectFormalVerificationTrigger({ cwd, entries });
+    assert.equal(result.triggered, false);
+    assert.equal(result.kind, null);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('trigger: dirty workspace skill + edit skill in current round triggers', () => {
+  const cwd = createGitRepo('pstack-dirty-edit-');
+  try {
+    const skillDir = join(cwd, '.pi/skills/verify-x');
+    mkdirSync(skillDir, { recursive: true });
+    const skillPath = join(skillDir, 'SKILL.md');
+    writeFileSync(skillPath, '# Verify X\n## Run it\n```bash\ntlc X.tla\n```\n## Record\n- Sync commit: 1234567\n', 'utf8');
+
+    const entries = [
+      { role: 'user', content: '更新一下 verify-x 的形式化验证' },
+      {
+        role: 'assistant',
+        content: [
+          { type: 'toolCall', id: 'edit-1', name: 'edit', arguments: { path: '.pi/skills/verify-x/SKILL.md' } },
+        ],
+      },
+    ];
+
+    const result = detectFormalVerificationTrigger({ cwd, entries });
+    assert.equal(result.triggered, true);
+    assert.equal(result.kind, 'maintain');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('lifecycle: dirty workspace skill + ordinary question hook replay returns undefined and no custom_message', async () => {
+  let handler;
+  registerFormalVerificationGate({ on: (name, fn) => { assert.equal(name, 'agent_before_settle'); handler = fn; } }, {
+    runner: async () => ({ exitCode: 0, output: '' }),
+  });
+  const cwd = createGitRepo('pstack-dirty-ordinary-hook-');
+  try {
+    const skillDir = join(cwd, '.pi/skills/verify-x');
+    mkdirSync(skillDir, { recursive: true });
+    writeFileSync(join(skillDir, 'SKILL.md'), '# Verify X\n## Run it\n```bash\ntlc X.tla\n```', 'utf8');
+
+    const branch = [
+      { role: 'user', content: '用一句话告诉我 a.txt 里写了什么，不要做别的。' },
+      { role: 'assistant', content: [{ type: 'text', text: 'a.txt 里写了 hi。' }] },
+    ];
+
+    const result = await handler({ entries: [], outcome: 'completed' }, { cwd, sessionManager: { getBranch: () => branch } });
+    assert.equal(result, undefined);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('lifecycle: dirty workspace skill + read maintain hook replay returns undefined and no custom_message', async () => {
+  let handler;
+  registerFormalVerificationGate({ on: (name, fn) => { assert.equal(name, 'agent_before_settle'); handler = fn; } }, {
+    runner: async () => ({ exitCode: 0, output: '' }),
+  });
+  const cwd = createGitRepo('pstack-dirty-read-hook-');
+  try {
+    const skillDir = join(cwd, '.pi/skills/verify-x');
+    mkdirSync(skillDir, { recursive: true });
+    writeFileSync(join(skillDir, 'SKILL.md'), '# Verify X\n## Run it\n```bash\ntlc X.tla\n```\n## Record\n- Sync commit: 1234567\n', 'utf8');
+
+    const branch = [
+      { role: 'user', content: '查一下 maintain 技能怎么写的' },
+      {
+        role: 'assistant',
+        content: [
+          readCall('maintain'),
+          { type: 'text', text: 'maintain 技能是用来维护已有形式化验证的。' },
+        ],
+      },
+    ];
+
+    const result = await handler({ entries: [], outcome: 'completed' }, { cwd, sessionManager: { getBranch: () => branch } });
+    assert.equal(result, undefined);
   } finally {
     rmSync(cwd, { recursive: true, force: true });
   }
