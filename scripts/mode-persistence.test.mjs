@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createAgentSession, DefaultResourceLoader, ModelRuntime, SessionManager, SettingsManager } from '@earendil-works/pi-coding-agent';
 import { sessionModeStatePath } from '../extensions/pstack/mode-state.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -105,13 +106,13 @@ test('mode on set with only --session-id is restored by a separate process', asy
   const { agentDir, run, promptAndSystem, requests } = await fixture(t);
   const sessionId = 'session-a';
 
-  const activation = await run(['-p', '--session-id', sessionId, '/poteto-mode on']);
+  const activation = await run(['-p', '--session-id', sessionId, '/poteto on']);
   assert.equal(activation.code, 0, activation.stderr);
 
   const statePath = sessionModeStatePath(agentDir, sessionId);
   assert.deepEqual(JSON.parse(await readFile(statePath, 'utf8')), { version: 1, enabled: true });
 
-  const status = await run(['-p', '--session-id', sessionId, '/poteto-mode status']);
+  const status = await run(['-p', '--session-id', sessionId, '/poteto status']);
   assert.equal(status.code, 0, status.stderr);
   assert.match(status.stderr, /"persistent": true/);
   assert.match(status.stderr, /"enabled": true/);
@@ -128,7 +129,7 @@ test('sessions with different ids stay isolated and unactivated sessions stay of
   const active = 'session-active';
   const inactive = 'session-inactive';
 
-  const activation = await run(['-p', '--session-id', active, '/poteto-mode on']);
+  const activation = await run(['-p', '--session-id', active, '/poteto on']);
   assert.equal(activation.code, 0, activation.stderr);
 
   assert.match(await promptAndSystem(active, 'enabled session'), MODE_ON);
@@ -137,6 +138,53 @@ test('sessions with different ids stay isolated and unactivated sessions stay of
 
   const stateFiles = await readdir(resolve(agentDir, 'pstack-sessions'));
   assert.deepEqual(stateFiles.sort(), [`${active}.json`]);
+});
+
+test('legacy alias activates state in print mode and warns before the status JSON', async t => {
+  const { run, promptAndSystem } = await fixture(t);
+  const result = await run(['-p', '--session-id', 'alias-session', '/poteto-mode on']);
+  assert.equal(result.code, 0, result.stderr);
+  const warning = '/poteto-mode 已弃用，请改用 /poteto on|off|status，将在 0.5.0 移除';
+  assert(result.stderr.includes(warning));
+  assert(result.stderr.indexOf(warning) < result.stderr.indexOf('"mode"'));
+  assert.equal(result.stdout.trim(), '', 'print warning and command output stay off stdout');
+  assert.match(await promptAndSystem('alias-session', 'after legacy activation'), MODE_ON);
+});
+
+test('explicit /skill:poteto-mode expands in a real SDK host without changing persistent state', async t => {
+  const { agentDir, cwd, requests } = await fixture(t);
+  const previous = process.env.PI_CODING_AGENT_DIR;
+  process.env.PI_CODING_AGENT_DIR = agentDir;
+  let session;
+  try {
+    const settingsManager = SettingsManager.inMemory({ compaction: { enabled: false }, retry: { enabled: false } });
+    const modelRuntime = await ModelRuntime.create({ authPath: resolve(agentDir, 'auth.json'), modelsPath: resolve(agentDir, 'models.json'), allowModelNetwork: false });
+    const loader = new DefaultResourceLoader({ cwd, agentDir, settingsManager, noExtensions: true, additionalExtensionPaths: [root], noContextFiles: true, noPromptTemplates: true, noThemes: true });
+    await loader.reload();
+    assert.deepEqual(loader.getExtensions().errors, []);
+    const manager = SessionManager.create(cwd, resolve(agentDir, 'sessions'));
+    ({ session } = await createAgentSession({ cwd, agentDir, settingsManager, modelRuntime, model: modelRuntime.getModel('fixture', 'model'), resourceLoader: loader, sessionManager: manager, tools: [] }));
+    const errors = [];
+    await session.bindExtensions({ mode: 'rpc', onError: error => errors.push(error) });
+    const statePath = sessionModeStatePath(agentDir, manager.getSessionId());
+    for (const enabled of [null, false, true]) {
+      if (enabled !== null) await session.prompt(`/poteto ${enabled ? 'on' : 'off'}`);
+      const beforeFile = existsSync(statePath) ? await readFile(statePath, 'utf8') : null;
+      const beforeEntries = manager.getBranch().filter(entry => entry.customType === 'pstack.mode.v1');
+      const count = requests.length;
+      await session.prompt('/skill:poteto-mode inspect this fixture; do not delegate');
+      assert.equal(requests.length, count + 1, 'skill starts an actual provider request');
+      assert(JSON.stringify(requests.at(-1).messages).includes('<skill name=\\"poteto-mode\\"'), 'Pi expanded the named skill');
+      assert.deepEqual(manager.getBranch().filter(entry => entry.customType === 'pstack.mode.v1'), beforeEntries);
+      assert.equal(existsSync(statePath) ? await readFile(statePath, 'utf8') : null, beforeFile);
+      assert.equal(MODE_ON.test(systemText(requests.at(-1))), enabled === true);
+    }
+    assert.deepEqual(errors, []);
+  } finally {
+    session?.dispose();
+    if (previous === undefined) delete process.env.PI_CODING_AGENT_DIR;
+    else process.env.PI_CODING_AGENT_DIR = previous;
+  }
 });
 
 test('session id state paths cannot escape the pstack-sessions directory', () => {

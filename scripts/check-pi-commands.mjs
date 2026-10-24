@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -49,7 +49,20 @@ try {
   assert.equal(response?.success, true, diagnostics);
   const commands = response.data.commands;
   const own = commands.filter(command => command.sourceInfo?.path?.startsWith(resolve(root, 'skills') + '/'));
-  assert.equal(own.length, 41, 'All manifest skills appear in actual Pi commands');
+  const map = JSON.parse(await readFile(resolve(root, 'docs/port-map.json'), 'utf8'));
+  const generated = [
+    ...map.entries.filter(entry => entry.disposition === 'ported'),
+    ...map.preparedResources.filter(entry => entry.status === 'accepted'),
+    ...map.nativeResources,
+  ];
+  const expectedSkills = [...new Set(generated.map(entry => entry.destination)
+    .filter(path => /^skills\/[^/]+\/SKILL\.md$/.test(path))
+    .map(path => 'skill:' + path.split('/')[1]))].sort();
+  assert.deepEqual(own.map(command => command.name).sort(), expectedSkills, 'All generated manifest skills appear in actual Pi commands');
+  assert(commands.some(command => command.name === 'poteto' && command.source === 'extension'));
+  const alias = commands.find(command => command.name === 'poteto-mode' && command.source === 'extension');
+  assert(alias, 'Deprecated alias stays visible with Pi 1.4 public command API');
+  assert.match(alias.description, /^\[已弃用\].*\/poteto.*0\.5\.0/);
   const upstreamSkillCommands = commands.filter(command => command.sourceInfo?.path?.startsWith(resolve(root, 'upstream') + '/'));
   assert.equal(upstreamSkillCommands.length, 0, 'Archived upstream originals must not register commands');
   assert(own.some(command => command.name === 'skill:poteto-mode'));

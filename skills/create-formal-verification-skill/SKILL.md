@@ -51,7 +51,7 @@ Write the generated skill to `.pi/skills/<verify-area>/SKILL.md` in the target r
 
 ### Probe the tool before you model
 
-Check the tool the question needs before you write a model. For TLA+ the host needs Java 11 or later and an operator-configured `tla2tools.jar`, declared through `TLA2TOOLS_JAR` (or the older `TLA2TOOLS`) or through `tla.tla2toolsJar` in a trusted `.pi/pstack.json`; `/setup-pstack status` and `/poteto-mode status` report the resulting `tlc` field. Never download, install, upgrade or repoint a JDK or a jar yourself, and never copy this machine's absolute jar path into the generated skill.
+Check the tool the question needs before you write a model. For TLA+ the host needs Java 11 or later and an operator-configured `tla2tools.jar`, declared through `TLA2TOOLS_JAR` (or the older `TLA2TOOLS`) or through `tla.tla2toolsJar` in a trusted `.pi/pstack.json`; `/setup-pstack status` and `/poteto status` report the resulting `tlc` field. Never download, install, upgrade or repoint a JDK or a jar yourself, and never copy this machine's absolute jar path into the generated skill.
 
 When no TLC or no verifier for this language is available, say exactly that: 未做形式化验证，原因是缺少 TLC. Then follow the upstream no-verifier rule — test the real code with generated inputs through the repo's existing test entry — and label the result generated-input test coverage, never a formal pass. In that case the generated skill must not claim that any property was checked, and the handoff must say which part stayed unverified.
 

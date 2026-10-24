@@ -206,7 +206,7 @@ const treePlaybooks = new Set(
     .filter(entry => entry.isFile() && entry.name.endsWith('.md'))
     .map(entry => entry.name.replace(/\.md$/, ''))
 );
-const registeredCommands = new Set(['poteto-mode', 'setup-pstack', 'loop']);
+const registeredCommands = new Set(['poteto', 'poteto-mode', 'setup-pstack', 'loop']);
 const placeholderNames = new Set(['name', 'skill-name', 'your-task', 'topic', 'command']);
 
 for (const docFile of documents) {
@@ -219,7 +219,7 @@ for (const docFile of documents) {
       `docs-vs-tree: ${relative(root, docFile)} references missing skill /skill:${name}`
     );
   }
-  for (const match of text.matchAll(/\/(poteto-mode|setup-pstack|loop)\b/g)) {
+  for (const match of text.matchAll(/\/(poteto-mode|poteto|setup-pstack|loop)\b/g)) {
     const command = match[1];
     assert(
       registeredCommands.has(command),

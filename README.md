@@ -12,7 +12,7 @@ pstack 是一套工程方法：24 条工程原则、23 个工作流程（调查�
 
 ## 能做什么
 
-- **`/poteto-mode`**：开启后，Pi 会按 pstack 的流程干活：先判断任务类型，再走对应的工作流程，关键步骤停下来等你批准，不会自动 commit 或 push。
+- **`/poteto on`**：开启后，Pi 会按 pstack 的流程干活：先判断任务类型，再走对应的工作流程，关键步骤停下来等你批准，不会自动 commit 或 push。
 - **独立审阅与分工**：配合 `pi-subagents`，代码由 `pstack.poteto-agent` 在隔离 worktree 里写，`pstack.comment-sicko` 只读审阅，`pstack.verifier` 在沙箱里跑测试。每个角色可以用不同的模型。
 - **`/loop`**：有轮数上限的长任务续跑，每轮跑一次你给的检查命令（比如 `npm test`），通过就停。
 - **形式化验证**：`/skill:create-formal-verification-skill` 为你的项目生成 TLA+ 模型和真实代码检查，完成前会自动重跑并核对结果。需要 Java 和 TLC，没有也能用其余功能。
@@ -33,8 +33,13 @@ pi install npm:pi-subagents
 
 ```bash
 # 开启 pstack 模式，然后照常提需求
-/poteto-mode on
-/poteto-mode status
+/poteto on
+/poteto status
+/poteto          # 无参同 status
+/poteto off
+
+# 只对当前请求显式调用技能，不改变持续模式
+/skill:poteto-mode "调查这个 worker 的内存增长"
 
 # 给不同角色配模型（provider/model + thinking 级别）
 /setup-pstack set project code     <provider>/<model> high
@@ -51,6 +56,8 @@ pi install npm:pi-subagents
 /skill:sharpen "refactor caching layer"
 /skill:create-formal-verification-skill "queue concurrency invariants"
 ```
+
+`/poteto-mode` 是兼容别名，在 0.3.x 和 0.4.x 保留，每次执行先提示弃用，将在 0.5.0 移除。Pi 1.4 的公开命令 API 不支持隐藏补全，因此旧入口仍可见，描述以 `[已弃用]` 开头。技能入口继续使用 `/skill:poteto-mode`；原有模式状态无需迁移。
 
 几点说明：
 

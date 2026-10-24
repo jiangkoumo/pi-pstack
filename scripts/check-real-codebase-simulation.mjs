@@ -5,7 +5,7 @@
  * Simulates a real software project workflow using the ported pstack package:
  * 1. Initialize a realistic repository with TypeScript business logic and failing tests
  * 2. Load the pi-pstack package via Pi 1.3.0 SDK in an isolated environment
- * 3. Activate /poteto-mode on
+ * 3. Activate /poteto on
  * 4. Execute /loop run with a real shell stop predicate (node --test)
  * 5. Verify the loop automatically iterates and halts upon test success (predicate-satisfied)
  * 6. Execute mechanical review gate on the generated change
@@ -207,7 +207,7 @@ test('splitTotal guarantees exact penny sum without loss', () => {
   await session.bindExtensions({ mode: 'rpc', onError: e => { throw e; } });
 
   // 3. Test /poteto-mode activation
-  await session.prompt('/poteto-mode on');
+  await session.prompt('/poteto on');
   const modeEntry = manager.getBranch().filter(e => e.customType === 'pstack.mode.v1').at(-1)?.data;
   assert.equal(modeEntry?.enabled, true, 'Mode entry on active branch must be enabled');
   console.log('✓ Poteto-mode activated with persistent branch entry');

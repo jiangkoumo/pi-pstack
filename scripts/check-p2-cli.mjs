@@ -22,15 +22,15 @@ async function execute(args, input) {
   return { code, stdout, stderr };
 }
 try {
-  const json = await execute(['--mode', 'json', '--print', '--no-session', '/poteto-mode status']);
+  const json = await execute(['--mode', 'json', '--print', '--no-session', '/poteto status']);
   assert.equal(json.code, 0, json.stderr);
   const entries = json.stdout.split('\n').filter(Boolean).map(s => JSON.parse(s));
   assert(entries.some(e => JSON.stringify(e).includes('active session branch')), 'JSON command status is visible');
   assert(!entries.some(e => e.type === 'agent_start'), 'Status must not request inference');
-  const text = await execute(['--print', '--no-session', '/poteto-mode status']);
+  const text = await execute(['--print', '--no-session', '/poteto status']);
   assert.equal(text.code, 0, text.stderr);
   assert(text.stderr.includes('active session branch'), 'Print command status is visible on stderr without corrupting stdout');
-  const rpc = await execute(['--mode', 'rpc', '--no-session'], JSON.stringify({ id: 'status', type: 'prompt', message: '/poteto-mode status' }) + '\n');
+  const rpc = await execute(['--mode', 'rpc', '--no-session'], JSON.stringify({ id: 'status', type: 'prompt', message: '/poteto status' }) + '\n');
   assert.equal(rpc.code, 0, rpc.stderr);
   assert(rpc.stdout.includes('active session branch'), 'RPC command status is visible');
   const rpcEntries = rpc.stdout.split('\n').filter(Boolean).map(s => JSON.parse(s));

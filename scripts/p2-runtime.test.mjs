@@ -8,14 +8,14 @@ import { SessionManager } from '@earendil-works/pi-coding-agent';
 import { spawnSync } from 'node:child_process';
 
 test('B2 run directory and module probes respect an isolated PI_CODING_AGENT_DIR', () => extensionFixture(async ({ directory, commands, handlers, ctx }) => {
-  await commands.get('poteto-mode')('on', ctx);
+  await commands.get('poteto')('on', ctx);
   const event = { messageType: 'user', prompt: 'plan the work', systemPromptOptions: { sections: {} } };
   await handlers.get('before_agent_start')(event, ctx);
   assert.match(Object.values(event.systemPromptOptions.sections).join('\n'), new RegExp(JSON.stringify(resolve(directory, 'agent/pstack-runs')).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }));
 
 test('recall requests receive the exact current workspace session directory before mining', () => extensionFixture(async ({ directory, commands, handlers, ctx }) => {
-  await commands.get('poteto-mode')('on', ctx);
+  await commands.get('poteto')('on', ctx);
   for (const prompt of ['上次我们做到哪了', '之前的会话', 'what did I work on', '这周我在这个项目做了什么']) {
     const event = { messageType: 'user', prompt, systemPromptOptions: { sections: {} } };
     await handlers.get('before_agent_start')(event, ctx);
@@ -28,7 +28,7 @@ test('recall requests receive the exact current workspace session directory befo
 }));
 
 test('ordinary fixes mentioning recall do not trigger transcript mining guidance', () => extensionFixture(async ({ commands, handlers, ctx }) => {
-  await commands.get('poteto-mode')('on', ctx);
+  await commands.get('poteto')('on', ctx);
   for (const prompt of ['fix the recall parser', 'the recall test is failing', 'add tests for recall', 'review the recall implementation']) {
     const event = { messageType: 'user', prompt, systemPromptOptions: { sections: {} } };
     await handlers.get('before_agent_start')(event, ctx);
@@ -61,6 +61,7 @@ async function extensionFixture(run) {
   const handlers = new Map();
   const commands = new Map();
   const tools = new Map();
+  const descriptions = new Map();
   const messages = [];
   const manager = SessionManager.create(directory, resolve(directory, 'sessions'));
   const model = { provider: 'fixture', id: 'model', reasoning: false };
@@ -71,12 +72,12 @@ async function extensionFixture(run) {
   };
   pstack({
     on: (name, handler) => handlers.set(name, handler),
-    registerCommand: (name, command) => commands.set(name, command.handler),
+    registerCommand: (name, command) => { commands.set(name, command.handler); descriptions.set(name, command.description); },
     registerTool: tool => tools.set(tool.name, tool),
     appendEntry: (type, data) => manager.appendCustomEntry(type, data),
     sendMessage: message => messages.push(JSON.parse(message.content)),
   });
-  try { await run({ directory, handlers, commands, tools, messages, manager, ctx }); }
+  try { await run({ directory, handlers, commands, descriptions, tools, messages, manager, ctx }); }
   finally {
     if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
     else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
@@ -84,24 +85,72 @@ async function extensionFixture(run) {
   }
 }
 
-test('B6 mode status reports durable mode state before the first assistant message', () => extensionFixture(async ({ commands, messages, ctx, manager }) => {
-  await commands.get('poteto-mode')('status', ctx);
-  assert.equal(messages.at(-1).persistent, false);
+const deprecation = '/poteto-mode 已弃用，请改用 /poteto on|off|status，将在 0.5.0 移除';
+
+test('/poteto supports default status, on, status, off and rejects invalid arguments', () => extensionFixture(async ({ commands, messages, manager, ctx }) => {
+  assert.equal(typeof commands.get('poteto'), 'function');
+  for (const [args, enabled, explicit] of [['', false, false], ['on', true, true], ['status', true, true], ['off', false, true]]) {
+    await commands.get('poteto')(args, ctx);
+    assert.deepEqual(messages.at(-1).mode, { enabled, explicit });
+  }
+  const before = manager.getBranch().length;
+  for (const args of ['invalid', 'on extra', 'ON']) {
+    await assert.rejects(commands.get('poteto')(args, ctx), /Usage: \/poteto on\|off\|status/);
+  }
+  assert.equal(manager.getBranch().length, before);
+}));
+
+test('deprecated alias warns on every invocation before changing state, including without ctx.ui', () => extensionFixture(async ({ commands, descriptions, messages, manager, ctx }) => {
+  assert.match(descriptions.get('poteto-mode'), /^\[已弃用\]/);
+  // The narrow fixture has no ctx.ui; fallback messages must remain structured.
   await commands.get('poteto-mode')('on', ctx);
+  assert.equal(messages.at(-2).warning, deprecation);
+  assert.equal(messages.at(-1).mode.enabled, true);
+  await commands.get('poteto')('off', ctx);
+  const observed = [];
+  ctx.ui = { notify: (message, level) => observed.push({ message, level, entries: manager.getBranch().length }) };
+  const before = manager.getBranch().length;
+  await commands.get('poteto-mode')('on', ctx);
+  assert.deepEqual(observed[0], { message: deprecation, level: 'warning', entries: before });
+  assert.equal(messages.at(-1).mode.enabled, true);
+  for (const args of ['', 'status', 'off']) await commands.get('poteto-mode')(args, ctx);
+  await assert.rejects(commands.get('poteto-mode')('invalid', ctx), /Usage: \/poteto on\|off\|status/);
+  assert.equal(observed.length, 5);
+}));
+
+test('new command restores legacy version 1 state files and active branch entries', () => extensionFixture(async ({ commands, messages, manager, ctx }) => {
+  const legacy = manager.getSessionFile() + '.pstack-mode.json';
+  await writeFile(legacy, JSON.stringify({ version: 1, enabled: true }));
+  await commands.get('poteto')('', ctx);
+  assert.deepEqual(messages.at(-1).mode, { enabled: true, explicit: true });
+  await rm(legacy);
+  const enabledLeaf = manager.appendCustomEntry(MODE_ENTRY, { version: 1, enabled: true });
+  manager.appendCustomEntry(MODE_ENTRY, { version: 1, enabled: false });
+  await commands.get('poteto')('status', ctx);
+  assert.equal(messages.at(-1).mode.enabled, false);
+  manager.branch(enabledLeaf);
+  await commands.get('poteto')('status', ctx);
+  assert.equal(messages.at(-1).mode.enabled, true);
+}));
+
+test('B6 mode status reports durable mode state before the first assistant message', () => extensionFixture(async ({ commands, messages, ctx, manager }) => {
+  await commands.get('poteto')('status', ctx);
+  assert.equal(messages.at(-1).persistent, false);
+  await commands.get('poteto')('on', ctx);
   assert.equal(messages.at(-1).mode.enabled, true);
   assert.equal(messages.at(-1).persistent, true);
-  await commands.get('poteto-mode')('status', ctx);
+  await commands.get('poteto')('status', ctx);
   assert.equal(messages.at(-1).persistent, true);
-  await commands.get('poteto-mode')('off', ctx);
+  await commands.get('poteto')('off', ctx);
   assert.equal(messages.at(-1).mode.enabled, false);
   assert.equal(messages.at(-1).persistent, true);
   manager.appendMessage({ role: 'assistant', content: [{ type: 'text', text: 'saved' }], api: 'openai-completions', provider: 'fixture', model: 'model', usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: 0, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } }, stopReason: 'stop', timestamp: Date.now() });
-  await commands.get('poteto-mode')('status', ctx);
+  await commands.get('poteto')('status', ctx);
   assert.equal(messages.at(-1).persistent, true);
 }));
 
 test('status commands expose verifier isolation and any degraded warning', () => extensionFixture(async ({ commands, messages, ctx }) => {
-  for (const command of ['poteto-mode', 'setup-pstack']) {
+  for (const command of ['poteto', 'setup-pstack']) {
     await commands.get(command)('status', ctx);
     const capability = messages.at(-1).verification;
     assert(capability, `${command} must report verification capability`);
@@ -127,7 +176,7 @@ test('TLC configuration survives trusted merging and role edits, and reaches sta
   await commands.get('setup-pstack')('set user review fixture/model off', ctx);
   await commands.get('setup-pstack')('unset user review', ctx);
   assert.equal(JSON.parse(await readFile(paths.user, 'utf8')).tla.tla2toolsJar, userJar);
-  for (const command of ['setup-pstack', 'poteto-mode']) {
+  for (const command of ['setup-pstack', 'poteto']) {
     await commands.get(command)('status', ctx);
     const capability = messages.at(-1).tlc;
     assert.equal(capability.available, false);
@@ -143,7 +192,7 @@ test('TLC configuration survives trusted merging and role edits, and reaches sta
 test('B7 configured roles reach pstack skill requests with mode off or never enabled', () => extensionFixture(async ({ commands, handlers, ctx }) => {
   await commands.get('setup-pstack')('set user review fixture/model off', ctx);
   for (const explicitlyOff of [false, true]) {
-    if (explicitlyOff) await commands.get('poteto-mode')('off', ctx);
+    if (explicitlyOff) await commands.get('poteto')('off', ctx);
     const event = { messageType: 'user', prompt: '/skill:arena review this', systemPromptOptions: { sections: {} } };
     await handlers.get('before_agent_start')(event, ctx);
     const guidance = Object.values(event.systemPromptOptions.sections).join('\n');

@@ -16,7 +16,7 @@
 
 本项目不仅通过了纯逻辑单测，还在真实的业务代码库（`ledger-app` 金融计算工程）中完成了端到端全链路闭环模拟实测：
 1. **真实 Bug 注入**：计算模块存在浮点精度漂移 Bug，单元测试真实失败（exit code 1）；
-2. **模式与循环驱动**：激活 `/poteto-mode on`，启动 `/loop run --max-turns 4 --until "node --test test/calculator.test.mjs"`；
+2. **模式与循环驱动**：激活 `/poteto on`，启动 `/loop run --max-turns 4 --until "node --test test/calculator.test.mjs"`；
 3. **真实谓词收敛**：经过 2 轮迭代，模型修复业务精度，测试命令返回 exit code 0，系统自动检测并标记 `completed (predicate-satisfied)` 停止；
 4. **机械门禁安全合入**：生成二进制补丁，恢复源工作区，经只读审阅报告校验通过后由 `writer-gate.mjs --apply` 安全合入代码。
 

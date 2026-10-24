@@ -23,7 +23,7 @@ test('mode on plus an ordinary feature request authorizes the playbook subagent 
   assert.doesNotMatch(modeOn, /grants no delegation/);
   assert.doesNotMatch(modeOn, /not permission to delegate/);
   for (const [name, text] of Object.entries(skillFiles)) {
-    assert.match(text, /Invoking `\/skill:poteto-mode`, or turning persistent mode on with `\/poteto-mode on`, authorizes the local subagent delegation this playbook prescribes/, `${name} states the invocation grant`);
+    assert.match(text, /Invoking `\/skill:poteto-mode`, or turning persistent mode on with `\/poteto on`, authorizes the local subagent delegation this playbook prescribes/, `${name} states the invocation grant`);
     assert.match(text, /Use pi-subagents `subagent` with `agent: "pstack\.poteto-agent"` for any subagent you spawn inside a playbook step/, `${name} routes playbook subagents to pstack.poteto-agent`);
     assert.match(text, /Launch a read-only reviewer \(`pstack\.comment-sicko`\)/, `${name} routes independent review to pstack.comment-sicko`);
     assert.doesNotMatch(text, /Loading a skill grants no extra authority to delegate/, `${name} drops the old blanket denial`);
