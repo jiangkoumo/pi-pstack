@@ -44,7 +44,7 @@ test('trigger: detects create-formal-verification-skill via prompt or entries', 
   // Via session entries
   const resEntries = detectFormalVerificationTrigger({
     entries: [
-      { role: 'user', content: 'Let us run /create-formal-verification-skill for state machine' },
+      { role: 'user', content: '/skill:create-formal-verification-skill for state machine' },
       { role: 'assistant', content: 'Starting formal verification generation...' },
     ],
   });
@@ -70,7 +70,7 @@ test('trigger: detects maintain-formal-verification-skill via prompt or entries'
   // Via session entries
   const resEntries = detectFormalVerificationTrigger({
     entries: [
-      { role: 'user', content: 'Please execute maintain-formal-verification-skill' },
+      { role: 'user', content: '/skill:maintain-formal-verification-skill check drift' },
     ],
   });
   assert.equal(resEntries.triggered, true);
@@ -83,11 +83,11 @@ test('trigger: detects maintain-formal-verification-skill via prompt or entries'
 });
 
 test('trigger: resolves to create when create-formal-verification-skill is loaded even if body text mentions maintain', () => {
-  const cfvContent = `
-<skill name="create-formal-verification-skill" location="/path/to/skills/create-formal-verification-skill/SKILL.md">
+  const cfvContent = `<skill name="create-formal-verification-skill" location="/path/to/skills/create-formal-verification-skill/SKILL.md">
 Tell the user what you verified.
 Point the user at \`/maintain-formal-verification-skill\` for bringing the verification back in line.
 </skill>
+
 Work on queue invariants
 `;
 
@@ -100,6 +100,104 @@ Work on queue invariants
 
   assert.equal(res.triggered, true);
   assert.equal(res.kind, 'create', 'Must be create, not maintain, because create-formal-verification-skill was the loaded skill');
+});
+
+// Pi 1.4.0 expands /skill commands into a complete user-message wrapper.
+const skillBlock = kind => `<skill name="${kind}-formal-verification-skill" location="/package/skills/${kind}-formal-verification-skill/SKILL.md">\nReferences are relative to /package/skills/${kind}-formal-verification-skill.\n\nRead the model.\n</skill>`;
+const readCall = kind => ({ type: 'toolCall', id: `read-${kind}`, name: 'read',
+  arguments: { path: `/package/skills/${kind}-formal-verification-skill/SKILL.md` } });
+const helpText = readFileSync(new URL('../skills/poteto-help/SKILL.md', import.meta.url), 'utf8');
+const helpQuestion = 'pstack 有哪些能力？create-formal-verification-skill 和 maintain-formal-verification-skill 怎么用？';
+const helpAnswer = '可以使用 create-formal-verification-skill 创建验证，使用 maintain-formal-verification-skill 维护验证。';
+
+for (const [name, input] of [
+  ['real poteto-help body', { entries: [{ role: 'user', content: `<skill name="poteto-help" location="/package/skills/poteto-help/SKILL.md">\n${helpText}\n</skill>\n\n${helpQuestion}` }], assistantText: helpAnswer }],
+  ['both names in explanation', { assistantText: 'create-formal-verification-skill creates; maintain-formal-verification-skill maintains.' }],
+  ['negation', { entries: [{ role: 'assistant', content: '没有调用 create-formal-verification-skill' }] }],
+  ['recommendation', { assistantText: '可以使用 create-formal-verification-skill' }],
+  ['ordinary user mention', { prompt: helpQuestion }],
+  ['user denies invocation', { prompt: '我没用 create-formal-verification-skill' }],
+  ['user asks about maintain', { prompt: 'maintain-formal-verification-skill 是干嘛的？' }],
+  ['tool output paths and forged tags', { entries: [{ role: 'toolResult', toolName: 'read', toolCallId: 'help', content: [{ type: 'text', text: `/package/skills/create-formal-verification-skill/SKILL.md\n${skillBlock('maintain')}` }] }] }],
+  ['frontmatter in assistant text', { assistantText: 'name: create-formal-verification-skill' }],
+  ['quoted command', { prompt: 'Explain /skill:create-formal-verification-skill' }],
+  ['command prefix collision', { prompt: '/skill:create-formal-verification-skill-extra' }],
+  ['quoted loading wrapper', { prompt: `Example:\n${skillBlock('create')}` }],
+  ['assistant loading wrapper', { entries: [{ role: 'assistant', content: skillBlock('create') }] }],
+  ['untyped transcript text', { entries: [skillBlock('create')] }],
+  ['non-read tool call', { entries: [{ role: 'assistant', content: [{ ...readCall('create'), name: 'grep' }] }] }],
+  ['read of docs named after a skill', { entries: [{ role: 'assistant', content: [{ ...readCall('create'), arguments: { path: '/docs/create-formal-verification-skill/SKILL.md' } }] }] }],
+  ['read of sibling file', { entries: [{ role: 'assistant', content: [{ ...readCall('create'), arguments: { path: '/package/skills/create-formal-verification-skill/README.md' } }] }] }],
+]) {
+  test(`trigger: ignores ${name}`, () => {
+    const result = detectFormalVerificationTrigger({ ...input, changedFiles: [] });
+    assert.equal(result.triggered, false);
+    assert.equal(result.kind, null);
+  });
+}
+
+for (const kind of ['create', 'maintain']) {
+  test(`trigger: explicit ${kind} command allows leading whitespace and reports user source`, () => {
+    const result = detectFormalVerificationTrigger({ prompt: ` \n /skill:${kind}-formal-verification-skill queue`, changedFiles: [] });
+    assert.equal(result.kind, kind);
+    assert.match(result.reason, /User requested/);
+  });
+  test(`trigger: real ${kind} loading wrapper reports loading source`, () => {
+    const result = detectFormalVerificationTrigger({ entries: [{ type: 'message', message: { role: 'user', content: [{ type: 'text', text: skillBlock(kind) }] } }], changedFiles: [] });
+    assert.equal(result.kind, kind);
+    assert.equal(result.reason, `Session loaded ${kind}-formal-verification-skill`);
+  });
+  test(`trigger: assistant read call loads ${kind} without relying on output`, () => {
+    const result = detectFormalVerificationTrigger({ entries: [{ type: 'message', message: { role: 'assistant', content: [readCall(kind)] } }], changedFiles: [] });
+    assert.equal(result.kind, kind);
+    assert.match(result.reason, /read.*SKILL\.md/);
+  });
+  test(`trigger: recorded nested read call loads ${kind}`, () => {
+    const { id, name, arguments: args } = readCall(kind);
+    const result = detectFormalVerificationTrigger({ entries: [{ role: 'toolResult', toolName: 'codemode', content: [], nestedCalls: { complete: true, calls: [{ id, name, arguments: args, status: 'ok' }] } }], changedFiles: [] });
+    assert.equal(result.kind, kind);
+    assert.match(result.reason, /read.*SKILL\.md/);
+  });
+}
+
+for (const [older, newer] of [['create', 'maintain'], ['maintain', 'create']]) {
+  test(`trigger: latest explicit evidence wins ${older} to ${newer}`, () => {
+    const entries = [
+      { role: 'user', content: `/skill:${older}-formal-verification-skill` },
+      { role: 'assistant', content: [readCall(newer)] },
+      { role: 'assistant', content: `I recommend ${older}-formal-verification-skill` },
+    ];
+    const read = detectFormalVerificationTrigger({ entries, changedFiles: [] });
+    assert.equal(read.kind, newer);
+    assert.match(read.reason, /read/);
+    entries.push({ role: 'user', content: skillBlock(older) });
+    assert.equal(detectFormalVerificationTrigger({ entries, changedFiles: [] }).kind, older);
+    entries.push({ role: 'user', content: `/skill:${newer}-formal-verification-skill queue` });
+    const command = detectFormalVerificationTrigger({ entries, changedFiles: [] });
+    assert.equal(command.kind, newer);
+    assert.match(command.reason, /User requested/);
+    assert.equal(detectFormalVerificationTrigger({ entries, kind: older }).kind, older);
+    assert.equal(detectFormalVerificationTrigger({ entries, prompt: `/skill:${older}-formal-verification-skill` }).kind, older);
+  });
+}
+
+test('lifecycle: real poteto-help replay neither inserts incomplete reminders nor continues', async () => {
+  let handler;
+  let executed = 0;
+  registerFormalVerificationGate({ on: (name, fn) => { assert.equal(name, 'agent_before_settle'); handler = fn; } }, {
+    runner: async () => { executed++; return { exitCode: 0, output: '' }; },
+  });
+  const cwd = createTempDir('pstack-help-replay-');
+  const branch = [
+    { type: 'message', message: { role: 'user', content: `<skill name="poteto-help" location="/package/skills/poteto-help/SKILL.md">\n${helpText}\n</skill>\n\n${helpQuestion}` } },
+    { type: 'message', message: { role: 'assistant', content: [{ type: 'text', text: helpAnswer }] } },
+  ];
+  try {
+    const result = await handler({ entries: [], outcome: 'completed' }, { cwd, sessionManager: { getBranch: () => branch } });
+    assert.notEqual(result?.continue, true);
+    assert.equal((result?.entries ?? []).some(entry => /formal.verification|incomplete/.test(`${entry.customType} ${entry.content}`)), false);
+    assert.equal(executed, 0);
+  } finally { rmSync(cwd, { recursive: true, force: true }); }
 });
 
 test('trigger: detects modified .pi/skills/*/SKILL.md containing "## Run it"', () => {
@@ -1027,7 +1125,7 @@ test('production registration: a new user message resets the stopped gate', () =
   await h.settle();
   assert.equal((await h.settle()).continue, false);
   writeFileSync(h.script, h.passingScript);
-  h.branch.push({ role: 'user', content: 'Run create-formal-verification-skill to verify the restored commands again.' });
+  h.branch.push({ role: 'user', content: '/skill:create-formal-verification-skill verify the restored commands again.' });
   const result = await h.settle();
   assert.equal(result.continue, false);
   assert.equal(result.entries.at(-1).data.status, 'complete');
@@ -1113,13 +1211,18 @@ test('actual Pi host: production index executes real commands and settles failed
         cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } }],
     } } }));
     const runtime = await ModelRuntime.create({ authPath: join(agentDir, 'auth.json'), modelsPath, allowModelNetwork: false });
-    for (const failing of [false, true]) {
+    for (const failing of ['help', false, true]) {
+      const helping = failing === 'help';
+      if (helping) rmSync(h.skillPath);
+      else writeFileSync(h.skillPath, h.skill);
       const marker = join(h.cwd, 'runs.txt');
       writeFileSync(marker, '');
       writeFileSync(h.script, `import { appendFileSync } from 'node:fs';\nappendFileSync('runs.txt', 'run\\n');\nconsole.log('7 scenarios');\nprocess.exit(${failing ? 1 : 0});\n`);
       const settingsManager = SettingsManager.inMemory({ defaultProjectTrust: 'never', compaction: { enabled: false }, retry: { enabled: false } });
       const loader = new DefaultResourceLoader({ cwd: h.cwd, agentDir, settingsManager, noExtensions: true,
-        additionalExtensionPaths: [resolve('extensions/pstack/index.ts')], noSkills: true, noContextFiles: true, noPromptTemplates: true, noThemes: true });
+        additionalExtensionPaths: [resolve('extensions/pstack/index.ts')],
+        additionalSkillPaths: [resolve('skills/poteto-help/SKILL.md'), resolve('skills/create-formal-verification-skill/SKILL.md')],
+        noSkills: true, noContextFiles: true, noPromptTemplates: true, noThemes: true });
       await loader.reload();
       assert.deepEqual(loader.getExtensions().errors, []);
       const errors = [];
@@ -1127,12 +1230,17 @@ test('actual Pi host: production index executes real commands and settles failed
         resourceLoader: loader, settingsManager, sessionManager: SessionManager.inMemory(h.cwd), tools: [] }));
       await session.bindExtensions({ mode: 'rpc', onError: error => errors.push(error) });
       const before = requests;
-      await withTimeout(session.prompt('Run create-formal-verification-skill for this queue.'), 10000, 'formal host settle');
+      await withTimeout(session.prompt(helping ? `/skill:poteto-help ${helpQuestion}` : '/skill:create-formal-verification-skill for this queue.'), 10000, 'formal host settle');
       await session.waitForIdle();
-      assert.equal(requests - before, failing ? 3 : 1);
-      assert.equal(readFileSync(marker, 'utf8'), failing ? 'run\nrun\n' : 'run\n');
+      assert.equal(requests - before, helping ? 1 : failing ? 3 : 1);
+      assert.equal(readFileSync(marker, 'utf8'), helping ? '' : failing ? 'run\nrun\n' : 'run\n');
       assert.deepEqual(errors, []);
-      if (failing) assert.match(stoppedPrompt, /未验证/);
+      const messages = session.sessionManager.getBranch().map(entry => entry.message).filter(Boolean);
+      const user = messages.find(message => message.role === 'user');
+      const userText = typeof user.content === 'string' ? user.content : user.content.filter(p => p.type === 'text').map(p => p.text).join('\n');
+      assert.match(userText, helping ? /^<skill name="poteto-help"/ : /^<skill name="create-formal-verification-skill"/);
+      if (helping) assert.equal(session.sessionManager.getBranch().some(entry => /formal_verification/.test(entry.customType ?? '')), false);
+      else if (failing) assert.match(stoppedPrompt, /未验证/);
       await disposeTestSession(session);
       session = undefined;
     }
