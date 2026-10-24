@@ -2,6 +2,11 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
+## Unreleased
+
+- Fix #35 (part 2): formal verification gate triggers on read tool calls only when upgraded in the same turn by workspace file modifications (write/edit) or modified skill files containing `## Run it`; read alone no longer triggers the gate (read 单独不再触发).
+- Prevent out-of-workspace wandering: when triggered without a formal verification target skill in the current workspace, inject a single reminder restricting inspection to the current workspace and stop continuation (没有目标时不再自动继续), avoiding multi-turn attempts across unrelated repositories. All injected reminders specify workspace scope and target skill relative path.
+
 ## 0.3.12
 
 - Fix #35: activate the formal verification completion gate only from explicit parameters, leading `/skill:create-formal-verification-skill` or `/skill:maintain-formal-verification-skill` commands, actual Pi skill-loading wrappers, recorded read calls, or modified workspace verification skills containing `## Run it`. Help text, ordinary mentions, negations, recommendations and paths in tool output no longer trigger verification. Use the latest invocation evidence to select create/maintain and report its actual source.
