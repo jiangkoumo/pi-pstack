@@ -2,6 +2,13 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
+## 0.3.12
+
+- Fix #35: activate the formal verification completion gate only from explicit parameters, leading `/skill:create-formal-verification-skill` or `/skill:maintain-formal-verification-skill` commands, actual Pi skill-loading wrappers, recorded read calls, or modified workspace verification skills containing `## Run it`. Help text, ordinary mentions, negations, recommendations and paths in tool output no longer trigger verification. Use the latest invocation evidence to select create/maintain and report its actual source.
+- Resolve #34: use `/poteto on|off|status` for persistent mode; `/poteto` without arguments shows status. Keep `/skill:poteto-mode` unchanged and preserve stored state, branch restoration and on/off behavior without migration. Update current docs and regenerate the affected skills from their Pi adaptation sources.
+- Deprecate `/poteto-mode`: retain the alias throughout 0.3.x and 0.4.x, warn before every invocation, and remove it in **0.5.0**. Its description begins with `[已弃用]`. Pi 1.4.0 has no public API to hide one command from completion, so the old alias remains visible during this period. Invalid-argument usage points to `/poteto`.
+- Add trigger, lifecycle, command, alias and state compatibility regressions; validate the help/explicit-formal trigger behavior and new completion entries in real Pi TUI sessions with isolated configuration. Compare discovered skill commands against the generation manifest instead of a stale fixed count.
+
 ## 0.3.11
 
 - Accept Chinese coverage and unverified-scope labels in formal completion reports, plus Chinese tool-version, sync-commit, bounds/assumption, and exclusion fields in Record. Exclusion-only text cannot establish positive coverage. Add Chinese-report unit and production registration regressions.
