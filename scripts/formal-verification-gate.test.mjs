@@ -8,6 +8,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
+import { FORMAL_VERIFICATION_ENTRY } from '../extensions/pstack/formal-commands.mjs';
 import {
   COMPLETION_EXIT_CODES,
   COMPLETION_STATUS,
@@ -147,14 +148,18 @@ for (const kind of ['create', 'maintain']) {
     assert.equal(result.kind, kind);
     assert.equal(result.reason, `Session loaded ${kind}-formal-verification-skill`);
   });
-  test(`trigger: assistant read call loads ${kind} without relying on output`, () => {
-    const result = detectFormalVerificationTrigger({ entries: [{ type: 'message', message: { role: 'assistant', content: [readCall(kind)] } }], changedFiles: [] });
+  test(`trigger: assistant read call followed by write upgrades ${kind} without relying on output`, () => {
+    const result = detectFormalVerificationTrigger({ entries: [
+      { type: 'message', message: { role: 'assistant', content: [readCall(kind), { type: 'toolCall', id: `write-${kind}`, name: 'write', arguments: { path: `.pi/skills/${kind}/SKILL.md` } }] } },
+    ], changedFiles: [] });
     assert.equal(result.kind, kind);
     assert.match(result.reason, /read.*SKILL\.md/);
   });
-  test(`trigger: recorded nested read call loads ${kind}`, () => {
+  test(`trigger: recorded nested read call followed by write upgrades ${kind}`, () => {
     const { id, name, arguments: args } = readCall(kind);
-    const result = detectFormalVerificationTrigger({ entries: [{ role: 'toolResult', toolName: 'codemode', content: [], nestedCalls: { complete: true, calls: [{ id, name, arguments: args, status: 'ok' }] } }], changedFiles: [] });
+    const result = detectFormalVerificationTrigger({ entries: [
+      { role: 'toolResult', toolName: 'codemode', content: [], nestedCalls: { complete: true, calls: [{ id, name, arguments: args, status: 'ok' }, { id: 'w1', name: 'write', arguments: { path: '.pi/skills/verify/SKILL.md' }, status: 'ok' }] } },
+    ], changedFiles: [] });
     assert.equal(result.kind, kind);
     assert.match(result.reason, /read.*SKILL\.md/);
   });
@@ -164,7 +169,7 @@ for (const [older, newer] of [['create', 'maintain'], ['maintain', 'create']]) {
   test(`trigger: latest explicit evidence wins ${older} to ${newer}`, () => {
     const entries = [
       { role: 'user', content: `/skill:${older}-formal-verification-skill` },
-      { role: 'assistant', content: [readCall(newer)] },
+      { role: 'assistant', content: [readCall(newer), { type: 'toolCall', id: 'write-newer', name: 'write', arguments: { path: '.pi/skills/model/Model.tla' } }] },
       { role: 'assistant', content: `I recommend ${older}-formal-verification-skill` },
     ];
     const read = detectFormalVerificationTrigger({ entries, changedFiles: [] });
@@ -856,14 +861,9 @@ test('lifecycle: registerFormalVerificationGate attaches to before_settle and co
 
   const handler = events[0].handler;
 
-  // Session loaded create-formal-verification-skill
-  const event = {
-    entries: [
-      { role: 'user', content: '/skill:create-formal-verification-skill' },
-      {
-        role: 'assistant',
-        content: `
-I generated the skill:
+  const tempDir = createTempDir('pstack-lifecycle-incomplete-');
+  const skillText = `
+# Verify Model
 ## Run it
 \`\`\`bash
 verification_exec --spec Model.tla
@@ -875,20 +875,34 @@ Distinct states: 42, depth: 8.
 - Bounds: 3
 - Assumptions: none
 - Left out: none
-`,
-      },
-    ],
-  };
+`;
+  mkdirSync(join(tempDir, '.pi/skills/verify-model'), { recursive: true });
+  writeFileSync(join(tempDir, '.pi/skills/verify-model/SKILL.md'), skillText, 'utf8');
 
-  const ctx = {
-    cwd: process.cwd(),
-    sessionManager: { getBranch: () => event.entries },
-  };
+  try {
+    // Session loaded create-formal-verification-skill
+    const event = {
+      entries: [
+        { role: 'user', content: '/skill:create-formal-verification-skill' },
+        {
+          role: 'assistant',
+          content: `I generated the skill:\n${skillText}`,
+        },
+      ],
+    };
 
-  const settleDecision = await handler(event, ctx);
-  assert.ok(settleDecision);
-  assert.equal(settleDecision.continue, true);
-  assert.ok(settleDecision.entries.some(e => e.customType === 'pstack.formal_verification_gate.turn.v1'));
+    const ctx = {
+      cwd: tempDir,
+      sessionManager: { getBranch: () => event.entries },
+    };
+
+    const settleDecision = await handler(event, ctx);
+    assert.ok(settleDecision);
+    assert.equal(settleDecision.continue, true);
+    assert.ok(settleDecision.entries.some(e => e.customType === 'pstack.formal_verification_gate.turn.v1'));
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
 });
 
 test('lifecycle: registerFormalVerificationGate does not intercept when gate is not triggered', async () => {
@@ -963,17 +977,9 @@ test('lifecycle: registerFormalVerificationGate triggers with empty event.entrie
   assert.equal(events.length, 1);
   const handler = events[0].handler;
 
-  // In -p mode, event.entries is []
-  const event = {
-    entries: [],
-  };
-
-  const branch = [
-    { role: 'user', content: '/skill:create-formal-verification-skill' },
-    {
-      role: 'assistant',
-      content: `
-I generated the skill:
+  const tempDir = createTempDir('pstack-lifecycle-pmode-');
+  const skillText = `
+# Verify Model
 ## Run it
 \`\`\`bash
 verification_exec --spec Model.tla
@@ -985,19 +991,36 @@ Distinct states: 42, depth: 8.
 - Bounds: 3
 - Assumptions: none
 - Left out: none
-`,
-    },
-  ];
+`;
+  mkdirSync(join(tempDir, '.pi/skills/verify-model'), { recursive: true });
+  writeFileSync(join(tempDir, '.pi/skills/verify-model/SKILL.md'), skillText, 'utf8');
 
-  const ctx = {
-    cwd: process.cwd(),
-    sessionManager: { getBranch: () => branch },
-  };
+  try {
+    // In -p mode, event.entries is []
+    const event = {
+      entries: [],
+    };
 
-  const settleDecision = await handler(event, ctx);
-  assert.ok(settleDecision, 'Gate must intercept even when event.entries is empty in -p mode');
-  assert.equal(settleDecision.continue, true);
-  assert.ok(settleDecision.entries.some(e => e.customType === 'pstack.formal_verification_gate.turn.v1'));
+    const branch = [
+      { role: 'user', content: '/skill:create-formal-verification-skill' },
+      {
+        role: 'assistant',
+        content: `I generated the skill:\n${skillText}`,
+      },
+    ];
+
+    const ctx = {
+      cwd: tempDir,
+      sessionManager: { getBranch: () => branch },
+    };
+
+    const settleDecision = await handler(event, ctx);
+    assert.ok(settleDecision, 'Gate must intercept even when event.entries is empty in -p mode');
+    assert.equal(settleDecision.continue, true);
+    assert.ok(settleDecision.entries.some(e => e.customType === 'pstack.formal_verification_gate.turn.v1'));
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
 });
 
 const finalReport = `Coverage scope: queue concurrency.
@@ -1249,3 +1272,533 @@ test('actual Pi host: production index executes real commands and settles failed
     await closeTestServer(server);
   }
 }));
+
+test('actual Pi host: Hark reproduction conversation performs tool calls and settles without gate injection', { timeout: 30000 }, () => productionFixture(async h => {
+  const agentDir = join(h.cwd, 'agent');
+  mkdirSync(agentDir, { recursive: true });
+  writeFileSync(join(agentDir, 'pstack.json'), JSON.stringify({ version: 1, roles: {}, autoContinue: { enabled: true, maxTurns: 3 } }));
+
+  let turnCount = 0;
+  const server = createServer(async (req, res) => {
+    let raw = '';
+    for await (const chunk of req) raw += chunk;
+    turnCount++;
+    const base = { id: `chatcmpl-${turnCount}`, object: 'chat.completion.chunk', created: Date.now(), model: 'parent' };
+    res.writeHead(200, { 'Content-Type': 'text/event-stream' });
+    if (turnCount === 1) {
+      // First model response: issues read toolCalls for both skills
+      res.write(`data: ${JSON.stringify({ ...base, choices: [{ index: 0, delta: { role: 'assistant', tool_calls: [
+        { index: 0, id: 'call_read_1', type: 'function', function: { name: 'read', arguments: JSON.stringify({ path: resolve('skills/create-formal-verification-skill/SKILL.md') }) } },
+        { index: 1, id: 'call_read_2', type: 'function', function: { name: 'read', arguments: JSON.stringify({ path: resolve('skills/maintain-formal-verification-skill/SKILL.md') }) } },
+      ] }, finish_reason: null }] })}\n\n`);
+      res.write(`data: ${JSON.stringify({ ...base, choices: [{ index: 0, delta: {}, finish_reason: 'tool_calls' }] })}\n\n`);
+    } else {
+      // Second model response: delivers pure text answer
+      res.write(`data: ${JSON.stringify({ ...base, choices: [{ index: 0, delta: { role: 'assistant', content: 'create 用于创建新验证，maintain 用于维护已有验证。' }, finish_reason: null }] })}\n\n`);
+      res.write(`data: ${JSON.stringify({ ...base, choices: [{ index: 0, delta: {}, finish_reason: 'stop' }] })}\n\n`);
+    }
+    res.end('data: [DONE]\n\n');
+  });
+
+  let session;
+  try {
+    await new Promise(done => server.listen(0, '127.0.0.1', done));
+    const modelsPath = join(agentDir, 'models.json');
+    writeFileSync(modelsPath, JSON.stringify({ providers: { fixture: {
+      baseUrl: `http://127.0.0.1:${server.address().port}/v1`, api: 'openai-completions', apiKey: 'test-only',
+      models: [{ id: 'parent', name: 'Fixture', reasoning: false, input: ['text'], contextWindow: 64000, maxTokens: 2048, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } }],
+    } } }));
+    const runtime = await ModelRuntime.create({ authPath: join(agentDir, 'auth.json'), modelsPath, allowModelNetwork: false });
+    const settingsManager = SettingsManager.inMemory({ defaultProjectTrust: 'never', compaction: { enabled: false }, retry: { enabled: false } });
+    const loader = new DefaultResourceLoader({ cwd: h.cwd, agentDir, settingsManager, noExtensions: true,
+      additionalExtensionPaths: [resolve('extensions/pstack/index.ts')],
+      additionalSkillPaths: [resolve('skills/poteto-help/SKILL.md')],
+      noSkills: true, noContextFiles: true, noPromptTemplates: true, noThemes: true });
+    await loader.reload();
+
+    const errors = [];
+    ({ session } = await createAgentSession({ cwd: h.cwd, agentDir, modelRuntime: runtime, model: runtime.getModel('fixture', 'parent'),
+      resourceLoader: loader, settingsManager, sessionManager: SessionManager.inMemory(h.cwd) }));
+    await session.bindExtensions({ mode: 'rpc', onError: error => errors.push(error) });
+
+    await withTimeout(session.prompt('/skill:poteto-help pstack 的形式化验证功能怎么用？create-formal-verification-skill 和 maintain-formal-verification-skill 有什么区别？只回答，不要执行。'), 15000, 'repro settle');
+    await session.waitForIdle();
+
+    assert.equal(turnCount, 2, 'Must take exactly 2 model calls (tool call turn + text response), without gate auto-continue');
+    const branchEntries = session.sessionManager.getBranch();
+    const incompleteInjection = branchEntries.some(entry => /formal-verification-gate: incomplete|incomplete/.test(`${entry.customType} ${entry.content}`));
+    assert.equal(incompleteInjection, false, 'Must not inject any incomplete gate reminder');
+    assert.deepEqual(errors, []);
+  } finally {
+    await disposeTestSession(session);
+    await closeTestServer(server);
+  }
+}));
+
+// ===========================================================================
+// Regression #35 part 2: read tool call is candidate-only, workspace containment
+// ===========================================================================
+
+// Negative tests: must NOT trigger
+
+test('trigger (negative 1): poteto-help reproduction fixture does not trigger gate', () => {
+  const cwd = createTempDir('pstack-fixture-repro-');
+  try {
+    const reproductionEntries = [
+      {
+        role: 'user',
+        content: `<skill name="poteto-help" location="/package/skills/poteto-help/SKILL.md">\n${helpText}\n</skill>\n\npstack 的形式化验证功能怎么用？create-formal-verification-skill 和 maintain-formal-verification-skill 有什么区别？只回答，不要执行。`,
+      },
+      {
+        role: 'assistant',
+        content: [
+          readCall('create'),
+          readCall('maintain'),
+        ],
+      },
+      {
+        role: 'toolResult',
+        toolName: 'read',
+        toolCallId: 'read-create',
+        content: [{ type: 'text', text: 'create doc body' }],
+      },
+      {
+        role: 'toolResult',
+        toolName: 'read',
+        toolCallId: 'read-maintain',
+        content: [{ type: 'text', text: 'maintain doc body' }],
+      },
+      {
+        role: 'assistant',
+        content: 'create 用于创建形式化验证，maintain 用于维护已有验证。',
+      },
+    ];
+
+    const result = detectFormalVerificationTrigger({ cwd, entries: reproductionEntries, changedFiles: [] });
+    assert.equal(result.triggered, false);
+    assert.equal(result.kind, null);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('trigger (negative 2): read of create SKILL.md followed only by read-only bash tools does not trigger', () => {
+  const cwd = createTempDir('pstack-readonly-bash-');
+  try {
+    const entries = [
+      { role: 'user', content: '查看验证技能说明' },
+      {
+        role: 'assistant',
+        content: [
+          readCall('create'),
+          { type: 'toolCall', id: 'bash-ls', name: 'bash', arguments: { command: 'ls -la' } },
+          { type: 'toolCall', id: 'bash-grep', name: 'bash', arguments: { command: 'grep "Run it" somefile' } },
+          { type: 'toolCall', id: 'bash-cat', name: 'bash', arguments: { command: 'cat README.md' } },
+        ],
+      },
+      { role: 'assistant', content: '这是只读查看的结果。' },
+    ];
+    const result = detectFormalVerificationTrigger({ cwd, entries, changedFiles: [] });
+    assert.equal(result.triggered, false);
+    assert.equal(result.kind, null);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('trigger (negative 3): read in previous turn does not splice with edit in next turn', () => {
+  const cwd = createTempDir('pstack-cross-turn-');
+  try {
+    const readmePath = join(cwd, 'README.md');
+    writeFileSync(readmePath, '# Original README', 'utf8');
+
+    const entries = [
+      // Turn 1
+      { role: 'user', content: '读一下形式化验证技能' },
+      { role: 'assistant', content: [readCall('create')] },
+      { role: 'assistant', content: '读完了。' },
+      // Turn 2
+      { role: 'user', content: '修改一下 README' },
+      {
+        role: 'assistant',
+        content: [
+          { type: 'toolCall', id: 'edit-readme', name: 'edit', arguments: { path: 'README.md' } },
+        ],
+      },
+      { role: 'assistant', content: 'README 已修改。' },
+    ];
+
+    const result = detectFormalVerificationTrigger({ cwd, entries, changedFiles: [] });
+    assert.equal(result.triggered, false);
+    assert.equal(result.kind, null);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('trigger (negative 4): read followed by write outside cwd does not trigger', () => {
+  const cwd = createTempDir('pstack-outside-write-');
+  try {
+    const entries = [
+      { role: 'user', content: '看下验证技能并在外部写临时文件' },
+      {
+        role: 'assistant',
+        content: [
+          readCall('create'),
+          { type: 'toolCall', id: 'write-ext', name: 'write', arguments: { path: '/tmp/external-project/output.txt' } },
+          { type: 'toolCall', id: 'write-rel-out', name: 'write', arguments: { path: '../outside-repo/foo.md' } },
+        ],
+      },
+      { role: 'assistant', content: '外部写入完成。' },
+    ];
+
+    const result = detectFormalVerificationTrigger({ cwd, entries, changedFiles: [] });
+    assert.equal(result.triggered, false);
+    assert.equal(result.kind, null);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('lifecycle (negative 5): reproduction fixture in agent_before_settle has neither incomplete prompt nor continue:true', async () => {
+  let handler;
+  let runnerCalls = 0;
+  registerFormalVerificationGate({ on: (name, fn) => { assert.equal(name, 'agent_before_settle'); handler = fn; } }, {
+    runner: async () => { runnerCalls++; return { exitCode: 0, output: '' }; },
+  });
+  const cwd = createTempDir('pstack-hook-repro-');
+  try {
+    const branch = [
+      {
+        type: 'message',
+        message: {
+          role: 'user',
+          content: `<skill name="poteto-help" location="/package/skills/poteto-help/SKILL.md">\n${helpText}\n</skill>\n\npstack 的形式化验证功能怎么用？create-formal-verification-skill 和 maintain-formal-verification-skill 有什么区别？只回答，不要执行。`,
+        },
+      },
+      {
+        type: 'message',
+        message: {
+          role: 'assistant',
+          content: [
+            readCall('create'),
+            readCall('maintain'),
+            { type: 'text', text: 'create 用于新建，maintain 用于维护。' },
+          ],
+        },
+      },
+    ];
+
+    const result = await handler({ entries: [], outcome: 'completed' }, { cwd, sessionManager: { getBranch: () => branch } });
+    assert.notEqual(result?.continue, true);
+    const injectedPrompts = (result?.entries ?? []).filter(entry =>
+      /formal-verification-gate: incomplete|incomplete/.test(`${entry?.customType} ${entry?.content}`)
+    );
+    assert.equal(injectedPrompts.length, 0);
+    assert.equal(runnerCalls, 0);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+// Positive tests: MUST trigger
+
+test('trigger (positive 6): read create SKILL.md followed by write .pi/skills/verify-x/SKILL.md triggers create', () => {
+  const cwd = createTempDir('pstack-create-trigger-');
+  try {
+    const skillPath = join(cwd, '.pi/skills/verify-x/SKILL.md');
+    mkdirSync(join(cwd, '.pi/skills/verify-x'), { recursive: true });
+    writeFileSync(skillPath, '# Verify X\n## Run it\n```bash\ntlc X.tla\n```', 'utf8');
+
+    const entries = [
+      { role: 'user', content: 'model-check 这个 race' },
+      {
+        role: 'assistant',
+        content: [
+          readCall('create'),
+          { type: 'toolCall', id: 'write-skill', name: 'write', arguments: { path: '.pi/skills/verify-x/SKILL.md' } },
+        ],
+      },
+    ];
+
+    const result = detectFormalVerificationTrigger({ cwd, entries });
+    assert.equal(result.triggered, true);
+    assert.equal(result.kind, 'create');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('trigger (positive 7): read maintain SKILL.md followed by edit existing .pi/skills/verify-x/SKILL.md triggers maintain', () => {
+  const cwd = createTempDir('pstack-maintain-trigger-');
+  try {
+    const skillPath = join(cwd, '.pi/skills/verify-x/SKILL.md');
+    mkdirSync(join(cwd, '.pi/skills/verify-x'), { recursive: true });
+    writeFileSync(skillPath, '# Verify X\n## Run it\n```bash\ntlc X.tla\n```\n## Record\n- Sync commit: abc1234', 'utf8');
+
+    const entries = [
+      { role: 'user', content: 'update formal verification' },
+      {
+        role: 'assistant',
+        content: [
+          readCall('maintain'),
+          { type: 'toolCall', id: 'edit-skill', name: 'edit', arguments: { path: '.pi/skills/verify-x/SKILL.md' } },
+        ],
+      },
+    ];
+
+    const result = detectFormalVerificationTrigger({ cwd, entries });
+    assert.equal(result.triggered, true);
+    assert.equal(result.kind, 'maintain');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+// Part B tests: workspace containment
+
+test('trigger (ambiguous): read both create and maintain resolves by target skill state', () => {
+  const cwd = createTempDir('pstack-ambiguous-');
+  try {
+    // Subcase 1: Newly created skill -> create
+    const skillDirNew = join(cwd, '.pi/skills/verify-new');
+    mkdirSync(skillDirNew, { recursive: true });
+    writeFileSync(join(skillDirNew, 'SKILL.md'), '# Verify New\n## Run it\n```bash\ntlc New.tla\n```\n', 'utf8');
+
+    const entriesNew = [
+      { role: 'user', content: 'check formal verification' },
+      {
+        role: 'assistant',
+        content: [
+          readCall('create'),
+          readCall('maintain'),
+          { type: 'toolCall', id: 'write-new', name: 'write', arguments: { path: '.pi/skills/verify-new/SKILL.md' } },
+        ],
+      },
+    ];
+    const resNew = detectFormalVerificationTrigger({ cwd, entries: entriesNew });
+    assert.equal(resNew.triggered, true);
+    assert.equal(resNew.kind, 'create');
+
+    // Subcase 2: Existing skill with sync commit -> maintain
+    const skillDirExisting = join(cwd, '.pi/skills/verify-existing');
+    mkdirSync(skillDirExisting, { recursive: true });
+    writeFileSync(join(skillDirExisting, 'SKILL.md'), '# Verify Existing\n## Run it\n```bash\ntlc Existing.tla\n```\n## Record\n- Sync commit: deadbeef123\n', 'utf8');
+
+    const entriesExisting = [
+      { role: 'user', content: 'update formal verification' },
+      {
+        role: 'assistant',
+        content: [
+          readCall('create'),
+          readCall('maintain'),
+          { type: 'toolCall', id: 'edit-existing', name: 'edit', arguments: { path: '.pi/skills/verify-existing/SKILL.md' } },
+        ],
+      },
+    ];
+    const resExisting = detectFormalVerificationTrigger({ cwd, entries: entriesExisting });
+    assert.equal(resExisting.triggered, true);
+    assert.equal(resExisting.kind, 'maintain');
+
+    // Subcase 3: No target skill in workspace (only unrelated write) -> do not trigger
+    const entriesUnrelated = [
+      { role: 'user', content: 'just a question' },
+      {
+        role: 'assistant',
+        content: [
+          readCall('create'),
+          readCall('maintain'),
+          { type: 'toolCall', id: 'write-src', name: 'write', arguments: { path: 'src/index.js' } },
+        ],
+      },
+    ];
+    // Remove skill files so workspace has no target skill
+    rmSync(skillDirNew, { recursive: true, force: true });
+    rmSync(skillDirExisting, { recursive: true, force: true });
+    const resUnrelated = detectFormalVerificationTrigger({ cwd, entries: entriesUnrelated });
+    assert.equal(resUnrelated.triggered, false);
+    assert.equal(resUnrelated.kind, null);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('prompt: continuation and terminal prompts specify workspace scope and relative skill path', async () => {
+  const cwd = createTempDir('pstack-prompt-scope-');
+  try {
+    const skillPath = join(cwd, '.pi/skills/verify-sample/SKILL.md');
+    mkdirSync(join(cwd, '.pi/skills/verify-sample'), { recursive: true });
+    writeFileSync(skillPath, '# Sample\n## Run it\n```sh\ntlc Sample.tla\n```', 'utf8');
+
+    const continuation = renderFormalVerificationContinuationPrompt({
+      kind: 'create',
+      cwd,
+      skillPath,
+      missing: ['some item'],
+    });
+
+    assert.ok(continuation.includes('检查范围只限当前 cwd 仓库'));
+    assert.ok(continuation.includes('.pi/skills/verify-sample/SKILL.md'));
+
+    // Check registerFormalVerificationGate stopped terminal prompt
+    let handler;
+    registerFormalVerificationGate({ on: (name, fn) => { handler = fn; } }, {
+      runner: async () => ({ exitCode: 1, output: 'fail' }),
+    });
+
+    const branch = [
+      { role: 'user', content: '/skill:create-formal-verification-skill sample' },
+      {
+        type: 'custom',
+        customType: FORMAL_VERIFICATION_ENTRY,
+        data: { version: 1, turn: 4, maxTurns: 4, missing: ['command failed'], status: 'running' },
+      },
+    ];
+
+    const result = await handler({ entries: [], outcome: 'completed' }, { cwd, sessionManager: { getBranch: () => branch } });
+    const stoppedMsg = (result?.entries ?? []).find(e => e.type === 'custom_message');
+    assert.ok(stoppedMsg);
+    assert.ok(stoppedMsg.content.includes('检查范围只限当前 cwd 仓库'));
+    assert.ok(stoppedMsg.content.includes('.pi/skills/verify-sample/SKILL.md'));
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+// ===========================================================================
+// Regression #35 part 3: workspace dirty skill cannot trigger without current-turn evidence
+// ===========================================================================
+
+function createGitRepo(prefix = 'pstack-git-test-') {
+  const dir = createTempDir(prefix);
+  execSync('git init -b main', { cwd: dir, stdio: 'ignore' });
+  execSync('git config user.name "Test"', { cwd: dir, stdio: 'ignore' });
+  execSync('git config user.email "test@example.com"', { cwd: dir, stdio: 'ignore' });
+  writeFileSync(join(dir, 'a.txt'), 'hi', 'utf8');
+  execSync('git add a.txt && git commit -m "initial commit"', { cwd: dir, stdio: 'ignore' });
+  return dir;
+}
+
+test('trigger: dirty workspace skill + ordinary question does not trigger', () => {
+  const cwd = createGitRepo('pstack-dirty-ordinary-');
+  try {
+    const skillDir = join(cwd, '.pi/skills/verify-x');
+    mkdirSync(skillDir, { recursive: true });
+    writeFileSync(join(skillDir, 'SKILL.md'), '# Verify X\n## Run it\n```bash\ntlc X.tla\n```', 'utf8');
+
+    const entries = [
+      { role: 'user', content: '用一句话告诉我 a.txt 里写了什么，不要做别的。' },
+      { role: 'assistant', content: 'a.txt 里写了 hi。' },
+    ];
+
+    const result = detectFormalVerificationTrigger({ cwd, entries });
+    assert.equal(result.triggered, false);
+    assert.equal(result.kind, null);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('trigger: dirty workspace skill + read maintain without writing does not trigger', () => {
+  const cwd = createGitRepo('pstack-dirty-read-');
+  try {
+    const skillDir = join(cwd, '.pi/skills/verify-x');
+    mkdirSync(skillDir, { recursive: true });
+    writeFileSync(join(skillDir, 'SKILL.md'), '# Verify X\n## Run it\n```bash\ntlc X.tla\n```\n## Record\n- Sync commit: 1234567\n', 'utf8');
+
+    const entries = [
+      { role: 'user', content: '查一下 maintain 技能怎么写的' },
+      {
+        role: 'assistant',
+        content: [
+          readCall('maintain'),
+        ],
+      },
+      { role: 'assistant', content: 'maintain 技能是用来维护已有形式化验证的。' },
+    ];
+
+    const result = detectFormalVerificationTrigger({ cwd, entries });
+    assert.equal(result.triggered, false);
+    assert.equal(result.kind, null);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('trigger: dirty workspace skill + edit skill in current round triggers', () => {
+  const cwd = createGitRepo('pstack-dirty-edit-');
+  try {
+    const skillDir = join(cwd, '.pi/skills/verify-x');
+    mkdirSync(skillDir, { recursive: true });
+    const skillPath = join(skillDir, 'SKILL.md');
+    writeFileSync(skillPath, '# Verify X\n## Run it\n```bash\ntlc X.tla\n```\n## Record\n- Sync commit: 1234567\n', 'utf8');
+
+    const entries = [
+      { role: 'user', content: '更新一下 verify-x 的形式化验证' },
+      {
+        role: 'assistant',
+        content: [
+          { type: 'toolCall', id: 'edit-1', name: 'edit', arguments: { path: '.pi/skills/verify-x/SKILL.md' } },
+        ],
+      },
+    ];
+
+    const result = detectFormalVerificationTrigger({ cwd, entries });
+    assert.equal(result.triggered, true);
+    assert.equal(result.kind, 'maintain');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('lifecycle: dirty workspace skill + ordinary question hook replay returns undefined and no custom_message', async () => {
+  let handler;
+  registerFormalVerificationGate({ on: (name, fn) => { assert.equal(name, 'agent_before_settle'); handler = fn; } }, {
+    runner: async () => ({ exitCode: 0, output: '' }),
+  });
+  const cwd = createGitRepo('pstack-dirty-ordinary-hook-');
+  try {
+    const skillDir = join(cwd, '.pi/skills/verify-x');
+    mkdirSync(skillDir, { recursive: true });
+    writeFileSync(join(skillDir, 'SKILL.md'), '# Verify X\n## Run it\n```bash\ntlc X.tla\n```', 'utf8');
+
+    const branch = [
+      { role: 'user', content: '用一句话告诉我 a.txt 里写了什么，不要做别的。' },
+      { role: 'assistant', content: [{ type: 'text', text: 'a.txt 里写了 hi。' }] },
+    ];
+
+    const result = await handler({ entries: [], outcome: 'completed' }, { cwd, sessionManager: { getBranch: () => branch } });
+    assert.equal(result, undefined);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('lifecycle: dirty workspace skill + read maintain hook replay returns undefined and no custom_message', async () => {
+  let handler;
+  registerFormalVerificationGate({ on: (name, fn) => { assert.equal(name, 'agent_before_settle'); handler = fn; } }, {
+    runner: async () => ({ exitCode: 0, output: '' }),
+  });
+  const cwd = createGitRepo('pstack-dirty-read-hook-');
+  try {
+    const skillDir = join(cwd, '.pi/skills/verify-x');
+    mkdirSync(skillDir, { recursive: true });
+    writeFileSync(join(skillDir, 'SKILL.md'), '# Verify X\n## Run it\n```bash\ntlc X.tla\n```\n## Record\n- Sync commit: 1234567\n', 'utf8');
+
+    const branch = [
+      { role: 'user', content: '查一下 maintain 技能怎么写的' },
+      {
+        role: 'assistant',
+        content: [
+          readCall('maintain'),
+          { type: 'text', text: 'maintain 技能是用来维护已有形式化验证的。' },
+        ],
+      },
+    ];
+
+    const result = await handler({ entries: [], outcome: 'completed' }, { cwd, sessionManager: { getBranch: () => branch } });
+    assert.equal(result, undefined);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});

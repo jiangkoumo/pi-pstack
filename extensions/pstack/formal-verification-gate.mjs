@@ -128,13 +128,142 @@ export function findModifiedSkillFiles(options = {}) {
   return [...new Set(matched)];
 }
 
+function isPathInsideCwd(targetPath, cwd) {
+  if (typeof targetPath !== 'string' || !targetPath.trim()) return false;
+  const resolved = isAbsolute(targetPath) ? resolve(targetPath) : resolve(cwd, targetPath);
+  const rel = relative(cwd, resolved);
+  return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel));
+}
+
+function isSkillDirWrite(targetPath, cwd) {
+  if (typeof targetPath !== 'string' || !targetPath.trim()) return false;
+  const resolved = isAbsolute(targetPath) ? resolve(targetPath) : resolve(cwd, targetPath);
+  const rel = relative(cwd, resolved).replace(/\\/g, '/');
+  if (rel.startsWith('..') || isAbsolute(rel)) return false;
+  return /^(?:\.pi|\.agents)\/skills\//i.test(rel);
+}
+
+function checkRunItSkillFile(targetPath, cwd) {
+  if (!isSkillDirWrite(targetPath, cwd)) return null;
+  const resolved = isAbsolute(targetPath) ? resolve(targetPath) : resolve(cwd, targetPath);
+  const rel = relative(cwd, resolved).replace(/\\/g, '/');
+  if (!/(?:^|\/)(?:\.pi|\.agents)\/skills\/[^/]+\/SKILL\.md$/i.test(rel)) return null;
+  if (!existsSync(resolved)) return null;
+  try {
+    const content = readFileSync(resolved, 'utf8');
+    if (/(?:^|\n)##+\s*Run\s+it\b/i.test(content)) {
+      return resolved;
+    }
+  } catch {}
+  return null;
+}
+
+function parseStrongUserEvidence(text) {
+  if (typeof text !== 'string') return null;
+  const command = text.match(/^\s*\/skill:(create|maintain)-formal-verification-skill(?=\s|$)/);
+  if (command) {
+    return { kind: command[1], reason: 'User requested ' + command[1] + '-formal-verification-skill' };
+  }
+  const loaded = text.match(/^<skill name="((?:create|maintain)-formal-verification-skill)" location="[^"]+">\n[\s\S]*?\n<\/skill>(?:\n\n[\s\S]+)?\s*$/);
+  if (loaded) {
+    return { kind: loaded[1].split('-')[0], reason: 'Session loaded ' + loaded[1] };
+  }
+  return null;
+}
+
+function extractUserText(message) {
+  if (typeof message === 'string') return message;
+  if (typeof message?.content === 'string') return message.content;
+  if (Array.isArray(message?.content)) {
+    return message.content.filter(p => p?.type === 'text' && typeof p.text === 'string').map(p => p.text).join('\n');
+  }
+  return '';
+}
+
+function extractToolCalls(message) {
+  const calls = [];
+  if (Array.isArray(message?.content)) {
+    for (const part of message.content) {
+      if (part?.type === 'toolCall' && part.name) calls.push(part);
+    }
+  }
+  if (Array.isArray(message?.toolCalls)) {
+    for (const call of message.toolCalls) {
+      if (call?.name) calls.push(call);
+    }
+  }
+  if (Array.isArray(message?.nestedCalls?.calls)) {
+    for (const call of message.nestedCalls.calls) {
+      if (call?.name && (call.status === undefined || call.status === 'ok')) calls.push(call);
+    }
+  }
+  return calls;
+}
+
+function resolveSkillFromWorkspace({ cwd, writeEdits = [], changedFiles, scanWorkspace = true }) {
+  for (const item of [...writeEdits].reverse()) {
+    const p = item.path;
+    const resolved = resolve(cwd, p);
+    const rel = relative(cwd, resolved).replace(/\\/g, '/');
+    if (/(?:^|\/)(?:\.pi|\.agents)\/skills\/[^/]+\/SKILL\.md$/i.test(rel) && existsSync(resolved)) {
+      return resolved;
+    }
+  }
+  const modified = findModifiedSkillFiles({ cwd, changedFiles, scanWorkspace: false });
+  if (modified.length > 0) return modified[0];
+  if (scanWorkspace) {
+    const scanned = findModifiedSkillFiles({ cwd, changedFiles, scanWorkspace: true });
+    if (scanned.length > 0) return scanned[0];
+  }
+  return null;
+}
+
+function judgeSkillStatus(targetSkillPath, cwd) {
+  if (!targetSkillPath || !existsSync(targetSkillPath)) return null;
+  let content = '';
+  try { content = readFileSync(targetSkillPath, 'utf8'); } catch {}
+  const hasSyncCommit = /(?:sync\s*commit|commit\s*[:\s]+[0-9a-f]{7,40}|同步提交)/i.test(content);
+
+  // "已有 sync 记录并被修改是 maintain"
+  if (hasSyncCommit) {
+    return 'maintain';
+  }
+
+  const rel = relative(cwd, targetSkillPath).replace(/\\/g, '/');
+  let isTracked = false;
+  let isUntrackedOrAdded = false;
+
+  try {
+    const gitOut = execSync(`git status --porcelain -uall -- "${rel}"`, {
+      cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    const lsOut = execSync(`git ls-files -- "${rel}"`, {
+      cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    isTracked = Boolean(lsOut);
+    if (gitOut.startsWith('??') || gitOut.startsWith('A')) {
+      isUntrackedOrAdded = true;
+    }
+  } catch {}
+
+  // "新建是 create"
+  if (isUntrackedOrAdded || !isTracked) {
+    return 'create';
+  }
+
+  if (content.includes('## Run it')) return 'create';
+
+  return null;
+}
+
 /**
  * Detect whether the formal verification gate should trigger.
  *
  * Trigger conditions:
- * 1. Explicit kind/skillName, a user /skill: command or Pi loading wrapper,
- *    or a read tool call for a formal verification SKILL.md;
- * 2. OR modified `.pi/skills/<name>/SKILL.md` (or `.agents/skills/<name>/SKILL.md`) in workspace
+ * 1. Explicit kind/skillName, a user /skill: command or Pi loading wrapper;
+ * 2. Candidate read of a formal verification SKILL.md upgraded in the same round
+ *    by workspace file modification (write/edit) or modified skill containing "## Run it";
+ * 3. OR modified `.pi/skills/<name>/SKILL.md` (or `.agents/skills/<name>/SKILL.md`) in workspace
  *    containing a `## Run it` section.
  *
  * @param {object} [options]
@@ -158,58 +287,116 @@ export function detectFormalVerificationTrigger(options = {}) {
       reason: explicitKind + '-formal-verification-skill explicitly requested' };
   }
 
-  // Entries are chronological. Only structural invocation evidence updates the
-  // task; prose, frontmatter, paths in tool output and assistant text never do.
-  let latest;
-  const record = (kind, reason) => { latest = { triggered: true, kind, reason }; };
-  const inspectUserText = text => {
-    const command = text.match(/^\s*\/skill:(create|maintain)-formal-verification-skill(?=\s|$)/);
-    if (command) record(command[1], 'User requested ' + command[1] + '-formal-verification-skill');
-    // Pi 1.4.0 _expandSkillCommand / parseSkillBlock: the wrapper occupies the
-    // entire user message, optionally followed by the user's command arguments.
-    const loaded = text.match(/^<skill name="((?:create|maintain)-formal-verification-skill)" location="[^"]+">\n[\s\S]*?\n<\/skill>(?:\n\n[\s\S]+)?\s*$/);
-    if (loaded) record(loaded[1].split('-')[0], 'Session loaded ' + loaded[1]);
-  };
-  const inspectRead = call => {
-    if (call?.name !== 'read' || typeof call.arguments?.path !== 'string') return;
-    const path = call.arguments.path.replace(/\\/g, '/');
-    const match = path.match(/(?:^|\/)skills\/(create|maintain)-formal-verification-skill\/SKILL\.md$/);
-    if (match) record(match[1], 'Session read ' + path);
-  };
-  for (const entry of options.entries ?? []) {
+  const entries = Array.isArray(options.entries) ? options.entries : [];
+  let lastUserIdx = -1;
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
     const message = entry?.message ?? entry;
-    if (message?.role === 'user') {
-      const text = typeof message.content === 'string' ? message.content
-        : Array.isArray(message.content) ? message.content.filter(p => p?.type === 'text').map(p => p.text).join('\n') : '';
-      inspectUserText(text);
-    } else if (message?.role === 'assistant' && Array.isArray(message.content)) {
-      for (const part of message.content) if (part?.type === 'toolCall') inspectRead(part);
-    } else if (message?.role === 'toolResult') {
-      // Pi records tools invoked through codemode as metadata, separate from
-      // result content. Accept successful nested reads, never output text.
-      for (const call of message.nestedCalls?.calls ?? []) if (call.status === 'ok') inspectRead(call);
+    if (message?.role === 'user' || entry?.role === 'user' || entry?.type === 'user_message') {
+      lastUserIdx = i;
     }
   }
-  // A separately supplied prompt is the current user input, after history.
-  if (typeof options.prompt === 'string') inspectUserText(options.prompt);
-  if (latest) return latest;
 
-  // 3. Scan workspace for modified SKILL.md containing "## Run it"
-  const modifiedSkills = findModifiedSkillFiles({
-    cwd,
-    changedFiles: options.changedFiles,
-    scanWorkspace: false,
-  });
+  const currentRoundEntries = lastUserIdx >= 0 ? entries.slice(lastUserIdx) : entries;
 
-  if (modifiedSkills.length > 0) {
-    return {
-      triggered: true,
-      kind: 'create',
-      skillPath: modifiedSkills[0],
-      skillPaths: modifiedSkills,
-      reason: `Workspace formal verification skill containing "## Run it" modified: ${relative(cwd, modifiedSkills[0])}`,
-    };
+  let latestEvidence = null;
+  let activeCandidateReads = [];
+  const skillDirWrites = [];
+
+  for (const entry of currentRoundEntries) {
+    const message = entry?.message ?? entry;
+    if (message?.role === 'user' || entry?.role === 'user' || entry?.type === 'user_message') {
+      const text = extractUserText(message);
+      const strong = parseStrongUserEvidence(text);
+      if (strong) {
+        latestEvidence = { triggered: true, kind: strong.kind, reason: strong.reason };
+        activeCandidateReads = [];
+      }
+    }
+
+    const calls = extractToolCalls(message);
+    for (const call of calls) {
+      if (call.name === 'read') {
+        const path = typeof call.arguments?.path === 'string' ? call.arguments.path.replace(/\\/g, '/') : '';
+        const match = path.match(/(?:^|\/)skills\/(create|maintain)-formal-verification-skill\/SKILL\.md$/);
+        if (match) {
+          activeCandidateReads.push({ kind: match[1], path });
+        }
+      } else if (call.name === 'write' || call.name === 'edit') {
+        const path = typeof call.arguments?.path === 'string' ? call.arguments.path.replace(/\\/g, '/') : '';
+        if (isSkillDirWrite(path, cwd)) {
+          skillDirWrites.push({ path });
+          const runItSkill = checkRunItSkillFile(path, cwd);
+
+          if (activeCandidateReads.length > 0) {
+            // 证据 2：本轮 read 形式化 SKILL.md 之后，又有 write/edit 写到当前 cwd 的 .pi/skills/** 或 .agents/skills/**
+            const kinds = new Set(activeCandidateReads.map(c => c.kind));
+            if (kinds.size === 1) {
+              const chosen = activeCandidateReads.at(-1);
+              latestEvidence = {
+                triggered: true,
+                kind: chosen.kind,
+                skillPath: runItSkill || resolve(cwd, path),
+                reason: `Session read ${chosen.path} upgraded with workspace skill write/edit`,
+              };
+            } else {
+              // Ambiguous: resolve by workspace target skill state
+              const targetSkill = runItSkill || resolveSkillFromWorkspace({ cwd, writeEdits: skillDirWrites, changedFiles: options.changedFiles });
+              const statusKind = judgeSkillStatus(targetSkill, cwd);
+              if (statusKind) {
+                latestEvidence = {
+                  triggered: true,
+                  kind: statusKind,
+                  skillPath: targetSkill,
+                  reason: `Session candidate reads resolved to ${statusKind} by workspace target skill state`,
+                };
+              } else {
+                latestEvidence = null;
+              }
+            }
+            activeCandidateReads = [];
+          } else if (runItSkill) {
+            // 证据 3：本轮有 write/edit 写到当前 cwd 里某个含 "## Run it" 的技能文件
+            const statusKind = judgeSkillStatus(runItSkill, cwd) || 'create';
+            latestEvidence = {
+              triggered: true,
+              kind: statusKind,
+              skillPath: runItSkill,
+              reason: `Workspace formal verification skill containing "## Run it" modified by tool call: ${relative(cwd, runItSkill)}`,
+            };
+          }
+        }
+      }
+    }
   }
+
+  // A separately supplied prompt is the current user input, after history.
+  if (typeof options.prompt === 'string') {
+    const promptStrong = parseStrongUserEvidence(options.prompt);
+    if (promptStrong) {
+      latestEvidence = { triggered: true, kind: promptStrong.kind, reason: promptStrong.reason };
+      activeCandidateReads = [];
+    }
+  }
+
+  // Explicit changedFiles without entries (e.g. offline testing harness for modified skills)
+  if (!latestEvidence && Array.isArray(options.changedFiles) && currentRoundEntries.length === 0) {
+    for (const f of options.changedFiles) {
+      const runItSkill = checkRunItSkillFile(f, cwd);
+      if (runItSkill) {
+        const statusKind = judgeSkillStatus(runItSkill, cwd) || 'create';
+        return {
+          triggered: true,
+          kind: statusKind,
+          skillPath: runItSkill,
+          skillPaths: [runItSkill],
+          reason: `Workspace formal verification skill containing "## Run it" modified: ${relative(cwd, runItSkill)}`,
+        };
+      }
+    }
+  }
+
+  if (latestEvidence) return latestEvidence;
 
   return {
     triggered: false,
@@ -489,9 +676,17 @@ export function renderFormalVerificationContinuationPrompt(options = {}) {
   const missing = Array.isArray(options.missing) ? options.missing : [];
   const discrepancies = Array.isArray(options.discrepancies) ? options.discrepancies : [];
   const kind = options.kind === 'maintain' ? 'maintain' : 'create';
+  const cwd = options.cwd ? resolve(options.cwd) : process.cwd();
+  const relSkillPath = options.skillPath ? relative(cwd, resolve(cwd, options.skillPath)).replace(/\\/g, '/')
+    : typeof options.relSkillPath === 'string' ? options.relSkillPath : '';
+
+  const scopeHeader = relSkillPath
+    ? `[Scope: current workspace repository (${cwd}) only. Target skill: ${relSkillPath}]\n检查范围只限当前 cwd 仓库，目标 skill: ${relSkillPath}。`
+    : `[Scope: current workspace repository (${cwd}) only]\n检查范围只限当前 cwd 仓库。`;
 
   const parts = [
     `[pstack formal-verification-gate: incomplete]`,
+    scopeHeader,
     `Self-check failed for ${kind}-formal-verification-skill: verification artifact self-check did not pass.`,
   ];
 
@@ -557,22 +752,30 @@ export async function evaluateFormalVerificationGate(options = {}) {
   let skillText = String(options.skillText ?? '').trim();
   let skillPath = options.skillPath ?? null;
 
-  if (!skillText) {
-    if (skillPath) {
-      const fullPath = isAbsolute(skillPath) ? skillPath : resolve(cwd, skillPath);
-      if (existsSync(fullPath)) {
+  if (skillPath) {
+    const fullPath = isAbsolute(skillPath) ? resolve(skillPath) : resolve(cwd, skillPath);
+    if (!isPathInsideCwd(fullPath, cwd)) {
+      skillPath = null;
+      skillText = '';
+    } else if (existsSync(fullPath)) {
+      skillPath = fullPath;
+      if (!skillText) {
         try { skillText = readFileSync(fullPath, 'utf8'); } catch {}
       }
     } else {
-      const candidatePaths = findModifiedSkillFiles({
-        cwd,
-        changedFiles: options.changedFiles,
-        scanWorkspace: true,
-      });
-      if (candidatePaths.length > 0) {
-        skillPath = candidatePaths[0];
-        try { skillText = readFileSync(skillPath, 'utf8'); } catch {}
-      }
+      skillPath = null;
+    }
+  }
+
+  if (!skillText && !skillPath) {
+    const candidatePaths = findModifiedSkillFiles({
+      cwd,
+      changedFiles: options.changedFiles,
+      scanWorkspace: true,
+    });
+    if (candidatePaths.length > 0) {
+      skillPath = candidatePaths[0];
+      try { skillText = readFileSync(skillPath, 'utf8'); } catch {}
     }
   }
 
@@ -646,6 +849,40 @@ export async function evaluateFormalVerificationGate(options = {}) {
     tlcAvailable,
   });
 
+  // Check if blocked due to TLC
+  if (baseResult.status === COMPLETION_STATUS.BLOCKED) {
+    return {
+      type: 'formal_verification',
+      complete: false,
+      status: COMPLETION_STATUS.BLOCKED,
+      exitCode: COMPLETION_EXIT_CODES.blocked,
+      missing: baseResult.missing,
+      discrepancies: [],
+      reason: baseResult.reason,
+      details: { kind, tlcAvailable: false },
+    };
+  }
+
+  // Check if target artifact is missing in current cwd workspace
+  if (!skillPath && !skillText) {
+    const missingItems = baseResult.missing?.length > 0 && !tlcAvailable
+      ? baseResult.missing
+      : ['当前工作区没有形式化验证产物；如果本轮未执行该技能，请如实说明并结束，不要到其他目录寻找或修改文件'];
+    const message = missingItems[0];
+    return {
+      type: 'formal_verification',
+      complete: false,
+      targetArtifactMissing: true,
+      status: COMPLETION_STATUS.INCOMPLETE,
+      exitCode: COMPLETION_EXIT_CODES.incomplete,
+      missing: missingItems,
+      discrepancies: [],
+      prompt: message,
+      reason: message,
+      details: { kind, targetArtifactMissing: true },
+    };
+  }
+
   const missing = [...(baseResult.missing || [])];
   const discrepancies = [];
 
@@ -705,29 +942,33 @@ export async function evaluateFormalVerificationGate(options = {}) {
       missing: uniqueMissing,
       discrepancies: uniqueDiscrepancies,
       kind,
+      cwd,
+      skillPath,
     });
     return {
       type: 'formal_verification',
       complete: false,
+      skillPath,
       status: COMPLETION_STATUS.INCOMPLETE,
       exitCode: COMPLETION_EXIT_CODES.incomplete,
       missing: uniqueMissing,
       discrepancies: uniqueDiscrepancies,
       prompt,
       reason: `Formal verification self-check incomplete: ${uniqueMissing.join('; ')}`,
-      details: { kind, missing: uniqueMissing, discrepancies: uniqueDiscrepancies },
+      details: { kind, skillPath, missing: uniqueMissing, discrepancies: uniqueDiscrepancies },
     };
   }
 
   return {
     type: 'formal_verification',
     complete: true,
+    skillPath,
     status: COMPLETION_STATUS.COMPLETE,
     exitCode: COMPLETION_EXIT_CODES.complete,
     missing: [],
     discrepancies: [],
     reason: 'All formal verification completion criteria satisfied: commands re-run with matching quantities, Record section complete, and final report with breakage evidence delivered.',
-    details: { kind },
+    details: { kind, skillPath },
   };
 }
 
@@ -778,6 +1019,25 @@ export function registerFormalVerificationGate(pi, options = {}) {
       runner: (command, execution) => runner(command, { ...execution, ctx }),
       tlcAvailable: options.tlcAvailable,
     });
+
+    if (evaluation.targetArtifactMissing) {
+      const stateDraft = {
+        type: 'custom',
+        customType: FORMAL_VERIFICATION_ENTRY,
+        data: { version: 1, turn: 1, maxTurns, missing: evaluation.missing, status: 'target-artifact-missing' },
+      };
+      const drafts = (event.entries ?? []).filter(e => ![AUTO_CONTINUE_ENTRY, AUTO_CONTINUE_TURN_TYPE].includes(e.customType));
+      return {
+        entries: [...drafts, stateDraft, {
+          type: 'custom_message',
+          customType: FORMAL_VERIFICATION_TURN_TYPE,
+          content: '当前工作区没有形式化验证产物；如果本轮未执行该技能，请如实说明并结束，不要到其他目录寻找或修改文件',
+          display: true,
+        }],
+        continue: false,
+      };
+    }
+
     const missing = [...evaluation.missing].sort();
     const turn = (previous?.turn ?? 0) + 1;
     const unchanged = previous && JSON.stringify(previous.missing) === JSON.stringify(missing);
@@ -792,8 +1052,16 @@ export function registerFormalVerificationGate(pi, options = {}) {
     // gate owns this request's budget and final reporting turn.
     const drafts = (event.entries ?? []).filter(e => ![AUTO_CONTINUE_ENTRY, AUTO_CONTINUE_TURN_TYPE].includes(e.customType));
     if (evaluation.complete) return { entries: [...drafts, stateDraft], continue: false };
+
+    const resolvedSkill = trigger.skillPath || evaluation.skillPath || (evaluation.details && evaluation.details.skillPath);
+    const relSkillPath = resolvedSkill ? relative(cwd, resolve(cwd, resolvedSkill)).replace(/\\/g, '/') : '';
+    const scopeNote = relSkillPath
+      ? `[Scope: current workspace repository (${cwd}) only. Target skill: ${relSkillPath}]\n检查范围只限当前 cwd 仓库，目标 skill: ${relSkillPath}。`
+      : `[Scope: current workspace repository (${cwd}) only]\n检查范围只限当前 cwd 仓库。`;
+
     const content = terminal
       ? [`[pstack formal verification stopped: ${reason}]`,
+        scopeNote,
         'Stop verification attempts. Deliver the final report now; explicitly label these items as 未验证 / unverified:',
         ...missing.map(item => `- ${item}`),
         'Do not claim a formal pass or modify artifacts to satisfy this gate. No further automatic retry is allowed for this request.'].join('\n')
