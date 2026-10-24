@@ -132,8 +132,8 @@ export function findModifiedSkillFiles(options = {}) {
  * Detect whether the formal verification gate should trigger.
  *
  * Trigger conditions:
- * 1. Session loaded `create-formal-verification-skill` or `maintain-formal-verification-skill`
- *    (in options, session entries, prompt, or assistant text);
+ * 1. Explicit kind/skillName, a user /skill: command or Pi loading wrapper,
+ *    or a read tool call for a formal verification SKILL.md;
  * 2. OR modified `.pi/skills/<name>/SKILL.md` (or `.agents/skills/<name>/SKILL.md`) in workspace
  *    containing a `## Run it` section.
  *
@@ -150,134 +150,49 @@ export function findModifiedSkillFiles(options = {}) {
 export function detectFormalVerificationTrigger(options = {}) {
   const cwd = resolve(options.cwd ?? process.cwd());
 
-  // 1. Direct explicit parameters
-  if (options.kind === 'maintain' || options.skillName === 'maintain-formal-verification-skill') {
-    return {
-      triggered: true,
-      kind: 'maintain',
-      reason: 'maintain-formal-verification-skill explicitly requested',
-    };
-  }
-  if (options.kind === 'create' || options.skillName === 'create-formal-verification-skill') {
-    return {
-      triggered: true,
-      kind: 'create',
-      reason: 'create-formal-verification-skill explicitly requested',
-    };
+  // Explicit caller parameters describe the current task and override history.
+  const explicitKind = ['create', 'maintain'].includes(options.kind) ? options.kind
+    : FORMAL_SKILL_NAMES.includes(options.skillName) ? options.skillName.split('-')[0] : null;
+  if (explicitKind) {
+    return { triggered: true, kind: explicitKind,
+      reason: explicitKind + '-formal-verification-skill explicitly requested' };
   }
 
-  // 2. Scan text corpus (prompt, assistantText, transcript entries)
-  const textCorpus = [];
-  const userTextCorpus = [];
-  if (typeof options.prompt === 'string') {
-    textCorpus.push(options.prompt);
-    userTextCorpus.push(options.prompt);
-  }
-  if (typeof options.assistantText === 'string') textCorpus.push(options.assistantText);
-  if (Array.isArray(options.entries)) {
-    for (const entry of options.entries) {
-      if (typeof entry === 'string') {
-        textCorpus.push(entry);
-      } else if (entry && typeof entry === 'object') {
-        const isUser = entry.role === 'user' || entry.message?.role === 'user';
-        if (typeof entry.content === 'string') {
-          textCorpus.push(entry.content);
-          if (isUser) userTextCorpus.push(entry.content);
-        } else if (Array.isArray(entry.content)) {
-          for (const part of entry.content) {
-            if (part && typeof part.text === 'string') {
-              textCorpus.push(part.text);
-              if (isUser) userTextCorpus.push(part.text);
-            }
-          }
-        }
-        if (entry.message) {
-          if (typeof entry.message.content === 'string') {
-            textCorpus.push(entry.message.content);
-            if (isUser) userTextCorpus.push(entry.message.content);
-          } else if (Array.isArray(entry.message.content)) {
-            for (const part of entry.message.content) {
-              if (part && typeof part.text === 'string') {
-                textCorpus.push(part.text);
-                if (isUser) userTextCorpus.push(part.text);
-              }
-            }
-          }
-        }
-        if (typeof entry.customType === 'string') textCorpus.push(entry.customType);
-      }
+  // Entries are chronological. Only structural invocation evidence updates the
+  // task; prose, frontmatter, paths in tool output and assistant text never do.
+  let latest;
+  const record = (kind, reason) => { latest = { triggered: true, kind, reason }; };
+  const inspectUserText = text => {
+    const command = text.match(/^\s*\/skill:(create|maintain)-formal-verification-skill(?=\s|$)/);
+    if (command) record(command[1], 'User requested ' + command[1] + '-formal-verification-skill');
+    // Pi 1.4.0 _expandSkillCommand / parseSkillBlock: the wrapper occupies the
+    // entire user message, optionally followed by the user's command arguments.
+    const loaded = text.match(/^<skill name="((?:create|maintain)-formal-verification-skill)" location="[^"]+">\n[\s\S]*?\n<\/skill>(?:\n\n[\s\S]+)?\s*$/);
+    if (loaded) record(loaded[1].split('-')[0], 'Session loaded ' + loaded[1]);
+  };
+  const inspectRead = call => {
+    if (call?.name !== 'read' || typeof call.arguments?.path !== 'string') return;
+    const path = call.arguments.path.replace(/\\/g, '/');
+    const match = path.match(/(?:^|\/)skills\/(create|maintain)-formal-verification-skill\/SKILL\.md$/);
+    if (match) record(match[1], 'Session read ' + path);
+  };
+  for (const entry of options.entries ?? []) {
+    const message = entry?.message ?? entry;
+    if (message?.role === 'user') {
+      const text = typeof message.content === 'string' ? message.content
+        : Array.isArray(message.content) ? message.content.filter(p => p?.type === 'text').map(p => p.text).join('\n') : '';
+      inspectUserText(text);
+    } else if (message?.role === 'assistant' && Array.isArray(message.content)) {
+      for (const part of message.content) if (part?.type === 'toolCall') inspectRead(part);
+    } else if (message?.role === 'toolResult') {
+      // Pi records tools invoked through codemode as metadata, separate from
+      // result content. Accept successful nested reads, never output text.
+      for (const call of message.nestedCalls?.calls ?? []) if (call.status === 'ok') inspectRead(call);
     }
   }
-
-  const combinedText = textCorpus.join('\n');
-  const userText = userTextCorpus.join('\n');
-
-  // Check for skill declaration or loading tags
-  const loadedCreate = /<skill\s+name=["']create-formal-verification-skill["']|name:\s*create-formal-verification-skill\b|skills\/create-formal-verification-skill\/SKILL\.md/i.test(combinedText);
-  const loadedMaintain = /<skill\s+name=["']maintain-formal-verification-skill["']|name:\s*maintain-formal-verification-skill\b|skills\/maintain-formal-verification-skill\/SKILL\.md/i.test(combinedText);
-
-  if (loadedCreate && !loadedMaintain) {
-    return {
-      triggered: true,
-      kind: 'create',
-      reason: 'Session loaded create-formal-verification-skill',
-    };
-  }
-  if (loadedMaintain && !loadedCreate) {
-    return {
-      triggered: true,
-      kind: 'maintain',
-      reason: 'Session loaded maintain-formal-verification-skill',
-    };
-  }
-
-  // Check user requests / commands
-  const userRequestedCreate = /(?:\/skill:|\/|\b)create-formal-verification-skill\b/i.test(userText);
-  const userRequestedMaintain = /(?:\/skill:|\/|\b)maintain-formal-verification-skill\b/i.test(userText);
-
-  if (userRequestedCreate && !userRequestedMaintain) {
-    return {
-      triggered: true,
-      kind: 'create',
-      reason: 'User requested create-formal-verification-skill',
-    };
-  }
-  if (userRequestedMaintain && !userRequestedCreate) {
-    return {
-      triggered: true,
-      kind: 'maintain',
-      reason: 'User requested maintain-formal-verification-skill',
-    };
-  }
-
-  const hasCreateSkill = /\bcreate-formal-verification-skill\b/i.test(combinedText);
-  const hasMaintainSkill = /\bmaintain-formal-verification-skill\b/i.test(combinedText);
-
-  if (hasCreateSkill && !hasMaintainSkill) {
-    return {
-      triggered: true,
-      kind: 'create',
-      reason: 'Session loaded create-formal-verification-skill',
-    };
-  }
-  if (hasMaintainSkill && !hasCreateSkill) {
-    return {
-      triggered: true,
-      kind: 'maintain',
-      reason: 'Session loaded maintain-formal-verification-skill',
-    };
-  }
-  if (hasCreateSkill && hasMaintainSkill) {
-    // Both referenced in corpus (e.g. one mentions the other in recommendations).
-    // Prioritize create if userRequestedCreate or loadedCreate, else maintain if userRequestedMaintain,
-    // otherwise fallback to create.
-    const kind = (userRequestedMaintain && !userRequestedCreate) ? 'maintain' : 'create';
-    return {
-      triggered: true,
-      kind,
-      reason: `Session loaded ${kind}-formal-verification-skill`,
-    };
-  }
+  // A separately supplied prompt is the current user input, after history.
+  if (typeof options.prompt === 'string') inspectUserText(options.prompt);
+  if (latest) return latest;
 
   // 3. Scan workspace for modified SKILL.md containing "## Run it"
   const modifiedSkills = findModifiedSkillFiles({
