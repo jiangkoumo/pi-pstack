@@ -51,6 +51,20 @@ test('Pi adapter uses one absolute configured jar and refuses conflicts or relat
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
 
+test('generated statechart guidance uses the Pi entry before any command and never promises TLC installation', async () => {
+  const skill = await readFile(resolve(root, 'skills/statechart/SKILL.md'), 'utf8');
+  const body = skill.split('## Pi execution and authority')[0];
+  assert.doesNotMatch(skill, /scripts\/statechart\.mjs/);
+  const claims = skill.replace('Pi does not automatically install mise, TLC, or Java.', '');
+  assert.doesNotMatch(claims, /first run installs|automatically installs? (?:TLC|Java|mise)|will install (?:TLC|Java|mise)|mise install|downloads about 305 MB/i);
+  for (const command of ['--help', 'from-spec', 'from-chart', 'render CHART.mmd']) {
+    assert(body.includes('node <package>/adapters/pi/statechart/entry.mjs ' + command), command);
+  }
+  assert.match(body, /TLA2TOOLS.*TLA2TOOLS_JAR.*JAVA/);
+  assert.match(body, /Pi does not automatically install mise, TLC, or Java/);
+  assert.match(skill, /In help output, `node statechart\.mjs` always means `node <package>\/adapters\/pi\/statechart\/entry\.mjs`/);
+});
+
 test('adapter keeps the pinned upstream scripts byte-identical', async () => {
   const map = JSON.parse(await readFile(resolve(root, 'docs/port-map.json'), 'utf8'));
   for (const resource of map.preparedResources.filter(entry => entry.adaptation.strategy === 'verbatim')) {

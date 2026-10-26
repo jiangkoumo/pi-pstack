@@ -1572,7 +1572,7 @@
       "disposition": "ported",
       "phase": "P5",
       "destination": "skills/statechart/SKILL.md",
-      "reason": "已同步到 076f4b2f；上游正文原样，Pi 执行边界追加在 skill-tail.md；见 docs/validation-statechart-sync.md",
+      "reason": "已同步到 076f4b2f；正文入口与安装说明由 skill-replacements.json 最小替换，Pi 执行边界追加在 skill-tail.md；见 docs/validation-statechart-sync.md",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],
@@ -1581,7 +1581,8 @@
       "adaptation": {
         "strategy": "inherit-body",
         "override": null,
-        "append": "adapters/pi/statechart/skill-tail.md"
+        "append": "adapters/pi/statechart/skill-tail.md",
+        "replacements": "adapters/pi/statechart/skill-replacements.json"
       },
       "evidence": "validation-statechart-sync.md",
       "dependencies": "from-template"

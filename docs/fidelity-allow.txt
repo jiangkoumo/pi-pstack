@@ -10,3 +10,8 @@ skills/setup-pstack/SKILL.md
 # Pi paths/tools and unshipped Cursor guide-page links.
 skills/poteto-help/SKILL.md
 skills/poteto-mode/playbooks/orchestrate.md
+
+# Statechart: replace raw CLI commands and automatic mise/TLC/Java installation
+# with Pi entry and preinstalled tools; see adapters/pi/statechart/skill-replacements.json.
+# All engineering guidance and the upstream snapshot/scripts remain unchanged.
+skills/statechart/SKILL.md

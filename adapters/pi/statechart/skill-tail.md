@@ -1,8 +1,8 @@
 ## Pi execution and authority
 
-Adapted from Lauren Tan's pstack, MIT. The upstream body above is byte-preserved from cursor/plugins@076f4b2f.
+Adapted from Lauren Tan's pstack, MIT. The body above comes from cursor/plugins@076f4b2f, with Pi entry and installation instructions replaced by the generation adapter.
 
-The chart entry is `node <package>/adapters/pi/statechart/entry.mjs`. It keeps the upstream scripts unchanged and applies only the Pi execution boundary. Run it from the parent shell. Set `TLA2TOOLS` (or `TLA2TOOLS_JAR`) to the same absolute `tla2tools.jar` the operator declared for `verification_exec`, and `JAVA` to the Java binary. This package bundles no Java, TLC, or mise, and never installs them; when they are missing, report the installation hint and stop.
+The chart entry is `node <package>/adapters/pi/statechart/entry.mjs`. In help output, `node statechart.mjs` always means `node <package>/adapters/pi/statechart/entry.mjs`, including Usage, render, from-spec, and from-chart examples. The help’s automatic TLC/Java installation instructions describe upstream behavior; follow the Pi installation policy in this skill. It keeps the upstream scripts unchanged and applies only the Pi execution boundary. Run it from the parent shell. Set `TLA2TOOLS` (or `TLA2TOOLS_JAR`) to the same absolute `tla2tools.jar` the operator declared for `verification_exec`, and `JAVA` to the Java binary. This package bundles no Java, TLC, or mise, and never installs them; when they are missing, report the installation hint and stop.
 
 `verification_exec` with `{"command":"tlc","spec":"<repo>/Spec.tla","config":"<repo>/Spec.cfg","options":["-cleanup","-noGenerateSpecTE","-noGenerateSpecTEBin"]}` remains the restricted TLC entry. It runs one TLC invocation, resolves repository paths, and writes private scratch only, so it cannot draw a chart. Keep chart runs in the parent shell and never report them as `verification_exec` runs.
 

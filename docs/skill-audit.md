@@ -134,4 +134,4 @@
 ported 的技能与流程由技能清单导出。P2 的 setup-pstack 已由扩展命令替代，证据见 validation-p2.md；其余 substitute 条目仍需对应阶段实现及验收，deferred 已归零。审计归属不等于全量复刻。
 | 技能 create-formal-verification-skill | P5 | 已适配；正文保持上游，追加 Pi 宿主执行与产物落盘约定；见 docs/validation-stage-b-batch-two.md |
 | 技能 maintain-formal-verification-skill | P5 | 已适配；正文保持上游，追加 Pi 宿主执行与产物落盘约定；见 docs/validation-stage-b-batch-two.md |
-| 技能 statechart | P5 | 已同步到 076f4b2f；上游正文原样，Pi 执行边界追加在 skill-tail.md；见 docs/validation-statechart-sync.md |
+| 技能 statechart | P5 | 已同步到 076f4b2f；正文入口与安装说明由 skill-replacements.json 最小替换，Pi 执行边界追加在 skill-tail.md；见 docs/validation-statechart-sync.md |

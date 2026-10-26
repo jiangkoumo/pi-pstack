@@ -9,7 +9,15 @@ license: MIT
 
 The chart shows how a system moves between states, in the words of the person who reads it. The scripts call that person the reader, as in `readerActions` and reader steps. The reader decides whether the behavior is right. The reader can be a PM who reads a product flow, an engineer who reads a protocol or a service, or a reviewer who reads a design. Label each state with what the reader can observe or cares about, such as "Paying" in an app or "Lease held, write pending" in a lock service. Label each step with the event that moves the system, such as "tap Pay" in an app, "the request reads the count" in a service, or "the lease expires" in a lock service. Keep variable and action names out of labels.
 
-Run `node <skill dir>/scripts/statechart.mjs --help` for the commands and for how to read a chart. Work in a scratch folder outside the repo. The command writes its files next to its input. The first run installs TLC and Java with mise, which downloads about 305 MB and needs the network. The help's TLC section tells how to use a TLC and Java that you have.
+Run `node <package>/adapters/pi/statechart/entry.mjs --help` for the commands and for how to read a chart. Work in a scratch folder outside the repo. The command writes its files next to its input. Set TLA2TOOLS (or TLA2TOOLS_JAR) and JAVA to the already-installed TLC jar and Java binary. Pi does not automatically install mise, TLC, or Java. The help's TLC section tells how to use a TLC and Java that you have.
+
+Run all chart commands through the Pi entry:
+
+```sh
+node <package>/adapters/pi/statechart/entry.mjs from-spec SPEC.tla
+node <package>/adapters/pi/statechart/entry.mjs from-chart CHART.mmd
+node <package>/adapters/pi/statechart/entry.mjs render CHART.mmd
+```
 
 ## Pick the direction
 
@@ -38,9 +46,9 @@ Give the PNG and the Mermaid source of each chart to the person who must decide.
 
 ## Pi execution and authority
 
-Adapted from Lauren Tan's pstack, MIT. The upstream body above is byte-preserved from cursor/plugins@076f4b2f.
+Adapted from Lauren Tan's pstack, MIT. The body above comes from cursor/plugins@076f4b2f, with Pi entry and installation instructions replaced by the generation adapter.
 
-The chart entry is `node <package>/adapters/pi/statechart/entry.mjs`. It keeps the upstream scripts unchanged and applies only the Pi execution boundary. Run it from the parent shell. Set `TLA2TOOLS` (or `TLA2TOOLS_JAR`) to the same absolute `tla2tools.jar` the operator declared for `verification_exec`, and `JAVA` to the Java binary. This package bundles no Java, TLC, or mise, and never installs them; when they are missing, report the installation hint and stop.
+The chart entry is `node <package>/adapters/pi/statechart/entry.mjs`. In help output, `node statechart.mjs` always means `node <package>/adapters/pi/statechart/entry.mjs`, including Usage, render, from-spec, and from-chart examples. The help’s automatic TLC/Java installation instructions describe upstream behavior; follow the Pi installation policy in this skill. It keeps the upstream scripts unchanged and applies only the Pi execution boundary. Run it from the parent shell. Set `TLA2TOOLS` (or `TLA2TOOLS_JAR`) to the same absolute `tla2tools.jar` the operator declared for `verification_exec`, and `JAVA` to the Java binary. This package bundles no Java, TLC, or mise, and never installs them; when they are missing, report the installation hint and stop.
 
 `verification_exec` with `{"command":"tlc","spec":"<repo>/Spec.tla","config":"<repo>/Spec.cfg","options":["-cleanup","-noGenerateSpecTE","-noGenerateSpecTEBin"]}` remains the restricted TLC entry. It runs one TLC invocation, resolves repository paths, and writes private scratch only, so it cannot draw a chart. Keep chart runs in the parent shell and never report them as `verification_exec` runs.
 

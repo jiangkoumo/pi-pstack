@@ -115,8 +115,11 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
   assert(!rendered.has(entry.destination), 'Duplicate destination: ' + entry.destination);
   assert(Array.isArray(entry.dependencies) || entry.dependencies === 'from-template', 'Missing dependency list: ' + entry.source);
   assert(entry.adaptation && ['override', 'inherit-body', 'verbatim'].includes(entry.adaptation.strategy), 'Unknown adaptation strategy: ' + entry.source);
-  const adaptationKeys = entry.adaptation.append === undefined ? ['override', 'strategy'] : ['append', 'override', 'strategy'];
+  const adaptationKeys = ['override', 'strategy', ...(entry.adaptation.append === undefined ? [] : ['append']), ...(entry.adaptation.replacements === undefined ? [] : ['replacements'])].sort();
   assert.deepEqual(Object.keys(entry.adaptation).sort(), adaptationKeys, 'Unknown adaptation field: ' + entry.source);
+  if (entry.adaptation.replacements !== undefined) {
+    assert.equal(entry.adaptation.strategy, 'inherit-body', 'Only inherited bodies can replace host instructions: ' + entry.source);
+  }
   if (entry.adaptation.append !== undefined) {
     assert.equal(entry.adaptation.strategy, 'inherit-body', 'Only inherited bodies can append Pi guidance: ' + entry.source);
     await pathInPackage(entry.adaptation.append, 'adapters/pi/');
@@ -139,7 +142,18 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
     output = await readFile(await pathInPackage(template, 'adapters/pi/overrides/'), 'utf8');
   } else {
     assert.equal(entry.adaptation.override, null, 'Inherited entry has an override: ' + entry.source);
-    const { fields, body } = frontmatter(originals.get(entry.source), ['name', 'description', 'disable-model-invocation'], entry.source);
+    const { fields, body: originalBody } = frontmatter(originals.get(entry.source), ['name', 'description', 'disable-model-invocation'], entry.source);
+    let body = originalBody;
+    if (entry.adaptation.replacements !== undefined) {
+      assert.equal(entry.source, 'pstack/skills/statechart/SKILL.md', 'Body replacements are limited to statechart host instructions');
+      await pathInPackage(entry.adaptation.replacements, 'adapters/pi/');
+      const replacements = await json(entry.adaptation.replacements);
+      for (const replacement of replacements) {
+        assert(replacement.from && replacement.to && replacement.reason, 'Body replacement requires text and a reason');
+        assert(body.includes(replacement.from), 'Stale statechart replacement: ' + replacement.from);
+        body = body.replaceAll(replacement.from, replacement.to);
+      }
+    }
     assert(fields.name && fields.description, 'Missing skill metadata: ' + entry.source);
     // P2.5 supports explicit-only skills. A changed invocation policy needs an
     // explicit reviewed override, rather than silently forcing the old value.

@@ -15,7 +15,11 @@
 - 受限 `verification_exec` 的 TLC 入口和探测未改动。
 - PNG：渲染器不可用时保留 `.mmd` 并提示；显式 `render` 子命令仍要求 PNG。部分渲染失败不再把已有的模型检查结果报成失败。
 
-以上差异记录在 `docs/port-map.json` 的 `runtimeAdapters`，原因写在同一条目。
+以上运行时差异记录在 `docs/port-map.json` 的 `runtimeAdapters`，原因写在同一条目。
+
+SKILL.md 正文中的原始脚本入口、首次自动安装 TLC/Java 的说明由 `adapters/pi/statechart/skill-replacements.json` 最小替换；正文前部列出帮助、from-spec、from-chart 和 render 的 Pi 入口。生成器要求每项替换都有原文匹配和原因，缺失匹配时停止，防止上游更新后静默丢失适配。快照与脚本不变。保真白名单仅记录宿主差异，不豁免整体 94% 门禁；当前保真结果为 4467/4752 = 94.0025%（此前 4469/4752 = 94.0446%）。
+
+help 保留上游输出；技能尾部明确规定其中 `node statechart.mjs` 均指 `node <package>/adapters/pi/statechart/entry.mjs`，自动安装说明也以 Pi 规则为准。新增生成文档回归在修复前失败，修复后通过。
 
 ## 检查
 

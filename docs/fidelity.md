@@ -1,6 +1,6 @@
 # pi-pstack upstream fidelity
 
-Files: 114  flagged: 4  overall kept (excluding Cursor substitutions): 4469/4752 = 94%
+Files: 114  flagged: 4  overall kept (excluding Cursor substitutions): 4467/4752 = 94%
 
 Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
@@ -48,6 +48,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/poteto-mode/playbooks/eval.md | 37 | 35 | 0 | 1 | 1 | 27 | 97% |  |
 | skills/create-verification-skill/SKILL.md | 73 | 71 | 2 | 0 | 0 | 34 | 97% |  |
 | skills/how/references/explainer-prompt.md | 39 | 38 | 0 | 1 | 0 | 1 | 97% |  |
+| skills/statechart/SKILL.md | 77 | 75 | 1 | 1 | 0 | 27 | 97% |  |
 | skills/poteto-mode/references/bugbot-triage.md | 94 | 92 | 1 | 1 | 0 | 5 | 98% |  |
 | skills/reflect/references/synthesizer.md | 49 | 47 | 0 | 1 | 1 | 1 | 98% |  |
 | skills/why/references/synthesizer-prompt.md | 95 | 93 | 1 | 1 | 0 | 8 | 98% |  |
@@ -105,7 +106,6 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/reflect/references/judgment-reviewer.md | 44 | 42 | 0 | 0 | 2 | 0 | 100% |  |
 | skills/reflect/references/tooling-reviewer.md | 54 | 52 | 0 | 0 | 2 | 0 | 100% |  |
 | skills/sharpen/SKILL.md | 8 | 8 | 0 | 0 | 0 | 4 | 100% |  |
-| skills/statechart/SKILL.md | 77 | 77 | 0 | 0 | 0 | 21 | 100% |  |
 | skills/tdd/SKILL.md | 32 | 32 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/technical-writing/SKILL.md | 136 | 136 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/typescript-best-practices/SKILL.md | 33 | 33 | 0 | 0 | 0 | 1 | 100% |  |
@@ -341,6 +341,9 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
 ### skills/how/references/explainer-prompt.md
 - Use Read, Grep, and Glob as needed.
+
+### skills/statechart/SKILL.md
+- The first run installs TLC and Java with mise, which downloads about 305 MB and needs the network.
 
 ### skills/poteto-mode/references/bugbot-triage.md
 - Reply with a short reason and resolve the thread.

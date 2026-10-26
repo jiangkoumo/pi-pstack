@@ -1,0 +1,17 @@
+[
+  {
+    "from": "<skill dir>/scripts/statechart.mjs",
+    "to": "<package>/adapters/pi/statechart/entry.mjs",
+    "reason": "Route help and all command examples through the Pi boundary, which never installs TLC."
+  },
+  {
+    "from": "The first run installs TLC and Java with mise, which downloads about 305 MB and needs the network.",
+    "to": "Set TLA2TOOLS (or TLA2TOOLS_JAR) and JAVA to the already-installed TLC jar and Java binary. Pi does not automatically install mise, TLC, or Java.",
+    "reason": "The upstream automatic mise installation policy does not apply to Pi."
+  },
+  {
+    "from": "## Pick the direction",
+    "to": "Run all chart commands through the Pi entry:\n\n```sh\nnode <package>/adapters/pi/statechart/entry.mjs from-spec SPEC.tla\nnode <package>/adapters/pi/statechart/entry.mjs from-chart CHART.mmd\nnode <package>/adapters/pi/statechart/entry.mjs render CHART.mmd\n```\n\n## Pick the direction",
+    "reason": "Give executable Pi examples for each subcommand while retaining upstream descriptions of their behavior."
+  }
+]
