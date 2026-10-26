@@ -37,6 +37,6 @@ help 保留上游输出；技能尾部明确规定其中 `node statechart.mjs` �
 
 ## 未验证与限制
 
-- Node 24、Linux 的真实 `--png` 未在本机执行；新增 `.github/workflows/statechart-compat.yml` 覆盖 Node 22/24 × Ubuntu/macOS，但没有 dispatch，不能把该矩阵写成已通过。
+- Node 22/24 × Ubuntu/macOS 的真实 CoverGap 与 PNG 矩阵已由 [Actions run 40283928279](https://github.com/jiangkoumo/pi-pstack/actions/runs/40283928279) 验证：提交 `cfd2c859172bf4ae6c0d305f6088ea252a8a16ee` 的四项 job 均为 success。本机仍仅验证 macOS / Node 22。
 - 上游测试在模块顶层调用 `loadRenderer()`，缓存为空时会执行 `npm install`。默认 `npm test` 用 `scripts/fixtures/statechart-no-renderer/` 作为 `XDG_CACHE_HOME`，让 PNG 用例显式跳过；真实渲染由 `npm run check:statechart:png` 单独验收，不把跳过当 PNG 通过。
 - Pele/resvg 安装在用户缓存，不在 npm 包内，与上游做法一致。

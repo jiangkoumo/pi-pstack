@@ -2,10 +2,12 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
-## Unreleased
+## 0.3.14
 
 - Sync only statechart to cursor/plugins@076f4b2f for #40, retaining upstream scripts and tests byte-for-byte. `--cover` is explicit and reports omitted states/transitions; remove the retired OutputFolder example.
 - Add a Pi execution adapter that never installs TLC/Java/mise and preserves `.mmd` output when PNG rendering is unavailable. Pele/resvg remain optional downloads in the upstream user cache, outside the npm package.
+- Route generated statechart help and command examples through the Pi entry, replace the upstream automatic installation instructions, and clarify how to interpret upstream help.
+- Verify real PNG rendering on Node 22/24 across Linux and macOS in CI.
 
 ## 0.3.13
 
