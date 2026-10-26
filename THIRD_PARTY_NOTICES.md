@@ -5,7 +5,9 @@
 - 作者：Lauren Tan（@poteto）。
 - 官方仓库：https://github.com/cursor/plugins/tree/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack
 - 参考版本：0.15.30。
-- 固定提交：eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10。
+- 固定基线提交：eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10。
+- statechart 单独固定到 [076f4b2f57844ff9eb4ada914d4763884d40146e](https://github.com/cursor/plugins/tree/076f4b2f57844ff9eb4ada914d4763884d40146e/pstack/skills/statechart)，仅更新 `pstack/skills/statechart/**`，其他技能保持基线。原始脚本与测试逐字节生成；Pi 的 TLC 来源与 PNG 降级行为放在 `adapters/pi/statechart/`，SKILL.md 的宿主说明放在适配模板。
+- `--png` 沿用上游按需安装 `pele@1.8.0`（MIT）与 `@resvg/resvg-js@2.6.2`（MPL-2.0）的方式，依赖位于用户缓存；它们及平台原生二进制不包含在此 npm 包。依赖许可随按需下载的包分发。
 - 许可：MIT，Copyright (c) 2026 Lauren Tan。
 - 许可原文：[LICENSES/pstack.txt](LICENSES/pstack.txt)。
 

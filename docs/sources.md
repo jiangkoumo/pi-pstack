@@ -24,6 +24,12 @@ X 正文不是上游代码的完整规格；该链接中的统计数据不影响
 
 [完整目录清单](upstream-inventory.json) 来源于 GitHub recursive tree API，该响应的 truncated 为 false。统计仅说明文件数量，不能证明所有文件已完成兼容性审计。
 
+## statechart 局部同步（#40）
+
+仅 `pstack/skills/statechart/**` 固定到 [076f4b2f57844ff9eb4ada914d4763884d40146e](https://github.com/cursor/plugins/tree/076f4b2f57844ff9eb4ada914d4763884d40146e/pstack/skills/statechart)。其余技能、流程和代理继续固定在 `eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10`，不代表全包升级版本。`source-files.json`、`upstream-inventory.json` 和 `port-map.json` 的 `sourceOverrides` 共同记录局部 pin，文件 Git blob 指纹以 source-files 为准。
+
+本次包含上游 `7698375f`（#776，含 TLC 1.8.0 测试修复与 config 选项）、`4ec7ffa1`（#779，重构）和 `076f4b2f`（#791，显式 cover、裁剪计数、Pele/resvg、删除 OutputFolder 模型）。旧版自动 cover 是上游当时的行为；本次通过同步修复，不在旧脚本上另打补丁。脚本与上游测试保持原样，Pi 运行入口通过适配层禁止自动安装 TLC/Java/mise，并在 PNG 不可用时保留 Mermaid 产物。
+
 ## 关键源码
 
 | 来源 | 用途 |

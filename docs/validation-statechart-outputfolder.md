@@ -1,5 +1,7 @@
 # 阶段 B：#27 statechart 真实 OutputFolder 出图与测试接入
 
+> 历史记录。上游 `076f4b2f` 已删除 OutputFolder 模型与 Mermaid CLI 出图路径；当前行为、Pi 适配和检查见 [statechart 同步验收](validation-statechart-sync.md)。本文件仅保留当时的实际命令证据。
+
 本记录只写本次实际执行的命令与结果，不把文件存在、脚本加载或跳过当通过。上游固定 `eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10`（pstack 0.15.30）。statechart 的脚本与测试按固定快照逐字生成，本次没有修改任何脚本或测试字节，也未改生成器、port-map、共享入口、主路由、AGENTS 与 CHANGELOG。
 
 ## 结论

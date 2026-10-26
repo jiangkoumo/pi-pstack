@@ -54,6 +54,8 @@ const preSdkTests = [
   'orch.test.mjs',
   'mode-persistence.test.mjs',
   'session-skills.test.mjs',
+  'statechart-adapter.test.mjs',
+  'statechart-sync.test.mjs',
 ];
 
 // Mirrors the historical `npm run check` order exactly: node --test files are
@@ -65,7 +67,7 @@ export const CHECK_PLAN = [
   // Upstream statechart tests, verbatim. They take about 3s when no TLC is
   // configured and about 3min when TLA2TOOLS/JAVA point at a real jar, so this
   // check owns a longer budget. Without a jar the TLC cases skip with reasons.
-  { name: 'statechart.test.mjs', command: skillTest('skills/statechart/scripts/test/statechart.test.mjs'), timeoutMs: 300_000 },
+  { name: 'statechart.test.mjs', command: skillTest('skills/statechart/scripts/test/statechart.test.mjs'), timeoutMs: 300_000, env: { XDG_CACHE_HOME: resolve(root, 'scripts/fixtures/statechart-no-renderer') } },
   { name: 'check-p3-readonly-gate', command: withFlags(script('check-p3-readonly-gate.mjs'), '--allow-skip') },
   { name: 'check-abort-state', command: script('check-abort-state.mjs') },
   { name: 'check-parallel-roles', command: withFlags(script('check-parallel-roles.mjs'), '--allow-skip') },

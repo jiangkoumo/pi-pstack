@@ -1,6 +1,6 @@
 # pi-pstack upstream fidelity
 
-Files: 114  flagged: 4  overall kept (excluding Cursor substitutions): 4439/4722 = 94%
+Files: 114  flagged: 4  overall kept (excluding Cursor substitutions): 4469/4752 = 94%
 
 Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
@@ -105,7 +105,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/reflect/references/judgment-reviewer.md | 44 | 42 | 0 | 0 | 2 | 0 | 100% |  |
 | skills/reflect/references/tooling-reviewer.md | 54 | 52 | 0 | 0 | 2 | 0 | 100% |  |
 | skills/sharpen/SKILL.md | 8 | 8 | 0 | 0 | 0 | 4 | 100% |  |
-| skills/statechart/SKILL.md | 47 | 47 | 0 | 0 | 0 | 23 | 100% |  |
+| skills/statechart/SKILL.md | 77 | 77 | 0 | 0 | 0 | 21 | 100% |  |
 | skills/tdd/SKILL.md | 32 | 32 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/technical-writing/SKILL.md | 136 | 136 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/typescript-best-practices/SKILL.md | 33 | 33 | 0 | 0 | 0 | 1 | 100% |  |

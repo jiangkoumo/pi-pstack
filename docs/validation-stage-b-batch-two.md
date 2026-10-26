@@ -17,7 +17,7 @@
 3. **Issue #27**（`feat/27-statechart`）:
    - Commit `361d3a2`（rebase 后）: `feat(statechart): append Pi execution boundary and wire upstream tests (B4)`
    - 移植 `/statechart` 技能（保真度 100%），上游 7 个核心脚本从快照 verbatim 生成，将 `statechart.test.mjs` 接入 `run-checks.mjs` 测试套件（支持 `timeoutMs` 覆盖）。
-   - 在真实 TLC 环境下执行 `OutputFolder.tla` 出图验收，5 项不变量全部成立，生成 `chart.mmd`、`summary.json`、`stories.md` 及 PNG。
+   - 当时在真实 TLC 环境下用 `OutputFolder.tla` 验收出图；该上游示例已在 `076f4b2f` 删除，当前覆盖见 [statechart 同步验收](validation-statechart-sync.md)。
 
 ## 主控集成与接线
 

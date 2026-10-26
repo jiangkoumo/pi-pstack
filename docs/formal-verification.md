@@ -15,15 +15,12 @@ TLA+ 模型检查（TLC）是可选能力：本包不打包、也不自动下载
 - **缺少 TLC 时**：结果明确写「未做形式化验证，原因是缺少 TLC」，并给出上游的 no-verifier fallback——用生成式输入测试真实代码，而不是函数的手工模型。该 fallback 只能报告为生成式测试覆盖，**不能**算作 formal pass。
 - **状态与 CI**：`/setup-pstack status` 与 `/poteto status` 的 `tlc` 字段展示 Java、jar 和 fallback 探测结果。用户配置位于 Pi agent 目录的 `pstack.json`，项目配置位于 `.pi/pstack.json`；可信项目的 jar 设置覆盖用户设置。CI 不安装 Java、也不提交 jar，真实 TLC 的可选测试会打印跳过原因（`SKIPPED real TLC: 未做形式化验证，原因是缺少 TLC ...`）；设置 `PSTACK_TLC_REQUIRE=1` 可让缺少 TLC 直接失败。需要真实运行的环境自行配置上述 jar，再执行 `node --test scripts/verification-exec.test.mjs`。
 
-本机真实验收使用 Java 21.0.11 与官方 [v1.8.0](https://github.com/tlaplus/tlaplus/releases/tag/v1.8.0) jar（GitHub 标记为预发布版，内部标识为 `TLC2 Version 2026.10.20.183001`，rev `d2e1472`，SHA-256 `5bd7b64db99ae4c6c35f290de5e809c0ee41af43f8699cf696099ffb6452b1e2`）：最小模型通过，违反不变量返回 12，前台/后台 verifier 均在 OS 沙箱内执行，`statechart` 真实模型（`OutputFolder.tla`）出图完整通过。该版本默认往模型目录生成反例探索文件；仓库只读时需传 `-noGenerateSpecTE` 与 `-noGenerateSpecTEBin`，文本反例仍保留。官方稳定版 v1.7.4 在当前 macOS 禁网沙箱内因内部 RMI 监听失败而未通过；不能仅凭能力探测可用就宣称该组合兼容。
+本机真实验收使用 Java 21.0.11 与官方 [v1.8.0](https://github.com/tlaplus/tlaplus/releases/tag/v1.8.0) jar（GitHub 标记为预发布版，内部标识为 `TLC2 Version 2026.10.20.183001`，rev `d2e1472`，SHA-256 `5bd7b64db99ae4c6c35f290de5e809c0ee41af43f8699cf696099ffb6452b1e2`）：最小模型通过，违反不变量返回 12，前台/后台 verifier 均在 OS 沙箱内执行。旧的 OutputFolder 示例已随上游 `076f4b2f` 删除；statechart 的真实出图验收改用 CoverGap 回归，见 [statechart 同步验收](validation-statechart-sync.md)。该版本默认往模型目录生成反例探索文件；仓库只读时需传 `-noGenerateSpecTE` 与 `-noGenerateSpecTEBin`，文本反例仍保留。官方稳定版 v1.7.4 在当前 macOS 禁网沙箱内因内部 RMI 监听失败而未通过；不能仅凭能力探测可用就宣称该组合兼容。
 
 ## TLC 版本敏感性
-- 在配置了 TLA+ v1.8.0（TLC2 2026.10.20）的完整环境中运行上游 `skills/statechart/scripts/test/statechart.test.mjs` 时，第 55 条测试“each TLC run writes the standard modules in its own temp folder”会出现断言失败（57/58 通过）。
-- **原因**：新版 TLC2 调整了标准模块解压行为，将 `Naturals.tla` 等解压到 `tmp/tlc-<随机数>/` 子目录并在解析日志后标注来自 jar（如 `(jar:file:.../tla2sany/StandardModules/Naturals.tla)`）；而上游测试断言严格匹配旧版 TLC 平铺解压的路径格式。此问题属于上游测试对 TLC 内部日志与临时路径格式的版本敏感性，实际模型检查与出图功能不受影响。
-- **CI 与默认环境**：CI 默认未安装 Java 和 TLC，所有需要 TLC 的用例在无 jar 环境下均优雅跳过（skip，退出码 0），CI 门禁与默认 `npm test` 完全不受影响。
-- **上游反馈背景**：本项目严格遵守上游代码逐字移植约束（严禁私自修改上游测试和实现），该断言敏感性已如实记录，可作为 issue 向上游（cursor/plugins）反馈以改进测试断言兼容性。
+statechart 快照已包含上游 #776 对 TLC 1.8.0 的测试修复，旧的第 55 条断言敏感性不再由本项目绕过或改写。未配置 jar 时，需要 TLC 的用例仍以原因跳过；配置真实 jar 时的结果以 [statechart 同步验收](validation-statechart-sync.md) 的实际记录为准。
 
-版本、校验值、测试敏感性与命令详见 [真实 TLC 验收](validation-stage-b-tlc.md) 与 [statechart 出图与测试验收](validation-statechart-outputfolder.md)。
+版本、校验值与命令详见 [真实 TLC 验收](validation-stage-b-tlc.md)。
 
 ## 完成门与续跑预算
 

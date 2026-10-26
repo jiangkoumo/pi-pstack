@@ -94,5 +94,12 @@
   "agents": [
     "pstack/agents/comment-sicko.md",
     "pstack/agents/poteto-agent.md"
+  ],
+  "sourceOverrides": [
+    {
+      "path": "pstack/skills/statechart/",
+      "commit": "076f4b2f57844ff9eb4ada914d4763884d40146e",
+      "reason": "Statechart-only sync for #40; all other sources remain at the base commit."
+    }
   ]
 }

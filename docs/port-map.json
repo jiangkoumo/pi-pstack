@@ -1572,17 +1572,18 @@
       "disposition": "ported",
       "phase": "P5",
       "destination": "skills/statechart/SKILL.md",
-      "reason": "已适配；正文保持上游，追加 Pi 宿主执行与产物落盘约定；见 docs/validation-stage-b-batch-two.md",
+      "reason": "已同步到 076f4b2f；上游正文原样，Pi 执行边界追加在 skill-tail.md；见 docs/validation-statechart-sync.md",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],
         "scope": "Phase B snapshot pending port"
       },
       "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/statechart/SKILL.md.template"
+        "strategy": "inherit-body",
+        "override": null,
+        "append": "adapters/pi/statechart/skill-tail.md"
       },
-      "evidence": "validation-stage-b-batch-two.md",
+      "evidence": "validation-statechart-sync.md",
       "dependencies": "from-template"
     },
     {
@@ -1723,6 +1724,13 @@
   ],
   "generator": "scripts/generate-pi-resources.mjs",
   "harness": "adapters/pi/harness.md",
+  "sourceOverrides": [
+    {
+      "path": "pstack/skills/statechart/",
+      "commit": "076f4b2f57844ff9eb4ada914d4763884d40146e",
+      "reason": "Statechart-only sync for #40; all other sources remain at the base commit."
+    }
+  ],
   "preparedResources": [
     {
       "source": "pstack/skills/typescript-best-practices/references/patterns.md",
@@ -2085,36 +2093,6 @@
       "dependencies": []
     },
     {
-      "source": "pstack/skills/statechart/scripts/model/OutputFolder.cfg",
-      "destination": "skills/statechart/scripts/model/OutputFolder.cfg",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/model/OutputFolder.map.mjs",
-      "destination": "skills/statechart/scripts/model/OutputFolder.map.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/model/OutputFolder.tla",
-      "destination": "skills/statechart/scripts/model/OutputFolder.tla",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
       "source": "pstack/skills/statechart/scripts/statechart.mjs",
       "destination": "skills/statechart/scripts/statechart.mjs",
       "status": "accepted",
@@ -2157,6 +2135,186 @@
     {
       "source": "pstack/skills/statechart/scripts/tlc-to-chart.mjs",
       "destination": "skills/statechart/scripts/tlc-to-chart.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/bug-states.mjs",
+      "destination": "skills/statechart/scripts/bug-states.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/chart-edges.mjs",
+      "destination": "skills/statechart/scripts/chart-edges.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/chart-parts.mjs",
+      "destination": "skills/statechart/scripts/chart-parts.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/map-view.mjs",
+      "destination": "skills/statechart/scripts/map-view.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/property-loop.mjs",
+      "destination": "skills/statechart/scripts/property-loop.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/read-check.mjs",
+      "destination": "skills/statechart/scripts/read-check.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/regions-chart.mjs",
+      "destination": "skills/statechart/scripts/regions-chart.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/render.mjs",
+      "destination": "skills/statechart/scripts/render.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/rule-book.mjs",
+      "destination": "skills/statechart/scripts/rule-book.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/second-replay.mjs",
+      "destination": "skills/statechart/scripts/second-replay.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/snapshot.mjs",
+      "destination": "skills/statechart/scripts/snapshot.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/spec-text.mjs",
+      "destination": "skills/statechart/scripts/spec-text.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/statechart-help.mjs",
+      "destination": "skills/statechart/scripts/statechart-help.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/band.mmd",
+      "destination": "skills/statechart/scripts/test/band.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/regions.mmd",
+      "destination": "skills/statechart/scripts/test/regions.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/tlc-to-chart-args.mjs",
+      "destination": "skills/statechart/scripts/tlc-to-chart-args.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/tlc-tools.mjs",
+      "destination": "skills/statechart/scripts/tlc-tools.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/ways-in.mjs",
+      "destination": "skills/statechart/scripts/ways-in.mjs",
       "status": "accepted",
       "adaptation": {
         "strategy": "verbatim",

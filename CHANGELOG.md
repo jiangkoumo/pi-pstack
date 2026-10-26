@@ -2,6 +2,11 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
+## Unreleased
+
+- Sync only statechart to cursor/plugins@076f4b2f for #40, retaining upstream scripts and tests byte-for-byte. `--cover` is explicit and reports omitted states/transitions; remove the retired OutputFolder example.
+- Add a Pi execution adapter that never installs TLC/Java/mise and preserves `.mmd` output when PNG rendering is unavailable. Pele/resvg remain optional downloads in the upstream user cache, outside the npm package.
+
 ## 0.3.13
 
 - Fix #35 (part 2): formal verification gate triggers on read tool calls only when upgraded in the same turn by write/edit to workspace skill directories (`.pi/skills/**` or `.agents/skills/**`); read alone no longer triggers the gate (read 单独不再触发).

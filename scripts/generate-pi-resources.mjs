@@ -30,6 +30,13 @@ const sources = await json('docs/source-files.json');
 const inventory = await json('docs/upstream-inventory.json');
 assert.equal(map.commit, sources.commit, 'Source manifest revision mismatch');
 assert.equal(map.commit, inventory.commit, 'Inventory revision mismatch');
+assert.deepEqual(map.sourceOverrides, sources.sourceOverrides, 'Source override revision mismatch');
+assert.deepEqual(map.sourceOverrides, inventory.sourceOverrides, 'Inventory override revision mismatch');
+for (const pin of map.sourceOverrides ?? []) {
+  assert.equal(pin.path, 'pstack/skills/statechart/', 'Only statechart has a partial upstream update');
+  assert(/^[a-f0-9]{40}$/.test(pin.commit), 'Source override must pin a full Git SHA');
+  assert(pin.reason, 'Source override needs a reason');
+}
 assert.equal(map.generator, 'scripts/generate-pi-resources.mjs');
 assert.equal(map.harness, 'adapters/pi/harness.md');
 assert.deepEqual(map.entries.map(e => e.source).sort(), [...inventory.skills, ...inventory.playbooks, ...inventory.agents].sort(), 'Inventory coverage differs');
@@ -108,7 +115,12 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
   assert(!rendered.has(entry.destination), 'Duplicate destination: ' + entry.destination);
   assert(Array.isArray(entry.dependencies) || entry.dependencies === 'from-template', 'Missing dependency list: ' + entry.source);
   assert(entry.adaptation && ['override', 'inherit-body', 'verbatim'].includes(entry.adaptation.strategy), 'Unknown adaptation strategy: ' + entry.source);
-  assert.deepEqual(Object.keys(entry.adaptation).sort(), ['override', 'strategy'], 'Unknown adaptation field: ' + entry.source);
+  const adaptationKeys = entry.adaptation.append === undefined ? ['override', 'strategy'] : ['append', 'override', 'strategy'];
+  assert.deepEqual(Object.keys(entry.adaptation).sort(), adaptationKeys, 'Unknown adaptation field: ' + entry.source);
+  if (entry.adaptation.append !== undefined) {
+    assert.equal(entry.adaptation.strategy, 'inherit-body', 'Only inherited bodies can append Pi guidance: ' + entry.source);
+    await pathInPackage(entry.adaptation.append, 'adapters/pi/');
+  }
   if (isAgent) {
     assert(isNative || ['pstack/agents/comment-sicko.md', 'pstack/agents/poteto-agent.md'].includes(entry.source), 'Unknown pinned agent source: ' + entry.source);
     assert.equal(entry.adaptation.strategy, 'override', 'Agents must use an explicit override template: ' + entry.source);
@@ -132,7 +144,8 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
     // P2.5 supports explicit-only skills. A changed invocation policy needs an
     // explicit reviewed override, rather than silently forcing the old value.
     assert.equal(fields['disable-model-invocation'], 'true', 'Invocation policy needs an explicit override: ' + entry.source);
-    output = `---\nname: ${fields.name}\ndescription: ${fields.description}\ndisable-model-invocation: ${fields['disable-model-invocation']}\nlicense: MIT\n---\n\n${body}\n`;
+    const append = entry.adaptation.append ? '\n' + (await readFile(await pathInPackage(entry.adaptation.append, 'adapters/pi/'), 'utf8')).trim() + '\n' : '';
+    output = `---\nname: ${fields.name}\ndescription: ${fields.description}\ndisable-model-invocation: ${fields['disable-model-invocation']}\nlicense: MIT\n---\n\n${body}\n${append}`;
   }
   if (entry.destination.endsWith('/SKILL.md')) {
     const { fields } = frontmatter(output, ['name', 'description', 'disable-model-invocation', 'license'], entry.destination);

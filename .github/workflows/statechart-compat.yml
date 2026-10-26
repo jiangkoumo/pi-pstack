@@ -1,0 +1,65 @@
+name: statechart-compat
+
+# Real statechart regression + PNG rendering on both CI platforms and both supported Node lines.
+# This workflow is additive: check.yml keeps running the dependency-free `npm test` job.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "skills/statechart/**"
+      - "adapters/pi/statechart/**"
+      - "scripts/statechart-*.test.mjs"
+      - "scripts/check-statechart-png.mjs"
+      - "scripts/fixtures/statechart-sync/**"
+      - ".github/workflows/statechart-compat.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: statechart-compat-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compat:
+    name: statechart (${{ matrix.os }}, node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: ["22", "24"]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Install TLC 1.8.0
+        # The jar URL is pinned to the TLA+ release the regression was verified against locally.
+        # If this asset moves, replace the URL rather than downgrading the assertions.
+        run: |
+          curl --fail --location --retry 3 \
+            --output "$RUNNER_TEMP/tla2tools.jar" \
+            https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar
+          echo "TLA2TOOLS=$RUNNER_TEMP/tla2tools.jar" >> "$GITHUB_ENV"
+          echo "JAVA=$JAVA_HOME/bin/java" >> "$GITHUB_ENV"
+      - name: Install dependencies
+        run: npm ci --include=dev
+      - name: TLC version
+        run: "$JAVA -cp $TLA2TOOLS tlc2.TLC -help 2>&1 | head -5"
+      - name: CoverGap regression (adapter entry, real TLC)
+        env:
+          STATECHART_PNG_REQUIRE: "1"
+        run: node --test scripts/statechart-sync.test.mjs
+      - name: PNG smoke (real --png, PNG signature and size)
+        env:
+          STATECHART_PNG_REQUIRE: "1"
+        run: node scripts/check-statechart-png.mjs

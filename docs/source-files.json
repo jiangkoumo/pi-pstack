@@ -459,39 +459,87 @@
     },
     {
       "path": "pstack/skills/statechart/SKILL.md",
-      "blob": "1693be3b30d5d457e178a0da8da93c6d311b06b3"
+      "blob": "66670ebd1856621ef5307bb73eed09e60133212b"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/bug-states.mjs",
+      "blob": "3c8e9f21f6046393903a5b496e65c5e93bf4727a"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/chart-edges.mjs",
+      "blob": "0f0db11dc51dbf10ab20715820861a682893789f"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/chart-parts.mjs",
+      "blob": "eaa391d4e634b096d3625337f288627afb2e3427"
     },
     {
       "path": "pstack/skills/statechart/scripts/chart-to-tla.mjs",
-      "blob": "7dfa337d2426e1b9f86e727e2602382b6fd2d5d1"
+      "blob": "911c58698d7abf8c459134f0112a47750d317c1c"
     },
     {
       "path": "pstack/skills/statechart/scripts/compare-charts.mjs",
-      "blob": "587125a9ff266e33c6c65490785ed59b969b7bb1"
+      "blob": "730698be4e1dfadb4866ff5f61e6cba2b37fe6ce"
     },
     {
       "path": "pstack/skills/statechart/scripts/lib.mjs",
-      "blob": "cf72d5cd115b95f545a35b08108bf0134e5718fd"
+      "blob": "238f1745e561aa5668cd09ec7a694836bf6b7156"
     },
     {
-      "path": "pstack/skills/statechart/scripts/model/OutputFolder.cfg",
-      "blob": "68fd715a87e70ec30a433d45d1ad468db1672912"
+      "path": "pstack/skills/statechart/scripts/map-view.mjs",
+      "blob": "e7e844b6d1fd6534408e94ac7f96fd7384ca5650"
     },
     {
-      "path": "pstack/skills/statechart/scripts/model/OutputFolder.map.mjs",
-      "blob": "9618338f6620e30d812c35b8ab4df605d4f71259"
+      "path": "pstack/skills/statechart/scripts/property-loop.mjs",
+      "blob": "47bf0372f89f27251e8639445ef1716dd243ea94"
     },
     {
-      "path": "pstack/skills/statechart/scripts/model/OutputFolder.tla",
-      "blob": "7765babcbb44a83ec14b7b8185bf531e71eac5d6"
+      "path": "pstack/skills/statechart/scripts/read-check.mjs",
+      "blob": "18c52b6d1447583c0d3b4e0dbd01c0ffc701e47b"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/regions-chart.mjs",
+      "blob": "95d746021468883e6a4adab5d82dc34d4f2c4082"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/render.mjs",
+      "blob": "4c90c58531d8f99ccb28fa659df1e85e868e0c9c"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/rule-book.mjs",
+      "blob": "3ea545228f7908394f903734b40157a23565e6b4"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/second-replay.mjs",
+      "blob": "1dba571c2c23d4648f0f15ffcf9359558e8de1be"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/snapshot.mjs",
+      "blob": "ebaf35573fb2208d9f3f29aca81669602d25171c"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/spec-text.mjs",
+      "blob": "ddfc8d10c9b22dd6bae3a4e4d950384bd0033574"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/statechart-help.mjs",
+      "blob": "1a900fc51f985a0e9b774bfc0fc6e0c4e484ff04"
     },
     {
       "path": "pstack/skills/statechart/scripts/statechart.mjs",
-      "blob": "6e2ebfccdafff7900016b5cf2ed5384c84181545"
+      "blob": "555f10b8c83d98e7e5de07224b99cc339ba75935"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/test/band.mmd",
+      "blob": "83af5860141f7d6ed4d0f323d1b3eef4303954ee"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/test/regions.mmd",
+      "blob": "d241e24ff73c292e5fc62a81fd7ff17c189a5354"
     },
     {
       "path": "pstack/skills/statechart/scripts/test/statechart.test.mjs",
-      "blob": "a90c7e4a3a7993dc787d9963ab7ba7bc3240e1a8"
+      "blob": "543fe8d67e3c7f5da3d54b678a48b05c8f7de820"
     },
     {
       "path": "pstack/skills/statechart/scripts/test/sync.mmd",
@@ -502,8 +550,20 @@
       "blob": "dcfafa73793e4475427a6897466debd40c4e3f8f"
     },
     {
+      "path": "pstack/skills/statechart/scripts/tlc-to-chart-args.mjs",
+      "blob": "a2e0a3124641af13770fd7e4dc3e76c17f1ce347"
+    },
+    {
       "path": "pstack/skills/statechart/scripts/tlc-to-chart.mjs",
-      "blob": "ccb68fd7b549171afea2d8035f495985a2d859d1"
+      "blob": "7aefe44be6e60425fd061d04379adb256b06f75d"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/tlc-tools.mjs",
+      "blob": "09d46de4a62173348de802643944bd54a1298e71"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/ways-in.mjs",
+      "blob": "e94658c804f62065b7bf4c7e0ae8c6854d1f0d69"
     },
     {
       "path": "pstack/skills/swarm/SKILL.md",
@@ -584,6 +644,13 @@
     {
       "path": "pstack/skills/why/references/synthesizer-prompt.md",
       "blob": "287a350c925c28b44f0e0dc687bb09a843e11100"
+    }
+  ],
+  "sourceOverrides": [
+    {
+      "path": "pstack/skills/statechart/",
+      "commit": "076f4b2f57844ff9eb4ada914d4763884d40146e",
+      "reason": "Statechart-only sync for #40; all other sources remain at the base commit."
     }
   ]
 }
