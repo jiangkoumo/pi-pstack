@@ -2,6 +2,15 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
+## 0.3.15
+
+- Sync statechart to cursor/plugins@519d36aa (v0.15.34) TypeScript compiler, with its package, tests, and corpus packaged verbatim.
+- Enforce the Pi execution boundary for statechart: adapt the CLI entry with Node 22 native TS execution, inject `--import hook.mjs` into worker processes to fail-closed against unauthorized `mise` installation of TLC and Java, and route Mermaid output to Pele 1.9.0 themeable SVG.
+- Reject removed statechart commands (`from-spec`, `from-chart`, `render`, `--cover`, `--fixed`, `--against`, `--png`) with actionable migration guidance.
+- Align `poteto-help` and `create-formal-verification-skill` with upstream 519d36aa, linking `/statechart` for invariant bug-path visualization and documenting the Pi `verification_exec` distinction.
+- Add `/skill:ketchup-video` adaptation for Pi with local MP4 path delivery and explicit failure fallback; protect `reflect` skill editing against cache overwrite.
+- Align upstream fidelity report with the updated statechart test corpus and resources (94.32% overall, 0 errors).
+
 ## 0.3.14
 
 - Sync only statechart to cursor/plugins@076f4b2f for #40, retaining upstream scripts and tests byte-for-byte. `--cover` is explicit and reports omitted states/transitions; remove the retired OutputFolder example.
