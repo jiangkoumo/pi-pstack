@@ -131,6 +131,26 @@ test('fenced examples and HTML comments cannot impersonate a plan contract', () 
   assert.deepEqual(parsePlan(block.replaceAll('```', '~~~')).plan, example());
 });
 
+for (const marker of ['`', '~']) {
+  test(`plan fences accept longer ${marker} delimiters and closers`, () => {
+    const plan = example();
+    plan.goal = 'Document ``code with `nested` backticks`` and punctuation: a, b; c.';
+    const markdown = `${marker.repeat(4)}pstack-plan\n${JSON.stringify(plan)}\n${marker.repeat(5)}\n`;
+    assert.deepEqual(parsePlan(markdown), { plan, line: 1 });
+    assert.deepEqual(check(parsePlan(markdown).plan), []);
+    assert.throws(() => parsePlan(markdown.replace(marker.repeat(5), marker.repeat(3))), /Unclosed/);
+    const other = marker === '`' ? '~' : '`';
+    assert.throws(() => parsePlan(markdown.replace(marker.repeat(5), other.repeat(5))), /Unclosed/);
+  });
+
+  test(`shorter and mismatched fences cannot expose a contract inside a ${marker} example`, () => {
+    const other = marker === '`' ? '~' : '`';
+    const hidden = `${marker.repeat(5)}markdown\n${marker.repeat(3)}\n${other.repeat(5)}\n${contract(example())}\n${marker.repeat(5)}\n`;
+    assert.throws(() => parsePlan(hidden), /found 0/);
+    assert.deepEqual(parsePlan(hidden + contract(example())).plan, example());
+  });
+}
+
 test('malformed JSON shapes yield diagnostics rather than crashing', () => {
   for (const value of [null, [], 42, {}, { ...example(), prs: [null, 7] }]) assert.ok(check(value).length);
   reject(p => { p.prs[0].verification = { unit: [null], live: [7] }; }, /requires an object/);
