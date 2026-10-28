@@ -33,6 +33,10 @@ Pick the tool that answers the question at the lowest cost: a model checker, a p
 
 Write a project-local skill with frontmatter that names the area and says when to use it. Without frontmatter, the skill never registers. From the skill alone, the next agent must be able to tell whether a change touches the verified code, run the check, tell a real bug from a modeling error, and update the verification when a change is intended. Put the coverage record and the sync commit in the skill, and tell the next agent to move the sync commit forward only after it confirms that the verification describes the code at the new commit. Use this repo's real commands, paths, and nouns, and leave no placeholders.
 
+If the check is a TLA+ model, tell the next agent to read every result with the pstack [`/statechart`](../statechart/SKILL.md) skill. It shows each invariant violation the checker finds as its shortest path in plain words. When the check passes, `/statechart` draws a chart of how the system moves between states. Refer to `/statechart` by name. Its commands, options, and file paths change between releases and machines, so copy none of them into the generated skill or its scripts.
+
+On Pi, run formal TLC verification through the restricted `verification_exec` entry with a structured `tlc` request, repository-relative model and config paths in a read-only repository, and only whitelisted options. Draw charts through the `/statechart` entry in the parent shell, currently `node <package>/adapters/pi/statechart/entry.mjs`; resolve that entry from the installed skill at run time. Chart rendering does not establish a formal verification pass, and a restricted TLC run does not replace chart rendering. Keep concrete jar paths and machine-specific paths out of the generated skill and its scripts.
+
 ## Prove it before you hand off
 
 Follow the generated skill once, as the next agent would, on a scratch change that breaks the property in the real code. It must catch the break. Then drop the scratch change and confirm that the check is back where it started: passing, or failing only on the findings you will report. A verify skill that was never run is a draft. If the skill misses the break or a step does not run, fix the skill or the verification, not the scratch change.
@@ -65,13 +69,13 @@ Twice, on the real code the property guards, make a deliberate break — remove 
 
 ### What the generated skill must record
 
-Record the tool version and how it was resolved (jar path plus Java major version), the exact command and options, the sync commit — the commit at which you actually ran the check — and the bounds and assumptions the check relies on, including what is left out. Tell the next agent to move the sync commit forward only after it re-ran the check at the new commit and confirmed the verification still describes the code there. A skill that was never executed, or that has only ever seen a passing run, is a draft, and the handoff must say `draft` instead of reporting a verified property.
+Record the tool version and how it was resolved (the jar configuration source plus Java major version, without a concrete jar or machine-specific path), the exact command and options, the sync commit — the commit at which you actually ran the check — and the bounds and assumptions the check relies on, including what is left out. Tell the next agent to move the sync commit forward only after it re-ran the check at the new commit and confirmed the verification still describes the code there. A skill that was never executed, or that has only ever seen a passing run, is a draft, and the handoff must say `draft` instead of reporting a verified property.
 
 ### Completion self-check
 
 Before declaring this task complete or handing off, execute the completion self-check. The generation is not complete until every item below is satisfied:
 - Re-run every "Run it" command documented in the generated SKILL.md from the target repository. Confirm that all quantities, counts, and conclusions in the command output (such as step counts, state counts, distinct states, queue/member counts, and scenario totals) match the descriptions in SKILL.md exactly. Any discrepancy between execution output and the written skill must be reconciled before finishing.
-- The Record section in the generated skill must be fully written, specifying the tool version and resolution (jar path plus Java major version), exact command and options, sync commit, bounds, assumptions, and explicit exclusions of what is left out.
+- The Record section in the generated skill must be fully written, specifying the tool version and resolution (the jar configuration source plus Java major version, without a concrete jar or machine-specific path), exact command and options, sync commit, bounds, assumptions, and explicit exclusions of what is left out.
 - Deliver the final completion report covering:
   1. The verified scope and target promise;
   2. Concrete evidence of deliberate breakage: the two break-and-restore cycles on the real code, citing the modified code, the observed counterexample in code terms, and non-zero failing exit status;

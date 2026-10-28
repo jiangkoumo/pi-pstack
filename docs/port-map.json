@@ -469,7 +469,7 @@
       "disposition": "ported",
       "phase": "P5",
       "destination": "skills/poteto-help/SKILL.md",
-      "reason": "poteto-mode 路由表取代本批入口；完整技能索引随其余技能落地",
+      "reason": "已适配完整技能索引；已吸收上游 519d36aa 的 statechart 措辞与 ketchup-video 行",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [
