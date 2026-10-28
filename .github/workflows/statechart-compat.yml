@@ -1,6 +1,6 @@
 name: statechart-compat
 
-# Real statechart regression + PNG rendering on both CI platforms and both supported Node lines.
+# Real statechart regression + SVG rendering on both CI platforms and both supported Node lines.
 # This workflow is additive: check.yml keeps running the dependency-free `npm test` job.
 on:
   push:
@@ -55,11 +55,9 @@ jobs:
         run: npm ci --include=dev
       - name: TLC version
         run: "$JAVA -cp $TLA2TOOLS tlc2.TLC -help 2>&1 | head -5"
-      - name: CoverGap regression (adapter entry, real TLC)
+      - name: Adapter and CoverGap regression (packaged compiler, real TLC)
+        run: node --test scripts/statechart-adapter.test.mjs scripts/statechart-sync.test.mjs
+      - name: SVG smoke (real TLC and Pele 1.9.0)
         env:
-          STATECHART_PNG_REQUIRE: "1"
-        run: node --test scripts/statechart-sync.test.mjs
-      - name: PNG smoke (real --png, PNG signature and size)
-        env:
-          STATECHART_PNG_REQUIRE: "1"
+          STATECHART_SVG_REQUIRE: "1"
         run: node scripts/check-statechart-png.mjs

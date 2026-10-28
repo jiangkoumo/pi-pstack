@@ -1747,21 +1747,16 @@
   "sourceOverrides": [
     {
       "path": "pstack/skills/statechart/",
-      "commit": "076f4b2f57844ff9eb4ada914d4763884d40146e",
-      "reason": "Statechart-only sync for #40; all other sources remain at the base commit."
+      "commit": "519d36aa98955bf680db01bcde5fdfba686dc901",
+      "reason": "Statechart compiler sync for #47; ketchup-video is pinned separately; other sources retain the base commit."
+    },
+    {
+      "path": "pstack/skills/ketchup-video/",
+      "commit": "519d36aa98955bf680db01bcde5fdfba686dc901",
+      "reason": "New ketchup-video skill for #46; runtime acceptance boundaries are recorded separately."
     }
   ],
   "preparedResources": [
-    {
-      "source": "pstack/skills/typescript-best-practices/references/patterns.md",
-      "destination": "skills/typescript-best-practices/references/patterns.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/typescript-best-practices/references/patterns.md.template"
-      },
-      "dependencies": "from-template"
-    },
     {
       "source": "pstack/skills/architect/references/design-red-flags.md",
       "destination": "skills/architect/references/design-red-flags.md",
@@ -1793,22 +1788,22 @@
       "dependencies": "from-template"
     },
     {
-      "source": "pstack/skills/create-verification-skill/references/feature-map-example/README.md",
-      "destination": "skills/create-verification-skill/references/feature-map-example/README.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/create-verification-skill/references/feature-map-example/README.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
       "source": "pstack/skills/create-verification-skill/references/feature-map-example/create-note.md",
       "destination": "skills/create-verification-skill/references/feature-map-example/create-note.md",
       "status": "accepted",
       "adaptation": {
         "strategy": "override",
         "override": "adapters/pi/overrides/skills/create-verification-skill/references/feature-map-example/create-note.md.template"
+      },
+      "dependencies": "from-template"
+    },
+    {
+      "source": "pstack/skills/create-verification-skill/references/feature-map-example/README.md",
+      "destination": "skills/create-verification-skill/references/feature-map-example/README.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/create-verification-skill/references/feature-map-example/README.md.template"
       },
       "dependencies": "from-template"
     },
@@ -1963,6 +1958,4076 @@
       "dependencies": "from-template"
     },
     {
+      "source": "pstack/skills/statechart/references/render.md",
+      "destination": "skills/statechart/references/render.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/backends/cfg.ts",
+      "destination": "skills/statechart/scripts/backends/cfg.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/backends/mermaid.ts",
+      "destination": "skills/statechart/scripts/backends/mermaid.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/backends/plain-text.ts",
+      "destination": "skills/statechart/scripts/backends/plain-text.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/backends/report.ts",
+      "destination": "skills/statechart/scripts/backends/report.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/frontends/config.ts",
+      "destination": "skills/statechart/scripts/frontends/config.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/frontends/dot.ts",
+      "destination": "skills/statechart/scripts/frontends/dot.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/frontends/marks.ts",
+      "destination": "skills/statechart/scripts/frontends/marks.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/frontends/messages.ts",
+      "destination": "skills/statechart/scripts/frontends/messages.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/frontends/spec.ts",
+      "destination": "skills/statechart/scripts/frontends/spec.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/frontends/trace.ts",
+      "destination": "skills/statechart/scripts/frontends/trace.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/frontends/value.ts",
+      "destination": "skills/statechart/scripts/frontends/value.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/frontends/verdict.ts",
+      "destination": "skills/statechart/scripts/frontends/verdict.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/frontends/view.ts",
+      "destination": "skills/statechart/scripts/frontends/view.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/ir.ts",
+      "destination": "skills/statechart/scripts/ir.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/package.json",
+      "destination": "skills/statechart/scripts/package.json",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/passes/annotate.ts",
+      "destination": "skills/statechart/scripts/passes/annotate.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/passes/label.ts",
+      "destination": "skills/statechart/scripts/passes/label.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/passes/lift.ts",
+      "destination": "skills/statechart/scripts/passes/lift.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/passes/loop-check.ts",
+      "destination": "skills/statechart/scripts/passes/loop-check.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/passes/paths.ts",
+      "destination": "skills/statechart/scripts/passes/paths.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/passes/reach.ts",
+      "destination": "skills/statechart/scripts/passes/reach.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/passes/region-check.ts",
+      "destination": "skills/statechart/scripts/passes/region-check.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/passes/regions.ts",
+      "destination": "skills/statechart/scripts/passes/regions.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/pipeline.ts",
+      "destination": "skills/statechart/scripts/pipeline.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/run.ts",
+      "destination": "skills/statechart/scripts/run.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/statechart",
+      "destination": "skills/statechart/scripts/statechart",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/statechart.ts",
+      "destination": "skills/statechart/scripts/statechart.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/chart.test.ts",
+      "destination": "skills/statechart/scripts/test/chart.test.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/charts/Braces.mmd",
+      "destination": "skills/statechart/scripts/test/charts/Braces.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/charts/Escapes.mmd",
+      "destination": "skills/statechart/scripts/test/charts/Escapes.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/charts/Phases.mmd",
+      "destination": "skills/statechart/scripts/test/charts/Phases.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/cli.test.ts",
+      "destination": "skills/statechart/scripts/test/cli.test.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/config-fuzz.test.ts",
+      "destination": "skills/statechart/scripts/test/config-fuzz.test.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/ConfigOracle.java",
+      "destination": "skills/statechart/scripts/test/ConfigOracle.java",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus.test.ts",
+      "destination": "skills/statechart/scripts/test/corpus.test.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Counter/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/Counter/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Counter/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/Counter/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Counter/Counter.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/Counter/Counter.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Counter/Counter.tla",
+      "destination": "skills/statechart/scripts/test/corpus/Counter/Counter.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Counter/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/Counter/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Counter/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/Counter/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Counter/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/Counter/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Counter/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/Counter/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterAction/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterAction/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterAction/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterAction/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterAction/CounterAction.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterAction/CounterAction.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterAction/CounterAction.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterAction/CounterAction.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterAction/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterAction/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterAction/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterAction/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterAction/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterAction/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterAction/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterAction/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterAction/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterAction/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterAction/verdict-2.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterAction/verdict-2.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterAction/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterAction/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterAction/verdict-3.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterAction/verdict-3.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterDeadlock/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterDeadlock/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterDeadlock/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterDeadlock/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterDeadlock/CounterDeadlock.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterDeadlock/CounterDeadlock.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterDeadlock/CounterDeadlock.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterDeadlock/CounterDeadlock.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterDeadlock/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterDeadlock/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterDeadlock/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterDeadlock/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterDeadlock/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterDeadlock/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterDeadlock/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterDeadlock/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterDeadlock/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterDeadlock/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterDeadlock/verdict-2.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterDeadlock/verdict-2.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterDeadlock/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterDeadlock/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterFan/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterFan/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterFan/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterFan/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterFan/CounterFan.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterFan/CounterFan.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterFan/CounterFan.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterFan/CounterFan.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterFan/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterFan/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterFan/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterFan/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterFan/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterFan/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterFan/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterFan/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterFan/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterFan/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterFan/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterFan/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterGuard/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterGuard/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterGuard/ChartRun.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterGuard/ChartRun.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterGuard/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterGuard/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterGuard/CounterGuard.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterGuard/CounterGuard.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterGuard/CounterGuard.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterGuard/CounterGuard.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterGuard/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterGuard/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterGuard/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterGuard/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterGuard/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterGuard/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterGuard/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterGuard/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterGuard/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterGuard/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterGuard/verdict-2.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterGuard/verdict-2.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterGuard/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterGuard/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPast/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPast/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPast/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPast/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPast/CounterInitPast.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPast/CounterInitPast.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPast/CounterInitPast.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPast/CounterInitPast.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPast/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPast/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPast/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPast/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPast/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPast/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPast/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPast/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPast/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPast/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPast/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPast/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPastHolds/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPastHolds/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPastHolds/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPastHolds/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPastHolds/CounterInitPastHolds.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPastHolds/CounterInitPastHolds.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPastHolds/CounterInitPastHolds.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPastHolds/CounterInitPastHolds.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPastHolds/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPastHolds/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPastHolds/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPastHolds/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPastHolds/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPastHolds/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInitPastHolds/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInitPastHolds/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInstance/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInstance/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInstance/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInstance/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInstance/CounterInstance.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInstance/CounterInstance.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInstance/CounterInstance.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInstance/CounterInstance.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInstance/CounterSteps.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInstance/CounterSteps.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInstance/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInstance/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInstance/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInstance/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInstance/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInstance/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInstance/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInstance/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterInstance/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterInstance/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterJump/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterJump/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterJump/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterJump/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterJump/CounterJump.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterJump/CounterJump.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterJump/CounterJump.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterJump/CounterJump.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterJump/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterJump/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterJump/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterJump/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterJump/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterJump/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterJump/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterJump/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterJump/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterJump/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterJump/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterJump/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterLoop/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterLoop/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterLoop/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterLoop/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterLoop/CounterLoop.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterLoop/CounterLoop.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterLoop/CounterLoop.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterLoop/CounterLoop.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterLoop/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterLoop/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterLoop/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterLoop/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterLoop/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterLoop/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterLoop/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterLoop/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterLoop/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterLoop/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterOrder/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterOrder/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterOrder/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterOrder/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterOrder/CounterOrder.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterOrder/CounterOrder.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterOrder/CounterOrder.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterOrder/CounterOrder.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterOrder/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterOrder/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterOrder/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterOrder/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterOrder/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterOrder/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterOrder/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterOrder/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterOrder/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterOrder/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterOrder/verdict-2.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterOrder/verdict-2.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterOrder/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterOrder/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/CounterRules.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/CounterRules.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/CounterRules.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/CounterRules.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/Moves.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/Moves.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/verdict-2.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/verdict-2.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/verdict-3.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/verdict-3.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/verdict-3.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/verdict-3.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterRules/verdict-4.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterRules/verdict-4.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStart/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStart/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStart/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStart/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStart/CounterStart.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStart/CounterStart.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStart/CounterStart.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStart/CounterStart.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStart/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStart/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStart/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStart/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStart/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStart/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStart/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStart/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStart/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStart/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStart/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStart/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStop/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStop/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStop/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStop/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStop/CounterStop.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStop/CounterStop.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStop/CounterStop.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStop/CounterStop.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStop/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStop/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStop/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStop/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStop/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStop/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterStop/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterStop/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/CounterTie.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/CounterTie.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/CounterTie.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/CounterTie.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/verdict-2.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/verdict-2.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/verdict-3.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/verdict-3.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/verdict-3.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/verdict-3.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTie/verdict-4.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTie/verdict-4.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTieInGraph/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTieInGraph/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTieInGraph/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTieInGraph/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTieInGraph/CounterTieInGraph.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTieInGraph/CounterTieInGraph.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTieInGraph/CounterTieInGraph.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTieInGraph/CounterTieInGraph.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTieInGraph/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTieInGraph/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTieInGraph/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTieInGraph/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTieInGraph/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTieInGraph/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTieInGraph/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTieInGraph/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTieInGraph/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTieInGraph/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterTieInGraph/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterTieInGraph/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/CounterView.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/CounterView.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/CounterView.tla",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/CounterView.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/verdict-2.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/verdict-2.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/verdict-3.exit",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/verdict-3.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/verdict-3.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/verdict-3.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/verdict-4.out",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/verdict-4.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/CounterView/view.mjs",
+      "destination": "skills/statechart/scripts/test/corpus/CounterView/view.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/DieHard/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/DieHard/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/DieHard/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/DieHard/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/DieHard/DieHard.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/DieHard/DieHard.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/DieHard/DieHard.tla",
+      "destination": "skills/statechart/scripts/test/corpus/DieHard/DieHard.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/DieHard/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/DieHard/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/DieHard/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/DieHard/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/DieHard/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/DieHard/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/DieHard/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/DieHard/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/DieHard/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/DieHard/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/DieHard/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/DieHard/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/FirstRule.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/FirstRule.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/FirstRule.tla",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/FirstRule.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/verdict-2.exit",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/verdict-2.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/verdict-3.exit",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/verdict-3.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/verdict-3.out",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/verdict-3.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/verdict-4.exit",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/verdict-4.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/FirstRule/verdict-4.out",
+      "destination": "skills/statechart/scripts/test/corpus/FirstRule/verdict-4.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/HiddenClock/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/HiddenClock/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/HiddenClock/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/HiddenClock/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/HiddenClock/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/HiddenClock/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/HiddenClock/HiddenClock.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/HiddenClock/HiddenClock.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/HiddenClock/HiddenClock.tla",
+      "destination": "skills/statechart/scripts/test/corpus/HiddenClock/HiddenClock.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/HiddenClock/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/HiddenClock/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/HiddenClock/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/HiddenClock/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/HiddenClock/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/HiddenClock/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/HiddenClock/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/HiddenClock/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Login/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/Login/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Login/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/Login/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Login/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/Login/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Login/Login.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/Login/Login.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Login/Login.tla",
+      "destination": "skills/statechart/scripts/test/corpus/Login/Login.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Login/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/Login/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Login/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/Login/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Login/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/Login/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Login/view.mjs",
+      "destination": "skills/statechart/scripts/test/corpus/Login/view.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginGuarded/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/LoginGuarded/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginGuarded/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/LoginGuarded/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginGuarded/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/LoginGuarded/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginGuarded/LoginGuarded.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/LoginGuarded/LoginGuarded.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginGuarded/LoginGuarded.tla",
+      "destination": "skills/statechart/scripts/test/corpus/LoginGuarded/LoginGuarded.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginGuarded/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/LoginGuarded/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginGuarded/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/LoginGuarded/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginGuarded/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/LoginGuarded/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginGuarded/view.mjs",
+      "destination": "skills/statechart/scripts/test/corpus/LoginGuarded/view.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginParallel/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/LoginParallel/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginParallel/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/LoginParallel/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginParallel/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/LoginParallel/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginParallel/LoginParallel.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/LoginParallel/LoginParallel.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginParallel/LoginParallel.tla",
+      "destination": "skills/statechart/scripts/test/corpus/LoginParallel/LoginParallel.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginParallel/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/LoginParallel/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginParallel/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/LoginParallel/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginParallel/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/LoginParallel/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginParallel/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/LoginParallel/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginParallel/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/LoginParallel/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/LoginParallel/view.mjs",
+      "destination": "skills/statechart/scripts/test/corpus/LoginParallel/view.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayer/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayer/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayer/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayer/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayer/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayer/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayer/MediaPlayer.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayer/MediaPlayer.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayer/MediaPlayer.tla",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayer/MediaPlayer.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayer/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayer/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayer/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayer/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayer/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayer/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayer/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayer/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayer/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayer/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayer/view.mjs",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayer/view.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerFixed/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerFixed/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerFixed/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerFixed/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerFixed/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerFixed/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerFixed/MediaPlayerFixed.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerFixed/MediaPlayerFixed.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerFixed/MediaPlayerFixed.tla",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerFixed/MediaPlayerFixed.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerFixed/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerFixed/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerFixed/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerFixed/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerFixed/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerFixed/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerFixed/view.mjs",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerFixed/view.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/MediaPlayer.tla",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/MediaPlayer.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/MediaPlayerProps.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/MediaPlayerProps.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/MediaPlayerProps.tla",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/MediaPlayerProps.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-3.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-3.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-4.exit",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-4.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-4.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-4.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-5.exit",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-5.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-5.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-5.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-6.out",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/verdict-6.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/MediaPlayerProps/view.mjs",
+      "destination": "skills/statechart/scripts/test/corpus/MediaPlayerProps/view.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/PickWorker/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/PickWorker/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/PickWorker/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/PickWorker/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/PickWorker/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/PickWorker/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/PickWorker/PickWorker.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/PickWorker/PickWorker.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/PickWorker/PickWorker.tla",
+      "destination": "skills/statechart/scripts/test/corpus/PickWorker/PickWorker.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/PickWorker/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/PickWorker/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/PickWorker/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/PickWorker/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/PickWorker/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/PickWorker/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Shadow/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/Shadow/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Shadow/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/Shadow/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Shadow/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/Shadow/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Shadow/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/Shadow/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Shadow/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/Shadow/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Shadow/Shadow.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/Shadow/Shadow.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Shadow/Shadow.tla",
+      "destination": "skills/statechart/scripts/test/corpus/Shadow/Shadow.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Shadow/ShadowLib.tla",
+      "destination": "skills/statechart/scripts/test/corpus/Shadow/ShadowLib.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Shadow/ShadowSub.tla",
+      "destination": "skills/statechart/scripts/test/corpus/Shadow/ShadowSub.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/Shadow/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/Shadow/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/SpacedNames/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/SpacedNames/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/SpacedNames/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/SpacedNames/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/SpacedNames/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/SpacedNames/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/SpacedNames/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/SpacedNames/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/SpacedNames/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/SpacedNames/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/SpacedNames/SpacedNames.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/SpacedNames/SpacedNames.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/SpacedNames/SpacedNames.tla",
+      "destination": "skills/statechart/scripts/test/corpus/SpacedNames/SpacedNames.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/SpacedNames/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/SpacedNames/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/SpacedNames/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/SpacedNames/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/SpacedNames/verdict-2.exit",
+      "destination": "skills/statechart/scripts/test/corpus/SpacedNames/verdict-2.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/SpacedNames/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/SpacedNames/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhase/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhase/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhase/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhase/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhase/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhase/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhase/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhase/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhase/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhase/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhase/TwoPhase.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhase/TwoPhase.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhase/TwoPhase.tla",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhase/TwoPhase.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhase/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhase/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhase/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhase/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhase/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhase/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhase/view.mjs",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhase/view.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhaseFixed/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhaseFixed/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhaseFixed/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhaseFixed/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhaseFixed/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhaseFixed/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhaseFixed/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhaseFixed/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhaseFixed/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhaseFixed/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhaseFixed/TwoPhaseFixed.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhaseFixed/TwoPhaseFixed.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhaseFixed/TwoPhaseFixed.tla",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhaseFixed/TwoPhaseFixed.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhaseFixed/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhaseFixed/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TwoPhaseFixed/view.mjs",
+      "destination": "skills/statechart/scripts/test/corpus/TwoPhaseFixed/view.mjs",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TypeGuard/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/TypeGuard/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TypeGuard/ChartRun.exit",
+      "destination": "skills/statechart/scripts/test/corpus/TypeGuard/ChartRun.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TypeGuard/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/TypeGuard/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TypeGuard/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/TypeGuard/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TypeGuard/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/TypeGuard/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TypeGuard/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/TypeGuard/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TypeGuard/TypeGuard.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/TypeGuard/TypeGuard.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TypeGuard/TypeGuard.tla",
+      "destination": "skills/statechart/scripts/test/corpus/TypeGuard/TypeGuard.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TypeGuard/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/TypeGuard/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TypeGuard/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/TypeGuard/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TypeGuard/verdict-2.exit",
+      "destination": "skills/statechart/scripts/test/corpus/TypeGuard/verdict-2.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/TypeGuard/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/TypeGuard/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/UserNoDeadlock/chart.mmd",
+      "destination": "skills/statechart/scripts/test/corpus/UserNoDeadlock/chart.mmd",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/UserNoDeadlock/ChartRun.out",
+      "destination": "skills/statechart/scripts/test/corpus/UserNoDeadlock/ChartRun.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/UserNoDeadlock/graph.dot",
+      "destination": "skills/statechart/scripts/test/corpus/UserNoDeadlock/graph.dot",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/UserNoDeadlock/report.md",
+      "destination": "skills/statechart/scripts/test/corpus/UserNoDeadlock/report.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/UserNoDeadlock/sany.out",
+      "destination": "skills/statechart/scripts/test/corpus/UserNoDeadlock/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/UserNoDeadlock/UserNoDeadlock.cfg",
+      "destination": "skills/statechart/scripts/test/corpus/UserNoDeadlock/UserNoDeadlock.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/UserNoDeadlock/UserNoDeadlock.tla",
+      "destination": "skills/statechart/scripts/test/corpus/UserNoDeadlock/UserNoDeadlock.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/UserNoDeadlock/verdict-1.exit",
+      "destination": "skills/statechart/scripts/test/corpus/UserNoDeadlock/verdict-1.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/UserNoDeadlock/verdict-1.out",
+      "destination": "skills/statechart/scripts/test/corpus/UserNoDeadlock/verdict-1.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/UserNoDeadlock/verdict-2.exit",
+      "destination": "skills/statechart/scripts/test/corpus/UserNoDeadlock/verdict-2.exit",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/corpus/UserNoDeadlock/verdict-2.out",
+      "destination": "skills/statechart/scripts/test/corpus/UserNoDeadlock/verdict-2.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/differential.test.ts",
+      "destination": "skills/statechart/scripts/test/differential.test.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/grid/Grid.cfg",
+      "destination": "skills/statechart/scripts/test/grid/Grid.cfg",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/grid/Grid.tla",
+      "destination": "skills/statechart/scripts/test/grid/Grid.tla",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/grid/sany.out",
+      "destination": "skills/statechart/scripts/test/grid/sany.out",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/java.ts",
+      "destination": "skills/statechart/scripts/test/java.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/labels.ts",
+      "destination": "skills/statechart/scripts/test/labels.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/messages.test.ts",
+      "destination": "skills/statechart/scripts/test/messages.test.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/pipeline.test.ts",
+      "destination": "skills/statechart/scripts/test/pipeline.test.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/plain-tlc.test.ts",
+      "destination": "skills/statechart/scripts/test/plain-tlc.test.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/render.test.ts",
+      "destination": "skills/statechart/scripts/test/render.test.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/tlc-out.test.ts",
+      "destination": "skills/statechart/scripts/test/tlc-out.test.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/test/tlc.ts",
+      "destination": "skills/statechart/scripts/test/tlc.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/tsconfig.json",
+      "destination": "skills/statechart/scripts/tsconfig.json",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/statechart/scripts/worker.ts",
+      "destination": "skills/statechart/scripts/worker.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
+      "source": "pstack/skills/typescript-best-practices/references/patterns.md",
+      "destination": "skills/typescript-best-practices/references/patterns.md",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/typescript-best-practices/references/patterns.md.template"
+      },
+      "dependencies": "from-template"
+    },
+    {
       "source": "pstack/skills/why/references/epistemics.md",
       "destination": "skills/why/references/epistemics.md",
       "status": "accepted",
@@ -2081,266 +6146,6 @@
         "override": "adapters/pi/overrides/skills/why/references/synthesizer-prompt.md.template"
       },
       "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/chart-to-tla.mjs",
-      "destination": "skills/statechart/scripts/chart-to-tla.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/compare-charts.mjs",
-      "destination": "skills/statechart/scripts/compare-charts.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/lib.mjs",
-      "destination": "skills/statechart/scripts/lib.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/statechart.mjs",
-      "destination": "skills/statechart/scripts/statechart.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/test/statechart.test.mjs",
-      "destination": "skills/statechart/scripts/test/statechart.test.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/test/sync.mmd",
-      "destination": "skills/statechart/scripts/test/sync.mmd",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/test/upload.mmd",
-      "destination": "skills/statechart/scripts/test/upload.mmd",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/tlc-to-chart.mjs",
-      "destination": "skills/statechart/scripts/tlc-to-chart.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/bug-states.mjs",
-      "destination": "skills/statechart/scripts/bug-states.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/chart-edges.mjs",
-      "destination": "skills/statechart/scripts/chart-edges.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/chart-parts.mjs",
-      "destination": "skills/statechart/scripts/chart-parts.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/map-view.mjs",
-      "destination": "skills/statechart/scripts/map-view.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/property-loop.mjs",
-      "destination": "skills/statechart/scripts/property-loop.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/read-check.mjs",
-      "destination": "skills/statechart/scripts/read-check.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/regions-chart.mjs",
-      "destination": "skills/statechart/scripts/regions-chart.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/render.mjs",
-      "destination": "skills/statechart/scripts/render.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/rule-book.mjs",
-      "destination": "skills/statechart/scripts/rule-book.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/second-replay.mjs",
-      "destination": "skills/statechart/scripts/second-replay.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/snapshot.mjs",
-      "destination": "skills/statechart/scripts/snapshot.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/spec-text.mjs",
-      "destination": "skills/statechart/scripts/spec-text.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/statechart-help.mjs",
-      "destination": "skills/statechart/scripts/statechart-help.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/test/band.mmd",
-      "destination": "skills/statechart/scripts/test/band.mmd",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/test/regions.mmd",
-      "destination": "skills/statechart/scripts/test/regions.mmd",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/tlc-to-chart-args.mjs",
-      "destination": "skills/statechart/scripts/tlc-to-chart-args.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/tlc-tools.mjs",
-      "destination": "skills/statechart/scripts/tlc-tools.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
-    },
-    {
-      "source": "pstack/skills/statechart/scripts/ways-in.mjs",
-      "destination": "skills/statechart/scripts/ways-in.mjs",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "verbatim",
-        "override": null
-      },
-      "dependencies": []
     }
   ],
   "nativeResources": [

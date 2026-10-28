@@ -102,6 +102,15 @@ test('prepared references are generated, checked for drift, and have accepted st
   assert.equal(await readFile(target, 'utf8'), expected);
 }));
 
+test('statechart snapshot includes its compiler, test corpus, and rendering guide', async () => {
+  const map = JSON.parse(await readFile(resolve(root, 'docs/port-map.json'), 'utf8'));
+  const sources = new Set(map.preparedResources.map(resource => resource.destination));
+  for (const destination of ["skills/statechart/scripts/statechart.ts","skills/statechart/scripts/run.ts","skills/statechart/scripts/test/corpus/CounterInstance/CounterInstance.tla","skills/statechart/scripts/test/corpus/DieHard/graph.dot","skills/statechart/references/render.md"]) {
+    assert(sources.has(destination), 'Missing packaged compiler dependency: ' + destination);
+    assert.deepEqual(await readFile(resolve(root, destination)), await readFile(resolve(root, 'upstream/pstack', destination)));
+  }
+});
+
 test('prepared resources cannot escape their source-owned destination', () => fixture(async dir => {
   await mutateJSON(dir, 'docs/port-map.json', map => { map.preparedResources[0].destination = 'docs/escape.md'; });
   await rejectInBothModes(dir, /Destination must match source/);

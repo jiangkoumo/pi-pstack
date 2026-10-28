@@ -11,10 +11,8 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const entry = resolve(root, 'adapters/pi/statechart/entry.mjs');
 const tools = resolve(root, 'adapters/pi/statechart/tlc-tools.mjs');
 
-const defaultSourceRoot = process.env.PSTACK_STATECHART_SOURCE_ROOT ||
-  (existsSync('/tmp/pi-pstack-01534-source/pstack/skills/statechart')
-    ? '/tmp/pi-pstack-01534-source/pstack/skills/statechart'
-    : undefined);
+// Exercise exactly the resources a clean checkout and the published package contain.
+const defaultSourceRoot = resolve(root, 'skills/statechart');
 
 function findWith(env) {
   const script = `import { findTlc } from ${JSON.stringify(new URL('file://' + tools).href)}; try { console.log(JSON.stringify(findTlc())); } catch (e) { console.error(e.message); process.exitCode = 1; }`;
@@ -154,10 +152,7 @@ test('hook enforces fail-closed protection when upstream run.ts changes', async 
 });
 
 test('CoverGap runs with real TLC 1.8.0 and generates report, tlc.out, and chart.mmd', async (t) => {
-  const jar = process.env.TLA2TOOLS || process.env.TLA2TOOLS_JAR ||
-    (existsSync('/Users/jiangkoumo/.local/share/tlaplus/1.8.0/tla2tools.jar')
-      ? '/Users/jiangkoumo/.local/share/tlaplus/1.8.0/tla2tools.jar'
-      : undefined);
+  const jar = process.env.TLA2TOOLS || process.env.TLA2TOOLS_JAR;
 
   if (!jar) {
     t.skip('No TLC 1.8.0 jar configured or found');
@@ -170,7 +165,7 @@ test('CoverGap runs with real TLC 1.8.0 and generates report, tlc.out, and chart
     const env = {
       ...process.env,
       TLA2TOOLS: jar,
-      JAVA: process.env.JAVA || (existsSync('/opt/homebrew/opt/openjdk@21/bin/java') ? '/opt/homebrew/opt/openjdk@21/bin/java' : 'java'),
+      JAVA: process.env.JAVA,
       PSTACK_STATECHART_SOURCE_ROOT: defaultSourceRoot,
     };
 

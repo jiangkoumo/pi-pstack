@@ -99,8 +99,13 @@
   "sourceOverrides": [
     {
       "path": "pstack/skills/statechart/",
-      "commit": "076f4b2f57844ff9eb4ada914d4763884d40146e",
-      "reason": "Statechart-only sync for #40; all other sources remain at the base commit."
+      "commit": "519d36aa98955bf680db01bcde5fdfba686dc901",
+      "reason": "Statechart compiler sync for #47; ketchup-video is pinned separately; other sources retain the base commit."
+    },
+    {
+      "path": "pstack/skills/ketchup-video/",
+      "commit": "519d36aa98955bf680db01bcde5fdfba686dc901",
+      "reason": "New ketchup-video skill for #46; runtime acceptance boundaries are recorded separately."
     }
   ]
 }

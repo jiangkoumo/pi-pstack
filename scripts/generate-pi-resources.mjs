@@ -33,7 +33,7 @@ assert.equal(map.commit, inventory.commit, 'Inventory revision mismatch');
 assert.deepEqual(map.sourceOverrides, sources.sourceOverrides, 'Source override revision mismatch');
 assert.deepEqual(map.sourceOverrides, inventory.sourceOverrides, 'Inventory override revision mismatch');
 for (const pin of map.sourceOverrides ?? []) {
-  assert.equal(pin.path, 'pstack/skills/statechart/', 'Only statechart has a partial upstream update');
+  assert(['pstack/skills/statechart/', 'pstack/skills/ketchup-video/'].includes(pin.path), 'Unknown partial upstream update');
   assert(/^[a-f0-9]{40}$/.test(pin.commit), 'Source override must pin a full Git SHA');
   assert(pin.reason, 'Source override needs a reason');
 }
@@ -131,7 +131,7 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
 
   let output;
   if (entry.adaptation.strategy === 'verbatim') {
-    assert(isSkill && entry.source.startsWith('pstack/skills/statechart/scripts/'), 'Verbatim resources are limited to upstream statechart scripts: ' + entry.source);
+    assert(isSkill && (entry.source.startsWith('pstack/skills/statechart/scripts/') || entry.source === 'pstack/skills/statechart/references/render.md'), 'Verbatim resources are limited to upstream statechart scripts and render reference: ' + entry.source);
     assert.equal(entry.adaptation.override, null, 'Verbatim resources cannot have an override');
     output = originals.get(entry.source);
   } else if (entry.adaptation.strategy === 'override') {

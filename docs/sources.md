@@ -24,7 +24,13 @@ X 正文不是上游代码的完整规格；该链接中的统计数据不影响
 
 [完整目录清单](upstream-inventory.json) 来源于 GitHub recursive tree API，该响应的 truncated 为 false。统计仅说明文件数量，不能证明所有文件已完成兼容性审计。
 
-## statechart 局部同步（#40）
+## statechart 与 ketchup-video 局部同步（#47、#46）
+
+当前 `pstack/skills/statechart/**`（407 个固定原文件）与 `pstack/skills/ketchup-video/SKILL.md` 固定到 `519d36aa98955bf680db01bcde5fdfba686dc901`，其余基线仍是 `eb4db2b5`。statechart 改为 TS 编译器与 SVG 渲染，快照、corpus 及渲染说明随包生成；CI 修复见 [干净环境验收](validation-statechart-ci.md)。新增 ketchup-video 的文件 blob 为 `69aa72aba763ae1836f8440d88e03e2928eb3719`，模型遵循性与视频播放能力边界见 [验收](validation-upstream-01534-c.md)。
+
+以下保留 #40 的历史记录，当前 pin 以上段及三份 JSON 清单为准。
+
+### statechart 局部同步历史（#40）
 
 仅 `pstack/skills/statechart/**` 固定到 [076f4b2f57844ff9eb4ada914d4763884d40146e](https://github.com/cursor/plugins/tree/076f4b2f57844ff9eb4ada914d4763884d40146e/pstack/skills/statechart)。其余技能、流程和代理继续固定在 `eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10`，不代表全包升级版本。`source-files.json`、`upstream-inventory.json` 和 `port-map.json` 的 `sourceOverrides` 共同记录局部 pin，文件 Git blob 指纹以 source-files 为准。
 

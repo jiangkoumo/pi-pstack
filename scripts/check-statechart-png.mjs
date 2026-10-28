@@ -39,10 +39,7 @@ try {
     ],
     {
       cwd: scratch,
-      env: {
-        ...process.env,
-        PSTACK_STATECHART_SOURCE_ROOT: process.env.PSTACK_STATECHART_SOURCE_ROOT || '/tmp/pi-pstack-01534-source/pstack/skills/statechart',
-      },
+      env: process.env,
       encoding: 'utf8',
       timeout: 600_000,
       maxBuffer: 8 * 1024 * 1024,
