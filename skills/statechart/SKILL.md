@@ -17,7 +17,7 @@ Work in a scratch folder outside the repo. Write a TLA+ spec and its config. The
 node <package>/adapters/pi/statechart/entry.mjs SPEC.tla [--config FILE] [--view FILE] [--out DIR]
 ```
 
-`scripts/statechart.ts` is TypeScript, so run it with a runtime that can execute TypeScript.
+The Pi entry runs the TypeScript compiler with the package's supported Node version; always use `node <package>/adapters/pi/statechart/entry.mjs` and never run the upstream compiler or launcher directly.
 
 Set TLA2TOOLS (or TLA2TOOLS_JAR) and JAVA to the already-installed TLC jar and Java binary. Pi does not automatically install mise, TLC, or Java.
 
