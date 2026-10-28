@@ -96,6 +96,7 @@
 | 技能 bro | P5 | 已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查 |
 | 技能 in-your-own-words | P5 | 已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查 |
 | 技能 ketchup | P5 | 正文保持上游；description 明确当前会话用 ketchup、历史会话用 recall；见 validation-stage-a.md 整合与路由证据 |
+| 技能 ketchup-video | P5 | 已适配；复用操作者最后消息起点与只读规则，视频放 scratch，输出本地 MP4 路径；见 validation-upstream-01534-c.md |
 | 技能 principle-attack-the-premise | P5 | 已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查 |
 | 技能 principle-build-the-lever | P5 | 已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查 |
 | 技能 principle-exhaust-the-design-space | P5 | 已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查 |

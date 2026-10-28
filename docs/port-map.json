@@ -350,6 +350,25 @@
     },
     {
       "kind": "skills",
+      "source": "pstack/skills/ketchup-video/SKILL.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/ketchup-video/SKILL.md",
+      "reason": "已适配；复用操作者最后消息起点与只读规则，视频放 scratch，输出本地 MP4 路径；见 validation-upstream-01534-c.md",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P5 ketchup-video adaptation and probe"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/ketchup-video/SKILL.md.template"
+      },
+      "evidence": "validation-upstream-01534-c.md",
+      "dependencies": "from-template"
+    },
+    {
+      "kind": "skills",
       "source": "pstack/skills/ketchup/SKILL.md",
       "disposition": "ported",
       "phase": "P5",
@@ -502,25 +521,6 @@
         "override": "adapters/pi/overrides/skills/poteto-help/SKILL.md.template"
       },
       "evidence": "validation-next.md",
-      "dependencies": "from-template"
-    },
-    {
-      "kind": "skills",
-      "source": "pstack/skills/poteto-mode/SKILL.md",
-      "disposition": "ported",
-      "phase": "P1",
-      "destination": "skills/poteto-mode/SKILL.md",
-      "reason": "已适配；见 validation-p1.md 两次真实新会话调用及手工功能样例",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P1 resource checks plus workflow-level observations"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/SKILL.md.template"
-      },
-      "evidence": "validation-p1.md",
       "dependencies": "from-template"
     },
     {
@@ -987,6 +987,25 @@
       "dependencies": [
         "skills/poteto-mode/SKILL.md"
       ]
+    },
+    {
+      "kind": "skills",
+      "source": "pstack/skills/poteto-mode/SKILL.md",
+      "disposition": "ported",
+      "phase": "P1",
+      "destination": "skills/poteto-mode/SKILL.md",
+      "reason": "已适配；见 validation-p1.md 两次真实新会话调用及手工功能样例",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "P1 resource checks plus workflow-level observations"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/SKILL.md.template"
+      },
+      "evidence": "validation-p1.md",
+      "dependencies": "from-template"
     },
     {
       "kind": "skills",
