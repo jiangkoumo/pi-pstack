@@ -1,6 +1,6 @@
 # pi-pstack upstream fidelity
 
-Files: 114  flagged: 4  overall kept (excluding Cursor substitutions): 4467/4752 = 94%
+Files: 115  flagged: 4  overall kept (excluding Cursor substitutions): 4500/4785 = 94%
 
 Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
@@ -14,7 +14,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/how/SKILL.md | 24 | 16 | 5 | 1 | 2 | 22 | 73% |  |
 | skills/principle-sequence-verifiable-units/SKILL.md | 15 | 11 | 1 | 3 | 0 | 6 | 73% |  |
 | skills/poteto-mode/playbooks/runtime-forensics.md | 17 | 13 | 1 | 3 | 0 | 12 | 76% |  |
-| skills/reflect/SKILL.md | 55 | 37 | 7 | 3 | 8 | 32 | 79% |  |
+| skills/reflect/SKILL.md | 55 | 37 | 7 | 3 | 8 | 48 | 79% |  |
 | skills/interrogate/SKILL.md | 52 | 39 | 5 | 3 | 5 | 29 | 83% |  |
 | skills/swarm/SKILL.md | 35 | 27 | 2 | 3 | 3 | 35 | 84% |  |
 | skills/poteto-mode/playbooks/trace-forensics.md | 24 | 21 | 1 | 2 | 0 | 10 | 88% |  |
@@ -72,6 +72,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/interrogate/references/lead-judgment.md | 29 | 29 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/interrogate/references/reviewer-prompt.md | 29 | 29 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/interrogate/references/rubric.md | 63 | 63 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/ketchup-video/SKILL.md | 33 | 33 | 0 | 0 | 0 | 35 | 100% |  |
 | skills/ketchup/SKILL.md | 82 | 82 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/maintain-formal-verification-skill/SKILL.md | 81 | 81 | 0 | 0 | 0 | 41 | 100% |  |
 | skills/poteto-help/references/recipes.md | 63 | 63 | 0 | 0 | 0 | 5 | 100% |  |
