@@ -1,6 +1,6 @@
 # pi-pstack upstream fidelity
 
-Files: 115  flagged: 4  overall kept (excluding Cursor substitutions): 4500/4785 = 94%
+Files: 149  flagged: 4  overall kept (excluding Cursor substitutions): 4753/5039 = 94%
 
 Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
@@ -8,7 +8,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 |---|---|---|---|---|---|---|---|---|
 | skills/make-bot-ui/SKILL.md | 73 | 0 | 0 | 73 | 2 | 0 | MISSING | ! |
 | skills/setup-pstack/SKILL.md | 53 | 0 | 0 | 53 | 9 | 0 | MISSING | ! |
-| skills/poteto-help/SKILL.md | 173 | 140 | 8 | 11 | 14 | 18 | 88% | ! |
+| skills/poteto-help/SKILL.md | 173 | 139 | 9 | 11 | 14 | 19 | 87% | ! |
 | skills/poteto-mode/playbooks/orchestrate.md | 204 | 183 | 15 | 4 | 2 | 45 | 91% | ! |
 | skills/poteto-mode/playbooks/worktree-cleanup.md | 30 | 21 | 7 | 2 | 0 | 59 | 70% |  |
 | skills/how/SKILL.md | 24 | 16 | 5 | 1 | 2 | 22 | 73% |  |
@@ -48,11 +48,11 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/poteto-mode/playbooks/eval.md | 37 | 35 | 0 | 1 | 1 | 27 | 97% |  |
 | skills/create-verification-skill/SKILL.md | 73 | 71 | 2 | 0 | 0 | 34 | 97% |  |
 | skills/how/references/explainer-prompt.md | 39 | 38 | 0 | 1 | 0 | 1 | 97% |  |
-| skills/statechart/SKILL.md | 77 | 75 | 1 | 1 | 0 | 27 | 97% |  |
 | skills/poteto-mode/references/bugbot-triage.md | 94 | 92 | 1 | 1 | 0 | 5 | 98% |  |
 | skills/reflect/references/synthesizer.md | 49 | 47 | 0 | 1 | 1 | 1 | 98% |  |
 | skills/why/references/synthesizer-prompt.md | 95 | 93 | 1 | 1 | 0 | 8 | 98% |  |
 | skills/benchmark-checklist/SKILL.md | 50 | 49 | 0 | 1 | 0 | 29 | 98% |  |
+| skills/statechart/SKILL.md | 105 | 103 | 0 | 2 | 0 | 27 | 98% |  |
 | skills/poteto-mode/playbooks/babysit.md | 104 | 102 | 1 | 0 | 1 | 36 | 99% |  |
 | agents/comment-sicko.md | 29 | 29 | 0 | 0 | 0 | 18 | 100% |  |
 | agents/poteto-agent.md | 10 | 8 | 0 | 0 | 2 | 2 | 100% |  |
@@ -62,7 +62,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/blast-radius/SKILL.md | 51 | 51 | 0 | 0 | 0 | 30 | 100% |  |
 | skills/bro/SKILL.md | 3 | 3 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/correct/SKILL.md | 28 | 28 | 0 | 0 | 0 | 22 | 100% |  |
-| skills/create-formal-verification-skill/SKILL.md | 51 | 51 | 0 | 0 | 0 | 52 | 100% |  |
+| skills/create-formal-verification-skill/SKILL.md | 51 | 51 | 0 | 0 | 0 | 62 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/README.md | 34 | 34 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/create-note.md | 36 | 36 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/search.md | 50 | 50 | 0 | 0 | 0 | 0 | 100% |  |
@@ -107,6 +107,40 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/reflect/references/judgment-reviewer.md | 44 | 42 | 0 | 0 | 2 | 0 | 100% |  |
 | skills/reflect/references/tooling-reviewer.md | 54 | 52 | 0 | 0 | 2 | 0 | 100% |  |
 | skills/sharpen/SKILL.md | 8 | 8 | 0 | 0 | 0 | 4 | 100% |  |
+| skills/statechart/references/render.md | 25 | 25 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/Counter/report.md | 4 | 4 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterAction/report.md | 6 | 6 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterDeadlock/report.md | 8 | 8 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterFan/report.md | 3 | 3 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterGuard/report.md | 5 | 5 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterInitPast/report.md | 6 | 6 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterInitPastHolds/report.md | 3 | 3 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterInstance/report.md | 4 | 4 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterJump/report.md | 5 | 5 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterLoop/report.md | 4 | 4 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterOrder/report.md | 8 | 8 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterRules/report.md | 7 | 7 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterStart/report.md | 5 | 5 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterStop/report.md | 2 | 2 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterTie/report.md | 9 | 9 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterTieInGraph/report.md | 3 | 3 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/CounterView/report.md | 9 | 9 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/DieHard/report.md | 4 | 4 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/FirstRule/report.md | 6 | 6 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/HiddenClock/report.md | 7 | 7 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/Login/report.md | 4 | 4 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/LoginGuarded/report.md | 5 | 5 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/LoginParallel/report.md | 12 | 12 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/MediaPlayer/report.md | 9 | 9 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/MediaPlayerFixed/report.md | 6 | 6 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/MediaPlayerProps/report.md | 12 | 12 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/PickWorker/report.md | 4 | 4 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/Shadow/report.md | 6 | 6 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/SpacedNames/report.md | 4 | 4 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/TwoPhase/report.md | 14 | 14 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/TwoPhaseFixed/report.md | 8 | 8 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/TypeGuard/report.md | 5 | 5 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/statechart/scripts/test/corpus/UserNoDeadlock/report.md | 4 | 4 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/tdd/SKILL.md | 32 | 32 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/technical-writing/SKILL.md | 136 | 136 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/typescript-best-practices/SKILL.md | 33 | 33 | 0 | 0 | 0 | 1 | 100% |  |
@@ -343,9 +377,6 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 ### skills/how/references/explainer-prompt.md
 - Use Read, Grep, and Glob as needed.
 
-### skills/statechart/SKILL.md
-- The first run installs TLC and Java with mise, which downloads about 305 MB and needs the network.
-
 ### skills/poteto-mode/references/bugbot-triage.md
 - Reply with a short reason and resolve the thread.
 
@@ -357,3 +388,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
 ### skills/benchmark-checklist/SKILL.md
 - Check the load average with uptime and the core count with nproc.
+
+### skills/statechart/SKILL.md
+- scripts/statechart.ts is TypeScript, so run it with a runtime that can execute TypeScript.
+- The first run installs TLC and Java with mise and needs the network.

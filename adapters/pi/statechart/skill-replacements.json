@@ -5,6 +5,11 @@
     "reason": "Route command through the Pi boundary, which never installs TLC automatically."
   },
   {
+    "from": "`scripts/statechart.ts` is TypeScript, so run it with a runtime that can execute TypeScript.",
+    "to": "The Pi entry runs the TypeScript compiler with the package's supported Node version; always use `node <package>/adapters/pi/statechart/entry.mjs` and never run the upstream compiler or launcher directly.",
+    "reason": "The raw upstream script or launcher can automatically install tools through mise; Pi must run through entry.mjs so the entry hook enforces the no-install boundary."
+  },
+  {
     "from": "The first run installs TLC and Java with mise and needs the network.",
     "to": "Set TLA2TOOLS (or TLA2TOOLS_JAR) and JAVA to the already-installed TLC jar and Java binary. Pi does not automatically install mise, TLC, or Java.",
     "reason": "The upstream automatic mise installation policy does not apply to Pi."

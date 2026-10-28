@@ -38,7 +38,7 @@
 | 技能 create-verification-skill | P5 | 采用自编 Pi 作者流程；本轮由 prove-it-works 的脚本化检查替代 |
 | 技能 how | P3 | investigation 流程已内嵌 how 的输出结构；完整版依赖子代理 |
 | 技能 maintain-verification-skill | P5 | 采用自编 Pi 作者流程；依赖并行源码读取 |
-| 技能 poteto-help | P5 | poteto-mode 路由表取代本批入口；完整技能索引随其余技能落地 |
+| 技能 poteto-help | P5 | 已适配完整技能索引；已吸收上游 519d36aa 的 statechart 措辞与 ketchup-video 行 |
 | 技能 setup-pstack | P2 | P2 已用 /setup-pstack 扩展命令替代：独立 JSON、实际模型目录与 thinking 校验，不沿用 .mdc；见 validation-p2.md |
 | 技能 show-me-your-work | P5 | principle-prove-it-works 现保留本地证据记录；TSV 决策轨迹依赖会话 transcript |
 | Benny 技能 reproduce-and-fix-issues | P5 | Cursor Benny/Slack/Linear 自动化不在 Pi 范围；本地替代为 Bug fix + 手动 issue 复现 |

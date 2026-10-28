@@ -28,6 +28,26 @@ async function fakeMise() {
   return bin;
 }
 
+test('generated statechart skill routes executable examples through the Pi entry', async () => {
+  const skill = await readFile(resolve(root, 'skills/statechart/SKILL.md'), 'utf8');
+  const body = skill.replace(/^---\n[\s\S]*?\n---\n/, '');
+  assert.ok(!body.includes('`scripts/statechart.ts` is TypeScript, so run it with a runtime that can execute TypeScript.'),
+    'generated guidance must not tell agents to run the raw TypeScript compiler');
+
+  const shellBlocks = [...body.matchAll(/^```(?:sh|bash|shell|zsh|console)[ \t]*\n([\s\S]*?)^```[ \t]*$/gm)];
+  assert.ok(shellBlocks.length > 0, 'the skill must include an executable shell example');
+  const commands = shellBlocks.flatMap(([, block]) => block.split('\n'))
+    .map(line => line.trim()).filter(line => line && !line.startsWith('#')).join('\n');
+  assert.doesNotMatch(commands, /\bscripts\/statechart(?:\.ts)?(?=$|[\s"'`;|&])/m,
+    'shell examples must not execute the upstream compiler or launcher');
+  assert.match(commands, /^(?:\$\s*)?node <package>\/adapters\/pi\/statechart\/entry\.mjs\s+SPEC\.tla\b/m,
+    'an executable Pi entry example must remain available');
+  assert.doesNotMatch(body, /\b(?:first|initial)[ -]run\s+(?:will\s+)?(?:automatically\s+)?(?:installs?|downloads?|sets?\s+up)\b/i,
+    'the skill must not promise installation on the first run');
+  assert.doesNotMatch(body, /\b(?:installs?|downloads?|sets?\s+up)\b[^.\n]*\b(?:on|during)\s+(?:the\s+)?(?:first|initial)[ -]run\b/i,
+    'the skill must not promise installation on the first run');
+});
+
 test('Pi adapter never installs TLC through mise and explains how to install it', async () => {
   const bin = await fakeMise();
   try {
