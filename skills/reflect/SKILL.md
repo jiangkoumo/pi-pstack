@@ -43,6 +43,10 @@ Move any Accepted item that a lint rule, script, metadata flag, or runtime check
 
 Present the synthesizer's full Accepted / Rejected / Backlog output and wait for explicit approval before applying any Accepted edit. The user picks the subset and may redirect routings. Skill changes affect every future agent in the org. Do not auto-apply.
 
+Never edit skills directly in a package installation directory or cache. Before requesting approval, show the persistent destination for each skill: project-local `.pi/skills/<skill>/` or global `~/.pi/agent/skills/<skill>/`. Include that destination in the proposed edit so the user approves both the content and its location. After approval, copy the installed skill's entire directory to the approved destination and edit that copy. If the skill already lives at the approved persistent destination, edit it there after approval. When maintaining a source repository with generated skills, edit its source template and regenerate instead of editing its generated Markdown. Never automatically open a PR, push, or submit changes to a remote repository.
+
+Pi keeps the first discovered skill when names collide. After copying, run `/reload` and verify that the resolved `/skill:<name>` path is the approved copy; do not assume a project path overrides a package or user skill. Report a collision before claiming the edit is active. Propose either disabling the competing resource through the host's resource settings or using a distinct skill name and updating its local references, and obtain approval for that change. Check the copy's relative references as well: copying its directory does not bring along dependencies outside that directory. Keep the original installed skill untouched.
+
 File each Backlog item to your team's devex or backlog tracker without waiting. Only the Accepted list waits for approval.
 
 Follow each approved row's Routing exactly:

@@ -4,7 +4,7 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync 
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
-import { normalize } from './watch-pr.mjs';
+import { main, normalize } from './watch-pr.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const script = resolve(root, 'scripts/watch-pr.mjs');
@@ -183,6 +183,45 @@ test('a timeout reports timedOut and exits nonzero', t => {
   assert.equal(snapshot.verdict, 'WAITING');
   assert.ok(snapshot.polls >= 1);
   assert.match(snapshot.reasons.join(','), /timeout/);
+});
+
+test('an interval longer than the timeout sleeps only for the remaining deadline', async t => {
+  const dir = sandbox(t, 'deadline');
+  const shim = ghShim(dir);
+  writeResponse(shim.state, 'response-last.json', prView({
+    statusCheckRollup: [{ __typename: 'CheckRun', name: 'unit', status: 'IN_PROGRESS', conclusion: null }],
+  }));
+  const started = Date.parse('2026-01-02T03:04:05Z');
+  let elapsed = 0;
+  let clockReads = 0;
+  const sleeps = [];
+  const output = [];
+  const result = await main(['--pr', '12', '--repo', root, '--interval', '30', '--timeout', '1'], {
+    out: line => output.push(line),
+    err: () => {},
+  }, {
+    env: { ...process.env, PSTACK_GH: join(shim.bin, 'gh'), GH_STATE: shim.state },
+    now: () => {
+      // The first snapshot consumes 250ms of the one-second budget.
+      if (clockReads++ === 1) elapsed = 250;
+      return new Date(started + elapsed);
+    },
+    sleep: async ms => {
+      assert.ok(ms <= 1000 - elapsed, `sleep ${ms} exceeds the remaining budget`);
+      sleeps.push(ms);
+      elapsed += ms;
+    },
+  });
+  assert.equal(result, 1);
+  assert.deepEqual(sleeps, [750]);
+  assert.equal(elapsed, 1000);
+  const snapshot = JSON.parse(output[0]);
+  assert.equal(snapshot.timedOut, true);
+  assert.equal(snapshot.verdict, 'WAITING');
+  assert.equal(snapshot.polls, 2);
+  assert.equal(snapshot.generatedAt, new Date(started + 1000).toISOString());
+  assert.ok(snapshot.reasons.includes('timeout'));
+  assert.equal(readFileSync(join(shim.state, 'count'), 'utf8'), '2');
 });
 
 test('missing gh is an explicit error, never a silent green', t => {
