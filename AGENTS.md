@@ -33,41 +33,11 @@
 - 不修改用户现有 Pi 全局配置来证明安装；优先使用隔离配置环境。
 - 交付记录已完成、实际验证结果、未完成及具体阻碍。
 
-## 子 agent 启动规则
+## 子 agent 与并行开发
 
-- 小任务可以用 subagent 插件：只读的工作（查代码、review、调研）随时可以用。要改文件的，同一时间最多一个，而且不开新分支。
-- 我要求并行开发或者用 Herdr pane 时：每个分支先用 herdr worktree create 建 worktree，再在这个 worktree 里新开一个可见的 pane，用 herdr agent start 启动子 agent，用 herdr agent prompt 派任务，不要用 subagent 插件。派完后把每个 pane 对应的 issue 编号、分支和 worktree 路径列给我。
+通用规则见全局 `~/.pi/agent/AGENTS.md`「子 agent 与并行开发」。本项目补充：
 
-## 并行开发（只在我明确要求并行时使用）
-
-### 角色
-- 你在主仓库里接到这个任务：你是主控。
-- 你在 Herdr worktree 里被分配了任务：你是子 agent。除了「主控」，其余规则都要遵守。
-
-### 任务来源：GitHub Issues
-- 不管我给的是什么（一段话、测试报告、链接），主控都先用 gh issue create 为每个任务建一个 issue，写清：问题或需求、来源证据、验收方式、所在分支、允许修改的文件。
-- 来源里推测的结论，在正文里标成「待验证」。
-- 建完把 issue 清单（编号、标题、分支、允许修改的文件）给我看，我确认后才开 worktree。
-- 分支名带上 issue 编号，比如 fix/12-loop。一个分支对应一个 issue。
-- 子 agent 开工前先用 gh issue view <编号> 读取任务，以 issue 内容为准。读不到就停下来报告，不要凭记忆开工。
-- 子 agent 的 commit message 带上 Fixes #编号，推送到 main 后 issue 会自动关闭。
-
-### 主控
-- 按改动的文件和模块来拆任务，两个 worktree 不能改同一个文件，包括生成的文件和它的源文件。有依赖关系的任务不要并行，最多同时开 3 个。
-- 共享文件（注册表、入口 index、CHANGELOG、AGENTS.md）不分给子 agent，由主控在合并后统一修改。
-- 只用 herdr worktree create 和 herdr worktree remove，从 main 的最新提交拉分支。派任务时写明 issue 编号和分支名。
-- 有子 agent 变成 blocked 时，先告诉我，不要替我回答。
-- 全部做完后，汇总每个子 agent 的报告，并附上每个分支的 git log main..<分支> --oneline 和 git diff main...<分支> --stat，再给出建议的合并顺序。
-- 我确认后按顺序逐个合并。从第二个分支开始，先 rebase 到最新的 main，重新跑检查，通过了再合并。
-- 全部合并完后，把各子 agent 的报告和 commit 作为评论发到对应 issue。清理 worktree、分支和推送都要等我确认。
-
-### 子 agent
-- 先跑一次检查，记下基线。只改分配给你的文件。
-- 修代码 bug：先补一个修复前失败、修复后通过的测试。加功能：为新行为补测试。文档任务：按「检查与交付」检查链接和状态描述，不需要补测试。
-- 实际情况和 Issue 描述冲突，或者需要改不属于你的文件时，停下来报告证据，不要自己扩大范围。
-- 检查通过后，一个任务一个 commit，commit message 带上 Fixes #编号，不要合并，不要 rebase，不要推送。
-- 最后按这个格式报告：
-  1. 完成了什么：每个任务的改动和原因
-  2. 验证：测试通过数和失败数；做了哪些真实行为验证，哪些没做。
-  3. 没完成的，或者和 Issue 不一致的地方
-  4. commit hash
+- 生成文件和它的源文件（如 `adapters/pi/overrides/*.md.template`）算同一个文件，不能拆给两个任务；注册表也算共享文件，留给主控。
+- 子 agent 开工前先跑一次 `npm test` 记下基线。修 bug 先补一个修复前失败、修复后通过的测试；加功能为新行为补测试；文档任务按「检查与交付」核对链接和状态描述。
+- 子 agent 报告里写明测试通过数和失败数，以及做了哪些真实行为验证、哪些没做。
+- 主控汇总时再附上每个分支的 `git diff main...<分支> --stat`。
