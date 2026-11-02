@@ -1,6 +1,6 @@
 # 上游逐项审计清单
 
-固定提交 f713f14203cd6420cec13cd7c55c32d598dbab68（pstack 0.15.25），57 个技能、23 份流程、2 个代理，共 82 项。已完整读取本批 82 个入口文件。机器记录 [port-map.json](port-map.json) 包含每项原路径、处理决定、阶段、具体文件目标、理由及原文 Markdown 相对链接。
+当前固定提交 c742dd61706fbacc1b95f1a20b7b988cf096ce6c（pstack 0.15.36），61 个技能（含 3 个 Benny 入口）、23 份流程、2 个代理，共 86 项。初始审计读取的 82 个入口与后续新增项的适配依据按下表保留；本次同步不代表所有入口都新增了真实模型行为验收。机器记录 [port-map.json](port-map.json) 包含每项原路径、处理决定、阶段、具体文件目标、理由及原文 Markdown 相对链接。
 
 ## 判据与证据边界
 
@@ -10,7 +10,7 @@
 
 对 how/why、arena、控制驱动、create-skill、Task、固定模型、会话路径、自动提交与外部写操作分别核对。没有把无关键词命中等同于没有依赖。高级流程所需的未移植入口通过主技能中必要步骤替代；原引用记录保留作后续阶段的审计线索。本阶段不承诺 deferred 技能的全部支持材料已适配或运行。
 
-汇总：ported 77，substitute 5，deferred 0。
+汇总：ported 81，substitute 5，deferred 0。
 
 ## 已适配（P1）
 
@@ -38,7 +38,7 @@
 | 技能 create-verification-skill | P5 | 采用自编 Pi 作者流程；本轮由 prove-it-works 的脚本化检查替代 |
 | 技能 how | P3 | investigation 流程已内嵌 how 的输出结构；完整版依赖子代理 |
 | 技能 maintain-verification-skill | P5 | 采用自编 Pi 作者流程；依赖并行源码读取 |
-| 技能 poteto-help | P5 | 已适配完整技能索引；已吸收上游 519d36aa 的 statechart 措辞与 ketchup-video 行 |
+| 技能 poteto-help | P5 | 已适配完整技能索引；已同步上游 c742dd61（0.15.36）的 Autopilot-stack 与带字幕 ketchup-video 说明 |
 | 技能 setup-pstack | P2 | P2 已用 /setup-pstack 扩展命令替代：独立 JSON、实际模型目录与 thinking 校验，不沿用 .mdc；见 validation-p2.md |
 | 技能 show-me-your-work | P5 | principle-prove-it-works 现保留本地证据记录；TSV 决策轨迹依赖会话 transcript |
 | Benny 技能 reproduce-and-fix-issues | P5 | Cursor Benny/Slack/Linear 自动化不在 Pi 范围；本地替代为 Bug fix + 手动 issue 复现 |
@@ -82,7 +82,7 @@
 | 流程 babysit | P5 | 已适配为 Pi PR 监视流程：模式声明、单 frontier、有界 /loop 轮询、显式推送/合并授权 |
 | 流程 multi-phase-plan | P5 | 已适配为 Pi 多阶段计划流程：计划为交付物、原型定悬案、执行需显式 go，默认不实现或提交 |
 | 流程 opening-a-pr | P5 | 已适配为 Pi PR 创建流程：推送与 PR 需显式授权、禁止 force-push/自动合并 |
-| 流程 orchestrate | P5 | 已适配为 Pi 大型项目协调流程：本地 store、受管 worktree、有界波次与显式落地授权 |
+| 流程 orchestrate | P5 | 已适配为 Pi agentic 大型项目协调流程：持久化 tracker、独立 worktree owner、宿主事件与有界监督、显式落地授权 |
 | 流程 perf-issue | P5 | 已适配为 Pi 单次性能修复流程：基线/后测、benchmark checklist、默认不提交或推送 |
 | 流程 refactoring | P5 | 已适配为 Pi 行为保持重构流程：先钉 contract、等价验证、默认不提交或推送 |
 | 流程 shipping | P5 | 已适配为 Pi 已验证 PR 落地流程：逐 PR 独立 verdict、patch-id 复核、显式落地授权 |
@@ -124,7 +124,7 @@
 | --- | --- | --- |
 | 技能 architect | P5 | 已适配为 Pi 设计草图流程：本地设计工件、可选 arena、真实约束检查，默认不提交或推送 |
 | 技能 arena | P5 | 已适配为 Pi 候选对比流程：受管 worktree 隔离、只读评审、角色模型，默认不合并或推送 |
-| 技能 interrogate | P5 | 已适配为 Pi 对抗审阅流程：只读评审白名单、角色模型、父代理核实发现，默认不提交 |
+| 技能 interrogate | P5 | 已适配为 Pi 对抗审阅流程：可写独立 worktree adversary 跑复现、角色模型映射、父代理按 Phase F 重跑命令核实发现，不直接改父工作树 |
 | 技能 no-comments | P5 | 已适配为 Pi 注释审阅流程：只读 Comment Sicko、人工核实发现，默认不提交 |
 | 技能 reflect | P5 | 已适配为 Pi 会话反思流程：只读当前会话证据、结构化编码，默认不提交 |
 | 技能 swarm | P5 | 已适配为 Pi 并行工作流：覆盖矩阵、受管 worktree、单 writer、原生完成通知，默认不合并 |
@@ -135,4 +135,4 @@
 ported 的技能与流程由技能清单导出。P2 的 setup-pstack 已由扩展命令替代，证据见 validation-p2.md；其余 substitute 条目仍需对应阶段实现及验收，deferred 已归零。审计归属不等于全量复刻。
 | 技能 create-formal-verification-skill | P5 | 已适配；正文保持上游，追加 Pi 宿主执行与产物落盘约定；见 docs/validation-stage-b-batch-two.md |
 | 技能 maintain-formal-verification-skill | P5 | 已适配；正文保持上游，追加 Pi 宿主执行与产物落盘约定；见 docs/validation-stage-b-batch-two.md |
-| 技能 statechart | P5 | 已同步到 076f4b2f；正文入口与安装说明由 skill-replacements.json 最小替换，Pi 执行边界追加在 skill-tail.md；见 docs/validation-statechart-sync.md |
+| 技能 statechart | P5 | 已统一固定到 c742dd61（0.15.36）；保留 0.15.34 TypeScript 编译器与 Pi 执行边界；见 docs/validation-statechart-ci.md |

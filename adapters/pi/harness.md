@@ -23,6 +23,8 @@ pstack skills originate from Cursor conventions. In Pi, this adapter specifies t
 | `inherit-parent` / unset role | `inherit` or omit model | Unset role preserves pi-subagents user defaults. Explicit inherit resolves to the exact parent model, preserving configured thinking as a validated suffix. |
 | Model validation | Strict exact match | Unknown models or unsupported thinking levels produce a visible configuration error and stop execution; never silent fallback. |
 
+Upstream setup describes an ordered `arena cross-judge pool`. Pi stores role preferences rather than that Cursor pool, so do not write a pool into `pstack.json` or treat `inherit` as a cross-family judge. Arena runs at most one independent judge from a different model family, using only available models authorized by the operator. Follow the arena skill for selection and its no-judge fallback; role configuration alone does not prove that such a judge can run.
+
 ## Subagents and Isolation
 
 | Cursor Concept | Pi Mapping | Constraints & Behavior |

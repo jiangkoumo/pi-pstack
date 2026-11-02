@@ -36,7 +36,7 @@ export async function runReviewDiffFixture(options = {}) {
   const agentDir = resolve(directory, 'agent');
   const cwd = resolve(directory, 'workspace');
   const diffPath = resolve(cwd, 'review.diff');
-  const frameworkPath = resolve(cwd, 'lead-judgment.md');
+  const frameworkPath = resolve(cwd, 'interrogate-skill.md');
   const canary = resolve(cwd, 'write-canary.txt');
   const secret = `DIFF_EVIDENCE_${randomUUID()}`;
   const requests = [];
@@ -66,7 +66,7 @@ export async function runReviewDiffFixture(options = {}) {
         assert.match(JSON.stringify(tools), new RegExp(secret), 'Parent must receive actual child evidence');
         call = { name: 'read', arguments: { path: frameworkPath } };
       } else if (parent) {
-        assert.match(JSON.stringify(tools.at(-1)), /Filtering Principles/);
+        assert.match(JSON.stringify(tools.at(-1)), /Verify each finding per arena Phase F/);
         content = `Intent: review change. Reviewers: A, B, C collected. Act On: sample.js:2 ${secret}. Consider: none. Noted: none. Dismissed: none. Agreement Map: all three independently read the same diff. Verdict: fix the proven issue; no edits applied.`;
       } else if (tools.length === 0) call = { name: 'write', arguments: { path: canary, content: 'unauthorized' } };
       else if (tools.length === 1) {
@@ -95,7 +95,7 @@ export async function runReviewDiffFixture(options = {}) {
     await Promise.all([mkdir(agentDir), mkdir(cwd)]);
     const diff = `diff --git a/sample.js b/sample.js\n--- a/sample.js\n+++ b/sample.js\n@@ -1 +1,2 @@\n export const sample = 1;\n+// ${secret}\n`;
     await writeFile(diffPath, diff);
-    await writeFile(frameworkPath, await readFile(resolve(root, 'skills/interrogate/references/lead-judgment.md'), 'utf8'));
+    await writeFile(frameworkPath, await readFile(resolve(root, 'skills/interrogate/SKILL.md'), 'utf8'));
     const settings = { defaultProjectTrust: 'never', subagents: { asyncByDefault: false, intercomBridge: { mode: 'off' } }, retry: { enabled: false }, compaction: { enabled: false } };
     await writeFile(resolve(agentDir, 'settings.json'), JSON.stringify(settings));
     await new Promise(accept => server.listen(0, '127.0.0.1', accept));

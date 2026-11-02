@@ -1,45 +1,43 @@
 # pi-pstack upstream fidelity
 
-Files: 149  flagged: 4  overall kept (excluding Cursor substitutions): 4753/5039 = 94%
+Files: 145  flagged: 3  overall kept (excluding Cursor substitutions): 4459/4720 = 94%
 
 Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
 | File | Upstream | Kept | Reworded | Lost | Cursor subst | Port-only | Kept % | Flag |
 |---|---|---|---|---|---|---|---|---|
 | skills/make-bot-ui/SKILL.md | 73 | 0 | 0 | 73 | 2 | 0 | MISSING | ! |
-| skills/setup-pstack/SKILL.md | 53 | 0 | 0 | 53 | 9 | 0 | MISSING | ! |
-| skills/poteto-help/SKILL.md | 173 | 139 | 9 | 11 | 14 | 19 | 87% | ! |
-| skills/poteto-mode/playbooks/orchestrate.md | 204 | 183 | 15 | 4 | 2 | 45 | 91% | ! |
+| skills/setup-pstack/SKILL.md | 55 | 0 | 0 | 55 | 9 | 0 | MISSING | ! |
+| skills/poteto-help/SKILL.md | 174 | 141 | 8 | 11 | 14 | 18 | 88% | ! |
 | skills/poteto-mode/playbooks/worktree-cleanup.md | 30 | 21 | 7 | 2 | 0 | 59 | 70% |  |
 | skills/how/SKILL.md | 24 | 16 | 5 | 1 | 2 | 22 | 73% |  |
 | skills/principle-sequence-verifiable-units/SKILL.md | 15 | 11 | 1 | 3 | 0 | 6 | 73% |  |
 | skills/poteto-mode/playbooks/runtime-forensics.md | 17 | 13 | 1 | 3 | 0 | 12 | 76% |  |
-| skills/reflect/SKILL.md | 55 | 37 | 7 | 3 | 8 | 48 | 79% |  |
-| skills/interrogate/SKILL.md | 52 | 39 | 5 | 3 | 5 | 29 | 83% |  |
+| skills/reflect/SKILL.md | 58 | 38 | 8 | 3 | 9 | 46 | 78% |  |
 | skills/swarm/SKILL.md | 35 | 27 | 2 | 3 | 3 | 35 | 84% |  |
 | skills/poteto-mode/playbooks/trace-forensics.md | 24 | 21 | 1 | 2 | 0 | 10 | 88% |  |
-| skills/arena/SKILL.md | 45 | 33 | 3 | 1 | 8 | 33 | 89% |  |
 | skills/poteto-mode/playbooks/visual-parity.md | 19 | 17 | 1 | 1 | 0 | 9 | 90% |  |
 | skills/figure-it-out/SKILL.md | 44 | 40 | 3 | 1 | 0 | 30 | 91% |  |
 | skills/automate-me/SKILL.md | 93 | 83 | 6 | 1 | 3 | 36 | 92% |  |
-| skills/principle-explain-the-number/SKILL.md | 13 | 12 | 1 | 0 | 0 | 0 | 92% |  |
+| skills/interrogate/SKILL.md | 26 | 24 | 0 | 2 | 0 | 35 | 92% |  |
 | skills/recall/SKILL.md | 53 | 49 | 4 | 0 | 0 | 48 | 92% |  |
 | skills/principle-prove-it-works/SKILL.md | 14 | 13 | 0 | 1 | 0 | 2 | 93% |  |
 | skills/why/references/sources/code-archaeology.md | 14 | 13 | 1 | 0 | 0 | 9 | 93% |  |
 | skills/architect/SKILL.md | 61 | 56 | 2 | 2 | 1 | 34 | 93% |  |
 | skills/maintain-verification-skill/SKILL.md | 47 | 44 | 3 | 0 | 0 | 30 | 94% |  |
+| skills/principle-explain-the-number/SKILL.md | 16 | 15 | 1 | 0 | 0 | 0 | 94% |  |
 | skills/why/SKILL.md | 104 | 90 | 5 | 1 | 8 | 42 | 94% |  |
 | skills/no-comments/SKILL.md | 36 | 34 | 1 | 1 | 0 | 25 | 94% |  |
+| skills/poteto-mode/SKILL.md | 247 | 225 | 9 | 3 | 10 | 151 | 95% |  |
 | skills/poteto-mode/playbooks/shipping.md | 40 | 37 | 2 | 0 | 1 | 25 | 95% |  |
 | skills/poteto-mode/playbooks/autonomous-run.md | 21 | 19 | 1 | 0 | 1 | 42 | 95% |  |
 | skills/poteto-mode/playbooks/session-pickup.md | 20 | 19 | 1 | 0 | 0 | 37 | 95% |  |
 | skills/why/references/sources/slack.md | 20 | 19 | 1 | 0 | 0 | 8 | 95% |  |
-| skills/poteto-mode/SKILL.md | 235 | 214 | 8 | 3 | 10 | 145 | 95% |  |
 | skills/poteto-help/references/prompting.md | 44 | 42 | 2 | 0 | 0 | 5 | 96% |  |
 | skills/poteto-mode/playbooks/perf-issue.md | 23 | 21 | 1 | 0 | 1 | 36 | 96% |  |
 | skills/principle-boundary-discipline/SKILL.md | 22 | 21 | 0 | 1 | 0 | 2 | 96% |  |
 | skills/poteto-mode/playbooks/hillclimb.md | 46 | 43 | 2 | 0 | 1 | 45 | 96% |  |
-| skills/poteto-mode/playbooks/multi-phase-plan.md | 53 | 48 | 2 | 0 | 3 | 21 | 96% |  |
+| skills/poteto-mode/playbooks/multi-phase-plan.md | 54 | 49 | 2 | 0 | 3 | 21 | 96% |  |
 | skills/poteto-mode/playbooks/bug-fix.md | 27 | 25 | 1 | 0 | 1 | 24 | 96% |  |
 | skills/poteto-mode/playbooks/feature.md | 31 | 30 | 1 | 0 | 0 | 38 | 97% |  |
 | skills/show-me-your-work/SKILL.md | 66 | 63 | 1 | 1 | 1 | 36 | 97% |  |
@@ -48,13 +46,14 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/poteto-mode/playbooks/eval.md | 37 | 35 | 0 | 1 | 1 | 27 | 97% |  |
 | skills/create-verification-skill/SKILL.md | 73 | 71 | 2 | 0 | 0 | 34 | 97% |  |
 | skills/how/references/explainer-prompt.md | 39 | 38 | 0 | 1 | 0 | 1 | 97% |  |
+| skills/arena/SKILL.md | 54 | 45 | 0 | 1 | 8 | 34 | 98% |  |
 | skills/poteto-mode/references/bugbot-triage.md | 94 | 92 | 1 | 1 | 0 | 5 | 98% |  |
 | skills/reflect/references/synthesizer.md | 49 | 47 | 0 | 1 | 1 | 1 | 98% |  |
 | skills/why/references/synthesizer-prompt.md | 95 | 93 | 1 | 1 | 0 | 8 | 98% |  |
 | skills/benchmark-checklist/SKILL.md | 50 | 49 | 0 | 1 | 0 | 29 | 98% |  |
 | skills/statechart/SKILL.md | 105 | 103 | 0 | 2 | 0 | 27 | 98% |  |
-| skills/poteto-mode/playbooks/babysit.md | 104 | 102 | 1 | 0 | 1 | 36 | 99% |  |
-| agents/comment-sicko.md | 29 | 29 | 0 | 0 | 0 | 18 | 100% |  |
+| skills/poteto-mode/playbooks/babysit.md | 103 | 101 | 1 | 0 | 1 | 36 | 99% |  |
+| agents/comment-sicko.md | 29 | 29 | 0 | 0 | 0 | 20 | 100% |  |
 | agents/poteto-agent.md | 10 | 8 | 0 | 0 | 2 | 2 | 100% |  |
 | skills/architect/references/design-red-flags.md | 38 | 38 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/architect/references/rationale-template.md | 31 | 31 | 0 | 0 | 0 | 0 | 100% |  |
@@ -62,25 +61,22 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/blast-radius/SKILL.md | 51 | 51 | 0 | 0 | 0 | 30 | 100% |  |
 | skills/bro/SKILL.md | 3 | 3 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/correct/SKILL.md | 28 | 28 | 0 | 0 | 0 | 22 | 100% |  |
-| skills/create-formal-verification-skill/SKILL.md | 51 | 51 | 0 | 0 | 0 | 62 | 100% |  |
+| skills/create-formal-verification-skill/SKILL.md | 56 | 56 | 0 | 0 | 0 | 56 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/README.md | 34 | 34 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/create-note.md | 36 | 36 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/search.md | 50 | 50 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/how/references/explorer-prompt.md | 15 | 15 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/in-your-own-words/SKILL.md | 1 | 1 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/interrogate/references/code-quality-review.md | 60 | 60 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/interrogate/references/lead-judgment.md | 29 | 29 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/interrogate/references/reviewer-prompt.md | 29 | 29 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/interrogate/references/rubric.md | 63 | 63 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/ketchup-video/SKILL.md | 33 | 33 | 0 | 0 | 0 | 35 | 100% |  |
+| skills/ketchup-video/SKILL.md | 43 | 43 | 0 | 0 | 0 | 50 | 100% |  |
 | skills/ketchup/SKILL.md | 82 | 82 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/maintain-formal-verification-skill/SKILL.md | 81 | 81 | 0 | 0 | 0 | 41 | 100% |  |
-| skills/poteto-help/references/recipes.md | 63 | 63 | 0 | 0 | 0 | 5 | 100% |  |
+| skills/poteto-help/references/recipes.md | 64 | 64 | 0 | 0 | 0 | 5 | 100% |  |
 | skills/poteto-mode/playbooks/authoring-a-skill.md | 12 | 11 | 0 | 0 | 1 | 25 | 100% |  |
-| skills/poteto-mode/playbooks/autopilot-full.md | 58 | 58 | 0 | 0 | 0 | 48 | 100% |  |
-| skills/poteto-mode/playbooks/autopilot-stack.md | 24 | 24 | 0 | 0 | 0 | 35 | 100% |  |
+| skills/poteto-mode/playbooks/autopilot-full.md | 57 | 57 | 0 | 0 | 0 | 49 | 100% |  |
+| skills/poteto-mode/playbooks/autopilot-stack.md | 11 | 11 | 0 | 0 | 0 | 36 | 100% |  |
 | skills/poteto-mode/playbooks/investigation.md | 13 | 13 | 0 | 0 | 0 | 35 | 100% |  |
 | skills/poteto-mode/playbooks/opening-a-pr.md | 73 | 72 | 0 | 0 | 1 | 75 | 100% |  |
+| skills/poteto-mode/playbooks/orchestrate.md | 54 | 54 | 0 | 0 | 0 | 54 | 100% |  |
 | skills/poteto-mode/playbooks/pause-safely.md | 15 | 15 | 0 | 0 | 0 | 38 | 100% |  |
 | skills/poteto-mode/playbooks/prototype.md | 28 | 28 | 0 | 0 | 0 | 34 | 100% |  |
 | skills/principle-attack-the-premise/SKILL.md | 18 | 18 | 0 | 0 | 0 | 0 | 100% |  |
@@ -255,7 +251,9 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 - this role runs on the parent chat model, which is how Auto users stay on Auto) as the options.
 - Prefer AskQuestion over free text.
 - For panel roles (arena runners, architect runners, interrogate reviewers) the value is a list, and one subagent runs per entry, alias entries included, so the list length sets the count.
-- arena cross-judge pool is also a list, but Arena selects one value from it whose model family differs from the parent's when possible.
+- arena cross-judge pool is also a list, but Arena runs one judge.
+- It tries only values from a family other than the parent's, in list order, so order it by preference.
+- An inherit-parent or auto value never judges.
 - swarm workers is the default model for every worker unless a race or comparison assigns another model per arm.
 - Every real slug written must be in the detected set.
 - inherit-parent and auto always pass.
@@ -290,12 +288,6 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 - Guide page 6 covers opening, babysitting, and landing a PR.
 - Guide page 9 covers each of these.
 
-### skills/poteto-mode/playbooks/orchestrate.md
-- "cloud" unless the task needs this machine:
-- Reading local transcripts under agent-transcripts/.
-- The dead session's store lock clears itself on the next write.
-- orch replaces a lock whose holder pid is gone.
-
 ### skills/poteto-mode/playbooks/worktree-cleanup.md
 - The transcript scan is slow, so background it.
 - Per Autonomy, clean and merged and not-in-use proceeds.
@@ -318,22 +310,14 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 - generalPurpose, agent mode (readonly:
 - One Task call, subagenttype:
 
-### skills/interrogate/SKILL.md
-- Each reviewer gets subagenttype:
-- generalPurpose, readonly:
-- With no family match, use Reviewer A's default.
-
 ### skills/swarm/SKILL.md
 - generalPurpose, environment:
 - "cloud", runinbackground:
-- true, and the step 4 model, left unset for auto or inherit-parent.
+- true, and the step 3 model, left unset for auto or inherit-parent.
 
 ### skills/poteto-mode/playbooks/trace-forensics.md
 - Parse large artifacts in a subagent (the principle-guard-the-context-window skill) and keep the reduced finding in the main thread.
 - Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section.
-
-### skills/arena/SKILL.md
-- Spawn all N subagents in one message with runinbackground:
 
 ### skills/poteto-mode/playbooks/visual-parity.md
 - /loop per component until the diff is zero.
@@ -343,6 +327,10 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
 ### skills/automate-me/SKILL.md
 - The system prompt names the workspace's agent-transcripts/ directory.
+
+### skills/interrogate/SKILL.md
+- Read the interrogate reviewers line in place of arena runners.
+- Spawn each adversary as generalPurpose.
 
 ### skills/principle-prove-it-works/SKILL.md
 - Commit it only for large or complex work where the trail has to be auditable later, like a big port or migration (the show-me-your-work skill).
@@ -358,9 +346,9 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 - Spawn Task with subagenttype:
 
 ### skills/poteto-mode/SKILL.md
-- Use fast mode only when the job is urgent, meaning CI or trunk is red or a person is blocked on the result right now.
 - If the family has no slug at that level and speed, use its nearest slug.
-- Use the role's line or default and say so.
+- When the calling skill has no fallback, use the closest valid slug of the role's family from the error's list of valid slugs, or omit model so the subagent runs on the parent model when the list has none.
+- When the calling skill's fallback runs out of slugs without saying what to do next, omit model too.
 
 ### skills/principle-boundary-discipline/SKILL.md
 - Trust internal code unconditionally.
@@ -376,6 +364,9 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
 ### skills/how/references/explainer-prompt.md
 - Use Read, Grep, and Glob as needed.
+
+### skills/arena/SKILL.md
+- Spawn all N subagents in one message with runinbackground:
 
 ### skills/poteto-mode/references/bugbot-triage.md
 - Reply with a short reason and resolve the thread.
