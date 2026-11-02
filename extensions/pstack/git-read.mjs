@@ -8,8 +8,9 @@
  * no shell ever parses the command string.
  */
 import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 
-export const DEFAULT_RANGE = 'main...HEAD';
+const execGit = promisify(execFile);
 export const READ_SUBCOMMANDS = Object.freeze(['diff', 'show', 'log']);
 
 const OPTIONS = {
@@ -33,7 +34,7 @@ const OPTIONS = {
 const VALUE_OPTIONS = {
   diff: [/^--unified=\d{1,4}$/, /^-U\d{1,4}$/, /^--inter-hunk-context=\d{1,4}$/],
   show: [/^--unified=\d{1,4}$/, /^-U\d{1,4}$/],
-  log: [/^-n\d{1,6}$/, /^--max-count=\d{1,6}$/, /^--skip=\d{1,6}$/],
+  log: [/^-n\d{1,6}$/, /^-\d{1,6}$/, /^--max-count=\d{1,6}$/, /^--skip=\d{1,6}$/],
 };
 
 // Revision-ish token: starts with an object character, then rev syntax. A leading
@@ -71,7 +72,8 @@ export function parseGitReadCommand(command) {
   let revision = false;
   let pathMode = false;
   let pathCount = 0;
-  for (const token of tokens.slice(2)) {
+  for (let index = 2; index < tokens.length; index += 1) {
+    const token = tokens[index];
     if (token === '--') {
       if (pathMode) return reject('Only one `--` separator is allowed.');
       pathMode = true;
@@ -85,6 +87,15 @@ export function parseGitReadCommand(command) {
       continue;
     }
     if (token.startsWith('-')) {
+      if (subcommand === 'log' && token === '-n') {
+        const count = tokens[index + 1];
+        if (typeof count !== 'string' || !/^\d{1,6}$/.test(count)) {
+          return reject('Git log -n requires a count of 1 to 6 digits.');
+        }
+        argv.push(token, count);
+        index += 1;
+        continue;
+      }
       if (OPTIONS[subcommand].has(token) || isValueOption(subcommand, token)) {
         argv.push(token);
         continue;
@@ -96,12 +107,10 @@ export function parseGitReadCommand(command) {
     argv.push(token);
   }
   if (pathMode && pathCount === 0) return reject('`--` must be followed by a path.');
-  if (!revision) {
-    // Reviewers compare against the branch point by default; diff and log inherit
-    // it, while show needs a single object to display.
-    argv.splice(1, 0, subcommand === 'show' ? 'HEAD' : DEFAULT_RANGE);
-  }
-  return { ok: true, argv };
+  // Only execution knows the repository's default branch. Explicit revisions
+  // bypass that lookup; show always needs a single object rather than a range.
+  if (!revision && subcommand === 'show') argv.splice(1, 0, 'HEAD');
+  return { ok: true, argv, needsDefaultRange: !revision && subcommand !== 'show' };
 }
 
 function messageOf(error, stderr) {
@@ -109,13 +118,36 @@ function messageOf(error, stderr) {
   return detail.split('\n')[0].slice(0, 400);
 }
 
+/** Resolve commit refs in priority order, without accepting a same-named tag. */
+async function defaultRange(options) {
+  for (const [ref, name] of [
+    ['refs/remotes/origin/HEAD', 'origin/HEAD'],
+    ['refs/heads/main', 'main'],
+    ['refs/heads/master', 'master'],
+  ]) {
+    try {
+      await execGit('git', ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`], options);
+      return `${name}...HEAD`;
+    } catch {
+      // Missing, unborn or dangling refs are not usable defaults. Try the next.
+    }
+  }
+  return null;
+}
+
 /** Execute a whitelisted command in a repository. Never reaches a shell. */
 export async function runGitRead(command, { cwd, timeoutMs = 20000, maxBytes = 2 * 1024 * 1024 } = {}) {
   if (typeof cwd !== 'string' || !cwd) return reject('A working directory is required.');
   const parsed = parseGitReadCommand(command);
   if (!parsed.ok) return parsed;
+  const options = { cwd, timeout: timeoutMs, maxBuffer: maxBytes, encoding: 'utf8' };
+  if (parsed.needsDefaultRange) {
+    const range = await defaultRange(options);
+    if (!range) return reject('Cannot resolve the default branch (tried origin/HEAD, main, master). Pass an explicit revision or range.');
+    parsed.argv.splice(1, 0, range);
+  }
   return new Promise(resolvePromise => {
-    execFile('git', parsed.argv, { cwd, timeout: timeoutMs, maxBuffer: maxBytes, encoding: 'utf8' }, (error, stdout, stderr) => {
+    execFile('git', parsed.argv, options, (error, stdout, stderr) => {
       const output = { argv: parsed.argv, stdout: stdout ?? '', stderr: stderr ?? '' };
       if (error) {
         return resolvePromise({ ok: false, reason: `git ${parsed.argv.join(' ')} failed: ${messageOf(error, stderr)}`, ...output });

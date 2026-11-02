@@ -6,6 +6,10 @@ import { resolve } from 'node:path';
 import { createJiti } from 'jiti';
 import { SessionManager } from '@earendil-works/pi-coding-agent';
 import { spawnSync } from 'node:child_process';
+import { findPackageJSON } from 'node:module';
+import { pathToFileURL } from 'node:url';
+import { validateToolArguments } from '@earendil-works/pi-ai';
+import { parseTlcOptions } from '../extensions/pstack/verification-exec.mjs';
 
 test('B2 run directory and module probes respect an isolated PI_CODING_AGENT_DIR', () => extensionFixture(async ({ directory, commands, handlers, ctx }) => {
   await commands.get('poteto')('on', ctx);
@@ -84,6 +88,68 @@ async function extensionFixture(run) {
     await rm(directory, { recursive: true, force: true });
   }
 }
+
+// Resolve the optional test validator through the host's dependency tree, rather
+// than adding pi-schema to this package's runtime or development dependencies.
+async function piSchema(t) {
+  let manifest;
+  try {
+    manifest = findPackageJSON('@earendil-works/pi-schema', import.meta.resolve('@earendil-works/pi-coding-agent'));
+  } catch (error) {
+    if (error.code !== 'ERR_MODULE_NOT_FOUND') throw error;
+  }
+  if (!manifest) {
+    t.skip('pi-schema is unavailable through the installed Pi host dependencies (older Pi is supported).');
+    return null;
+  }
+  const metadata = JSON.parse(await readFile(manifest, 'utf8'));
+  return import(pathToFileURL(resolve(manifest, '..', metadata.main)).href);
+}
+
+test('Pi 1.5 pi-schema compiles the registered plain JSON tool schemas and reports command: missing', async t => {
+  const schema = await piSchema(t);
+  if (!schema) return;
+  await extensionFixture(async ({ tools }) => {
+    for (const name of ['verification_exec', 'git_read']) {
+      const tool = tools.get(name);
+      assert.ok(tool, `Tool must be registered: ${name}`);
+      const parameters = JSON.parse(JSON.stringify(tool.parameters));
+      assert.deepEqual(tool.parameters, parameters, 'Tool parameters must remain plain JSON Schema');
+      const validator = schema.compile(tool.parameters, { coerce: true, unresolvedRefs: 'reject' });
+      const command = name === 'git_read' ? 'git log --oneline -n 20' : 'npm test';
+      assert.deepEqual(validator.parse({ command }), { ok: true, value: { command } });
+      const missing = validator.parse({});
+      assert.equal(missing.ok, false);
+      assert.ok(missing.errors.some(error => error.path === '/command' && error.message === 'missing'));
+      assert.throws(() => validateToolArguments(tool, { name, arguments: {} }), /command: missing/);
+    }
+  });
+});
+
+test('Pi 1.5 pi-schema coerces TLC options and the converted array still passes the TLC whitelist', async t => {
+  const schema = await piSchema(t);
+  if (!schema) return;
+  await extensionFixture(async ({ tools }) => {
+    const tool = tools.get('verification_exec');
+    const validator = schema.compile(tool.parameters, { coerce: true, unresolvedRefs: 'reject' });
+    for (const option of ['-cleanup', '-metadir', '-config', '--exec=sh']) {
+      const input = { command: 'tlc', spec: 'Model.tla', config: 'Model.cfg', options: option };
+      const parsed = validator.parse(input);
+      assert.equal(parsed.ok, true);
+      assert.deepEqual(parsed.value.options, [option]);
+      assert.equal(input.options, option, 'Coercion must not modify the original call');
+      const args = validateToolArguments(tool, { name: tool.name, arguments: input });
+      assert.deepEqual(args, parsed.value, 'Host validation must match direct pi-schema compilation');
+      const restricted = parseTlcOptions(args.options);
+      if (option === '-cleanup') {
+        assert.deepEqual(restricted, { ok: true, argv: ['-cleanup'] });
+      } else {
+        assert.equal(restricted.ok, false, option);
+        assert.match(restricted.reason, /whitelist|not accepted/);
+      }
+    }
+  });
+});
 
 const deprecation = '/poteto-mode 已弃用，请改用 /poteto on|off|status，将在 0.5.0 移除';
 
