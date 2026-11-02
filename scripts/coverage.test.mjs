@@ -12,7 +12,6 @@ const headings = text => [...text.replace(/```[^\n]*\n[\s\S]*?```/g, '').matchAl
 const load = name => read(`skills/${name}/SKILL.md`);
 const groups = {
   architect: ['design-red-flags.md', 'rationale-template.md', 'runner-prompt.md'],
-  interrogate: ['code-quality-review.md', 'lead-judgment.md', 'reviewer-prompt.md', 'rubric.md'],
   reflect: ['divergent-reviewer.md', 'judgment-reviewer.md', 'synthesizer.md', 'tooling-reviewer.md'],
   why: ['epistemics.md', 'investigator-prompt.md', 'source-playbook.md', 'synthesizer-prompt.md',
     ...['code-archaeology', 'databricks', 'datadog', 'incident-postmortem', 'linear', 'notion', 'sentry', 'slack'].map(n => `sources/${n}.md`)],
@@ -66,16 +65,25 @@ test('task 4: arena keeps a private selection rubric and distinct cross-judge/pi
   const body = await load('arena');
   for (const h of headings(await read('upstream/pstack/skills/arena/SKILL.md'))) assert(headings(body).includes(h), h);
   assert.match(body, /Candidates only see the task/);
+  assert.match(body, /The judge is never from the parent's family/);
+  assert.match(body, /so it never judges/);
   assert.match(body, /Don't spawn it while candidates are still writing/);
   assert.match(body, /criterion by criterion/);
+  assert.match(body, /compare with the cross-judge when Phase C ran one/);
+  assert.match(body, /or that Phase C skipped the judge/);
   assert.match(body, /reframe and re-run/i);
 });
 
-test('task 4: review verdict is a lead judgment and does not authorize fixes', async () => {
+test('task 4: interrogate fans out writable worktree adversaries, verifies by rerunning commands, and does not apply fixes', async () => {
   const body = await load('interrogate');
-  for (const h of ['Intent', 'Reviewers', 'Act On', 'Consider', 'Noted', 'Dismissed', 'Agreement Map']) assert(headings(body).includes(h), h);
-  assert.match(body, /same template for every reviewer/);
-  assert.match(body, /Do NOT auto-apply changes/);
+  for (const h of ['Interrogate', 'Frame', 'Fan out', 'Verify', 'Output']) assert(headings(body).includes(h), h);
+  assert(localLinks(body).includes('../in-your-own-words/SKILL.md'));
+  assert(localLinks(body).includes('../arena/SKILL.md'));
+  assert.match(body, /Copy the scope's uncommitted changes into each worktree\./);
+  assert.match(body, /Verify each finding per arena Phase F by rerunning its command\./);
+  assert.match(body, /Skip arena Phases C, D, and E\./);
+  assert.match(body, /Do not apply fixes\./);
+  for (const field of ['Intent', 'Findings', 'Dropped']) assert.match(body, new RegExp(`- \\*\\*${field}\\*\\*:`));
   assert.doesNotMatch(body, /one distinct lens|cannot be reproduced is not a blocker/);
 });
 
