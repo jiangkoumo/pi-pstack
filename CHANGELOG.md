@@ -8,7 +8,7 @@ Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned t
 - Replace the Orchestrate CLI with agentic coordination; move interrogate to arena adversaries in isolated writable worktrees; align cross-family judges, Autopilot-stack delivery without merging, and decision-before-measurement guidance. Keep Pi model, writer, and publication authorization gates.
 - Sync ketchup-video subtitled slides, burned-in captions, hold timing, font checks, and explicit rendering fallback.
 - Remove 17 retired files: two local orchestration scripts, four interrogate reference documents and their four source templates, and seven upstream snapshot files. The [complete deletion list](docs/validation-upstream-01536.md) preserves every path.
-- Fix git_read log counts (`-n N`, `-nN`, `-N`) and resolve default ranges through origin/HEAD, main, then master; require an explicit range when none exists.
+- Fix git_read log counts (`-n N`, `-nN`, `-N`) and resolve default ranges through origin/HEAD, main, then master; require an explicit range when none exists. On the default branch, or when HEAD is an ancestor of it, git_read no longer injects an empty `base...HEAD` range, so `git log -1` shows the latest commit and `git diff --stat` shows working-tree changes.
 - Lock development Pi packages to 1.5.0 and test the registered tool schemas with pi-schema, including missing commands, array coercion, and TLC option rejection. Keep the package version and declared compatibility ranges unchanged.
 
 ## 0.3.15

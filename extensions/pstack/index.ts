@@ -32,7 +32,7 @@ export default function pstack(pi: ExtensionAPI) {
   if (typeof pi.registerTool === 'function') pi.registerTool({
     name: 'git_read',
     label: 'Git Read',
-    description: 'Read-only Git inspection for reviewers. Only `git diff`, `git show` and `git log` run; `diff` and `log` default to <default-branch>...HEAD, resolving origin/HEAD, then main, then master; an unresolved default is refused. Any other git command, option or shell composition is refused with a reason.',
+    description: 'Read-only Git inspection for reviewers. Only `git diff`, `git show` and `git log` run; `diff` and `log` default to <default-branch>...HEAD, resolving origin/HEAD, then main, then master, unless HEAD is that branch or an ancestor of it, in which case the command runs unchanged; an unresolved default is refused. Any other git command, option or shell composition is refused with a reason.',
     parameters: {
       type: 'object',
       properties: {

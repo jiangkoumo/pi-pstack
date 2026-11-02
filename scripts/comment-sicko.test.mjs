@@ -336,6 +336,60 @@ for (const command of ['git log --oneline -n 1', 'git log --oneline -n 20', 'git
   });
 }
 
+test('git-read on master keeps HEAD history and working-tree changes without a range', async t => {
+  const { cwd, git } = await defaultBranchFixture(t);
+  git(['checkout', '-q', 'master']);
+  const path = resolve(cwd, 'app.js');
+  for (const value of [1, 2]) {
+    await writeFile(path, `export const value = ${value};\n`);
+    git(['add', 'app.js']);
+    git(['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-q', '-m', `master-${value}`]);
+  }
+  await writeFile(path, 'export const value = 3;\n');
+  for (const suffix of ['-1', '--oneline -n 20', '--oneline -n2']) {
+    const log = await runGitRead(`git log ${suffix}`, { cwd });
+    assert.equal(log.ok, true, log.reason);
+    assert.deepEqual(log.argv, ['log', ...suffix.split(' ')]);
+    assert.match(log.stdout, /master-2/);
+  }
+  for (const suffix of ['--stat', '--stat -- app.js']) {
+    const diff = await runGitRead(`git diff ${suffix}`, { cwd });
+    assert.equal(diff.ok, true, diff.reason);
+    assert.deepEqual(diff.argv, ['diff', ...suffix.split(' ')]);
+    assert.match(diff.stdout, /app\.js/);
+    assert.match(diff.stdout, /1 insertion\(\+\), 1 deletion\(-\)/);
+  }
+});
+
+test('git-read keeps the command when HEAD is an ancestor of the default branch', async t => {
+  const { cwd, git } = await defaultBranchFixture(t);
+  git(['branch', '-f', 'master', 'feature']);
+  git(['checkout', '-q', '--detach', 'HEAD~1']);
+  for (const command of ['git log -1', 'git diff --stat']) {
+    const result = await runGitRead(command, { cwd });
+    assert.equal(result.ok, true, result.reason);
+    assert.deepEqual(result.argv, command.split(' ').slice(1));
+    if (command.includes('log')) {
+      assert.match(result.stdout, /base/);
+      assert.doesNotMatch(result.stdout, /feature/);
+    }
+  }
+});
+
+test('git-read preserves explicit ranges and revisions on master and feature', async t => {
+  const { cwd, git } = await defaultBranchFixture(t);
+  for (const branch of ['master', 'feature']) {
+    git(['checkout', '-q', branch]);
+    for (const command of ['git log --oneline master...feature', 'git log -1 HEAD', 'git diff --stat master...feature', 'git diff HEAD -- app.js']) {
+      const expected = command.split(' ').slice(1);
+      const result = await runGitRead(command, { cwd });
+      assert.equal(result.ok, true, result.reason);
+      assert.deepEqual(result.argv, expected);
+      assert.equal(result.stdout, git(expected));
+    }
+  }
+});
+
 test('git-read default range prefers origin/HEAD, then main, then master', async t => {
   const { cwd, git } = await defaultBranchFixture(t);
   git(['branch', 'main', 'master']);

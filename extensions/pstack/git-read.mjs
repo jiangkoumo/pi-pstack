@@ -119,7 +119,7 @@ function messageOf(error, stderr) {
 }
 
 /** Resolve commit refs in priority order, without accepting a same-named tag. */
-async function defaultRange(options) {
+async function defaultBranch(options) {
   for (const [ref, name] of [
     ['refs/remotes/origin/HEAD', 'origin/HEAD'],
     ['refs/heads/main', 'main'],
@@ -127,7 +127,7 @@ async function defaultRange(options) {
   ]) {
     try {
       await execGit('git', ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`], options);
-      return `${name}...HEAD`;
+      return { ref, name };
     } catch {
       // Missing, unborn or dangling refs are not usable defaults. Try the next.
     }
@@ -142,9 +142,14 @@ export async function runGitRead(command, { cwd, timeoutMs = 20000, maxBytes = 2
   if (!parsed.ok) return parsed;
   const options = { cwd, timeout: timeoutMs, maxBuffer: maxBytes, encoding: 'utf8' };
   if (parsed.needsDefaultRange) {
-    const range = await defaultRange(options);
-    if (!range) return reject('Cannot resolve the default branch (tried origin/HEAD, main, master). Pass an explicit revision or range.');
-    parsed.argv.splice(1, 0, range);
+    const base = await defaultBranch(options);
+    if (!base) return reject('Cannot resolve the default branch (tried origin/HEAD, main, master). Pass an explicit revision or range.');
+    try {
+      await execGit('git', ['merge-base', '--is-ancestor', 'HEAD', base.ref], options);
+    } catch (error) {
+      if (error.code !== 1) return reject(`Cannot compare HEAD with the default branch: ${messageOf(error, error.stderr)}`);
+      parsed.argv.splice(1, 0, `${base.name}...HEAD`);
+    }
   }
   return new Promise(resolvePromise => {
     execFile('git', parsed.argv, options, (error, stdout, stderr) => {
