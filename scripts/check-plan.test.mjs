@@ -116,7 +116,7 @@ test('requires bounded execution, explicit-go and all reserved operation gates',
   reject(p => { p.execution.maxTurns = 101; }, /1\.\.100/);
   reject(p => { p.execution.maxParallel = 0; }, /1\.\.10/);
   reject(p => { p.execution.approval = 'automatic'; }, /explicit-go-required/);
-  reject(p => { p.execution.playbook = 'scripts/orch/orch.ts'; }, /bundled/);
+  reject(p => { p.execution.playbook = 'skills/poteto-mode/playbooks/feature.md'; }, /bundled/);
   reject(p => { p.execution.reservedActions = ['commit']; }, /missing merge authorization gate/);
   reject(p => { p.prs[0].merge.gate = 'automatic'; }, /explicit-authorization/);
 });
@@ -218,6 +218,21 @@ test('documented Pi loops parse with the actual runtime and valid shell quoting'
     const syntax = spawnSync('bash', ['-n', '-c', parsed.until.command], { cwd: root, encoding: 'utf8' });
     assert.equal(syntax.status, 0, syntax.stderr);
   }
+});
+
+test('orchestrate playbook documents agentic Topology and Supervision with Pi substitutions', () => {
+  const markdown = readFileSync(resolve(root, 'skills/poteto-mode/playbooks/orchestrate.md'), 'utf8');
+  assert.match(markdown, /^#### Topology$/m);
+  assert.match(markdown, /^#### Supervision$/m);
+  assert.match(markdown, /pi-subagents `subagent`/);
+  assert.match(markdown, /notes\.md/);
+  assert.match(markdown, /<run-id>\/orchestrate\//);
+  assert.match(markdown, /isolated local worktree/);
+  assert.match(markdown, /gh pr view/);
+  assert.match(markdown, /gh pr checks/);
+  assert.match(markdown, /origin pr view/);
+  assert.match(markdown, /origin pr checks/);
+  assert.match(markdown, /do not invoke any `orch` CLI/i);
 });
 
 test('documented babysit predicate accepts only a pinned, clean, thread-free snapshot', () => {

@@ -93,9 +93,6 @@
     "pstack/skills/poteto-mode/scripts/bootstrap.ts",
     "pstack/skills/poteto-mode/scripts/check-plan.mjs",
     "pstack/skills/poteto-mode/scripts/check-plan.test.ts",
-    "pstack/skills/poteto-mode/scripts/orch/orch.test.ts",
-    "pstack/skills/poteto-mode/scripts/orch/orch.ts",
-    "pstack/skills/poteto-mode/scripts/orch/store.ts",
     "pstack/skills/poteto-mode/scripts/package.json",
     "pstack/skills/poteto-mode/scripts/watch-pr/cli.test.ts",
     "pstack/skills/poteto-mode/scripts/watch-pr/cli.ts",
@@ -948,18 +945,8 @@
       "kind": "external-skills",
       "matches": [
         {
-          "line": 17,
-          "text": "- **Worker / verifier.** Always `environment: \"cloud\"` unless the task needs this machine: `control-ui` or `control-cli` runtime verification (from `cursor-team-kit`). Reading local transcripts under `agent-transcripts/`. Simulators and local IDE state. Auth that exists only here. Cloud agents cannot read the local store, so their briefs inline what they need or point at repo paths. Prefer fewer, broader workers. One writer per worktree or branch (principle-separate-before-serializing-shared-state). Run a unit's verifier on a different model family from its worker."
-        }
-      ]
-    },
-    {
-      "path": "pstack/skills/poteto-mode/playbooks/orchestrate.md",
-      "kind": "cursor-paths-history",
-      "matches": [
-        {
-          "line": 17,
-          "text": "- **Worker / verifier.** Always `environment: \"cloud\"` unless the task needs this machine: `control-ui` or `control-cli` runtime verification (from `cursor-team-kit`). Reading local transcripts under `agent-transcripts/`. Simulators and local IDE state. Auth that exists only here. Cloud agents cannot read the local store, so their briefs inline what they need or point at repo paths. Prefer fewer, broader workers. One writer per worktree or branch (principle-separate-before-serializing-shared-state). Run a unit's verifier on a different model family from its worker."
+          "line": 10,
+          "text": "- **A fresh worker for each independent task.** Its kickoff carries everything it needs, including each upstream report it depends on, pasted in full. Workers can't see their siblings. Run workers on a new cloud VM (`environment: \"cloud\"`) unless the work needs this machine: a `control-ui` or `control-cli` runtime check (from `cursor-team-kit`), local transcripts, a simulator, or auth that exists only here. Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section."
         }
       ]
     },
@@ -968,26 +955,12 @@
       "kind": "cursor-runtime",
       "matches": [
         {
-          "line": 15,
-          "text": "- **Coordinator (this chat).** Local. Frames, authors briefs, drains the inbox, owns the human report, makes judgment calls. It never authors or edits code. Conflicted merges, chain rebases, and code changes are always tasks. Mechanically landing a verified unit (fast-forward or clean cherry-pick of a worker's commit, then push) is bookkeeping the coordinator may do itself on repos where local git is cheap. Queueing finished work behind an idle stacker is how a deadline harvests nothing. The loop is agentic end to end. Agents are spawned, resumed, and drained only through the Task tool. Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section. State reads and writes go through `scripts/orch/orch.ts` at drain points, one command in and one line out. The CLI never spawns, waits, or wakes anything."
+          "line": 5,
+          "text": "Run it with your own tools. Spawn workers with `Task`. Keep the program's state in the Project tracker (`notes.md`) and the Project store. Watch each PR with PR and CI event subscriptions when your harness has them. Call no scripts, run no polling loops, and never relay messages or status between agents."
         },
         {
-          "line": 16,
-          "text": "- **Sub-coordinator.** Always local, durable, one per track, and only when the program exceeds what one coordinator's drains can manage. A track the coordinator can drain itself needs no middle layer. Each nested layer re-pays a full orientation preamble, and a blocking sub-coordinator hides its children while the parent idles. Owns its track's units and boards, authors its workers' briefs, spawns its own workers and verifiers (nesting works to depth 3, and a nested spawn has the full Task schema including `environment`). Rolls up aggregates at wave boundaries. Never forwards raw child reports. Cap in-flight children at what one drain can process, roughly ten, as a rolling window. Never as blocking batches, which cost the slowest child of every batch."
-        },
-        {
-          "line": 17,
-          "text": "- **Worker / verifier.** Always `environment: \"cloud\"` unless the task needs this machine: `control-ui` or `control-cli` runtime verification (from `cursor-team-kit`). Reading local transcripts under `agent-transcripts/`. Simulators and local IDE state. Auth that exists only here. Cloud agents cannot read the local store, so their briefs inline what they need or point at repo paths. Prefer fewer, broader workers. One writer per worktree or branch (principle-separate-before-serializing-shared-state). Run a unit's verifier on a different model family from its worker."
-        }
-      ]
-    },
-    {
-      "path": "pstack/skills/poteto-mode/playbooks/orchestrate.md",
-      "kind": "bun-runtime",
-      "matches": [
-        {
-          "line": 23,
-          "text": "Create `orchestrate/<project-slug>/` in the current agent's store (path in the system prompt). Every file has exactly one writer. Owners publish facts, readers aggregate at read time. Use `bun scripts/orch/orch.ts` for bookkeeping, written below as `orch`, while its canonical plain TSV and JSON stay readable without the CLI."
+          "line": 10,
+          "text": "- **A fresh worker for each independent task.** Its kickoff carries everything it needs, including each upstream report it depends on, pasted in full. Workers can't see their siblings. Run workers on a new cloud VM (`environment: \"cloud\"`) unless the work needs this machine: a `control-ui` or `control-cli` runtime check (from `cursor-team-kit`), local transcripts, a simulator, or auth that exists only here. Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section."
         }
       ]
     },
@@ -1098,44 +1071,12 @@
       ]
     },
     {
-      "path": "pstack/skills/poteto-mode/scripts/orch/orch.test.ts",
-      "kind": "bun-runtime",
-      "matches": [
-        {
-          "line": 1,
-          "text": "import { afterEach, describe, expect, it } from \"bun:test\";"
-        },
-        {
-          "line": 66,
-          "text": "  const result = Bun.spawnSync([\"git\", \"-C\", repo, ...args]);"
-        },
-        {
-          "line": 252,
-          "text": "  const result = Bun.spawnSync([process.execPath, SCRIPT, ...args], { env });"
-        },
-        {
-          "line": 423,
-          "text": "    const exited = Bun.spawn([\"true\"]);"
-        }
-      ]
-    },
-    {
-      "path": "pstack/skills/poteto-mode/scripts/orch/orch.ts",
-      "kind": "bun-runtime",
-      "matches": [
-        {
-          "line": 1,
-          "text": "#!/usr/bin/env bun"
-        }
-      ]
-    },
-    {
       "path": "pstack/skills/poteto-mode/scripts/package.json",
       "kind": "bun-runtime",
       "matches": [
         {
           "line": 6,
-          "text": "    \"test\": \"bun test orch watch-pr check-plan.test.ts\","
+          "text": "    \"test\": \"bun test watch-pr check-plan.test.ts\","
         },
         {
           "line": 13,

@@ -18,7 +18,7 @@
 | #803 check-plan 多反引号行内代码 | [check-plan.mjs](../scripts/check-plan.mjs) 的 `parsePlan` 提取唯一顶层 `pstack-plan` fenced block 后执行 `JSON.parse`；`validatePlan` 校验 JSON 字段、依赖与证据，不扫描 prose 标点或解析行内代码 | 上游行内代码匹配补丁不适用；补充本地 fence 解析验证，生产代码无需修改 |
 | #802 watch-pr sleep 截止保护 | [watch-pr.mjs](../scripts/watch-pr.mjs) 的 `main` 计算 `remaining = timeout * 1000 - elapsed`，先处理 `remaining <= 0`，再 `await sleep(Math.min(options.interval * 1000, remaining))` | 已具备等效保护；增加 interval 大于 timeout 的确定性回归测试 |
 | #801 watch-pr Fork 同名分支 | 同文件 `resolvePrNumber`、`fetchSnapshot`、`normalize` 与主循环均围绕单个 PR 的快照及轮询；没有 `orderStack` 或多 PR head/base 拓扑排序 | 当前不适用；不能据此宣称支持 Fork 堆栈排序。将来增加堆栈能力时须区分仓库身份与分支名 |
-| #804 orch 优先活跃 PR | [orch.mjs](../scripts/orch.mjs) 的 `loadPlan` 读取本地 JSON plan contract，`storePath`/`readStore` 读取 `units.json`；`effectiveUnits`/`computeProgress` 根据本地状态与 `dependsOn` 计算下一批任务 | 不从远程分支反查 PR，历史关闭/合并 PR 的选择问题不适用。`publishCommands` 可在显式执行时 push、创建 PR 或评论，但这不是远程 PR 发现/筛选功能；本次未执行发布 |
+| #804 orch 优先活跃 PR | 当时 `scripts/orch.mjs`（已在 0.15.36 移除）的 `loadPlan` 读取本地 JSON plan contract，`storePath`/`readStore` 读取 `units.json`；`effectiveUnits`/`computeProgress` 根据本地状态与 `dependsOn` 计算下一批任务 | 不从远程分支反查 PR，历史关闭/合并 PR 的选择问题不适用。`publishCommands` 可在显式执行时 push、创建 PR 或评论，但这不是远程 PR 发现/筛选功能；本次未执行发布 |
 | #805 worktree-audit GNU stat/date | [worktree-audit.mjs](../scripts/worktree-audit.mjs) 使用 Node.js `existsSync`、`git worktree list --porcelain`；提交日期取自 `git log --format=%cI`，不执行 shell `stat -f` 或 `date -r` | GNU/BSD stat/date 参数差异不适用。该脚本实际未使用任务说明中提及的 `statSync`；可选 `--size` 仍调用 `du -sk`，因此不把它描述成完全无外部命令依赖的实现 |
 
 ### check-plan 解析证据
