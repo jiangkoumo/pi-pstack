@@ -53,7 +53,7 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/benchmark-checklist/SKILL.md | 50 | 49 | 0 | 1 | 0 | 29 | 98% |  |
 | skills/statechart/SKILL.md | 105 | 103 | 0 | 2 | 0 | 27 | 98% |  |
 | skills/poteto-mode/playbooks/babysit.md | 103 | 101 | 1 | 0 | 1 | 36 | 99% |  |
-| agents/comment-sicko.md | 29 | 29 | 0 | 0 | 0 | 18 | 100% |  |
+| agents/comment-sicko.md | 29 | 29 | 0 | 0 | 0 | 20 | 100% |  |
 | agents/poteto-agent.md | 10 | 8 | 0 | 0 | 2 | 2 | 100% |  |
 | skills/architect/references/design-red-flags.md | 38 | 38 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/architect/references/rationale-template.md | 31 | 31 | 0 | 0 | 0 | 0 | 100% |  |
