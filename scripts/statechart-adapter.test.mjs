@@ -6,6 +6,7 @@ import { homedir, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { assertUpstreamManifest, sha256Lf } from './upstream-manifest.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const entry = resolve(root, 'adapters/pi/statechart/entry.mjs');
@@ -250,9 +251,20 @@ test('Pele 1.9.0 renders chart.mmd to themeable SVG', async (t) => {
   assert.ok(svg.includes('s0') && svg.includes('s1') && svg.includes('s2') && svg.includes('s3'), 'SVG must include states');
 });
 
-test('adapter keeps the pinned upstream scripts byte-identical', async () => {
-  const map = JSON.parse(await readFile(resolve(root, 'docs/port-map.json'), 'utf8'));
+test('adapter keeps the pinned upstream scripts and render reference matching the sha256 manifest', async () => {
+  const [map, manifest] = await Promise.all([
+    readFile(resolve(root, 'docs/port-map.json'), 'utf8').then(JSON.parse),
+    readFile(resolve(root, 'docs/upstream-manifest.json'), 'utf8').then(JSON.parse),
+  ]);
+  assert.equal(manifest.upstreamSha, map.commit);
+  assert.equal(Object.hasOwn(manifest.files, 'skills/statechart/SKILL.md'), false, 'Port-adapted SKILL.md must stay out of upstream-manifest.json');
   for (const resource of map.preparedResources.filter(entry => entry.adaptation.strategy === 'verbatim')) {
-    assert.deepEqual(await readFile(resolve(root, resource.destination)), await readFile(resolve(root, 'upstream', resource.source)), resource.destination);
+    for (const relPath of [resource.destination, `upstream/${resource.source}`]) {
+      const expected = manifest.files[relPath];
+      assert.ok(expected, `${relPath}: missing from docs/upstream-manifest.json`);
+      const actual = sha256Lf(await readFile(resolve(root, relPath)));
+      assert.equal(actual, expected, `${relPath}: sha256 mismatch (expected ${expected}, actual ${actual})`);
+    }
   }
+  await assertUpstreamManifest(root);
 });

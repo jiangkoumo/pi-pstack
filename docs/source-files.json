@@ -1,5 +1,5 @@
 {
-  "commit": "eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10",
+  "commit": "c742dd61706fbacc1b95f1a20b7b988cf096ce6c",
   "files": [
     {
       "path": "pstack/agents/comment-sicko.md",
@@ -31,7 +31,7 @@
     },
     {
       "path": "pstack/skills/arena/SKILL.md",
-      "blob": "b198b9e425c6b3e6ff01ca789b97ca5b4abb7ce2"
+      "blob": "7580c3c9a7770d81b9dd7a537d9caa7362c04279"
     },
     {
       "path": "pstack/skills/automate-me/SKILL.md",
@@ -55,7 +55,7 @@
     },
     {
       "path": "pstack/skills/create-formal-verification-skill/SKILL.md",
-      "blob": "b97609fd2649e95ea2960e720b3b581a6c2cb75a"
+      "blob": "92f7aa4fa966b857dd7fcc994b3c59650767c878"
     },
     {
       "path": "pstack/skills/create-verification-skill/references/feature-map-example/create-note.md",
@@ -94,28 +94,12 @@
       "blob": "4b2a476a9017863032c8dba9d12f0a2026943292"
     },
     {
-      "path": "pstack/skills/interrogate/references/code-quality-review.md",
-      "blob": "16581250d81044c7e80fe234c4970a3f7b7fc98a"
-    },
-    {
-      "path": "pstack/skills/interrogate/references/lead-judgment.md",
-      "blob": "3b41346c9c3f5c35453d34f1c77374b7e9346aa9"
-    },
-    {
-      "path": "pstack/skills/interrogate/references/reviewer-prompt.md",
-      "blob": "ef7bff3d77c35a0af2a9947187ccee15465657f4"
-    },
-    {
-      "path": "pstack/skills/interrogate/references/rubric.md",
-      "blob": "8dab195ab840554bfe5e74e9b5ca0d9edbe9b496"
-    },
-    {
       "path": "pstack/skills/interrogate/SKILL.md",
-      "blob": "94946d22d8bf896bfcc2c54d363df5af3d17b4ca"
+      "blob": "169f5b478f4cb53a4c5ab6046576034b4b07cfe8"
     },
     {
       "path": "pstack/skills/ketchup-video/SKILL.md",
-      "blob": "69aa72aba763ae1836f8440d88e03e2928eb3719"
+      "blob": "c0c614288dea9f413a418064d7e7d37791dd9e5e"
     },
     {
       "path": "pstack/skills/ketchup/SKILL.md",
@@ -143,11 +127,11 @@
     },
     {
       "path": "pstack/skills/poteto-help/references/recipes.md",
-      "blob": "048e0750451aa801a4cf7ed59fa9ed4624c0f1ec"
+      "blob": "cc7a4e6828f5bfc3bcbf5954876358074718f45c"
     },
     {
       "path": "pstack/skills/poteto-help/SKILL.md",
-      "blob": "bf430fcd520e94748f1e1dbf93f6799e803d747a"
+      "blob": "a0604c9c4e63c7f798f19f33acd8a74ccb5b8531"
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/authoring-a-skill.md",
@@ -155,19 +139,19 @@
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/autonomous-run.md",
-      "blob": "e6b88703cf327a76bcdd424429345ac0efeca67e"
+      "blob": "af3bf11609a24020f678f859f13a65710ab67fbd"
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/autopilot-full.md",
-      "blob": "068882379d9bdc2298052e7762d67ac795715baf"
+      "blob": "bbc5b3751ad789cfbd92f8937a2e84de365509ad"
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/autopilot-stack.md",
-      "blob": "d7bdc289e045e8bc7da97b4ddfccc8d6c9ed0800"
+      "blob": "819862c8fe7b756c8571eed410a30a09625673d9"
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/babysit.md",
-      "blob": "51549ab2da11e5905342bbb3aadb93685c8ac348"
+      "blob": "14d5783d447ba3530d038c9dffa514f2492a54e0"
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/bug-fix.md",
@@ -191,15 +175,15 @@
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/multi-phase-plan.md",
-      "blob": "27e99947bd20575e2ff503dbfba985a4f0fa298e"
+      "blob": "7101aa71dbc08f2b84baa227a7bd589f800f13e8"
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/opening-a-pr.md",
-      "blob": "d729a7a06c5b67e406b081e1777114bc03b66f4a"
+      "blob": "4a92c501f184ea24392d59a9889ce2f08e8e9201"
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/orchestrate.md",
-      "blob": "4ccb24d76c5e190125cecc99d4a9b5c9eb2932d9"
+      "blob": "b6e5f5661a1e6b4778845de53f331cee3486905b"
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/pause-safely.md",
@@ -251,23 +235,11 @@
     },
     {
       "path": "pstack/skills/poteto-mode/scripts/check-plan.mjs",
-      "blob": "c8626766cee4cc4a2736fe438a1aea5c1f1b28ce"
+      "blob": "c3ddc398997d29d3c97a414e5c2b37172b901254"
     },
     {
       "path": "pstack/skills/poteto-mode/scripts/check-plan.test.ts",
-      "blob": "fd966c2b5fb6e99c12070c553906765c7bd900d8"
-    },
-    {
-      "path": "pstack/skills/poteto-mode/scripts/orch/orch.test.ts",
-      "blob": "2ef435d7d6f464a396d23158d4bcaae08f19c94d"
-    },
-    {
-      "path": "pstack/skills/poteto-mode/scripts/orch/orch.ts",
-      "blob": "14cb5139a91745a58780a81d8a1b40ef67d9504d"
-    },
-    {
-      "path": "pstack/skills/poteto-mode/scripts/orch/store.ts",
-      "blob": "417368918d2a6e2589c0221ade5c65535ffe05f1"
+      "blob": "cd1debfa31579068dc41b8657b7de3b341be29a0"
     },
     {
       "path": "pstack/skills/poteto-mode/scripts/watch-pr/cli.test.ts",
@@ -283,19 +255,19 @@
     },
     {
       "path": "pstack/skills/poteto-mode/scripts/watch-pr/github.test.ts",
-      "blob": "54722a940aeeff3d8c8cdea5fe7e796296bb44c4"
+      "blob": "4e58938389bb8ac6f3728aea65c56e30ed047a5e"
     },
     {
       "path": "pstack/skills/poteto-mode/scripts/watch-pr/github.ts",
-      "blob": "4828b0299672a4696e6844132c1caedb7ebbbd8b"
+      "blob": "123a33b19f807cff4c641fff3d44f9a02ba449e0"
     },
     {
       "path": "pstack/skills/poteto-mode/scripts/watch-pr/policy.test.ts",
-      "blob": "6dae16da71800fb06eb37a7e3b296a8d27275b08"
+      "blob": "966b7536754602e2550bf7245eed2124af623b76"
     },
     {
       "path": "pstack/skills/poteto-mode/scripts/watch-pr/policy.ts",
-      "blob": "cabadb9bf96f4d8c4c0426d77d0cbdab80fbe3e5"
+      "blob": "8179f2d8ba5bf675feb3b1449161360827031518"
     },
     {
       "path": "pstack/skills/poteto-mode/scripts/watch-pr/render.ts",
@@ -307,7 +279,7 @@
     },
     {
       "path": "pstack/skills/poteto-mode/scripts/watch-pr/types.ts",
-      "blob": "6c94e0a687f8e48f91acffd21f725320dd66e659"
+      "blob": "60b9abcac983fc0a4319428c1be145dc110a8cc5"
     },
     {
       "path": "pstack/skills/poteto-mode/scripts/watch-pr/watch-pr",
@@ -315,11 +287,11 @@
     },
     {
       "path": "pstack/skills/poteto-mode/scripts/worktree-audit.sh",
-      "blob": "743c4e9250ba95000f90db10ef6ba47d8a106461"
+      "blob": "47e08919d7b08c32923a7bdaaa70b17ca708f5f6"
     },
     {
       "path": "pstack/skills/poteto-mode/SKILL.md",
-      "blob": "21993f546032ca37671d5f1caf39c9a82ab4fa9d"
+      "blob": "2dd5e76fde228141d3fe78b0b09ca68456b49531"
     },
     {
       "path": "pstack/skills/principle-attack-the-premise/SKILL.md",
@@ -347,7 +319,7 @@
     },
     {
       "path": "pstack/skills/principle-explain-the-number/SKILL.md",
-      "blob": "1e180c14aefe49a3b2a515320398e08c3ebeb57d"
+      "blob": "3948ad34092437918f366e2cbb270e9ae31977fb"
     },
     {
       "path": "pstack/skills/principle-fix-root-causes/SKILL.md",
@@ -439,11 +411,11 @@
     },
     {
       "path": "pstack/skills/reflect/SKILL.md",
-      "blob": "998ae6530fe294791c3a1daa635b36e2947fcca2"
+      "blob": "9bb153bd2121e49d73a7af7d55ef372079889e62"
     },
     {
       "path": "pstack/skills/setup-pstack/SKILL.md",
-      "blob": "cb61b8d3ee5d2a1b8fa403d8b99ed8d2e18f77df"
+      "blob": "91f1127f8b14415fef9698b02a64d3d0bdef4f54"
     },
     {
       "path": "pstack/skills/sharpen/SKILL.md",
@@ -2091,7 +2063,7 @@
     },
     {
       "path": "pstack/skills/swarm/SKILL.md",
-      "blob": "b0b1eb83363853843ccf1524917b83d0c16d2cd8"
+      "blob": "9cd32247b4f381bb020cbbf0fc546ba71407d558"
     },
     {
       "path": "pstack/skills/tdd/SKILL.md",
@@ -2170,16 +2142,5 @@
       "blob": "b5fe93f8b78f58b06e0bf245a6b5b8faae4300e8"
     }
   ],
-  "sourceOverrides": [
-    {
-      "path": "pstack/skills/statechart/",
-      "commit": "519d36aa98955bf680db01bcde5fdfba686dc901",
-      "reason": "Statechart compiler sync for #47; ketchup-video is pinned separately; other sources retain the base commit."
-    },
-    {
-      "path": "pstack/skills/ketchup-video/",
-      "commit": "519d36aa98955bf680db01bcde5fdfba686dc901",
-      "reason": "New ketchup-video skill for #46; runtime acceptance boundaries are recorded separately."
-    }
-  ]
+  "sourceOverrides": []
 }

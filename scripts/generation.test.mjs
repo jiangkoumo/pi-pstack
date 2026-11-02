@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { assertUpstreamManifest, sha256Lf } from './upstream-manifest.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const blob = bytes => createHash('sha1').update('blob ' + bytes.length + '\0').update(bytes).digest('hex');
@@ -102,14 +103,55 @@ test('prepared references are generated, checked for drift, and have accepted st
   assert.equal(await readFile(target, 'utf8'), expected);
 }));
 
-test('statechart snapshot includes its compiler, test corpus, and rendering guide', async () => {
-  const map = JSON.parse(await readFile(resolve(root, 'docs/port-map.json'), 'utf8'));
+test('statechart snapshot includes its compiler, test corpus, and rendering guide verified against upstream-manifest.json', async () => {
+  const [map, manifest] = await Promise.all([
+    readFile(resolve(root, 'docs/port-map.json'), 'utf8').then(JSON.parse),
+    readFile(resolve(root, 'docs/upstream-manifest.json'), 'utf8').then(JSON.parse),
+  ]);
   const sources = new Set(map.preparedResources.map(resource => resource.destination));
   for (const destination of ["skills/statechart/scripts/statechart.ts","skills/statechart/scripts/run.ts","skills/statechart/scripts/test/corpus/CounterInstance/CounterInstance.tla","skills/statechart/scripts/test/corpus/DieHard/graph.dot","skills/statechart/references/render.md"]) {
     assert(sources.has(destination), 'Missing packaged compiler dependency: ' + destination);
-    assert.deepEqual(await readFile(resolve(root, destination)), await readFile(resolve(root, 'upstream/pstack', destination)));
+    for (const relPath of [destination, `upstream/pstack/${destination}`]) {
+      const expected = manifest.files[relPath];
+      assert.ok(expected, `${relPath}: missing from docs/upstream-manifest.json`);
+      const actual = sha256Lf(await readFile(resolve(root, relPath)));
+      assert.equal(actual, expected, `${relPath}: sha256 mismatch (expected ${expected}, actual ${actual})`);
+    }
   }
+  await assertUpstreamManifest(root);
 });
+
+test('upstream-manifest --check normalizes CRLF, excludes adapted files, and prints file and expected/actual hashes on mismatch', () => fixture(async dir => {
+  const manifest = JSON.parse(await readFile(resolve(dir, 'docs/upstream-manifest.json'), 'utf8'));
+  for (const adapted of ['skills/tdd/SKILL.md', 'skills/statechart/SKILL.md', 'agents/poteto-agent.md']) {
+    assert.equal(Object.hasOwn(manifest.files, adapted), false, `Port-adapted file must not be in manifest: ${adapted}`);
+  }
+  const runManifestCheck = () => {
+    const r = spawnSync(process.execPath, [resolve(dir, 'scripts/upstream-manifest.mjs'), '--check', '--root', dir], { cwd: dir, encoding: 'utf8' });
+    assert.ifError(r.error);
+    return { code: r.status, output: r.stdout + r.stderr };
+  };
+
+  // CRLF line endings normalize to LF before hashing.
+  const targetRel = 'skills/statechart/references/render.md';
+  const targetAbs = resolve(dir, targetRel);
+  const original = await readFile(targetAbs, 'utf8');
+  await writeFile(targetAbs, original.replace(/\r?\n/g, '\r\n'), 'utf8');
+  assert.equal(runManifestCheck().code, 0, 'CRLF must normalize to LF before hashing');
+
+  // Byte modification fails and reports path, expected sha256, and actual sha256.
+  const mutated = original + '\n';
+  await writeFile(targetAbs, mutated, 'utf8');
+  const expectedHash = manifest.files[targetRel];
+  const actualHash = sha256Lf(mutated);
+  const failed = runManifestCheck();
+  assert.equal(failed.code, 1);
+  assert.match(failed.output, new RegExp(`${targetRel.replace(/\//g, '\\/')}.*expected ${expectedHash}.*actual ${actualHash}`));
+
+  // Restoring passes again.
+  await writeFile(targetAbs, original, 'utf8');
+  assert.equal(runManifestCheck().code, 0);
+}));
 
 test('prepared resources cannot escape their source-owned destination', () => fixture(async dir => {
   await mutateJSON(dir, 'docs/port-map.json', map => { map.preparedResources[0].destination = 'docs/escape.md'; });
