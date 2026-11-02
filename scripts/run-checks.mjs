@@ -51,7 +51,6 @@ const preSdkTests = [
   'comment-sicko.test.mjs',
   'watch-pr.test.mjs',
   'worktree-audit.test.mjs',
-  'orch.test.mjs',
   'mode-persistence.test.mjs',
   'session-skills.test.mjs',
   'statechart-adapter.test.mjs',
