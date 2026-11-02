@@ -83,6 +83,25 @@ const overrides = new Set();
 const entries = new Map();
 const prepared = map.preparedResources ?? [];
 assert(Array.isArray(prepared), 'preparedResources must be an array');
+const removed = map.removedResources ?? [];
+assert(Array.isArray(removed), 'removedResources must be an array');
+for (const entry of removed) {
+  assert(entry.status === 'removed-upstream', 'Unknown removed resource status: ' + entry.source);
+  assert(!originals.has(entry.source), 'Removed upstream resource still in source-files.json: ' + entry.source);
+  if (entry.override && entry.destination?.startsWith('skills/')) {
+    const templatePath = await pathInPackage(entry.override, 'adapters/pi/overrides/');
+    const content = await readFile(templatePath, 'utf8').catch(error => { if (error.code === 'ENOENT') return null; throw error; });
+    if (content !== null) {
+      overrides.add(entry.override);
+      rendered.set(entry.destination, content);
+      entries.set(entry.destination, {
+        ...entry,
+        adaptation: { strategy: 'override', override: entry.override },
+        dependencies: 'from-template',
+      });
+    }
+  }
+}
 const native = map.nativeResources ?? [];
 assert(Array.isArray(native), 'nativeResources must be an array');
 const nativeSources = new Set();

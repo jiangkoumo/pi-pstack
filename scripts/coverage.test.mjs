@@ -12,7 +12,6 @@ const headings = text => [...text.replace(/```[^\n]*\n[\s\S]*?```/g, '').matchAl
 const load = name => read(`skills/${name}/SKILL.md`);
 const groups = {
   architect: ['design-red-flags.md', 'rationale-template.md', 'runner-prompt.md'],
-  interrogate: ['code-quality-review.md', 'lead-judgment.md', 'reviewer-prompt.md', 'rubric.md'],
   reflect: ['divergent-reviewer.md', 'judgment-reviewer.md', 'synthesizer.md', 'tooling-reviewer.md'],
   why: ['epistemics.md', 'investigator-prompt.md', 'source-playbook.md', 'synthesizer-prompt.md',
     ...['code-archaeology', 'databricks', 'datadog', 'incident-postmortem', 'linear', 'notion', 'sentry', 'slack'].map(n => `sources/${n}.md`)],
