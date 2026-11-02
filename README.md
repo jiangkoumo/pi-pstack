@@ -16,7 +16,8 @@ pstack 是一套工程方法：24 条工程原则、23 个工作流程（调查�
 - **独立审阅与分工**：配合 `pi-subagents`，代码由 `pstack.poteto-agent` 在隔离 worktree 里写，`pstack.comment-sicko` 只读审阅，`pstack.verifier` 在沙箱里跑测试。每个角色可以用不同的模型。
 - **`/loop`**：有轮数上限的长任务续跑，每轮跑一次你给的检查命令（比如 `npm test`），通过就停。
 - **形式化验证**：`/skill:create-formal-verification-skill` 为你的项目生成 TLA+ 模型和真实代码检查，完成前会自动重跑并核对结果。需要 Java 和 TLC，没有也能用其余功能。
-- **单独使用的技能**：`correct`、`tdd`、`how`、`architect`、`sharpen`、`ketchup`、`recall`、`statechart` 等。
+- **自主队列流程**：Autopilot-full 在获得合并授权后将独立 PR 推进到合并；[Autopilot-stack](skills/poteto-mode/playbooks/autopilot-stack.md) 执行相同流程并停在验证完成，把 PR 交给操作者落地，只给有依赖的 PR 建栈。可以用“autopilot, don't merge”指定后者，push 和创建 PR 仍需授权。
+- **单独使用的技能**：`correct`、`tdd`、`how`、`architect`、`sharpen`、`ketchup`、`recall`、`statechart` 等。[`ketchup-video`](skills/ketchup-video/SKILL.md) 的追赶摘要采用带字幕的短幻灯片视频，等待操作者的决定列在视频下方。
 
 ## 安装
 
