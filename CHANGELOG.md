@@ -2,7 +2,7 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
-## 0.3.16 (Unreleased)
+## 0.3.16
 
 - Sync the unified upstream snapshot to cursor/plugins@c742dd61 (pstack 0.15.36, #986 and #1043), clear partial source pins, and add an LF-normalized sha256 manifest covering 941 verbatim files.
 - Replace the Orchestrate CLI with agentic coordination; move interrogate to arena adversaries in isolated writable worktrees; align cross-family judges, Autopilot-stack delivery without merging, and decision-before-measurement guidance. Keep Pi model, writer, and publication authorization gates.
