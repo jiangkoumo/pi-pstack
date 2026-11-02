@@ -295,6 +295,81 @@ test('git-read rejects everything except the three whitelisted read commands', (
   }
 });
 
+test('git-read accepts bounded log counts without widening other options', () => {
+  for (const count of ['0', '1', '20', '999999']) {
+    for (const suffix of [`-n ${count}`, `-n${count}`, `-${count}`]) {
+      assert.equal(parseGitReadCommand(`git log ${suffix}`).ok, true, suffix);
+    }
+  }
+  for (const suffix of ['-n', '-n -1', '-n HEAD', '-n 1000000', '-n1000000', '-1000000', '-n 1;']) {
+    assert.equal(parseGitReadCommand(`git log ${suffix}`).ok, false, suffix);
+  }
+  for (const command of ['git diff -1', 'git show -n 1', 'git log --max-count 1', 'git log --exec=sh']) {
+    assert.equal(parseGitReadCommand(command).ok, false, command);
+  }
+});
+
+async function defaultBranchFixture(t, branch = 'master') {
+  const { spawnSync } = await import('node:child_process');
+  const cwd = await mkdtemp(resolve(tmpdir(), 'pstack-git-default-'));
+  t.after(() => rm(cwd, { recursive: true, force: true }));
+  const git = args => {
+    const result = spawnSync('git', args, { cwd, encoding: 'utf8' });
+    assert.equal(result.status, 0, `${args.join(' ')}: ${result.stderr}`);
+    return result.stdout;
+  };
+  git(['-c', `init.defaultBranch=${branch}`, 'init', '-q']);
+  git(['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '--allow-empty', '-q', '-m', 'base']);
+  git(['checkout', '-q', '-b', 'feature']);
+  git(['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '--allow-empty', '-q', '-m', 'feature']);
+  return { cwd, git };
+}
+
+for (const command of ['git log --oneline -n 1', 'git log --oneline -n 20', 'git log -1', 'git log --oneline -n20']) {
+  test(`git-read on a master-default repository: ${command}`, async t => {
+    const { cwd } = await defaultBranchFixture(t);
+    const result = await runGitRead(command, { cwd });
+    assert.equal(result.ok, true, result.reason);
+    assert.equal(result.argv[1], 'master...HEAD');
+    assert.match(result.stdout, /feature/);
+    assert.doesNotMatch(result.stdout, /base/);
+  });
+}
+
+test('git-read default range prefers origin/HEAD, then main, then master', async t => {
+  const { cwd, git } = await defaultBranchFixture(t);
+  git(['branch', 'main', 'master']);
+  git(['update-ref', 'refs/remotes/origin/trunk', 'master']);
+  git(['symbolic-ref', 'refs/remotes/origin/HEAD', 'refs/remotes/origin/trunk']);
+  for (const subcommand of ['diff', 'log']) {
+    const result = await runGitRead(`git ${subcommand}`, { cwd });
+    assert.equal(result.ok, true, result.reason);
+    assert.equal(result.argv[1], 'origin/HEAD...HEAD');
+  }
+  git(['update-ref', '-d', 'refs/remotes/origin/trunk']);
+  const main = await runGitRead('git log', { cwd });
+  assert.equal(main.ok, true, main.reason);
+  assert.equal(main.argv[1], 'main...HEAD');
+  git(['branch', '-D', 'main']);
+  const master = await runGitRead('git diff -- app.js', { cwd });
+  assert.equal(master.ok, true, master.reason);
+  assert.deepEqual(master.argv, ['diff', 'master...HEAD', '--', 'app.js']);
+});
+
+test('git-read refuses unresolved defaults clearly and still accepts explicit revisions', async t => {
+  const { cwd } = await defaultBranchFixture(t, 'trunk');
+  for (const subcommand of ['diff', 'log']) {
+    const result = await runGitRead(`git ${subcommand}`, { cwd });
+    assert.equal(result.ok, false);
+    assert.match(result.reason, /default branch.*origin\/HEAD.*main.*master/i);
+    assert.doesNotMatch(result.reason, /fatal:|ambiguous argument/i);
+  }
+  for (const command of ['git log -n 1 HEAD', 'git diff trunk...HEAD', 'git show']) {
+    const result = await runGitRead(command, { cwd });
+    assert.equal(result.ok, true, result.reason);
+  }
+});
+
 test('git-read defaults to main...HEAD in a real repository', { timeout: 60000 }, async t => {
   const { spawnSync } = await import('node:child_process');
   const directory = await mkdtemp(resolve(tmpdir(), 'pstack-git-read-'));
