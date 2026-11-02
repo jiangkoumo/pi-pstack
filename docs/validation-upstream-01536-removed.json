@@ -1,0 +1,55 @@
+{
+  "upstreamSha": "c742dd61706fbacc1b95f1a20b7b988cf096ce6c",
+  "scope": "Historical deletion records; no longer active generation resources",
+  "removedResources": [
+    {
+      "source": "pstack/skills/interrogate/references/code-quality-review.md",
+      "destination": "skills/interrogate/references/code-quality-review.md",
+      "override": "adapters/pi/overrides/skills/interrogate/references/code-quality-review.md.template",
+      "status": "removed-upstream",
+      "reason": "随上游 c742dd61（#986）删除；interrogate 改用 arena 对抗流程"
+    },
+    {
+      "source": "pstack/skills/interrogate/references/lead-judgment.md",
+      "destination": "skills/interrogate/references/lead-judgment.md",
+      "override": "adapters/pi/overrides/skills/interrogate/references/lead-judgment.md.template",
+      "status": "removed-upstream",
+      "reason": "随上游 c742dd61（#986）删除；interrogate 改用 arena 对抗流程"
+    },
+    {
+      "source": "pstack/skills/interrogate/references/reviewer-prompt.md",
+      "destination": "skills/interrogate/references/reviewer-prompt.md",
+      "override": "adapters/pi/overrides/skills/interrogate/references/reviewer-prompt.md.template",
+      "status": "removed-upstream",
+      "reason": "随上游 c742dd61（#986）删除；interrogate 改用 arena 对抗流程"
+    },
+    {
+      "source": "pstack/skills/interrogate/references/rubric.md",
+      "destination": "skills/interrogate/references/rubric.md",
+      "override": "adapters/pi/overrides/skills/interrogate/references/rubric.md.template",
+      "status": "removed-upstream",
+      "reason": "随上游 c742dd61（#986）删除；interrogate 改用 arena 对抗流程"
+    },
+    {
+      "source": "pstack/skills/poteto-mode/scripts/orch/orch.test.ts",
+      "destination": "scripts/orch.test.mjs",
+      "override": null,
+      "status": "removed-upstream",
+      "reason": "随上游 c742dd61（#1043）删除；端口 scripts/orch.mjs、scripts/orch.test.mjs 随上游删除（实际删除文件由 U36-2 完成）"
+    },
+    {
+      "source": "pstack/skills/poteto-mode/scripts/orch/orch.ts",
+      "destination": "scripts/orch.mjs",
+      "override": null,
+      "status": "removed-upstream",
+      "reason": "随上游 c742dd61（#1043）删除；端口 scripts/orch.mjs、scripts/orch.test.mjs 随上游删除（实际删除文件由 U36-2 完成）"
+    },
+    {
+      "source": "pstack/skills/poteto-mode/scripts/orch/store.ts",
+      "destination": "scripts/orch.mjs",
+      "override": null,
+      "status": "removed-upstream",
+      "reason": "随上游 c742dd61（#1043）删除；端口 scripts/orch.mjs、scripts/orch.test.mjs 随上游删除（实际删除文件由 U36-2 完成）"
+    }
+  ]
+}

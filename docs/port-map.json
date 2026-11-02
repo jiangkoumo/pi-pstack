@@ -335,7 +335,7 @@
       "disposition": "ported",
       "phase": "P5",
       "destination": "skills/interrogate/SKILL.md",
-      "reason": "已适配为 Pi 对抗审阅流程：只读评审白名单、角色模型、父代理核实发现，默认不提交",
+      "reason": "已适配为 Pi 对抗审阅流程：可写独立 worktree adversary 跑复现、角色模型映射、父代理按 Phase F 重跑命令核实发现，不直接改父工作树",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],
@@ -469,7 +469,7 @@
       "disposition": "ported",
       "phase": "P5",
       "destination": "skills/poteto-help/SKILL.md",
-      "reason": "已适配完整技能索引；已吸收上游 519d36aa 的 statechart 措辞与 ketchup-video 行",
+      "reason": "已适配完整技能索引；已同步上游 c742dd61（0.15.36）的 Autopilot-stack 与带字幕 ketchup-video 说明",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [
@@ -771,7 +771,7 @@
       "disposition": "ported",
       "phase": "P5",
       "destination": "skills/poteto-mode/playbooks/orchestrate.md",
-      "reason": "已适配为 Pi 大型项目协调流程：本地 store、受管 worktree、有界波次与显式落地授权",
+      "reason": "已适配为 Pi agentic 大型项目协调流程：持久化 tracker、独立 worktree owner、宿主事件与有界监督、显式落地授权",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],
@@ -1591,7 +1591,7 @@
       "disposition": "ported",
       "phase": "P5",
       "destination": "skills/statechart/SKILL.md",
-      "reason": "已同步到 076f4b2f；正文入口与安装说明由 skill-replacements.json 最小替换，Pi 执行边界追加在 skill-tail.md；见 docs/validation-statechart-sync.md",
+      "reason": "已统一固定到 c742dd61（0.15.36）；保留 0.15.34 TypeScript 编译器与 Pi 执行边界；见 docs/validation-statechart-ci.md",
       "audit": {
         "sourceRead": true,
         "relativeLinks": [],
@@ -6195,55 +6195,5 @@
       }
     }
   ],
-  "removedResources": [
-    {
-      "source": "pstack/skills/interrogate/references/code-quality-review.md",
-      "destination": "skills/interrogate/references/code-quality-review.md",
-      "override": "adapters/pi/overrides/skills/interrogate/references/code-quality-review.md.template",
-      "status": "removed-upstream",
-      "reason": "随上游 c742dd61（#986）删除；interrogate 改用 arena 对抗流程"
-    },
-    {
-      "source": "pstack/skills/interrogate/references/lead-judgment.md",
-      "destination": "skills/interrogate/references/lead-judgment.md",
-      "override": "adapters/pi/overrides/skills/interrogate/references/lead-judgment.md.template",
-      "status": "removed-upstream",
-      "reason": "随上游 c742dd61（#986）删除；interrogate 改用 arena 对抗流程"
-    },
-    {
-      "source": "pstack/skills/interrogate/references/reviewer-prompt.md",
-      "destination": "skills/interrogate/references/reviewer-prompt.md",
-      "override": "adapters/pi/overrides/skills/interrogate/references/reviewer-prompt.md.template",
-      "status": "removed-upstream",
-      "reason": "随上游 c742dd61（#986）删除；interrogate 改用 arena 对抗流程"
-    },
-    {
-      "source": "pstack/skills/interrogate/references/rubric.md",
-      "destination": "skills/interrogate/references/rubric.md",
-      "override": "adapters/pi/overrides/skills/interrogate/references/rubric.md.template",
-      "status": "removed-upstream",
-      "reason": "随上游 c742dd61（#986）删除；interrogate 改用 arena 对抗流程"
-    },
-    {
-      "source": "pstack/skills/poteto-mode/scripts/orch/orch.test.ts",
-      "destination": "scripts/orch.test.mjs",
-      "override": null,
-      "status": "removed-upstream",
-      "reason": "随上游 c742dd61（#1043）删除；端口 scripts/orch.mjs、scripts/orch.test.mjs 随上游删除（实际删除文件由 U36-2 完成）"
-    },
-    {
-      "source": "pstack/skills/poteto-mode/scripts/orch/orch.ts",
-      "destination": "scripts/orch.mjs",
-      "override": null,
-      "status": "removed-upstream",
-      "reason": "随上游 c742dd61（#1043）删除；端口 scripts/orch.mjs、scripts/orch.test.mjs 随上游删除（实际删除文件由 U36-2 完成）"
-    },
-    {
-      "source": "pstack/skills/poteto-mode/scripts/orch/store.ts",
-      "destination": "scripts/orch.mjs",
-      "override": null,
-      "status": "removed-upstream",
-      "reason": "随上游 c742dd61（#1043）删除；端口 scripts/orch.mjs、scripts/orch.test.mjs 随上游删除（实际删除文件由 U36-2 完成）"
-    }
-  ]
+  "removedResources": []
 }

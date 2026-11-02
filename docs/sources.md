@@ -15,20 +15,24 @@ X 正文不是上游代码的完整规格；该链接中的统计数据不影响
 | --- | --- |
 | 仓库 | https://github.com/cursor/plugins |
 | 子目录 | pstack/ |
-| 提交 | eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10 |
-| 提交时间 | 2026-10-22T06:55:00Z |
-| 插件版本 | 0.15.30 |
+| 提交 | c742dd61706fbacc1b95f1a20b7b988cf096ce6c |
+| 提交时间 | 2026-10-27T23:12:40Z |
+| 插件版本 | 0.15.36 |
 | 作者 | Lauren Tan（@poteto） |
 | 许可 | MIT，Copyright (c) 2026 Lauren Tan |
 | 目录统计 | 60 个 SKILL.md、23 个 poteto-mode playbook、2 个代理定义 |
 
 [完整目录清单](upstream-inventory.json) 来源于 GitHub recursive tree API，该响应的 truncated 为 false。统计仅说明文件数量，不能证明所有文件已完成兼容性审计。
 
-## statechart 与 ketchup-video 局部同步（#47、#46）
+## 0.15.36 统一同步（U36）
 
-当前 `pstack/skills/statechart/**`（407 个固定原文件）与 `pstack/skills/ketchup-video/SKILL.md` 固定到 `519d36aa98955bf680db01bcde5fdfba686dc901`，其余基线仍是 `eb4db2b5`。statechart 改为 TS 编译器与 SVG 渲染，快照、corpus 及渲染说明随包生成；CI 修复见 [干净环境验收](validation-statechart-ci.md)。新增 ketchup-video 的文件 blob 为 `69aa72aba763ae1836f8440d88e03e2928eb3719`，模型遵循性与视频播放能力边界见 [验收](validation-upstream-01534-c.md)。
+当前 `upstream/pstack/**` 的 535 个归档文件统一固定到 `c742dd61706fbacc1b95f1a20b7b988cf096ce6c`，三份来源清单的 `sourceOverrides` 已清空。sha256 清单另覆盖 406 个逐字分发的 statechart 资源，共 941 项；有意适配的 Pi 文件不进入逐字清单。原文许可与 Lauren Tan 版权保留。同步状态见 [U36](upstream-update-01536-plan.md)，逐文件差异保留在 [实施记录](validation-upstream-01536-plan.md)。
 
-以下保留 #40 的历史记录，当前 pin 以上段及三份 JSON 清单为准。
+## statechart 与 ketchup-video 局部同步历史（#47、#46）
+
+0.3.15 时 `pstack/skills/statechart/**`（407 个固定原文件）与 `pstack/skills/ketchup-video/SKILL.md` 固定到 `519d36aa98955bf680db01bcde5fdfba686dc901`，其余基线仍是 `eb4db2b5`。statechart 改为 TS 编译器与 SVG 渲染，快照、corpus 及渲染说明随包生成；CI 修复见 [干净环境验收](validation-statechart-ci.md)。新增 ketchup-video 的文件 blob 为 `69aa72aba763ae1836f8440d88e03e2928eb3719`，模型遵循性与视频播放能力边界见 [验收](validation-upstream-01534-c.md)。
+
+以下保留 #40 的历史记录。当前统一 pin 以本页“上游固定基线”和三份 JSON 清单为准。
 
 ### statechart 局部同步历史（#40）
 

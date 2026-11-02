@@ -1,6 +1,6 @@
 {
   "commit": "f713f14203cd6420cec13cd7c55c32d598dbab68",
-  "scope": "Dependency inventory and keyword scan; not a semantic audit of every source file",
+  "scope": "Historical dependency inventory and keyword scan; original scan counts retained, deleted orchestration and review resources filtered during U36 integration; not a fresh semantic audit of every source file",
   "filesScanned": 158,
   "coreSkills": 54,
   "automationSkills": 3,
@@ -54,10 +54,6 @@
     "pstack/skills/how/references/explorer-prompt.md",
     "pstack/skills/in-your-own-words/SKILL.md",
     "pstack/skills/interrogate/SKILL.md",
-    "pstack/skills/interrogate/references/code-quality-review.md",
-    "pstack/skills/interrogate/references/lead-judgment.md",
-    "pstack/skills/interrogate/references/reviewer-prompt.md",
-    "pstack/skills/interrogate/references/rubric.md",
     "pstack/skills/ketchup/SKILL.md",
     "pstack/skills/maintain-verification-skill/SKILL.md",
     "pstack/skills/make-bot-ui/SKILL.md",
