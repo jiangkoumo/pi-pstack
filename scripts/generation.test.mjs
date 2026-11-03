@@ -1,19 +1,20 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createHash } from 'node:crypto';
-import { cp, mkdtemp, readFile, writeFile, rm, symlink, stat } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, writeFile, rm, symlink, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { assertUpstreamManifest, sha256Lf } from './upstream-manifest.mjs';
+import { checkSkillReferences } from './check-skill-references.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const blob = bytes => createHash('sha1').update('blob ' + bytes.length + '\0').update(bytes).digest('hex');
 async function fixture(run) {
   const dir = await mkdtemp(resolve(tmpdir(), 'pstack-generation-'));
   try {
-    for (const path of ['scripts', 'docs', 'upstream', 'adapters', 'skills', 'agents']) await cp(resolve(root, path), resolve(dir, path), { recursive: true });
+    for (const path of ['scripts', 'docs', 'upstream', 'adapters', 'skills', 'agents']) await cp(resolve(root, path), resolve(dir, path), { recursive: true, filter: source => source !== resolve(root, 'skills/system') });
     await run(dir);
   } finally { await rm(dir, { recursive: true, force: true }); }
 }
@@ -204,6 +205,66 @@ for (const [name, mutation, pattern] of [
     // Update only the fixture fingerprint to reach field validation independently.
     await mutateJSON(dir, 'docs/source-files.json', manifest => { manifest.files.find(e => e.path === source).blob = blob(Buffer.from(text)); });
     await rejectInBothModes(dir, pattern);
+  }));
+}
+
+test('external skills/system survives both generation modes while other unowned files are rejected', () => fixture(async dir => {
+  const systemSkill = resolve(dir, 'skills/system/run-workflow/SKILL.md');
+  const content = '---\nname: run-workflow\ndescription: External client workflow\n---\n\nLocal-only content.\n';
+  await mkdir(resolve(dir, 'skills/system/run-workflow'), { recursive: true });
+  await writeFile(systemSkill, content);
+  for (const check of [true, false]) {
+    const result = execute(dir, check);
+    assert.equal(result.code, 0, result.output);
+    assert.equal(await readFile(systemSkill, 'utf8'), content, 'External skill must remain unchanged');
+  }
+
+  const unowned = resolve(dir, 'skills/poteto-mode/unowned.txt');
+  await writeFile(unowned, 'must be preserved');
+  await rejectInBothModes(dir, /Unmanaged generated file: skills\/poteto-mode\/unowned\.txt/);
+  assert.equal(await readFile(unowned, 'utf8'), 'must be preserved');
+  assert.equal(await readFile(systemSkill, 'utf8'), content);
+}));
+
+test('templates cannot reference external skills/system even when local targets exist', () => fixture(async dir => {
+  const systemRoot = resolve(dir, 'skills/system');
+  await mkdir(resolve(systemRoot, 'run-workflow'), { recursive: true });
+  await writeFile(resolve(systemRoot, 'run-workflow/SKILL.md'), 'External workflow');
+  await writeFile(resolve(systemRoot, 'SKILL.md'), 'External skill root');
+  const template = resolve(dir, 'adapters/pi/overrides/skills/correct/SKILL.md.template');
+  const before = await readFile(template, 'utf8');
+  for (const [reference, reason] of [
+    ['[workflow](../system/run-workflow/SKILL.md)', 'Excluded local link target'],
+    ['[external root](../system)', 'Excluded local link target'],
+    ['/skill:system', 'Unknown skill reference'],
+  ]) {
+    await writeFile(template, before + '\n' + reference + '\n');
+    const result = await checkSkillReferences(dir, { includeGenerated: true });
+    assert.equal(result.ok, false, reference);
+    assert(result.errors.some(error => error.file === 'adapters/pi/overrides/skills/correct/SKILL.md.template' && error.reason === reason), JSON.stringify(result.errors));
+  }
+
+  // A similarly named sibling is outside the excluded subtree.
+  await mkdir(resolve(dir, 'skills/system-other'));
+  await writeFile(resolve(dir, 'skills/system-other/SKILL.md'), 'Package-owned sibling');
+  await writeFile(template, before + '\n[sibling](../system-other/SKILL.md)\n');
+  const allowed = await checkSkillReferences(dir, { includeGenerated: true });
+  assert.equal(allowed.ok, true, JSON.stringify(allowed.errors));
+}));
+
+for (const type of ['file', 'symlink']) {
+  test('reject skills/system as a ' + type, () => fixture(async dir => {
+    const path = resolve(dir, 'skills/system');
+    const content = 'must be preserved';
+    if (type === 'symlink') {
+      const target = resolve(dir, 'external-system-sentinel.txt');
+      await writeFile(target, content);
+      await symlink(target, path);
+    } else {
+      await writeFile(path, content);
+    }
+    await rejectInBothModes(dir, type === 'symlink' ? /Symlink resource path: skills\/system/ : /Unmanaged generated file: skills\/system/);
+    assert.equal(await readFile(path, 'utf8'), content);
   }));
 }
 

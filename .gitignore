@@ -2,6 +2,8 @@
 node_modules/
 dist/
 coverage/
+# External client-injected skills are local-only.
+/skills/system/
 *.tgz
 .env
 .env.*

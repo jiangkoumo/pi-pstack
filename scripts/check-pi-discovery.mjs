@@ -7,10 +7,14 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const piRoot = process.env.PI_PSTACK_PI_ROOT;
 assert(piRoot, 'Set PI_PSTACK_PI_ROOT to the installed @earendil-works/pi-coding-agent package root');
 const { loadSkills, formatSkillsForPrompt } = await import(pathToFileURL(resolve(piRoot, 'dist/core/skills.js')).href);
-const loaded = loadSkills({ cwd: root, agentDir: resolve(root, 'scripts/fixtures/empty-agent'), skillPaths: [resolve(root, 'skills')], includeDefaults: false });
+const skillDirectories = readdirSync(resolve(root, 'skills'), { withFileTypes: true })
+  .filter(entry => entry.isDirectory() && entry.name !== 'system');
+// Pi recursively scans skill paths, so exclude the external subtree before
+// loading rather than filtering results (which could already have collisions).
+const loaded = loadSkills({ cwd: root, agentDir: resolve(root, 'scripts/fixtures/empty-agent'), skillPaths: skillDirectories.map(entry => resolve(root, 'skills', entry.name)), includeDefaults: false });
 assert.deepEqual(loaded.diagnostics, [], 'Pi skill diagnostics');
-const expected = readdirSync(resolve(root, 'skills'), { withFileTypes: true })
-  .filter(entry => entry.isDirectory() && existsSync(resolve(root, 'skills', entry.name, 'SKILL.md')))
+const expected = skillDirectories
+  .filter(entry => existsSync(resolve(root, 'skills', entry.name, 'SKILL.md')))
   .map(entry => entry.name).sort();
 assert.deepEqual(loaded.skills.map(skill => skill.name).sort(), expected, 'Every skills/*/SKILL.md loads in Pi under its folder name');
 assert(loaded.skills.every(skill => skill.disableModelInvocation));

@@ -9,7 +9,7 @@ const TEMPLATE_ROOT = 'adapters/pi/overrides';
 const PHANTOM_SKILLS = new Set(['create-skill', 'bugbot-triage']);
 const SKILL_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-async function walk(directory) {
+async function walk(directory, excludedPath) {
   const entries = await readdir(directory, { withFileTypes: true }).catch(error => {
     if (error.code === 'ENOENT') return [];
     throw error;
@@ -17,7 +17,8 @@ async function walk(directory) {
   const files = [];
   for (const entry of entries) {
     const path = resolve(directory, entry.name);
-    if (entry.isDirectory()) files.push(...await walk(path));
+    if (entry.isDirectory() && path === excludedPath) continue;
+    if (entry.isDirectory()) files.push(...await walk(path, excludedPath));
     else if (entry.isFile() && (entry.name.endsWith('.md') || entry.name.endsWith('.md.template'))) files.push(path);
   }
   return files;
@@ -57,9 +58,10 @@ function localTarget(raw) {
  * files and pass through the ordinary link check.
  */
 export async function checkSkillReferences(root = PACKAGE_ROOT, { includeGenerated = false } = {}) {
+  const systemRoot = resolve(root, 'skills/system');
   const files = [...await walk(resolve(root, TEMPLATE_ROOT))];
   if (includeGenerated) {
-    files.push(...await walk(resolve(root, 'skills')));
+    files.push(...await walk(resolve(root, 'skills'), systemRoot));
     files.push(...await walk(resolve(root, 'agents')));
   }
 
@@ -83,7 +85,9 @@ export async function checkSkillReferences(root = PACKAGE_ROOT, { includeGenerat
       if (seenLinks.has(key)) continue;
       seenLinks.add(key);
       links.push({ file: display, target, resolved: relative(root, resolved).split(sep).join('/') });
-      if (!(await exists(resolved))) {
+      if (resolved === systemRoot || resolved.startsWith(systemRoot + sep)) {
+        errors.push({ file: display, line: lineOf(text, match.index), target, resolved: relative(root, resolved).split(sep).join('/'), reason: 'Excluded local link target' });
+      } else if (!(await exists(resolved))) {
         errors.push({ file: display, line: lineOf(text, match.index), target, resolved: relative(root, resolved).split(sep).join('/'), reason: 'Missing local link target' });
       }
     }
@@ -95,7 +99,7 @@ export async function checkSkillReferences(root = PACKAGE_ROOT, { includeGenerat
         errors.push({ file: display, line: lineOf(text, match.index), target: `/skill:${name}`, reason: 'Phantom skill reference' });
         continue;
       }
-      if (!SKILL_NAME.test(name) || !(await exists(resolve(root, 'skills', name, 'SKILL.md')))) {
+      if (name === 'system' || !SKILL_NAME.test(name) || !(await exists(resolve(root, 'skills', name, 'SKILL.md')))) {
         errors.push({ file: display, line: lineOf(text, match.index), target: `/skill:${name}`, reason: 'Unknown skill reference' });
       }
     }

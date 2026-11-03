@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,7 +13,7 @@ const run = (script, cwd, args = []) => {
   return { exitCode: result.status, output: result.stdout + result.stderr };
 };
 try {
-  for (const path of ['extensions', 'skills', 'agents', 'adapters', 'upstream', 'docs', 'scripts', 'README.md', 'AGENTS.md', 'LICENSE', 'LICENSES', 'THIRD_PARTY_NOTICES.md', 'package.json']) {
+  for (const path of ['extensions', 'skills', 'agents', 'adapters', 'upstream', 'docs', 'scripts', 'README.md', 'CHANGELOG.md', 'AGENTS.md', 'LICENSE', 'LICENSES', 'THIRD_PARTY_NOTICES.md', 'package.json']) {
     await cp(resolve(root, path), resolve(fixture, path), { recursive: true });
   }
   const original = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
@@ -29,7 +29,7 @@ try {
 
   const rejected = [];
   let falsePass;
-  for (const [omission, target] of [['docs/', 'docs/port-status.md'], ['scripts/', 'scripts/check-subagent-integration.mjs']]) {
+  for (const omission of ['docs/', 'scripts/']) {
     const manifest = { ...original, files: original.files.filter(path => path !== omission) };
     await writeFile(resolve(fixture, 'package.json'), JSON.stringify(manifest));
     if (omission === 'scripts/') {
@@ -41,12 +41,26 @@ try {
     await writeFile(historical, currentSource);
     const result = run(historical, fixture);
     assert.equal(result.exitCode, 1, 'Each actual omission must fail the same current check');
-    assert(result.output.includes('Published doc links an omitted file: ' + target), 'Must fail on the publication contract, not setup');
+    const target = result.output.match(/Published doc links an omitted file: ([^\r\n]+)/)?.[1];
+    assert(target?.startsWith(omission), 'Must fail on a link into the omitted directory, not setup: ' + result.output);
     rejected.push({ omitted: omission, exitCode: result.exitCode, target });
   }
   await writeFile(resolve(fixture, 'package.json'), JSON.stringify(original));
   const corrected = run(historical, fixture);
   assert.equal(corrected.exitCode, 0, corrected.output);
+
+  const externalTarget = 'skills/system/run-workflow/SKILL.md';
+  const externalContent = 'External client workflow: must be preserved';
+  await mkdir(resolve(fixture, 'skills/system/run-workflow'), { recursive: true });
+  await writeFile(resolve(fixture, externalTarget), externalContent);
+  const readme = resolve(fixture, 'README.md');
+  const originalReadme = await readFile(readme, 'utf8');
+  await writeFile(readme, originalReadme + `\n[Local-only workflow](${externalTarget})\n`);
+  const externalLink = run(historical, fixture);
+  assert.equal(externalLink.exitCode, 1, externalLink.output);
+  assert(externalLink.output.includes('Published doc links an omitted file: ' + externalTarget), externalLink.output);
+  assert.equal(await readFile(resolve(fixture, externalTarget), 'utf8'), externalContent);
+  await writeFile(readme, originalReadme);
 
   const packed = JSON.parse(execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }))[0];
   const included = new Set(packed.files.map(file => file.path));
@@ -80,7 +94,7 @@ try {
       checkedLinks++;
     }
   }
-  console.log(JSON.stringify({ status: 'passed', evidence: 'two actual project review findings', historicalFalsePass: falsePass, rejected, correctedExitCode: corrected.exitCode, packedFiles: included.size, checkedLinks, rebuildInputs: rebuildInputs.length, templateOmissionRejected: true }));
+  console.log(JSON.stringify({ status: 'passed', evidence: 'two actual project review findings', historicalFalsePass: falsePass, rejected, correctedExitCode: corrected.exitCode, externalSystemLinkRejected: true, packedFiles: included.size, checkedLinks, rebuildInputs: rebuildInputs.length, templateOmissionRejected: true }));
 } finally {
   await rm(fixture, { recursive: true, force: true });
 }

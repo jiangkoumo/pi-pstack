@@ -72,6 +72,8 @@ async function filesUnder(path) {
   for (const entry of entries) {
     const child = path + '/' + entry.name;
     assert(!entry.isSymbolicLink(), 'Symlink resource path: ' + child);
+    // External clients own this local-only directory, not the generator.
+    if (child === 'skills/system' && entry.isDirectory()) continue;
     if (entry.isDirectory()) files.push(...await filesUnder(child));
     else { assert(entry.isFile(), 'Unsupported resource type: ' + child); files.push(child); }
   }
@@ -248,7 +250,7 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
   entries.set(entry.destination, entry);
 }
 
-// Both modes reject all unowned files, regardless of extension. Do not remove
+// Both modes reject unowned files outside skills/system, regardless of extension. Do not remove
 // them automatically: the operator may have work here that must be preserved.
 for (const file of await filesUnder('skills')) assert(rendered.has(file), 'Unmanaged generated file: ' + file);
 for (const file of await filesUnder('agents')) assert(rendered.has(file), 'Unmanaged generated file: ' + file);

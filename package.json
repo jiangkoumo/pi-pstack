@@ -24,6 +24,7 @@
   "files": [
     "extensions/",
     "skills/",
+    "!skills/system/",
     "agents/",
     "adapters/",
     "upstream/",
@@ -57,7 +58,8 @@
       "./extensions/pstack/index.ts"
     ],
     "skills": [
-      "./skills"
+      "./skills",
+      "!skills/system/**"
     ]
   },
   "scripts": {

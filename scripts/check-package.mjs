@@ -10,12 +10,13 @@ const root = process.argv[2] ? resolve(process.argv[2]) : fileURLToPath(new URL(
 const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
 const manifest = await json('package.json');
 assert(manifest.files.includes('agents/'), 'Missing agents/ in package.json files');
+assert(manifest.files.includes('!skills/system/'), 'Missing !skills/system/ in package.json files');
 assert(manifest.files.includes('CHANGELOG.md'), 'Missing CHANGELOG.md in package.json files');
 const changelog = await readFile(resolve(root, 'CHANGELOG.md'), 'utf8');
 assert(changelog.split('\n').some(line => line === `## ${manifest.version}` || line.startsWith(`## ${manifest.version} — `)), 'CHANGELOG.md must contain a release heading for the current package version');
 assert.deepEqual(manifest.pi, {
   extensions: ['./extensions/pstack/index.ts'],
-  skills: ['./skills']
+  skills: ['./skills', '!skills/system/**']
 });
 assert.equal(manifest.name, '@jiangkoumo/pi-pstack');
 assert.equal(manifest.publishConfig?.access, 'public', 'Published package requires public access');
@@ -137,6 +138,7 @@ const documents = [];
 async function walk(path) {
   for (const entry of await readdir(path, { withFileTypes: true })) {
     const full = resolve(path, entry.name);
+    if (entry.isDirectory() && full === resolve(root, 'skills/system')) continue;
     if (entry.isDirectory()) await walk(full);
     else if (entry.name.endsWith('.md')) documents.push(full);
   }
@@ -173,14 +175,21 @@ for (const file of documents) {
 // SKILL.md, or one whose declared name drifts from its folder, is a discovery
 // bug in the package rather than a document to link-check.
 for (const entry of await readdir(resolve(root, 'skills'), { withFileTypes: true })) {
-  if (!entry.isDirectory()) continue;
+  if (!entry.isDirectory() || entry.name === 'system') continue;
   const skillFile = resolve(root, 'skills', entry.name, 'SKILL.md');
   let body;
   try { body = await readFile(skillFile, 'utf8'); } catch { assert.fail('Skill directory has no SKILL.md: ' + entry.name); }
   const declared = body.match(/^name: (.+)$/m)?.[1];
   assert.equal(declared, entry.name, 'Skill name must match its folder: ' + entry.name + ' declares ' + declared);
 }
-const included = (relativePath) => ['README.md', 'package.json', 'LICENSE'].includes(relativePath) || manifest.files.some(entry => entry.endsWith('/') ? relativePath.startsWith(entry) : relativePath === entry);
+const included = (relativePath) => {
+  const matches = entry => entry.endsWith('/')
+    ? relativePath === entry.slice(0, -1) || relativePath.startsWith(entry)
+    : relativePath === entry;
+  if (manifest.files.some(entry => entry.startsWith('!') && matches(entry.slice(1)))) return false;
+  return ['README.md', 'package.json', 'LICENSE'].includes(relativePath)
+    || manifest.files.some(entry => !entry.startsWith('!') && matches(entry));
+};
 for (const file of documents) {
   const content = await readFile(file, 'utf8');
   if (!included(relative(root, file))) continue;
@@ -198,7 +207,7 @@ assert(references.ok, 'Invalid skill/playbook references: ' + JSON.stringify(ref
 // Assert that every skill and extension command mentioned in documentation exists in the package tree.
 const treeSkills = new Set(
   (await readdir(resolve(root, 'skills'), { withFileTypes: true }))
-    .filter(entry => entry.isDirectory())
+    .filter(entry => entry.isDirectory() && entry.name !== 'system')
     .map(entry => entry.name)
 );
 const treePlaybooks = new Set(
