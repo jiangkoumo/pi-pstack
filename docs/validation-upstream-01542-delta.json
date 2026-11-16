@@ -1,0 +1,851 @@
+{
+  "task": "plan-0002/t1",
+  "goal": "Record the full archive delta contract between the previous upstream archive pin and pstack 0.15.42, without claiming archive-scope gaps as upstream additions.",
+  "target": "bf0c7cd80abdbf7fe47b634978a7d1b4071f71a7",
+  "targetVersion": "0.15.42",
+  "targetSubject": "feat(pstack): new default models, one-file why and how, statechart fixes, sharpen and reflect text (#1236)",
+  "baseline": "c742dd61706fbacc1b95f1a20b7b988cf096ce6c",
+  "baselineVersion": "0.15.36",
+  "baselineSource": "docs/source-files.json + docs/upstream-manifest.json (previous archive pin; the baseline commit objects are not available locally)",
+  "sourceTree": "~/.claude/plugins/marketplaces/cursor-plugins/pstack (local authoritative checkout, HEAD verified to be the target SHA)",
+  "hashAlgorithm": "sha256 over raw bytes (no CRLF normalization; the port-facing manifest in docs/upstream-manifest.json normalizes CRLF separately)",
+  "archivePolicy": {
+    "archived": [
+      "LICENSE",
+      "agents/**",
+      "skills/**"
+    ],
+    "excludedTopLevel": {
+      "README.md": "product documentation, not imported as an archive copy; Pi keeps its own README",
+      "plugin.json": "Cursor plugin manifest; version/author/license recorded here, not archived",
+      ".cursor-plugin/plugin.json": "Cursor plugin manifest duplicate",
+      ".gitignore": "repository maintenance file",
+      "assets/logo.png": "Cursor marketplace artwork",
+      "automations/benny/**": "Cursor automation pack outside the Pi single-agent scope",
+      "docs/**": "upstream user guide and harness notes; Pi keeps its own docs tree"
+    },
+    "excludedFiles": {
+      "skills/poteto-mode/scripts/package.json": "dev/test entry points; excluded since U36 (see docs/validation-upstream-01536-plan.md)",
+      "skills/poteto-mode/scripts/watch-pr/tsconfig.json": "dev-only TypeScript config",
+      "skills/poteto-mode/scripts/bun.lock": "lockfile; referenced by bootstrap.ts at the f713f14 audit baseline"
+    },
+    "consequence": "The archive is intentionally narrower than the upstream tree. Every path listed under notArchived is outside the archive scope at both pins; being absent from the previous archive is a scope decision, not evidence that the file is new in 0.15.42."
+  },
+  "license": {
+    "spdx": "MIT",
+    "copyright": "Copyright (c) 2026 Lauren Tan",
+    "author": "Lauren Tan (@poteto)",
+    "declaredVersion": "0.15.42 (plugin.json and .cursor-plugin/plugin.json)",
+    "archiveLicensePath": "upstream/pstack/LICENSE",
+    "archiveLicenseSha256": "bc957ca6bee02792566a1a028d105e02e247c6e77cf057061674273da77b200e",
+    "targetLicenseSha256": "bc957ca6bee02792566a1a028d105e02e247c6e77cf057061674273da77b200e",
+    "change": "unchanged between baseline and target; LICENSES/pstack.txt and THIRD_PARTY_NOTICES.md already carry this MIT text and need no edit in this card"
+  },
+  "counts": {
+    "baselineArchivedFiles": 535,
+    "targetSourceFiles": 560,
+    "archiveAfterSync": 522,
+    "unchangedArchivedFiles": 490,
+    "modified": 31,
+    "removedUpstream": 14,
+    "addedToArchive": 1,
+    "notArchived": 38
+  },
+  "adaptationOwnership": {
+    "plan-0002/t2": "poteto-mode, seven playbooks, swarm, reflect, architect, arena",
+    "plan-0002/t3": "how, why, teach, recall, blast-radius, no-comments, comment-sicko, sharpen, poteto-help",
+    "plan-0002/t4": "statechart (Mermaid entry fix, run CLI, upstream tests, new drawn test)",
+    "plan-0002/t5": "integration: source lists, upstream-manifest, setup-pstack, generation and isolated end-to-end verification",
+    "plan-0002/t6": "documentation: README, sources, migration status, skill audit, CHANGELOG"
+  },
+  "files": [
+    {
+      "path": "agents/comment-sicko.md",
+      "archivePath": "upstream/pstack/agents/comment-sicko.md",
+      "status": "modified",
+      "oldSha256": "3e239e40b7b4b9beb2cf7f3ccc57f2388eb8b69bd1ba8ae888ef87ef6e0e2116",
+      "newSha256": "0fb37221ab2a9159714d38f1528898e82b9758b5750f244bbe2e575bb593a1de",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t3",
+      "reason": "upstream wording update; Pi template adapters/pi/overrides/agents/comment-sicko.md.template follows in t3"
+    },
+    {
+      "path": "skills/architect/SKILL.md",
+      "archivePath": "upstream/pstack/skills/architect/SKILL.md",
+      "status": "modified",
+      "oldSha256": "31f8e97a52bfa5432edd61f68ade2a8632ef0bacbc2d2a6802d7a0e6821944ac",
+      "newSha256": "42be68c2883bd10d867c46930fa11c44a25910b62b85e0c9a40326b4f25d7b6e",
+      "diffstat": "+3/-3",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t2",
+      "reason": "upstream trace/model wording; Pi role mapping applied in t2"
+    },
+    {
+      "path": "skills/arena/SKILL.md",
+      "archivePath": "upstream/pstack/skills/arena/SKILL.md",
+      "status": "modified",
+      "oldSha256": "d0adeca6c9b19d43d90ed8f0484f0ddd362f05006d628b8f4cc6c9b55fa4d2b3",
+      "newSha256": "2e418753dfc64239e4d6412e7b739196d268e22ef1a4ecfbb8c0498bd3c82636",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t2",
+      "reason": "cross-judge / vendor wording; cross-vendor semantics preserved in t2"
+    },
+    {
+      "path": "skills/blast-radius/SKILL.md",
+      "archivePath": "upstream/pstack/skills/blast-radius/SKILL.md",
+      "status": "modified",
+      "oldSha256": "2e10745b97f5862323dcda3b29ca60d56b5c3c98e37020085d26b48efbe0a436",
+      "newSha256": "4248d03e22365207d2e5f90c9542720f80a88a6b42fd542ef88dde3cf9f9223f",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t3",
+      "reason": "upstream wording update"
+    },
+    {
+      "path": "skills/how/SKILL.md",
+      "archivePath": "upstream/pstack/skills/how/SKILL.md",
+      "status": "modified",
+      "oldSha256": "08a00079bb15b4258874ac3ff62d4ca7e94350ffedb521d0fd296dc9dd21904e",
+      "newSha256": "23d5cc79a449b9838242e7af5563aa8a4f0417bab136bbcc054b4bebc7284680",
+      "diffstat": "+6/-21",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t3",
+      "reason": "upstream collapsed how into a single read-only explainer; t3 adapts the port body and drops the removed reference prompts"
+    },
+    {
+      "path": "skills/how/references/explainer-prompt.md",
+      "archivePath": "upstream/pstack/skills/how/references/explainer-prompt.md",
+      "status": "removed",
+      "oldSha256": "ddb89cebefc24e2b54517a331aedfe045b6971e101f45c71b8cef4cccff45bff",
+      "newSha256": null,
+      "diffstat": "+0/-55",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the single-explainer rewrite; t3 removes the port dependency"
+    },
+    {
+      "path": "skills/how/references/explorer-prompt.md",
+      "archivePath": "upstream/pstack/skills/how/references/explorer-prompt.md",
+      "status": "removed",
+      "oldSha256": "6300128385ee940fd42ecb84b0e623435440a2dc283eae54ee4a52ba56947ba1",
+      "newSha256": null,
+      "diffstat": "+0/-35",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the single-explainer rewrite; t3 removes the port dependency"
+    },
+    {
+      "path": "skills/no-comments/SKILL.md",
+      "archivePath": "upstream/pstack/skills/no-comments/SKILL.md",
+      "status": "modified",
+      "oldSha256": "078ecfe224eafbb017f6476870612838bf6dbe38c0b697e12f0c887d0313f17e",
+      "newSha256": "9cc934e7541c4db609deeb5fd4e5882c1a4d3956975b5ae1ee693ed340527b9b",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t3",
+      "reason": "upstream wording update"
+    },
+    {
+      "path": "skills/poteto-help/SKILL.md",
+      "archivePath": "upstream/pstack/skills/poteto-help/SKILL.md",
+      "status": "modified",
+      "oldSha256": "768368881379d688c4e3bbdae55dd2d7874fde98a258324d3527de1bf09f9bd1",
+      "newSha256": "5b14be54fc543b8f282953febc641f19f03919e7f77858347baa6957522f0c51",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t3",
+      "reason": "upstream entry wording"
+    },
+    {
+      "path": "skills/poteto-mode/SKILL.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/SKILL.md",
+      "status": "modified",
+      "oldSha256": "ee1848c973a112026f09ba12ea7a13c1654006e7bf170d1c34bf5d5816bc439b",
+      "newSha256": "c1816b328fa174361dfb719f31ecc264991c8f020b0ba971ea79ca223c79c047",
+      "diffstat": "+3/-4",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t2",
+      "reason": "direct trace replaces mandatory how; Pi role names and authorization gates preserved in t2"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/bug-fix.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/bug-fix.md",
+      "status": "modified",
+      "oldSha256": "66e26542dad131cfd7df80ac0cdf81ed4d85e7b5e3f0eb65b933888760c4831f",
+      "newSha256": "e58b534e020e19629cd47c15e4210e594edfacea212af1e558a1d55bd311b5b3",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t2",
+      "reason": "playbook token sync; keeps Pi gates"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/feature.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/feature.md",
+      "status": "modified",
+      "oldSha256": "af8ce700b99953741cb547e34308fde0cf6b98ce67e1652c800d0deedf53aba1",
+      "newSha256": "f52d323f38a1ac2e8ab21b35e34bb10ab315436badfb74aa84bc466ee2ca522b",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t2",
+      "reason": "playbook token sync; keeps Pi gates"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/hillclimb.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/hillclimb.md",
+      "status": "modified",
+      "oldSha256": "942c1565b75ad02a2cb6230dd7c1ebd87e19f59a00319ebac2b6616007bf018f",
+      "newSha256": "efa062bb4a02638fd3af64299eb398e6e4c5edc55d0a7c2bf42a0182b5cba959",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t2",
+      "reason": "playbook token sync; keeps Pi gates"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/investigation.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/investigation.md",
+      "status": "modified",
+      "oldSha256": "dc66bcf6af3a074fc7f67aa5e12b93ef571a4fb4d8e17f2f1af5ae5359f42e46",
+      "newSha256": "1009fdb6596a9c06cb93e224ec86bfb60226f2c603474c968a4f2c2983e96a69",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t2",
+      "reason": "playbook token sync; keeps Pi gates"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md",
+      "status": "modified",
+      "oldSha256": "2b4fbb547e5ccfe46d1279d714eb0199d28e995f06bdc4eda4afbca9221fbbe6",
+      "newSha256": "e0da1ca5fc8c9213314126ec87a08d98219c451fc797fa02aaec20896757d46a",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t2",
+      "reason": "playbook token sync; keeps Pi gates"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/perf-issue.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/perf-issue.md",
+      "status": "modified",
+      "oldSha256": "c12aa2f82de7651a11676a3d5fea168f539b7f0faaa3a501d279255dd2a469c8",
+      "newSha256": "bde825b47f11191ed396a5e3237a25e3b0a4d008ab1e09fbf4b74f5b0da198b1",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t2",
+      "reason": "playbook token sync; keeps Pi gates"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/refactoring.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/refactoring.md",
+      "status": "modified",
+      "oldSha256": "0f5dd38113379ea8cf61e2182eca0a7478eea9a869eb40c2dddab3335aeca197",
+      "newSha256": "38a25e96ec0eabb86bdbfe53927d80bf26a786dac5f7f5bf505ae36f24802add",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t2",
+      "reason": "playbook token sync; keeps Pi gates"
+    },
+    {
+      "path": "skills/recall/SKILL.md",
+      "archivePath": "upstream/pstack/skills/recall/SKILL.md",
+      "status": "modified",
+      "oldSha256": "b0ceb996259c3404532f61e4b010df4e3d80d7ddbed85b3c302895723eb62a89",
+      "newSha256": "44673475f0523b83db7ea09388562b844ad7f2026f54e7d980f537e33109b1c8",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t3",
+      "reason": "upstream wording update"
+    },
+    {
+      "path": "skills/reflect/SKILL.md",
+      "archivePath": "upstream/pstack/skills/reflect/SKILL.md",
+      "status": "modified",
+      "oldSha256": "9648df23cabaae99b78ed59cd93b6f35ebbf02105d228e3d0b5c3a3b3419d753",
+      "newSha256": "3b78774e9659a516d8ed48616cab34bd3ec771904c63929aa74270da66b99cf0",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t2",
+      "reason": "reflect text update"
+    },
+    {
+      "path": "skills/reflect/references/synthesizer.md",
+      "archivePath": "upstream/pstack/skills/reflect/references/synthesizer.md",
+      "status": "modified",
+      "oldSha256": "6af816963de74d1a1aef4070273c1ff533d2072732e488e159ddc0b299fec3cd",
+      "newSha256": "07c81573f63f011df736d24ec8febf8b59d29db328cb1626ad67df7841c9ad77",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t2",
+      "reason": "reflect text update"
+    },
+    {
+      "path": "skills/setup-pstack/SKILL.md",
+      "archivePath": "upstream/pstack/skills/setup-pstack/SKILL.md",
+      "status": "modified",
+      "oldSha256": "df8ad3638a4dca31fb4b43d58056f0299f23ad0530614166d55ef989062b41ec",
+      "newSha256": "4c53ea532bbfc429833c8cf5480a0fffcd10c3e32bc26256feff3d7ee7c9da85",
+      "diffstat": "+24/-19",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t5",
+      "reason": "upstream model identifiers changed; Pi keeps its own /setup-pstack command path and must not adopt upstream default model names"
+    },
+    {
+      "path": "skills/sharpen/SKILL.md",
+      "archivePath": "upstream/pstack/skills/sharpen/SKILL.md",
+      "status": "modified",
+      "oldSha256": "563dfc460c605d311e650726288e2f1cbd61eab817db178d6e7e29643e07e7a2",
+      "newSha256": "aac4f8e6a1ffd70e3763314db37d3c2eb0cfea08bc63e98907aca6dae0343031",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t3",
+      "reason": "sharpen text update; prototype-before-recommend rule kept in t3"
+    },
+    {
+      "path": "skills/statechart/scripts/backends/mermaid.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/backends/mermaid.ts",
+      "status": "modified",
+      "oldSha256": "75704b2704a9399a39479ff704a580d5b9a1d0fede01fe771df28bf799b434b6",
+      "newSha256": "ce293d34ce3928d93329bd6d1a889d5722620008dae4339add79ef226c3f9b88",
+      "diffstat": "+53/-5",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t4",
+      "reason": "Mermaid drawnEdges hierarchical entry fix; Pi Node/render adapter ported in t4"
+    },
+    {
+      "path": "skills/statechart/scripts/run.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/run.ts",
+      "status": "modified",
+      "oldSha256": "f330e0a3b0a9f8181c2e52252c4a47db3f0a64f79a7cca5490263e33a5f13c72",
+      "newSha256": "751d97cfde3c241bfeed8913fc74a7a7cbc6acd3829e37a441016af3eb78f0e0",
+      "diffstat": "+30/-5",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t4",
+      "reason": "run CLI behaviour change; t4 adapts the Pi entry"
+    },
+    {
+      "path": "skills/statechart/scripts/test/chart.test.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/test/chart.test.ts",
+      "status": "modified",
+      "oldSha256": "3f9022fcc981d17f58b5e7a9302e766241f81a477bda70c3e621d7a1d95f19c1",
+      "newSha256": "e5c4bb0dcb9bcb570066d427ee768b2eb01aea87aa3bd9136c8e92459f513ae4",
+      "diffstat": "+43/-0",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t4",
+      "reason": "upstream test coverage for drawn edges; t4 mirrors it in the Pi adapter tests"
+    },
+    {
+      "path": "skills/statechart/scripts/test/cli.test.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/test/cli.test.ts",
+      "status": "modified",
+      "oldSha256": "8a3b028dafe2065029a66242f7a3832d18058e772a0dfc1b2c170511ffee8e07",
+      "newSha256": "fdd3154882a0c4505868973a9de133b3f5d2140f0ca9e0a9dcfd7b2cc55871df",
+      "diffstat": "+21/-20",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t4",
+      "reason": "run CLI test changes"
+    },
+    {
+      "path": "skills/statechart/scripts/test/corpus.test.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/test/corpus.test.ts",
+      "status": "modified",
+      "oldSha256": "5686aa487dfec3e0a06b3c15390dbc3ab5953ced532c5eee7d5c5e2f54f492c7",
+      "newSha256": "b280d27ca7c33bb9a8df2fbbd6d59c5b8c41e3ceaad0c7c73fba4ce9af85824b",
+      "diffstat": "+38/-0",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t4",
+      "reason": "corpus expectations follow the Mermaid fix"
+    },
+    {
+      "path": "skills/statechart/scripts/test/corpus/Login/chart.mmd",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/test/corpus/Login/chart.mmd",
+      "status": "modified",
+      "oldSha256": "6cfda25977c467c106f9fb7f5602960bdd40919ac9294994ccd3bb33346faf35",
+      "newSha256": "2aba56af645f56e371a87c22908e110ab259bed055a979d348220209d89b9862",
+      "diffstat": "+2/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t4",
+      "reason": "snapshot regenerated upstream for the drawn edge fix"
+    },
+    {
+      "path": "skills/statechart/scripts/test/drawn.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/test/drawn.ts",
+      "status": "added",
+      "oldSha256": null,
+      "newSha256": "369ac67009b9ddfa19e080b9f99e2eeb59fc3616c2b374a92b5b1e653df55919",
+      "diffstat": null,
+      "archiveAction": "archive-add",
+      "portOwner": "plan-0002/t4",
+      "reason": "genuinely new upstream test helper inside an archived directory; t4 covers the drawn test"
+    },
+    {
+      "path": "skills/statechart/scripts/test/labels.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/test/labels.ts",
+      "status": "modified",
+      "oldSha256": "5a884161428fc00229d9a0e896001df4b262b56a441b6b3d66d1b59b06050650",
+      "newSha256": "12c8403517b423ea7af0ed5c5d788ff872f9ba127ca11555ae128076a27a83ca",
+      "diffstat": "+16/-11",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t4",
+      "reason": "label expectations updated upstream"
+    },
+    {
+      "path": "skills/statechart/scripts/test/render.test.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/test/render.test.ts",
+      "status": "modified",
+      "oldSha256": "9cb369e5f4c464ca540ccc3de4fdd76670b84e54f06955ccb46908826579ac23",
+      "newSha256": "717d36625f0ed5edb5086b9bf1993b79801700f9889b58aa7faa38e3fa0d50a2",
+      "diffstat": "+64/-0",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t4",
+      "reason": "new render assertions for drawn edges"
+    },
+    {
+      "path": "skills/swarm/SKILL.md",
+      "archivePath": "upstream/pstack/skills/swarm/SKILL.md",
+      "status": "modified",
+      "oldSha256": "fea6bfbbf21e067a4e2d2ebab034bc3af508118e9df1abc9d2ba040d58a6df3a",
+      "newSha256": "411f9d1a29a8a6f59b7bfcd4726330ddb62c4c1298ebf53d5773d82703701038",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t2",
+      "reason": "upstream wording update"
+    },
+    {
+      "path": "skills/teach/SKILL.md",
+      "archivePath": "upstream/pstack/skills/teach/SKILL.md",
+      "status": "modified",
+      "oldSha256": "bd286e5a6290673be2cd28aef7af2ec7f1fb138e6bce156ea657368c7e7fc8a4",
+      "newSha256": "2c17f3c0a79536ca2fa3c20983def027ffd8abb4063d9bb3c97778b77557600d",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t3",
+      "reason": "upstream wording update"
+    },
+    {
+      "path": "skills/why/SKILL.md",
+      "archivePath": "upstream/pstack/skills/why/SKILL.md",
+      "status": "modified",
+      "oldSha256": "144d42e7712723d763e607bc0a969e5f1cdf83ec7228519d87677cc534571bed",
+      "newSha256": "6b65b3180f1f1bd3b696d7933daf900747410c82931d220a3f57a98addb1c0fd",
+      "diffstat": "+2/-91",
+      "archiveAction": "sync-copy",
+      "portOwner": "plan-0002/t3",
+      "reason": "why collapsed to one file driven by commits and PR records; the reference tree is deleted upstream and t3 drops those dependencies"
+    },
+    {
+      "path": "skills/why/references/epistemics.md",
+      "archivePath": "upstream/pstack/skills/why/references/epistemics.md",
+      "status": "removed",
+      "oldSha256": "d54a2361b2d5973bc3fe2edf62f446d87935974d4b40d47f23b9529f956ca758",
+      "newSha256": null,
+      "diffstat": "+0/-71",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the one-file why rewrite"
+    },
+    {
+      "path": "skills/why/references/investigator-prompt.md",
+      "archivePath": "upstream/pstack/skills/why/references/investigator-prompt.md",
+      "status": "removed",
+      "oldSha256": "c44afba186f899094f3694e6c9d6de5d14ff7c4ce28b787a9f50fc789c9a7fc3",
+      "newSha256": null,
+      "diffstat": "+0/-84",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the one-file why rewrite"
+    },
+    {
+      "path": "skills/why/references/source-playbook.md",
+      "archivePath": "upstream/pstack/skills/why/references/source-playbook.md",
+      "status": "removed",
+      "oldSha256": "9ae9dcb9d09111c9facc68510331c5aba4aed9b1b057314ff1fc0e166ad3993a",
+      "newSha256": null,
+      "diffstat": "+0/-17",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the one-file why rewrite"
+    },
+    {
+      "path": "skills/why/references/sources/code-archaeology.md",
+      "archivePath": "upstream/pstack/skills/why/references/sources/code-archaeology.md",
+      "status": "removed",
+      "oldSha256": "a4a3970e9db448054aed676f3f7feeee667b4b69f0bd57c8fd72b751be687cc7",
+      "newSha256": null,
+      "diffstat": "+0/-51",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the one-file why rewrite"
+    },
+    {
+      "path": "skills/why/references/sources/databricks.md",
+      "archivePath": "upstream/pstack/skills/why/references/sources/databricks.md",
+      "status": "removed",
+      "oldSha256": "236ede7aab6454662a992db088a5393537a5233a4c26719c93188f9e174488f6",
+      "newSha256": null,
+      "diffstat": "+0/-70",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the one-file why rewrite"
+    },
+    {
+      "path": "skills/why/references/sources/datadog.md",
+      "archivePath": "upstream/pstack/skills/why/references/sources/datadog.md",
+      "status": "removed",
+      "oldSha256": "b139faac5dc11b8f26c8255dce6033c1a6ac143b038d3dd103f2034c5dbec9cd",
+      "newSha256": null,
+      "diffstat": "+0/-97",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the one-file why rewrite"
+    },
+    {
+      "path": "skills/why/references/sources/incident-postmortem.md",
+      "archivePath": "upstream/pstack/skills/why/references/sources/incident-postmortem.md",
+      "status": "removed",
+      "oldSha256": "bf2661f1a81c37700884a45b77d6289be0c802b065febced31990e6564510839",
+      "newSha256": null,
+      "diffstat": "+0/-5",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the one-file why rewrite"
+    },
+    {
+      "path": "skills/why/references/sources/linear.md",
+      "archivePath": "upstream/pstack/skills/why/references/sources/linear.md",
+      "status": "removed",
+      "oldSha256": "01304e7f1badfcfb78babbb0edcadeb3cc8dd3f713793420cdff24ba190f907c",
+      "newSha256": null,
+      "diffstat": "+0/-48",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the one-file why rewrite"
+    },
+    {
+      "path": "skills/why/references/sources/notion.md",
+      "archivePath": "upstream/pstack/skills/why/references/sources/notion.md",
+      "status": "removed",
+      "oldSha256": "3bcfa695c49dfad4ac036d5d7181c12585f55ac04f1936198d16ab75a2788997",
+      "newSha256": null,
+      "diffstat": "+0/-55",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the one-file why rewrite"
+    },
+    {
+      "path": "skills/why/references/sources/sentry.md",
+      "archivePath": "upstream/pstack/skills/why/references/sources/sentry.md",
+      "status": "removed",
+      "oldSha256": "2d4f83048eac1df530b399e2aed75dd7c9c18577b7665420aaeb96d0ceb0b702",
+      "newSha256": null,
+      "diffstat": "+0/-66",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the one-file why rewrite"
+    },
+    {
+      "path": "skills/why/references/sources/slack.md",
+      "archivePath": "upstream/pstack/skills/why/references/sources/slack.md",
+      "status": "removed",
+      "oldSha256": "3bc6309f5c7b26ace3b919dbd7f7b048861dd2020f910fe24f656cc74b3b661c",
+      "newSha256": null,
+      "diffstat": "+0/-17",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the one-file why rewrite"
+    },
+    {
+      "path": "skills/why/references/synthesizer-prompt.md",
+      "archivePath": "upstream/pstack/skills/why/references/synthesizer-prompt.md",
+      "status": "removed",
+      "oldSha256": "11c62671aa7b7a6e3d36929ffe2b59bf95e6ca664eee4d93e6ee527dd3390ddb",
+      "newSha256": null,
+      "diffstat": "+0/-129",
+      "archiveAction": "archive-delete",
+      "portOwner": "plan-0002/t3",
+      "reason": "deleted upstream with the one-file why rewrite"
+    }
+  ],
+  "notArchived": [
+    {
+      "path": "README.md",
+      "sha256": "3a5ba29cdd573ce9a263436c61841cfc571f5286508d3f71dd62efe6bfbf3a5d",
+      "classification": "old-archive-exclusion",
+      "evidence": "outside archive scope; present at the f713f14 dependency-audit baseline (docs/dependency-audit.json references)"
+    },
+    {
+      "path": "plugin.json",
+      "sha256": "007b81ad0923dee703af12393223d2af358740006ef086c499b2017b1acff8e3",
+      "classification": "old-archive-exclusion",
+      "evidence": "Cursor plugin manifest; never archived, version/license recorded in this file instead"
+    },
+    {
+      "path": ".cursor-plugin/plugin.json",
+      "sha256": "4b0f620c54b2ef28f89808d3e37ba74949bc24f9d5e05081f4a76ec4e3a942f6",
+      "classification": "old-archive-exclusion",
+      "evidence": "Cursor plugin manifest duplicate; documented as existing in docs/sources.md"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "8ffe9de56bd30c1a95cd945262d6e3ac355ada4111551dde41f67851b9f1fc55",
+      "classification": "old-archive-exclusion",
+      "evidence": "repository maintenance file; creation time at the baseline cannot be verified (shallow clone, baseline objects missing)"
+    },
+    {
+      "path": "assets/logo.png",
+      "sha256": "672f6791589ef758b0ced2c4c477913fa2758623c438e265639a0d539ce90695",
+      "classification": "old-archive-exclusion",
+      "evidence": "Cursor marketplace artwork; not part of the archive scope, creation time unverifiable locally"
+    },
+    {
+      "path": "automations/benny/FOR_AGENTS.md",
+      "sha256": "17d370bf1d97e12924a5b291fa183f2270c310836c3355617fcc97d65b0b2bd1",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; Cursor automation pack outside Pi scope"
+    },
+    {
+      "path": "automations/benny/README.md",
+      "sha256": "ca3c42cbb7f0bf7068f7407eb355815e6c234d5c2786942f3cbe751a3690024b",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; Cursor automation pack outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/reproduce-and-fix-issues/SKILL.md",
+      "sha256": "809659da0bbd0303d2a42dbe380dd117ae06b6fa3e19e4a31832a2756ae841fe",
+      "classification": "old-archive-exclusion",
+      "evidence": "Benny automation skill (3 automation skills counted in docs/sources.md); outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/reproduce-and-fix-issues/references/control-adapter.md",
+      "sha256": "58b0615d2fca895f9a20df83266e280042b0d585b5f2fd324e2094a682fd846b",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/reproduce-and-fix-issues/references/feature-map.example.md",
+      "sha256": "1e5c7c8522daec3e43fcc2e73ceb97289ded65b552949ce65a11cc8eb3d2b6ee",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/reproduce-and-fix-issues/references/verify-existing-fix.md",
+      "sha256": "c90eae00abcdec71a58fa8d60f2c495b082a526ad50b8e8e494837609129bf29",
+      "classification": "old-archive-exclusion",
+      "evidence": "outside Pi scope; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "automations/benny/skills/setup-benny/SKILL.md",
+      "sha256": "1b1298536804eef289718f497a42f48aec135c8f4175b03e5ecfa11075758c59",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/triage-issue-reports/SKILL.md",
+      "sha256": "e88bb1ccc619f93d4b787bd9156fba5159f061c653fca00b6f08c65b6c77701a",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/triage-issue-reports/references/routing.example.md",
+      "sha256": "e5e53013692568cf69da8e8b302fff929fe2fbc9aec1a4651fd7997e2c7a4025",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/templates/configuration.example.yaml",
+      "sha256": "13e24b4ce9b9a0913916e85fe3b080b88d45f8e55dccfe8ae38e0751a997b6f5",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/templates/reproduce-automation-prompt.md",
+      "sha256": "71ec574f1844e379394ae4ef14c48d7df10afbaa319d395c788d7f856f0e6899",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/templates/triage-automation-prompt.md",
+      "sha256": "e0bba594547834f013ec805915610eb597e7929efe3ffbe85ae00339ee16d474",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "docs/guide/01-setup.md",
+      "sha256": "fb5e396ce97648b3bc17ac19f93faa3a85bd01b02e06c05aa96ae9a74b351060",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/02-poteto-mode.md",
+      "sha256": "063fb7013479c604be7dc39b67cf6c533be246d240c89e2cb18ed933a419e885",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/03-understand.md",
+      "sha256": "4486cf55f20b1a351b25a06b2a19f6a7081d6af4748a4178946907c2b7861392",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/04-design.md",
+      "sha256": "74aef7ae71766215f3b00ab637923c427512a8c11ffdb40fd001971285e3869e",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; docs/validation-upstream-01536-plan.md already tracks a 0.15.36 edit to this path"
+    },
+    {
+      "path": "docs/guide/05-build-and-clean.md",
+      "sha256": "1284e80595ae4f214dfa7c5c5f7758ff90a47b3273aa7b8142e51e574f5c5290",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/06-verify-and-ship.md",
+      "sha256": "3f761af6629969d1d7d957c6a2cdadb41f1c098c14d6bbe8c2a5d3855a4b4409",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/07-overnight.md",
+      "sha256": "0ec096f152aaa744cb93e581cc6bd972aa32986d00c560e94a02bc1147e972fb",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/08-principles.md",
+      "sha256": "0b26b85292f0c09768abe727c9e92987dbf81f5b439a4871034c2fd1c4cb1723",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/09-make-it-yours.md",
+      "sha256": "50642f7f894988f7c263700f46478e7aed7eb94a257683350d91a9a0d70dc141",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/10-recipes-and-pitfalls.md",
+      "sha256": "287815da2cbebe9b867d4da7d0a3632f069a32b6481815be9d6cad43b12b5fbf",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/README.md",
+      "sha256": "5c888d034d38f380789fad57c2c6fa7307ace803a0622cdde9e57fa2afe182de",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/design.jpg",
+      "sha256": "b8ed07427f6a0c37dd8ba97961fc0eb5071efeee6c4a230648bdb7547f6f2a8f",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/overnight.jpg",
+      "sha256": "4b4405e4df8925c5b3abbe702f681af0f3b1f5f32271b599f95717f578f1a0c8",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/recipes.jpg",
+      "sha256": "9fa2d51b476635712737795ddef81806efaa0086bb3bfa9f9f45695d9ab0f8e8",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/router.jpg",
+      "sha256": "525843055a4efd2b10acc50a8652fd02b0834ea733a8a2f895c1eb89036017da",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/understanding.jpg",
+      "sha256": "b60587e9a9bbe2550e93be9819cf0cd4acf77d90fac769a0c43d82bd8e34e279",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/verification.jpg",
+      "sha256": "2a76b52007a1cd2866ba67fd47d7d9ef3e1118bb5a09c4665eee8c3f161bd09a",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/harness/claude-code.md",
+      "sha256": "56d732c4b2375e355b5316a8467f080b73f2a4e36124db96155f4c1c66edee11",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream harness notes; read and cited in docs/sources.md from commit ac4e25a0, so it predates the baseline and was never archived"
+    },
+    {
+      "path": "skills/poteto-mode/scripts/package.json",
+      "sha256": "c9db6bb9362c6e319e395b358b113ebc72ab06b6c5e3a095093f6ebfdafe1c57",
+      "classification": "old-archive-exclusion",
+      "evidence": "excluded from the snapshot since U36 (docs/validation-upstream-01536-plan.md); also present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "skills/poteto-mode/scripts/watch-pr/tsconfig.json",
+      "sha256": "1ecccc72320b086c63ce3f73c959896fd747363e63553b3b1136296ea4069e45",
+      "classification": "old-archive-exclusion",
+      "evidence": "dev-only TypeScript config; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "skills/poteto-mode/scripts/bun.lock",
+      "sha256": "667d9cf7222e9aae3fa42a4be383e657784216e9df115da02227fbc5ac7bbe46",
+      "classification": "old-archive-exclusion",
+      "evidence": "lockfile read by skills/poteto-mode/scripts/bootstrap.ts with --frozen-lockfile at the f713f14 audit baseline; never archived"
+    }
+  ],
+  "unchanged": {
+    "count": 490,
+    "detail": "every archived file that is byte-identical at both pins; per-file sha256 for the current archive lives in docs/upstream-manifest.json, regenerated by plan-0002/t5 (this card must not rewrite the shared manifest)"
+  },
+  "verification": [
+    {
+      "kind": "baseline-tests",
+      "command": "npm test",
+      "exitCode": 0,
+      "result": "37/37 suites passed before any edit",
+      "note": "recorded as the pre-change baseline required by the card"
+    },
+    {
+      "kind": "archive-fidelity",
+      "command": "sh -c 'cd upstream/pstack && find agents skills -type f | while read f; do cmp -s \"$f\" \"$HOME/.claude/plugins/marketplaces/cursor-plugins/pstack/$f\" || { echo \"DIFF $f\"; exit 1; }; done'",
+      "exitCode": 0,
+      "result": "every archived agents/ and skills/ file is byte-identical to the target checkout"
+    },
+    {
+      "kind": "new-test-artifact",
+      "command": "test -f upstream/pstack/skills/statechart/scripts/test/drawn.ts",
+      "exitCode": 0,
+      "result": "new upstream test helper is archived"
+    },
+    {
+      "kind": "delta-contract",
+      "command": "python3 -c \"import json; d=json.load(open('docs/validation-upstream-01542-delta.json')); assert d['target']=='bf0c7cd80abdbf7fe47b634978a7d1b4071f71a7'; assert len(d['files'])>=31\"",
+      "exitCode": 0,
+      "result": "files has 46 entries (31 modified, 14 removed, 1 added); notArchived has 38"
+    },
+    {
+      "kind": "post-change-tests",
+      "command": "npm test",
+      "exitCode": 1,
+      "result": "stops at check-package (scripts/check-package.mjs:39, 'Pinned source differs: pstack/agents/comment-sicko.md', actual blob 14c2402f, expected 209e3704)",
+      "expectedOwner": "plan-0002/t5",
+      "note": "the assertions that go red read docs/source-files.json and docs/upstream-manifest.json, which this card may not edit; the same stale-manifest cause produces the following upstream-manifest --check failures and would also stop upstream-fidelity/generation once check-package passes"
+    },
+    {
+      "kind": "post-change-manifest-check",
+      "command": "node scripts/upstream-manifest.mjs --check",
+      "exitCode": 1,
+      "result": "sha256 mismatch for the 32 changed paths and 'file missing on disk' for the 14 deleted ones",
+      "expectedOwner": "plan-0002/t5"
+    }
+  ],
+  "followUps": [
+    "plan-0002/t5 must regenerate docs/source-files.json (git blob shas), docs/upstream-inventory.json and docs/upstream-manifest.json against bf0c7cd; until then scripts/check-package.mjs and node scripts/upstream-manifest.mjs --check fail with the stale blob/hash evidence recorded above, and npm test therefore stops at check-package",
+    "the 14 deleted upstream references and skills/statechart/scripts/test/drawn.ts must be reflected in docs/source-files.json by plan-0002/t5 (this card only moves the archive bytes)",
+    "plan-0002/t2/t3/t4 must port the changed bodies under adapters/pi/overrides; this card only syncs the upstream archive and does not touch port files or generated Markdown",
+    "deleted references (skills/how/references/**, skills/why/references/**) must be dropped from docs/port-map.json and any port template by the owning card"
+  ]
+}
