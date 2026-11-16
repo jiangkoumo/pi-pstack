@@ -93,9 +93,9 @@ test('Pi-specific role agents preserve tool boundaries and are not attributed to
 
 test('prepared references are generated, checked for drift, and have accepted status', () => fixture(async dir => {
   const map = JSON.parse(await readFile(resolve(dir, 'docs/port-map.json'), 'utf8'));
-  const entry = map.preparedResources.find(entry => entry.destination === 'skills/how/references/explorer-prompt.md');
+  const entry = map.preparedResources.find(entry => entry.destination === 'skills/architect/references/design-red-flags.md');
   assert.equal(entry.status, 'accepted');
-  assert.equal(map.entries.find(entry => entry.source === 'pstack/skills/how/SKILL.md').disposition, 'ported');
+  assert.equal(map.entries.find(entry => entry.source === 'pstack/skills/architect/SKILL.md').disposition, 'ported');
   const target = resolve(dir, entry.destination);
   const expected = await readFile(resolve(dir, entry.adaptation.override), 'utf8');
   await writeFile(target, expected + '\nmanual drift\n');

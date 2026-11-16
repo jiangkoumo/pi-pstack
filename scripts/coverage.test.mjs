@@ -13,8 +13,6 @@ const load = name => read(`skills/${name}/SKILL.md`);
 const groups = {
   architect: ['design-red-flags.md', 'rationale-template.md', 'runner-prompt.md'],
   reflect: ['divergent-reviewer.md', 'judgment-reviewer.md', 'synthesizer.md', 'tooling-reviewer.md'],
-  why: ['epistemics.md', 'investigator-prompt.md', 'source-playbook.md', 'synthesizer-prompt.md',
-    ...['code-archaeology', 'databricks', 'datadog', 'incident-postmortem', 'linear', 'notion', 'sentry', 'slack'].map(n => `sources/${n}.md`)],
 };
 
 async function reachable(start) {
@@ -96,15 +94,23 @@ test('task 4: swarm rejects incomparable evidence and gaps cannot count as passe
   assert.match(body, /gap does not count as a pass/i);
 });
 
-test('task 4: why has seven source categories and preserves uncertainty through synthesis', async () => {
-  const index = await read('skills/why/references/source-playbook.md');
-  const sources = localLinks(index).filter(p => !p.includes('incident-postmortem'));
-  assert.equal(sources.length, 7);
-  const body = await load('why');
-  assert(localLinks(body).includes('references/source-playbook.md'));
-  assert(localLinks(body).includes('references/sources/incident-postmortem.md'));
-  const epistemics = await read('skills/why/references/epistemics.md');
-  for (const tier of ['Direct', 'Supported', 'Inferred', 'Speculative', 'Unknown']) assert(headings(epistemics).some(h => h.endsWith(tier)), tier);
+test('task 4: why is a single file that anchors in commits and PRs, widens only when the trail is thin, and keeps five confidence tiers', async () => {
+  const [body, upstream] = await Promise.all([load('why'), read('upstream/pstack/skills/why/SKILL.md')]);
+  for (const h of headings(upstream)) assert(headings(body).includes(h), h);
+  const core = upstream.match(/^Answer from the record, not the code:.*$/m)[0];
+  assert(body.includes(core), 'upstream core instruction must survive verbatim');
+  assert.deepEqual(localLinks(body), ['../../adapters/pi/harness.md']);
+  await assert.rejects(stat(resolve(root, 'skills/why/references')), { code: 'ENOENT' });
+  const sections = headings(body);
+  assert(sections.indexOf('1. Anchor the target in history') !== -1, 'history anchor step');
+  assert(sections.indexOf('1. Anchor the target in history') < sections.indexOf('2. Widen only when the trail is thin'), 'commits and PRs come before other sources');
+  assert.match(body, /git blame -L/);
+  assert.match(body, /gh pr view/);
+  assert.match(body, /A missing connector is a gap and a null result/);
+  const tiers = [...body.matchAll(/^- \*\*(Direct|Supported|Inferred|Speculative|Unknown)\*\*:/gm)].map(m => m[1]);
+  assert.deepEqual(tiers, ['Direct', 'Supported', 'Inferred', 'Speculative', 'Unknown']);
+  assert(headings(body).includes('Confidence'));
+  assert.match(body, /never promote a claim by restating it/);
   assert.match(body, /Preserve \/ Change \/ Avoid \/ Risk/);
 });
 
@@ -114,11 +120,11 @@ test('task 4: reference access remains bounded by Pi authority', async () => {
     assert.match(body, /delegation.*authoriz|authoriz.*delegation/i, name);
     assert.doesNotMatch(body, /claude-opus|grok-4|readonly: false|cloud_base_branch|\.cursor\/rules/);
   }
-  for (const ref of groups.why.filter(p => p.startsWith('sources/'))) {
-    const body = await read(`skills/why/references/${ref}`);
-    assert.match(body, /read-only/);
-    assert.match(body, /permission|authoriz/);
-  }
+  const why = await load('why');
+  assert.match(why, /Any helper is read-only: no bash, edit, write, commit, push, merge, deploy, or external messages/);
+  assert.match(why, /never a reason to grant write tools/);
+  assert.match(why, /MCP availability alone never authorizes a write tool/);
+  assert.match(why, /Loading this skill grants no permission to commit, push, merge, deploy, delete, or send messages/);
 });
 
 test('task 2: restored entry methods expose their source phases and readable references', async () => {
@@ -128,8 +134,14 @@ test('task 2: restored entry methods expose their source phases and readable ref
     for (const heading of headings(await read(`upstream/pstack/skills/${name}/SKILL.md`))) assert(headings(body).includes(heading), `${name}: ${heading}`);
     await reachable(`skills/${name}/SKILL.md`);
   }
-  const seen = await reachable('skills/how/SKILL.md');
-  for (const n of ['explorer', 'explainer']) assert(seen.has(resolve(root, `skills/how/references/${n}-prompt.md`)));
+  const how = await load('how');
+  await assert.rejects(stat(resolve(root, 'skills/how/references')), { code: 'ENOENT' });
+  assert.deepEqual(localLinks(how), ['../../adapters/pi/harness.md']);
+  assert.match(how, /Spawn one read-only explainer for the whole question\. It explores and explains in one pass and never writes\./);
+  assert.match(how, /One explainer, no explorers, no synthesis pass/);
+  assert.match(how, /subagent\(\{ agent: "pstack\.judgment-agent"/);
+  assert.match(how, /physically read-only/);
+  assert.doesNotMatch(how, /explorer-prompt|explainer-prompt|\bexplorers? (?:fan|report|brief)/i);
 });
 
 test('task 2: benchmark contract checks work, errors, alternating trials, physical bounds and verdict', async () => {

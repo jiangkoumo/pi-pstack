@@ -14,8 +14,8 @@ I want a deeper version of this task, not a bigger one. Before rewriting it, do 
 
 Then rewrite my prompt to ask for exactly that.
 
-Leave choices that are mine to make open instead of deciding them.
+Have the rewritten prompt ask the agent to prototype any choice an experiment can settle and recommend an option based on what it observed. Leave product or preference choices that no experiment can settle for me to make.
 
 ## Pi adaptation
 
-Use the four questions above as internal preparation. Return only the rewritten prompt, ready for the user to send. Do not prepend answers to the four questions, analysis, commentary, a greeting, or a separate “Rewritten prompt” heading. Preserve the user’s choices and keep the task deeper, not bigger.
+Use the four questions above as internal preparation. Return only the rewritten prompt, ready for the user to send. Do not prepend answers to the four questions, analysis, commentary, a greeting, or a separate “Rewritten prompt” heading. Keep the task deeper, not bigger. The rewritten prompt asks for a prototype of any choice an experiment can settle and a recommendation grounded in what that prototype observed; product and preference choices that no experiment can settle stay open for the user.

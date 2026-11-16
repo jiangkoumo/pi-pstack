@@ -1,5 +1,5 @@
 {
-  "commit": "c742dd61706fbacc1b95f1a20b7b988cf096ce6c",
+  "commit": "bf0c7cd80abdbf7fe47b634978a7d1b4071f71a7",
   "pluginVersion": "0.15.36",
   "dispositions": {
     "ported": "已适配；验证强度按 reason 和 audit.scope 记录",
@@ -1803,26 +1803,6 @@
       "adaptation": {
         "strategy": "override",
         "override": "adapters/pi/overrides/skills/create-verification-skill/references/feature-map-example/search.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/how/references/explainer-prompt.md",
-      "destination": "skills/how/references/explainer-prompt.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/how/references/explainer-prompt.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/how/references/explorer-prompt.md",
-      "destination": "skills/how/references/explorer-prompt.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/how/references/explorer-prompt.md.template"
       },
       "dependencies": "from-template"
     },
@@ -5837,6 +5817,16 @@
       "dependencies": []
     },
     {
+      "source": "pstack/skills/statechart/scripts/test/drawn.ts",
+      "destination": "skills/statechart/scripts/test/drawn.ts",
+      "status": "accepted",
+      "adaptation": {
+        "strategy": "verbatim",
+        "override": null
+      },
+      "dependencies": []
+    },
+    {
       "source": "pstack/skills/statechart/scripts/test/grid/Grid.cfg",
       "destination": "skills/statechart/scripts/test/grid/Grid.cfg",
       "status": "accepted",
@@ -5973,126 +5963,6 @@
       "adaptation": {
         "strategy": "override",
         "override": "adapters/pi/overrides/skills/typescript-best-practices/references/patterns.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/why/references/epistemics.md",
-      "destination": "skills/why/references/epistemics.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/why/references/epistemics.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/why/references/investigator-prompt.md",
-      "destination": "skills/why/references/investigator-prompt.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/why/references/investigator-prompt.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/why/references/source-playbook.md",
-      "destination": "skills/why/references/source-playbook.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/why/references/source-playbook.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/why/references/sources/code-archaeology.md",
-      "destination": "skills/why/references/sources/code-archaeology.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/why/references/sources/code-archaeology.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/why/references/sources/databricks.md",
-      "destination": "skills/why/references/sources/databricks.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/why/references/sources/databricks.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/why/references/sources/datadog.md",
-      "destination": "skills/why/references/sources/datadog.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/why/references/sources/datadog.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/why/references/sources/incident-postmortem.md",
-      "destination": "skills/why/references/sources/incident-postmortem.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/why/references/sources/incident-postmortem.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/why/references/sources/linear.md",
-      "destination": "skills/why/references/sources/linear.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/why/references/sources/linear.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/why/references/sources/notion.md",
-      "destination": "skills/why/references/sources/notion.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/why/references/sources/notion.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/why/references/sources/sentry.md",
-      "destination": "skills/why/references/sources/sentry.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/why/references/sources/sentry.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/why/references/sources/slack.md",
-      "destination": "skills/why/references/sources/slack.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/why/references/sources/slack.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/why/references/synthesizer-prompt.md",
-      "destination": "skills/why/references/synthesizer-prompt.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/why/references/synthesizer-prompt.md.template"
       },
       "dependencies": "from-template"
     }

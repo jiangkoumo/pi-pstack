@@ -1,8 +1,8 @@
 {
   "repository": "https://github.com/cursor/plugins",
-  "commit": "c742dd61706fbacc1b95f1a20b7b988cf096ce6c",
-  "pluginVersion": "0.15.36",
-  "recordedAt": "2026-10-27T23:12:40Z",
+  "commit": "bf0c7cd80abdbf7fe47b634978a7d1b4071f71a7",
+  "pluginVersion": "0.15.42",
+  "recordedAt": "2026-11-16T07:32:09Z",
   "treeTruncated": false,
   "skills": [
     "pstack/automations/benny/skills/reproduce-and-fix-issues/SKILL.md",
