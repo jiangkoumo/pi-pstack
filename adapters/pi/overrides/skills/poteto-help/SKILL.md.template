@@ -44,7 +44,7 @@ Installing changes nothing until the user invokes a skill. Only `/setup-pstack` 
 
 If cost is the worry, say where the tokens go and how to spend fewer. pstack spends extra tokens on subagents and review panels. Rerun `/setup-pstack` and pick a smaller budget or cheaper models. A role set to `inherit` or unset runs on the chat's model, which saves tokens when the chat runs on a cheaper model. A shorter review panel runs fewer subagents, one for each seat. Save `/skill:poteto-mode` for work that needs rigor.
 
-pstack began on Cursor. Its skills use the Agent Skills format, so other tools can read them. This Pi package replaces Cursor subagents with pi-subagents, Custom Modes with `/poteto on` and `/poteto off`, and Cursor transcripts with Pi sessions, so parts written against Cursor features may not behave the same way.
+pstack began on Cursor. Its skills use the Agent Skills format, so other tools can read them. This Pi package replaces Cursor subagents with pi-subagents, some of which bind their models per role through `/setup-pstack`, Custom Modes with `/poteto on` and `/poteto off`, and Cursor transcripts with Pi sessions, so parts written against Cursor features may not behave the same way.
 
 ## Start a task with `/skill:poteto-mode`
 
