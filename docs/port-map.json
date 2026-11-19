@@ -1,6 +1,6 @@
 {
-  "commit": "bf0c7cd80abdbf7fe47b634978a7d1b4071f71a7",
-  "pluginVersion": "0.15.36",
+  "commit": "e58dd043600587dbaf58ba315e7f2b38373eeb43",
+  "pluginVersion": "0.15.44",
   "dispositions": {
     "ported": "已适配；验证强度按 reason 和 audit.scope 记录",
     "substitute": "必要子集已有替代或已决定路线，完整入口待相应阶段实现",
@@ -767,25 +767,6 @@
     },
     {
       "kind": "playbooks",
-      "source": "pstack/skills/poteto-mode/playbooks/orchestrate.md",
-      "disposition": "ported",
-      "phase": "P5",
-      "destination": "skills/poteto-mode/playbooks/orchestrate.md",
-      "reason": "已适配为 Pi agentic 大型项目协调流程：持久化 tracker、独立 worktree owner、宿主事件与有界监督、显式落地授权",
-      "audit": {
-        "sourceRead": true,
-        "relativeLinks": [],
-        "scope": "P5 resource checks plus playbook contract checks"
-      },
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/poteto-mode/playbooks/orchestrate.md.template"
-      },
-      "evidence": "validation-p5-loop.md",
-      "dependencies": "from-template"
-    },
-    {
-      "kind": "playbooks",
       "source": "pstack/skills/poteto-mode/playbooks/pause-safely.md",
       "disposition": "ported",
       "phase": "P5",
@@ -1009,6 +990,25 @@
     },
     {
       "kind": "skills",
+      "source": "pstack/skills/poteto-mode/worker.md",
+      "disposition": "ported",
+      "phase": "P5",
+      "destination": "skills/poteto-mode/worker.md",
+      "reason": "逐字继承上游 worker.md：操作者是整轮工作的委托方，以及每个被启动代理都遵守的规则；Pi 侧最终措辞归 U44-2",
+      "audit": {
+        "sourceRead": true,
+        "relativeLinks": [],
+        "scope": "Byte-verbatim copy of the pinned upstream file; Pi adaptation belongs to U44-2"
+      },
+      "adaptation": {
+        "strategy": "override",
+        "override": "adapters/pi/overrides/skills/poteto-mode/worker.md.template"
+      },
+      "evidence": "validation-p5-loop.md",
+      "dependencies": "from-template"
+    },
+    {
+      "kind": "skills",
       "source": "pstack/skills/principle-attack-the-premise/SKILL.md",
       "disposition": "ported",
       "phase": "P5",
@@ -1029,12 +1029,7 @@
         "override": null
       },
       "evidence": "validation-p1.md",
-      "dependencies": [
-        "skills/principle-build-the-lever/SKILL.md",
-        "skills/principle-fix-root-causes/SKILL.md",
-        "skills/principle-laziness-protocol/SKILL.md",
-        "skills/principle-redesign-from-first-principles/SKILL.md"
-      ]
+      "dependencies": []
     },
     {
       "kind": "skills",
@@ -1076,11 +1071,7 @@
         "override": null
       },
       "evidence": "validation-p1.md",
-      "dependencies": [
-        "skills/principle-encode-lessons-in-structure/SKILL.md",
-        "skills/principle-laziness-protocol/SKILL.md",
-        "skills/principle-prove-it-works/SKILL.md"
-      ]
+      "dependencies": []
     },
     {
       "kind": "skills",
@@ -1294,9 +1285,7 @@
         "override": null
       },
       "evidence": "validation-p1.md",
-      "dependencies": [
-        "skills/principle-guard-the-context-window/SKILL.md"
-      ]
+      "dependencies": []
     },
     {
       "kind": "skills",
@@ -1747,36 +1736,6 @@
   "sourceOverrides": [],
   "preparedResources": [
     {
-      "source": "pstack/skills/architect/references/design-red-flags.md",
-      "destination": "skills/architect/references/design-red-flags.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/architect/references/design-red-flags.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/architect/references/rationale-template.md",
-      "destination": "skills/architect/references/rationale-template.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/architect/references/rationale-template.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/architect/references/runner-prompt.md",
-      "destination": "skills/architect/references/runner-prompt.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/architect/references/runner-prompt.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
       "source": "pstack/skills/create-verification-skill/references/feature-map-example/create-note.md",
       "destination": "skills/create-verification-skill/references/feature-map-example/create-note.md",
       "status": "accepted",
@@ -1833,46 +1792,6 @@
       "adaptation": {
         "strategy": "override",
         "override": "adapters/pi/overrides/skills/poteto-mode/references/bugbot-triage.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/reflect/references/divergent-reviewer.md",
-      "destination": "skills/reflect/references/divergent-reviewer.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/reflect/references/divergent-reviewer.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/reflect/references/judgment-reviewer.md",
-      "destination": "skills/reflect/references/judgment-reviewer.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/reflect/references/judgment-reviewer.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/reflect/references/synthesizer.md",
-      "destination": "skills/reflect/references/synthesizer.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/reflect/references/synthesizer.md.template"
-      },
-      "dependencies": "from-template"
-    },
-    {
-      "source": "pstack/skills/reflect/references/tooling-reviewer.md",
-      "destination": "skills/reflect/references/tooling-reviewer.md",
-      "status": "accepted",
-      "adaptation": {
-        "strategy": "override",
-        "override": "adapters/pi/overrides/skills/reflect/references/tooling-reviewer.md.template"
       },
       "dependencies": "from-template"
     },

@@ -27,13 +27,13 @@ Skip Phase A only when the work is genuinely greenfield with no surrounding syst
 
 ## Phase B: Sketch
 
-Run the [arena](../arena/SKILL.md) skill with the design-sketch task and the Phase A grounding artifacts. Read and pass [runner-prompt.md](references/runner-prompt.md) as each runner's prompt.
+Run the [arena](../arena/SKILL.md) skill with the design-sketch task and the Phase A grounding artifacts. Read and pass `references/runner-prompt.md` as each runner's prompt.
 
 Choose independent runners under the Pi execution and authority rules below. With no delegation authorization, design and compare the candidates sequentially.
 
 Design it twice. Require at least two structurally distinct candidates before synthesis, even when the first looks sufficient. This is the **exhaust-the-design-space** principle skill made concrete. Whole-shape alternatives, not point fixes inside one shape.
 
-Screen every candidate against [`references/design-red-flags.md`](references/design-red-flags.md) before synthesis. Assume the next contributor is an agent that sees only the files it opened, copies the nearest example, and takes the shortest path that compiles. Prefer the design where a change that looks right from one file is right for the whole repo.
+Screen every candidate against `references/design-red-flags.md` before synthesis. Assume the next contributor is an agent that sees only the files it opened, copies the nearest example, and takes the shortest path that compiles. Prefer the design where a change that looks right from one file is right for the whole repo.
 
 Compare viable candidates on interface depth. Prefer the design that hides more complexity behind a smaller, simpler public surface. A rich interface can keep call chains short by concentrating capability instead of scattering it across layers.
 
@@ -79,7 +79,7 @@ When you scrap:
 
 Store the design package under `<run-id>/` in the pstack run directory provided in the system prompt, or an operator-approved artifact directory. Do not assume a global home path.
 
-The caller's usage is written first and the type sketch derived from it. One file with new types and signatures for small changes. Module map plus type definitions for larger work. The rationale ships alongside, shaped per [rationale-template.md](references/rationale-template.md), including the usage sketch and the synthesis decision.
+The caller's usage is written first and the type sketch derived from it. One file with new types and signatures for small changes. Module map plus type definitions for larger work. The rationale ships alongside, shaped per `references/rationale-template.md`, including the usage sketch and the synthesis decision.
 
 ## Pi execution and authority
 

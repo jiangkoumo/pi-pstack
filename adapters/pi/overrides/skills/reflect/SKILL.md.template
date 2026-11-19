@@ -25,15 +25,15 @@ Each reviewer and the synthesizer name a role line in `/setup-pstack` and a defa
 
 | Lens | Role line | Prompt template |
 |---|---|---|
-| Judgment | `judgment` | [judgment-reviewer.md](references/judgment-reviewer.md) |
-| Tooling | `verification` | [tooling-reviewer.md](references/tooling-reviewer.md) |
-| Divergent | `strongest` | [divergent-reviewer.md](references/divergent-reviewer.md) |
+| Judgment | `judgment` | `references/judgment-reviewer.md` |
+| Tooling | `verification` | `references/tooling-reviewer.md` |
+| Divergent | `strongest` | `references/divergent-reviewer.md` |
 
 Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in the `subagent` response body.
 
 ## 3. Synthesize
 
-One `subagent` call, `subagent_type` read-only, `model` from the `judgment` role line, agent mode (`readonly: true`). It spot-verifies citations through MCP where available, and readonly strips MCPs. Pass [synthesizer.md](references/synthesizer.md) verbatim, with each reviewer's full output inlined where marked. It returns an Accepted / Rejected / Backlog list.
+One `subagent` call, `subagent_type` read-only, `model` from the `judgment` role line, agent mode (`readonly: true`). It spot-verifies citations through MCP where available, and readonly strips MCPs. Pass `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. It returns an Accepted / Rejected / Backlog list.
 
 ## 4. Structural enforcement check
 

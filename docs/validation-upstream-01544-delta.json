@@ -1,0 +1,1005 @@
+{
+  "task": "U44-1",
+  "goal": "Record the full archive delta contract between the 0.15.42 pin and pstack 0.15.44, and assign each changed file to the card that adapts it, without claiming archive-scope exclusions as upstream additions.",
+  "target": "e58dd043600587dbaf58ba315e7f2b38373eeb43",
+  "targetVersion": "0.15.44",
+  "targetSubject": "chore(pstack): route the Gemini seat to Gemini 4 Neon (#1283)",
+  "baseline": "bf0c7cd80abdbf7fe47b634978a7d1b4071f71a7",
+  "baselineVersion": "0.15.42",
+  "baselineSource": "docs/source-files.json + docs/upstream-manifest.json at the 0.15.42 pin; both commit objects are present in ~/Documents/cursor-plugins-upstream",
+  "sourceTree": "~/Documents/cursor-plugins-upstream (local clone of cursor/plugins; origin/main verified at the target SHA)",
+  "hashAlgorithm": "sha256 over raw bytes (no CRLF normalization; the port-facing manifest in docs/upstream-manifest.json normalizes CRLF separately)",
+  "archivePolicy": {
+    "archived": [
+      "LICENSE",
+      "agents/**",
+      "skills/**"
+    ],
+    "excludedTopLevel": {
+      "README.md": "product documentation, not imported as an archive copy; Pi keeps its own README",
+      "plugin.json": "Cursor plugin manifest; version/author/license recorded here, not archived",
+      ".cursor-plugin/plugin.json": "Cursor plugin manifest duplicate",
+      ".gitignore": "repository maintenance file",
+      "assets/logo.png": "Cursor marketplace artwork",
+      "automations/benny/**": "Cursor automation pack outside the Pi single-agent scope",
+      "docs/**": "upstream user guide and harness notes; Pi keeps its own docs tree"
+    },
+    "excludedFiles": {
+      "skills/poteto-mode/scripts/package.json": "dev/test entry points; excluded since U36; upstream edited its test command in 0.15.43, which changes no archive byte",
+      "skills/poteto-mode/scripts/watch-pr/tsconfig.json": "dev-only TypeScript config",
+      "skills/poteto-mode/scripts/bun.lock": "lockfile; referenced by bootstrap.ts at the f713f14 audit baseline"
+    },
+    "consequence": "The archive is intentionally narrower than the upstream tree. Every path listed under notArchived is outside the archive scope at both pins; being absent from the previous archive is a scope decision, not evidence that the file is new in 0.15.42."
+  },
+  "license": {
+    "spdx": "MIT",
+    "copyright": "Copyright (c) 2026 Lauren Tan",
+    "author": "Lauren Tan (@poteto)",
+    "declaredVersion": "0.15.44 (plugin.json and .cursor-plugin/plugin.json)",
+    "archiveLicensePath": "upstream/pstack/LICENSE",
+    "archiveLicenseSha256": "bc957ca6bee02792566a1a028d105e02e247c6e77cf057061674273da77b200e",
+    "targetLicenseSha256": "bc957ca6bee02792566a1a028d105e02e247c6e77cf057061674273da77b200e",
+    "change": "unchanged between baseline and target; LICENSES/pstack.txt and THIRD_PARTY_NOTICES.md need no edit in this card"
+  },
+  "counts": {
+    "baselineArchivedFiles": 522,
+    "targetSourceFiles": 551,
+    "archiveAfterSync": 513,
+    "unchangedArchivedFiles": 465,
+    "modified": 47,
+    "removedUpstream": 10,
+    "addedToArchive": 1,
+    "notArchived": 38,
+    "archiveScopeChangedFiles": 58,
+    "notArchivedModified": 11
+  },
+  "adaptationOwnership": {
+    "U44-1": "re-archive the 0.15.44 bytes, pin the four source lists, and regenerate every skill that has no override (the remaining principle leaves, technical-writing, unslop)",
+    "U44-2": "poteto-mode (SKILL, all playbooks, worker.md, scripts) and agents/poteto-agent.md",
+    "U44-3": "architect, reflect, arena, swarm, poteto-help, no-comments, recall, automate-me, benchmark-checklist, figure-it-out, show-me-your-work",
+    "U44-4": "the four principle skills with overrides: boundary-discipline, explain-the-number, prove-it-works, sequence-verifiable-units",
+    "U44-5": "statechart",
+    "U44-6": "setup-pstack and documentation"
+  },
+  "files": [
+    {
+      "path": "agents/poteto-agent.md",
+      "archivePath": "upstream/agents/poteto-agent.md",
+      "status": "modified",
+      "oldSha256": "979f18abd000d185a0b4c41a2a4111c0910596a7f5c81cbb571885bc721b2bf7",
+      "newSha256": "369065b46c217a5898cb1a400652c3399449252f4d5dbf8937eb8d4922d3cf6b",
+      "diffstat": "+1/-0",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 pins the writer to the claude-opus-5-5-xhigh-fast slug; Pi keeps its own role mapping and only the template wording follows in U44-2"
+    },
+    {
+      "path": "skills/architect/SKILL.md",
+      "archivePath": "upstream/skills/architect/SKILL.md",
+      "status": "modified",
+      "oldSha256": "42be68c2883bd10d867c46930fa11c44a25910b62b85e0c9a40326b4f25d7b6e",
+      "newSha256": "aea83d7aa109eb73402182701b14c289844663ad9c8f959fedbef2df66787ce0",
+      "diffstat": "+2/-70",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-3",
+      "reason": "0.15.43 cuts architect to a short brief plus a route to arena; the five phases and the reference prompts are gone"
+    },
+    {
+      "path": "skills/architect/references/design-red-flags.md",
+      "archivePath": "upstream/skills/architect/references/design-red-flags.md",
+      "status": "removed",
+      "oldSha256": "d0e639e4cc588ec865f930d3a4111faad60987ae36925917e319d7ceca7c69ce",
+      "newSha256": null,
+      "diffstat": "+0/-57",
+      "archiveAction": "archive-delete",
+      "portOwner": "U44-3",
+      "reason": "deleted upstream with the architect cut; U44-3 drops the Pi override template and the generated copy"
+    },
+    {
+      "path": "skills/architect/references/rationale-template.md",
+      "archivePath": "upstream/skills/architect/references/rationale-template.md",
+      "status": "removed",
+      "oldSha256": "0cedfccdc7b47fc881febd5a8293eecbc542c20f8df825639904a8102d2eb5d3",
+      "newSha256": null,
+      "diffstat": "+0/-35",
+      "archiveAction": "archive-delete",
+      "portOwner": "U44-3",
+      "reason": "deleted upstream with the architect cut; U44-3 drops the Pi override template and the generated copy"
+    },
+    {
+      "path": "skills/architect/references/runner-prompt.md",
+      "archivePath": "upstream/skills/architect/references/runner-prompt.md",
+      "status": "removed",
+      "oldSha256": "21dd5314aab778c5007228027a4591d97693fbec6ab86524037772b63f40948e",
+      "newSha256": null,
+      "diffstat": "+0/-20",
+      "archiveAction": "archive-delete",
+      "portOwner": "U44-3",
+      "reason": "deleted upstream with the architect cut; U44-3 drops the Pi override template and the generated copy"
+    },
+    {
+      "path": "skills/arena/SKILL.md",
+      "archivePath": "upstream/skills/arena/SKILL.md",
+      "status": "modified",
+      "oldSha256": "2e418753dfc64239e4d6412e7b739196d268e22ef1a4ecfbb8c0498bd3c82636",
+      "newSha256": "2573e96eec7f2dab88249cc0a5e391eaf9a6000427d7316af0298e6b899618ae",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-3",
+      "reason": "0.15.44 points the runner and cross-judge defaults at gemini-4-neon-high and shortens the fallback chains; Pi role mapping follows in U44-3"
+    },
+    {
+      "path": "skills/automate-me/SKILL.md",
+      "archivePath": "upstream/skills/automate-me/SKILL.md",
+      "status": "modified",
+      "oldSha256": "30b35f3628c4fd8c11af0ada06d14cdc3b28901810caca2480f627d4d21acfbe",
+      "newSha256": "ffdb2db6d56b29518f50837d4e5d9194034bb3a767d77eb76efe82351ab1489c",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-3",
+      "reason": "0.15.43 replaces the 'reasoning level and fast or standard speed' phrase with 'reasoning level'; U44-3 follows"
+    },
+    {
+      "path": "skills/benchmark-checklist/SKILL.md",
+      "archivePath": "upstream/skills/benchmark-checklist/SKILL.md",
+      "status": "modified",
+      "oldSha256": "ba109e96c8f6c1c391baccf19e5d11e14370df7b3f2605e1572cd565a6c0fca0",
+      "newSha256": "5efd79495e3eebf3b53814861330fe812458212958f8f009492e866c329161f6",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-3",
+      "reason": "0.15.43 drops the pointer to the shortened Opening a PR playbook; U44-3 follows"
+    },
+    {
+      "path": "skills/figure-it-out/SKILL.md",
+      "archivePath": "upstream/skills/figure-it-out/SKILL.md",
+      "status": "modified",
+      "oldSha256": "bdb23cdbd82a1e6af094b495691c832a6f7f3ab9706ba9edbeb664ef51a726e1",
+      "newSha256": "30693f2510b111128a6bae0d0ac35f97d972a30c0b84364dc87290b9fdc3b699",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-3",
+      "reason": "0.15.43 replaces the 'reasoning level and fast or standard speed' phrase with 'reasoning level'; U44-3 follows"
+    },
+    {
+      "path": "skills/no-comments/SKILL.md",
+      "archivePath": "upstream/skills/no-comments/SKILL.md",
+      "status": "modified",
+      "oldSha256": "9cc934e7541c4db609deeb5fd4e5882c1a4d3956975b5ae1ee693ed340527b9b",
+      "newSha256": "054a46f2662c725add02d9e0440d8dcb4351f3bd0afcf797acc22a501b527b54",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-3",
+      "reason": "0.15.43 replaces the 'reasoning level and fast or standard speed' phrase with 'reasoning level'; U44-3 follows"
+    },
+    {
+      "path": "skills/poteto-help/SKILL.md",
+      "archivePath": "upstream/skills/poteto-help/SKILL.md",
+      "status": "modified",
+      "oldSha256": "5b14be54fc543b8f282953febc641f19f03919e7f77858347baa6957522f0c51",
+      "newSha256": "d6d72057e5cdfa5cebeec88ee50d1ebf8f46f2e64788f5580968a73a16aba08d",
+      "diffstat": "+4/-5",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-3",
+      "reason": "0.15.43 drops the orchestrate entry, the architect checkpoint and the model-role list; U44-3 follows"
+    },
+    {
+      "path": "skills/poteto-mode/SKILL.md",
+      "archivePath": "upstream/skills/poteto-mode/SKILL.md",
+      "status": "modified",
+      "oldSha256": "c1816b328fa174361dfb719f31ecc264991c8f020b0ba971ea79ca223c79c047",
+      "newSha256": "9c09f6ab6661975a5be108f925afe203e10966ee426e3d786f4d338c5b05bd9f",
+      "diffstat": "+27/-66",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 cuts poteto-mode to ten triggers, one reply paragraph, no Comments section, 22 playbooks, the figure-it-out route and the worker.md pointer; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/autonomous-run.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/autonomous-run.md",
+      "status": "modified",
+      "oldSha256": "e74323411b5a760ffa7393d908d07fed420c68f8dc2aed1267505eaeadf130f2",
+      "newSha256": "613c7b3079779ecfa27e1fb41a082711b5a1207e720b87f75c3aaa9b25aac480",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 replaces the 'reasoning level and fast or standard speed' phrase with 'reasoning level'; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/autopilot-full.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/autopilot-full.md",
+      "status": "modified",
+      "oldSha256": "2da35982565c6cf1dbe25f7a05ccae28f7729389aefc6dbb3e010eb883abdd19",
+      "newSha256": "2a8856b7e11590f6faba87c11520e0a20f46c78dbfdaac5eceab48ea308bf787",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 lets an owner rebase its own branch where Babysit reports a rebase; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/autopilot-stack.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/autopilot-stack.md",
+      "status": "modified",
+      "oldSha256": "34de4bb101dd56524d8067c73bba5988ead6f93d3ab8f96ac13a6adcb43696cb",
+      "newSha256": "3dc6961df12a74a917571c21de482b42939b728cb4879d1852c51fd9fbabd152",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 drops the link to the removed Size and stacks section of Opening a PR; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/babysit.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/babysit.md",
+      "status": "modified",
+      "oldSha256": "d546a937ed800abe1d29aae8a689fb57212280fdde62fae1fc1dc7f2efd9d904",
+      "newSha256": "06fed1fa997c8899d7365fb0f21c0177084fcb8d0561841d2eca753660f63a85",
+      "diffstat": "+8/-21",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 cuts Babysit to six rules: three modes, conflicts-threads-CI order, no rebase, skeptical triage, forge rule, no merge; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/bug-fix.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/bug-fix.md",
+      "status": "modified",
+      "oldSha256": "e58b534e020e19629cd47c15e4210e594edfacea212af1e558a1d55bd311b5b3",
+      "newSha256": "eef68686ea0128d36979c39ce88f5cd5c248eb4e58f1ca3229692b9902961170",
+      "diffstat": "+3/-3",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 replaces the speed phrase with 'reasoning level' and points step 2 at the short architect brief instead of the fan-out; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/eval.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/eval.md",
+      "status": "modified",
+      "oldSha256": "a93d449a908236afa6645179651844094b1547dbab4e484cffcdda630e4b90bf",
+      "newSha256": "369bfda8bf305fb57bf4cabada7862c41dc21f1dc0ad7993cfcd29d0a4d99a68",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 replaces the speed phrase with 'reasoning level' and names the medium-fast slug for dispatch-only agents; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/feature.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/feature.md",
+      "status": "modified",
+      "oldSha256": "f52d323f38a1ac2e8ab21b35e34bb10ab315436badfb74aa84bc466ee2ca522b",
+      "newSha256": "beb7b527049eab12052deac8a32e6ee7f6cf26e7ebffb3c3f5d6cead1ec7df7e",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 drops the Comments pointer and the parallel design exploration, pins the -fast slug; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/hillclimb.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/hillclimb.md",
+      "status": "modified",
+      "oldSha256": "efa062bb4a02638fd3af64299eb398e6e4c5edc55d0a7c2bf42a0182b5cba959",
+      "newSha256": "a1d71e026d648991646533539939641f33508d5a02340f5041482ddd58116216",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 replaces the speed phrase with 'reasoning level' and pins the -fast default; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/multi-phase-plan.md",
+      "status": "modified",
+      "oldSha256": "e0da1ca5fc8c9213314126ec87a08d98219c451fc797fa02aaec20896757d46a",
+      "newSha256": "98e0ed1acc5410fd23ed52cc399346c7c3f83f9f6f7068f8cc52d95ff84ab653",
+      "diffstat": "+5/-149",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 cuts the playbook to five steps and stops invoking check-plan.mjs; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/opening-a-pr.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/opening-a-pr.md",
+      "status": "modified",
+      "oldSha256": "b22b7ad7cd102b99d334f4399ae1dba78e0aaf4bee2d5241fda71753c7ce48f9",
+      "newSha256": "a14cf04833cd6a3eb899fb8814759c937294d0faa3da1ef09d568f45002026b4",
+      "diffstat": "+3/-28",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 cuts Opening a PR to three paragraphs and removes the Size and stacks section; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/orchestrate.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/orchestrate.md",
+      "status": "removed",
+      "oldSha256": "dfd7e53e7ef844ae11394672b2f8e22ced47b977ff6e947fef837953cc95bb86",
+      "newSha256": null,
+      "diffstat": "+0/-25",
+      "archiveAction": "archive-delete",
+      "portOwner": "U44-2",
+      "reason": "deleted upstream; program-scale work routes to figure-it-out; U44-2 owns the Pi removal"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/perf-issue.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/perf-issue.md",
+      "status": "modified",
+      "oldSha256": "bde825b47f11191ed396a5e3237a25e3b0a4d008ab1e09fbf4b74f5b0da198b1",
+      "newSha256": "0eb3130e34798cdc0971eb1b3582856cb81023ccab0abeb64301458660be15a1",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 replaces the speed phrase with 'reasoning level' and pins the -fast default; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/refactoring.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/refactoring.md",
+      "status": "modified",
+      "oldSha256": "38a25e96ec0eabb86bdbfe53927d80bf26a786dac5f7f5bf505ae36f24802add",
+      "newSha256": "f11ff3c3ff0ea09d3ce2db0a3c11be3a3c11c279c04b83324723d0e0f984755b",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 points the shape step at the short architect brief and pins the -fast slug; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/runtime-forensics.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/runtime-forensics.md",
+      "status": "modified",
+      "oldSha256": "3463372b578c28f27c236f2627f09b5c5b1e85e86db7399fb984f3892fb450f5",
+      "newSha256": "79634d9bbc1a6fef3fa5c852c1c723d525f7fab45568e9637121e4afc058405f",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 replaces the 'reasoning level and fast or standard speed' phrase with 'reasoning level'; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/session-pickup.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/session-pickup.md",
+      "status": "modified",
+      "oldSha256": "d194f2a7ef392c1598ef3f0e3b561370ca25c2c7a78308007af4aa46ada8ee12",
+      "newSha256": "15a6b61eeb89e2dd66ab8254f7c6807694a06eb103342983a7620f10c942ecf9",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 replaces the 'reasoning level and fast or standard speed' phrase with 'reasoning level'; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/shipping.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/shipping.md",
+      "status": "modified",
+      "oldSha256": "bf56339bdf7e0223bcff5abf4e8599e3f5b547b3fcc3b4ce9475e6e7dda14a9f",
+      "newSha256": "486a6211859eeacfc9a85c7a9d2632b7dddecad189a6b2551212ef274ef1d85c",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 makes step 5 name the queued watcher flags itself; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/trace-forensics.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/trace-forensics.md",
+      "status": "modified",
+      "oldSha256": "ef0bbf79856a4ae1a8993d54c1a1da159cb97623941b652c0069cf75a017e0f5",
+      "newSha256": "a2d5e20b544835755407b9bdd945e2b595d2e5f826b44c438cbadf92e7efd797",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 replaces the 'reasoning level and fast or standard speed' phrase with 'reasoning level'; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/playbooks/worktree-cleanup.md",
+      "archivePath": "upstream/skills/poteto-mode/playbooks/worktree-cleanup.md",
+      "status": "modified",
+      "oldSha256": "be04ae0afe19d4a4da5bcc4e94455f68dbebd1cda6eb0f456ca0d358ecf76c00",
+      "newSha256": "2d4d3dcc9e4ddff4770c5f2a254c7915e6bbed968861cfa0c3c45bd04f99b3a5",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 replaces the 'reasoning level and fast or standard speed' phrase with 'reasoning level'; U44-2 follows"
+    },
+    {
+      "path": "skills/poteto-mode/scripts/check-plan.mjs",
+      "archivePath": "upstream/skills/poteto-mode/scripts/check-plan.mjs",
+      "status": "removed",
+      "oldSha256": "e3d4e9ca638c6fb4a2b52c434c17c7af30da4fdd44605ccfe9906f82fe37b555",
+      "newSha256": null,
+      "diffstat": "+0/-205",
+      "archiveAction": "archive-delete",
+      "portOwner": "U44-2",
+      "reason": "deleted upstream: nothing else in pstack names it; the Pi checker scripts/check-plan.mjs is verified separately by U44-2"
+    },
+    {
+      "path": "skills/poteto-mode/scripts/check-plan.test.ts",
+      "archivePath": "upstream/skills/poteto-mode/scripts/check-plan.test.ts",
+      "status": "removed",
+      "oldSha256": "848d321f2b76299d1b2d7bb46c929dbaebef08ca4ba8669dbe09d1d5c86f96e2",
+      "newSha256": null,
+      "diffstat": "+0/-110",
+      "archiveAction": "archive-delete",
+      "portOwner": "U44-2",
+      "reason": "deleted upstream with the checker; U44-2 verifies the Pi copy"
+    },
+    {
+      "path": "skills/poteto-mode/scripts/package.json",
+      "archivePath": null,
+      "status": "modified",
+      "oldSha256": "c9db6bb9362c6e319e395b358b113ebc72ab06b6c5e3a095093f6ebfdafe1c57",
+      "newSha256": "0b7aa62edc524bf9d3f735b17f10ab7fea22797b80b7edc4a91620a570332d13",
+      "diffstat": "+1/-1",
+      "archiveAction": "excluded-from-archive",
+      "portOwner": "U44-2",
+      "reason": "0.15.43 drops check-plan.test.ts from the scripts test command; this file has been outside the archive since U36, so no archive copy changes"
+    },
+    {
+      "path": "skills/poteto-mode/worker.md",
+      "archivePath": "upstream/skills/poteto-mode/worker.md",
+      "status": "added",
+      "oldSha256": null,
+      "newSha256": "d051060527ab1649fb1e69d1e7d416950264f9955c3de3635c0d63569f1b90d8",
+      "diffstat": "+11/-0",
+      "archiveAction": "archive-add",
+      "portOwner": "U44-2",
+      "reason": "added upstream: the operator is the person the run works for, plus the rules every started agent keeps; the Pi adaptation belongs to U44-2"
+    },
+    {
+      "path": "skills/principle-attack-the-premise/SKILL.md",
+      "archivePath": "upstream/skills/principle-attack-the-premise/SKILL.md",
+      "status": "modified",
+      "oldSha256": "6a932884daad4aa189e9b5d1665226bbc75621d4d2a398fd4003bebd382f4599",
+      "newSha256": "831e916c540f4b6b720b7472aeea6e6ef93996655e36cc2517221f6f2081b480",
+      "diffstat": "+4/-10",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-1",
+      "reason": "0.15.43 cuts the leaf to a shorter body that keeps the rule and its test"
+    },
+    {
+      "path": "skills/principle-boundary-discipline/SKILL.md",
+      "archivePath": "upstream/skills/principle-boundary-discipline/SKILL.md",
+      "status": "modified",
+      "oldSha256": "62ac2862c2caa22dd14531f51c9c6bb445ceb198ca98a687e25b4d47c1f10a28",
+      "newSha256": "c02c26cca3906bfd57829535f8fa7ee9e00df037b4dbb24e5f85ec9e12710b48",
+      "diffstat": "+2/-25",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-4",
+      "reason": "0.15.43 cuts the leaf to a shorter body; the Pi override follows in U44-4"
+    },
+    {
+      "path": "skills/principle-build-the-lever/SKILL.md",
+      "archivePath": "upstream/skills/principle-build-the-lever/SKILL.md",
+      "status": "modified",
+      "oldSha256": "3434b0ad0c640c6f1d7960be7a8986c3bcdc14e26060360dec29903df60074ff",
+      "newSha256": "753d81cf9ca2a4e9d1f057429f0c63c9c622e6022dd877ec97ec15f442076aac",
+      "diffstat": "+6/-15",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-1",
+      "reason": "0.15.43 cuts the leaf to a shorter body that keeps the rule and its test"
+    },
+    {
+      "path": "skills/principle-explain-the-number/SKILL.md",
+      "archivePath": "upstream/skills/principle-explain-the-number/SKILL.md",
+      "status": "modified",
+      "oldSha256": "3c84fbf9a7d9842abcfcd134010782b32092ac3d3fb4aaf9ed5732dca83aa58c",
+      "newSha256": "e6a3f00991f4949cf18a0b5c77dd3126ca4402b8553f88c9c7905e577512676e",
+      "diffstat": "+5/-9",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-4",
+      "reason": "0.15.43 cuts the leaf to a shorter body; the Pi override follows in U44-4"
+    },
+    {
+      "path": "skills/principle-fix-root-causes/SKILL.md",
+      "archivePath": "upstream/skills/principle-fix-root-causes/SKILL.md",
+      "status": "modified",
+      "oldSha256": "8df3c8c3fe57eb0055a5c8efab8ab144557fdf301da70b1cdc77a3a3ef3f3052",
+      "newSha256": "79afd7e67d8951203231f6f1ccfc7b4a1f30d8d6cdb68e92755c80012414dbeb",
+      "diffstat": "+5/-12",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-1",
+      "reason": "0.15.43 cuts the leaf to a shorter body that keeps the rule and its test"
+    },
+    {
+      "path": "skills/principle-foundational-thinking/SKILL.md",
+      "archivePath": "upstream/skills/principle-foundational-thinking/SKILL.md",
+      "status": "modified",
+      "oldSha256": "864b827e8199d946ce58beca0f89c4ed4099ed6e426fb698a3aaa45de2a9eea2",
+      "newSha256": "5c63eecf4b83ea5a99eda7a95a96cac0929d2dce7393d7089c83917bc12cf820",
+      "diffstat": "+3/-11",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-1",
+      "reason": "0.15.43 cuts the leaf to a shorter body that keeps the rule and its test"
+    },
+    {
+      "path": "skills/principle-make-operations-idempotent/SKILL.md",
+      "archivePath": "upstream/skills/principle-make-operations-idempotent/SKILL.md",
+      "status": "modified",
+      "oldSha256": "7aa9327cf1f1aa057e95d47a0a78bd88a8f9d556b608866fee939d455a53a019",
+      "newSha256": "76ad0a99b6ff2a05a159accfeee48412d62f62774eb8d05bbff26a1f3aa3eab5",
+      "diffstat": "+4/-11",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-1",
+      "reason": "0.15.43 cuts the leaf to a shorter body that keeps the rule and its test"
+    },
+    {
+      "path": "skills/principle-minimize-reader-load/SKILL.md",
+      "archivePath": "upstream/skills/principle-minimize-reader-load/SKILL.md",
+      "status": "modified",
+      "oldSha256": "1ea2b7fef2391cae5844c4efdbd59031f775e8a52d06b7495d707229a200dcca",
+      "newSha256": "22d27deffb0a3726858d0d4b02d71acd4a3eb4d44e218bc89b66e49dc9823937",
+      "diffstat": "+5/-8",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-1",
+      "reason": "0.15.43 cuts the leaf to a shorter body that keeps the rule and its test"
+    },
+    {
+      "path": "skills/principle-model-the-domain/SKILL.md",
+      "archivePath": "upstream/skills/principle-model-the-domain/SKILL.md",
+      "status": "modified",
+      "oldSha256": "52c0d85e0c3827c41c18299b642657d7b47eaf77b7b31609e42e0df42b84c75f",
+      "newSha256": "97c6214dc6a18b93177dda6429185a8640878b36ddee6ec9400c23a0eb9be2d8",
+      "diffstat": "+4/-13",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-1",
+      "reason": "0.15.43 cuts the leaf to a shorter body that keeps the rule and its test"
+    },
+    {
+      "path": "skills/principle-prove-it-works/SKILL.md",
+      "archivePath": "upstream/skills/principle-prove-it-works/SKILL.md",
+      "status": "modified",
+      "oldSha256": "ec79a15025bac8d33d62011c54f3b612733fd2a024e623b531b3637aa75070e2",
+      "newSha256": "3d6c482e341974cfcb8d19ebf66fb1d4274d8673af35e36d3c231a6aa9e03f25",
+      "diffstat": "+2/-13",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-4",
+      "reason": "0.15.43 cuts the leaf to a shorter body; the Pi override follows in U44-4"
+    },
+    {
+      "path": "skills/principle-separate-before-serializing-shared-state/SKILL.md",
+      "archivePath": "upstream/skills/principle-separate-before-serializing-shared-state/SKILL.md",
+      "status": "modified",
+      "oldSha256": "05294b40448e927c5da1c7b6f5c6b9fed3744637e3833d2d948b9154a9dd00bb",
+      "newSha256": "2e5625d686b657e0b607c329fd8043bf50261b808239308fe4c6776e2817e95a",
+      "diffstat": "+2/-7",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-1",
+      "reason": "0.15.43 cuts the leaf to a shorter body that keeps the rule and its test"
+    },
+    {
+      "path": "skills/principle-sequence-verifiable-units/SKILL.md",
+      "archivePath": "upstream/skills/principle-sequence-verifiable-units/SKILL.md",
+      "status": "modified",
+      "oldSha256": "2ccbbacc56ace5afdfb8670cef19d7bd009fb2a0033b9a741cbdf2b6baf72187",
+      "newSha256": "ab0cc331cf317c07bb0ed6dd13ee9f618338b36e4e851521977bc5c4a8d429e1",
+      "diffstat": "+3/-7",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-4",
+      "reason": "0.15.43 cuts the leaf to a shorter body; the Pi override follows in U44-4"
+    },
+    {
+      "path": "skills/principle-test-behavior-not-implementation/SKILL.md",
+      "archivePath": "upstream/skills/principle-test-behavior-not-implementation/SKILL.md",
+      "status": "modified",
+      "oldSha256": "f7223698623b6a26fea49c751e466b38e6691b1f32ce841d3983e7ffbe2b74a6",
+      "newSha256": "42afc1a2c7176363b6410cfde06a9fd3e96f5022ba86bdb8de4838ad65c2442d",
+      "diffstat": "+4/-8",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-1",
+      "reason": "0.15.43 cuts the leaf to a shorter body that keeps the rule and its test"
+    },
+    {
+      "path": "skills/principle-type-system-discipline/SKILL.md",
+      "archivePath": "upstream/skills/principle-type-system-discipline/SKILL.md",
+      "status": "modified",
+      "oldSha256": "5cdaf79785e3c12b2592b9469ee8c272143eb86ab7a18d8382197cea5fd30106",
+      "newSha256": "9cd1ce345bc9d666c73c64c89c89164217b659aa4c4dde5600cbbe6f6e775461",
+      "diffstat": "+6/-4",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-1",
+      "reason": "0.15.43 cuts the leaf to a shorter body that keeps the rule and its test"
+    },
+    {
+      "path": "skills/recall/SKILL.md",
+      "archivePath": "upstream/skills/recall/SKILL.md",
+      "status": "modified",
+      "oldSha256": "44673475f0523b83db7ea09388562b844ad7f2026f54e7d980f537e33109b1c8",
+      "newSha256": "1f4eda450650a7bd3948f44489a94f6c692f6a14ab9ce56ab9ed6f60c50e2258",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-3",
+      "reason": "0.15.43 replaces the 'reasoning level and fast or standard speed' phrase with 'reasoning level'; U44-3 follows"
+    },
+    {
+      "path": "skills/reflect/SKILL.md",
+      "archivePath": "upstream/skills/reflect/SKILL.md",
+      "status": "modified",
+      "oldSha256": "3b78774e9659a516d8ed48616cab34bd3ec771904c63929aa74270da66b99cf0",
+      "newSha256": "6f6952f91514dc86257830da93a446c732a1af906f6acd5e5783dc587a29031e",
+      "diffstat": "+5/-57",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-3",
+      "reason": "0.15.43 makes reflect one short file that reads the transcript and spawns no subagents; the four references are deleted; U44-3 follows"
+    },
+    {
+      "path": "skills/reflect/references/divergent-reviewer.md",
+      "archivePath": "upstream/skills/reflect/references/divergent-reviewer.md",
+      "status": "removed",
+      "oldSha256": "f6030d88e20e906ef5e2d9ba44cb013ce610c49c2fe2ef74c377d32e0dc9e939",
+      "newSha256": null,
+      "diffstat": "+0/-38",
+      "archiveAction": "archive-delete",
+      "portOwner": "U44-3",
+      "reason": "deleted upstream with the single-file reflect rewrite; U44-3 drops the Pi override template and the generated copy"
+    },
+    {
+      "path": "skills/reflect/references/judgment-reviewer.md",
+      "archivePath": "upstream/skills/reflect/references/judgment-reviewer.md",
+      "status": "removed",
+      "oldSha256": "38f917619fbf346062d643e0ad6b12fc952d58678dfcbbf42ffcf6d8b9c08307",
+      "newSha256": null,
+      "diffstat": "+0/-37",
+      "archiveAction": "archive-delete",
+      "portOwner": "U44-3",
+      "reason": "deleted upstream with the single-file reflect rewrite; U44-3 drops the Pi override template and the generated copy"
+    },
+    {
+      "path": "skills/reflect/references/synthesizer.md",
+      "archivePath": "upstream/skills/reflect/references/synthesizer.md",
+      "status": "removed",
+      "oldSha256": "07c81573f63f011df736d24ec8febf8b59d29db328cb1626ad67df7841c9ad77",
+      "newSha256": null,
+      "diffstat": "+0/-56",
+      "archiveAction": "archive-delete",
+      "portOwner": "U44-3",
+      "reason": "deleted upstream with the single-file reflect rewrite; U44-3 drops the Pi override template and the generated copy"
+    },
+    {
+      "path": "skills/reflect/references/tooling-reviewer.md",
+      "archivePath": "upstream/skills/reflect/references/tooling-reviewer.md",
+      "status": "removed",
+      "oldSha256": "f81b8697e7366fbbc18feba52c6e3253a101f751091364ebc4396a1d9b5753b4",
+      "newSha256": null,
+      "diffstat": "+0/-48",
+      "archiveAction": "archive-delete",
+      "portOwner": "U44-3",
+      "reason": "deleted upstream with the single-file reflect rewrite; U44-3 drops the Pi override template and the generated copy"
+    },
+    {
+      "path": "skills/setup-pstack/SKILL.md",
+      "archivePath": "upstream/skills/setup-pstack/SKILL.md",
+      "status": "modified",
+      "oldSha256": "4c53ea532bbfc429833c8cf5480a0fffcd10c3e32bc26256feff3d7ee7c9da85",
+      "newSha256": "d452295f927301bad320b7c306cf6cecd0c421a63c76f36ddfce1fe064c1ed03",
+      "diffstat": "+22/-25",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-6",
+      "reason": "0.15.43 retires the reflect, architect, why and how role lines; 0.15.44 moves a saved non-Neon gemini panel seat to gemini-4-neon-high and writes # defaults: 3; U44-6 follows"
+    },
+    {
+      "path": "skills/show-me-your-work/SKILL.md",
+      "archivePath": "upstream/skills/show-me-your-work/SKILL.md",
+      "status": "modified",
+      "oldSha256": "920a8217cbb62f92a2222fb81fc9eab17ecd554a0277e444a95a927195139bd1",
+      "newSha256": "ec29326ac20515f2941198205bec615320a55b21659692e19650530dbf217bde",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-3",
+      "reason": "0.15.43 requires the reviewer to run on another vendor's model; U44-3 follows"
+    },
+    {
+      "path": "skills/swarm/SKILL.md",
+      "archivePath": "upstream/skills/swarm/SKILL.md",
+      "status": "modified",
+      "oldSha256": "411f9d1a29a8a6f59b7bfcd4726330ddb62c4c1298ebf53d5773d82703701038",
+      "newSha256": "8558089df5320e4ddf61126ca3d638404341584c8307dd6d20f8984e5ae3bbd1",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-3",
+      "reason": "0.15.44 sets the swarm worker default to claude-opus-5-5-high-fast with the -fast slug; U44-3 follows"
+    },
+    {
+      "path": "skills/technical-writing/SKILL.md",
+      "archivePath": "upstream/skills/technical-writing/SKILL.md",
+      "status": "modified",
+      "oldSha256": "61fe9c424a798ebf36ad94941f87be049cb8827bdf86d21474a0dde37b513c43",
+      "newSha256": "0a620885599cdde5a0a31fa39878144c10f61c894b56bf4a9ff779496e718b14",
+      "diffstat": "+33/-69",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-1",
+      "reason": "0.15.43 cuts technical-writing to a shorter four-layer body"
+    },
+    {
+      "path": "skills/unslop/SKILL.md",
+      "archivePath": "upstream/skills/unslop/SKILL.md",
+      "status": "modified",
+      "oldSha256": "ccab208e315ce05e2fab8eeee2f7879f1289b5c6844840b2d307adf31c79144f",
+      "newSha256": "2b823fd069e031c1420180be8e0d4f5e2fd25bf2c428049e5c835c59a489b5e0",
+      "diffstat": "+28/-50",
+      "archiveAction": "sync-copy",
+      "portOwner": "U44-1",
+      "reason": "0.15.43 cuts unslop to a shorter body with stable rule numbers"
+    }
+  ],
+  "notArchived": [
+    {
+      "path": ".cursor-plugin/plugin.json",
+      "sha256": "a9c61feabc68c4474c08479ab6f5422cb12ec2611a1f8f564ab2fcf4c0155e62",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. Cursor plugin manifest duplicate; documented as existing in docs/sources.md"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "8ffe9de56bd30c1a95cd945262d6e3ac355ada4111551dde41f67851b9f1fc55",
+      "classification": "old-archive-exclusion",
+      "evidence": "repository maintenance file; creation time at the baseline cannot be verified (shallow clone, baseline objects missing)"
+    },
+    {
+      "path": "README.md",
+      "sha256": "c14d76d2ac9cb9bc9bf86f6523198324df85ab52a605a11891d2a5ba3145fa21",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. outside archive scope; present at the f713f14 dependency-audit baseline (docs/dependency-audit.json references)"
+    },
+    {
+      "path": "assets/logo.png",
+      "sha256": "672f6791589ef758b0ced2c4c477913fa2758623c438e265639a0d539ce90695",
+      "classification": "old-archive-exclusion",
+      "evidence": "Cursor marketplace artwork; not part of the archive scope, creation time unverifiable locally"
+    },
+    {
+      "path": "automations/benny/FOR_AGENTS.md",
+      "sha256": "17d370bf1d97e12924a5b291fa183f2270c310836c3355617fcc97d65b0b2bd1",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; Cursor automation pack outside Pi scope"
+    },
+    {
+      "path": "automations/benny/README.md",
+      "sha256": "ca3c42cbb7f0bf7068f7407eb355815e6c234d5c2786942f3cbe751a3690024b",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; Cursor automation pack outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/reproduce-and-fix-issues/SKILL.md",
+      "sha256": "809659da0bbd0303d2a42dbe380dd117ae06b6fa3e19e4a31832a2756ae841fe",
+      "classification": "old-archive-exclusion",
+      "evidence": "Benny automation skill (3 automation skills counted in docs/sources.md); outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/reproduce-and-fix-issues/references/control-adapter.md",
+      "sha256": "58b0615d2fca895f9a20df83266e280042b0d585b5f2fd324e2094a682fd846b",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/reproduce-and-fix-issues/references/feature-map.example.md",
+      "sha256": "1e5c7c8522daec3e43fcc2e73ceb97289ded65b552949ce65a11cc8eb3d2b6ee",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/reproduce-and-fix-issues/references/verify-existing-fix.md",
+      "sha256": "c90eae00abcdec71a58fa8d60f2c495b082a526ad50b8e8e494837609129bf29",
+      "classification": "old-archive-exclusion",
+      "evidence": "outside Pi scope; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "automations/benny/skills/setup-benny/SKILL.md",
+      "sha256": "1b1298536804eef289718f497a42f48aec135c8f4175b03e5ecfa11075758c59",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/triage-issue-reports/SKILL.md",
+      "sha256": "e88bb1ccc619f93d4b787bd9156fba5159f061c653fca00b6f08c65b6c77701a",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/triage-issue-reports/references/routing.example.md",
+      "sha256": "e5e53013692568cf69da8e8b302fff929fe2fbc9aec1a4651fd7997e2c7a4025",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/templates/configuration.example.yaml",
+      "sha256": "13e24b4ce9b9a0913916e85fe3b080b88d45f8e55dccfe8ae38e0751a997b6f5",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/templates/reproduce-automation-prompt.md",
+      "sha256": "71ec574f1844e379394ae4ef14c48d7df10afbaa319d395c788d7f856f0e6899",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/templates/triage-automation-prompt.md",
+      "sha256": "e0bba594547834f013ec805915610eb597e7929efe3ffbe85ae00339ee16d474",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "docs/guide/01-setup.md",
+      "sha256": "86f1343beb84df874b9f31b9ad53dc85852a68b004cd974fb37ee130f252de0c",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/02-poteto-mode.md",
+      "sha256": "4fd0f84bd539283d6d6973fd231c4b2f155128aa3c83ab62be457cc02ac2bc3b",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/03-understand.md",
+      "sha256": "4486cf55f20b1a351b25a06b2a19f6a7081d6af4748a4178946907c2b7861392",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/04-design.md",
+      "sha256": "e41952810df24c07a21ad10ebc2674a3350a03d4961a273fb6f681de87150a13",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; docs/validation-upstream-01536-plan.md already tracks a 0.15.36 edit to this path"
+    },
+    {
+      "path": "docs/guide/05-build-and-clean.md",
+      "sha256": "4a0538dc0e52632a8871be9957e8177adaca6f5fa254f0bbb31d30b921d0cd1c",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/06-verify-and-ship.md",
+      "sha256": "31ab46936950c78989a51cffaebf2e321858580d286a83d92a504528fce24d2d",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/07-overnight.md",
+      "sha256": "5bd1a4336b09947832d3b58afb22bcdfbe698ff76c1bdaab23af545f04cf8e60",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/08-principles.md",
+      "sha256": "0b26b85292f0c09768abe727c9e92987dbf81f5b439a4871034c2fd1c4cb1723",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/09-make-it-yours.md",
+      "sha256": "4df83ef7dc44364921a9663c7d426a1b4d0acab6a0490ef1769257b51b74e65a",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/10-recipes-and-pitfalls.md",
+      "sha256": "287815da2cbebe9b867d4da7d0a3632f069a32b6481815be9d6cad43b12b5fbf",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/README.md",
+      "sha256": "5c888d034d38f380789fad57c2c6fa7307ace803a0622cdde9e57fa2afe182de",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/design.jpg",
+      "sha256": "b8ed07427f6a0c37dd8ba97961fc0eb5071efeee6c4a230648bdb7547f6f2a8f",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/overnight.jpg",
+      "sha256": "4b4405e4df8925c5b3abbe702f681af0f3b1f5f32271b599f95717f578f1a0c8",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/recipes.jpg",
+      "sha256": "9fa2d51b476635712737795ddef81806efaa0086bb3bfa9f9f45695d9ab0f8e8",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/router.jpg",
+      "sha256": "525843055a4efd2b10acc50a8652fd02b0834ea733a8a2f895c1eb89036017da",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/understanding.jpg",
+      "sha256": "b60587e9a9bbe2550e93be9819cf0cd4acf77d90fac769a0c43d82bd8e34e279",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/verification.jpg",
+      "sha256": "2a76b52007a1cd2866ba67fd47d7d9ef3e1118bb5a09c4665eee8c3f161bd09a",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/harness/claude-code.md",
+      "sha256": "ef17f2c50faf1e267e3db07d9b77fe1e91de13c7be8247602b84f997dd9308c8",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream harness notes; read and cited in docs/sources.md from commit ac4e25a0, so it predates the baseline and was never archived"
+    },
+    {
+      "path": "plugin.json",
+      "sha256": "06919c4b3d208ce286a981fda05efb99b3b5beec0a68ceff8a3ef28ddbfcc6b7",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. Cursor plugin manifest; never archived, version/license recorded in this file instead"
+    },
+    {
+      "path": "skills/poteto-mode/scripts/package.json",
+      "sha256": "c9db6bb9362c6e319e395b358b113ebc72ab06b6c5e3a095093f6ebfdafe1c57",
+      "classification": "old-archive-exclusion",
+      "evidence": "excluded from the snapshot since U36 (docs/validation-upstream-01536-plan.md); upstream dropped check-plan.test.ts from its test command in 0.15.43, and the file stays outside the archive"
+    },
+    {
+      "path": "skills/poteto-mode/scripts/watch-pr/tsconfig.json",
+      "sha256": "1ecccc72320b086c63ce3f73c959896fd747363e63553b3b1136296ea4069e45",
+      "classification": "old-archive-exclusion",
+      "evidence": "dev-only TypeScript config; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "skills/poteto-mode/scripts/bun.lock",
+      "sha256": "667d9cf7222e9aae3fa42a4be383e657784216e9df115da02227fbc5ac7bbe46",
+      "classification": "old-archive-exclusion",
+      "evidence": "lockfile read by skills/poteto-mode/scripts/bootstrap.ts with --frozen-lockfile at the f713f14 audit baseline; never archived"
+    }
+  ],
+  "unchanged": {
+    "count": 465,
+    "detail": "every archived file that is byte-identical at both pins; per-file sha256 for the current archive lives in docs/upstream-manifest.json, regenerated by this card"
+  },
+  "verification": [
+    {
+      "kind": "pre-change-manifest-check",
+      "command": "node scripts/upstream-manifest.mjs --check",
+      "exitCode": 1,
+      "result": "fails on the stale 0.15.42 hashes: sha256 mismatch on every changed path and 'file missing on disk' on every deleted one",
+      "note": "taken after swapping upstream/pstack to e58dd04 and before any source-list edit; log at ~/Documents/pi-pstack-notes/tasks/U44-1-logs/02-prechange-manifest-check.log"
+    },
+    {
+      "kind": "archive-fidelity",
+      "command": "tmp=$(mktemp -d) && git -C ~/Documents/cursor-plugins-upstream archive origin/main pstack/LICENSE pstack/agents pstack/skills | tar -x -C \"$tmp\" && rm -f \"$tmp/pstack/skills/poteto-mode/scripts/package.json\" \"$tmp/pstack/skills/poteto-mode/scripts/bun.lock\" \"$tmp/pstack/skills/poteto-mode/scripts/watch-pr/tsconfig.json\" && diff -r \"$tmp/pstack\" upstream/pstack && find upstream/pstack -type f | wc -l",
+      "exitCode": 0,
+      "result": "diff -r prints nothing and upstream/pstack holds 513 files: the archive equals the e58dd04 bytes for every archived path",
+      "note": "the three removed paths are the documented archive exclusions; log at ~/Documents/pi-pstack-notes/tasks/U44-1-logs/10-archive-fidelity.log"
+    },
+    {
+      "kind": "post-change-manifest-check",
+      "command": "node scripts/upstream-manifest.mjs --check",
+      "exitCode": 0,
+      "result": "{\"status\":\"passed\",\"upstreamSha\":\"e58dd043600587dbaf58ba315e7f2b38373eeb43\",\"checked\":920}",
+      "note": "log at ~/Documents/pi-pstack-notes/tasks/U44-1-logs/04-postchange-manifest-check.log"
+    },
+    {
+      "kind": "generation",
+      "command": "npm run check:generate && node scripts/check-package.mjs",
+      "exitCode": 0,
+      "result": "{\"status\":\"passed\",\"checked\":503,\"unmanaged\":0} and {\"status\":\"passed\",\"mapped\":86,\"archived\":513,...}",
+      "note": "logs 05-check-generate.log and 06-check-package.log"
+    },
+    {
+      "kind": "delta-contract",
+      "command": "python3 -c \"import json;d=json.load(open('docs/validation-upstream-01544-delta.json'));print(d['target'],len(d['files']))\"",
+      "exitCode": 0,
+      "result": "e58dd043600587dbaf58ba315e7f2b38373eeb43 59, equal to git -C ~/Documents/cursor-plugins-upstream diff --name-only bf0c7cd origin/main -- pstack/skills pstack/agents pstack/LICENSE | wc -l"
+    },
+    {
+      "kind": "check-plan",
+      "command": "npm run check",
+      "exitCode": 0,
+      "result": "all 36 checks pass after the deleted-file assertions were pointed at the 0.15.44 file set",
+      "note": "log at ~/Documents/pi-pstack-notes/tasks/U44-1-logs/08-npm-check-2.log"
+    },
+    {
+      "kind": "fidelity",
+      "command": "npm run check:fidelity",
+      "exitCode": 1,
+      "result": "overall 88.7669% < 94%; architect 0.00%, reflect 8.33%, poteto-mode 62.70%, babysit 44.00%, multi-phase-plan 50.00%, opening-a-pr 20.00%, boundary-discipline 12.50%, explain-the-number 44.44%, prove-it-works 28.57%, sequence-verifiable-units 30.00%, how 69.23% all below 70%",
+      "expectedOwner": "U44-2 through U44-6",
+      "note": "the Pi bodies still carry the 0.15.42 text that this delta replaces; docs/fidelity.md was restored after the run as the card requires; log at ~/Documents/pi-pstack-notes/tasks/U44-1-logs/09-check-fidelity.log"
+    }
+  ],
+  "followUps": [
+    "U44-2 through U44-6 must port the changed bodies listed here under adapters/pi/overrides; this card only syncs the upstream archive, the source lists and the generated files for skills that have no override",
+    "the 10 deleted upstream files must lose their docs/port-map.json entries, their override templates and their generated copies in the card named by portOwner",
+    "skills/poteto-mode/worker.md is registered in docs/port-map.json as a verbatim-inherit entry by this card; its Pi adaptation belongs to U44-2"
+  ]
+}

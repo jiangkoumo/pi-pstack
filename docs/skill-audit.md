@@ -82,7 +82,7 @@
 | 流程 babysit | P5 | 已适配为 Pi PR 监视流程：模式声明、单 frontier、有界 /loop 轮询、显式推送/合并授权 |
 | 流程 multi-phase-plan | P5 | 已适配为 Pi 多阶段计划流程：计划为交付物、原型定悬案、执行需显式 go，默认不实现或提交 |
 | 流程 opening-a-pr | P5 | 已适配为 Pi PR 创建流程：推送与 PR 需显式授权、禁止 force-push/自动合并 |
-| 流程 orchestrate | P5 | 已适配为 Pi agentic 大型项目协调流程：持久化 tracker、独立 worktree owner、宿主事件与有界监督、显式落地授权 |
+| 技能 poteto-mode/worker | P5 | 逐字继承上游 worker.md：操作者是整轮工作的委托方，以及每个被启动代理都遵守的规则；Pi 侧最终措辞归 U44-2 |
 | 流程 perf-issue | P5 | 已适配为 Pi 单次性能修复流程：基线/后测、benchmark checklist、默认不提交或推送 |
 | 流程 refactoring | P5 | 已适配为 Pi 行为保持重构流程：先钉 contract、等价验证、默认不提交或推送 |
 | 流程 shipping | P5 | 已适配为 Pi 已验证 PR 落地流程：逐 PR 独立 verdict、patch-id 复核、显式落地授权 |
