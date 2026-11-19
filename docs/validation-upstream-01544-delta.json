@@ -64,7 +64,7 @@
   "files": [
     {
       "path": "agents/poteto-agent.md",
-      "archivePath": "upstream/agents/poteto-agent.md",
+      "archivePath": "upstream/pstack/agents/poteto-agent.md",
       "status": "modified",
       "oldSha256": "979f18abd000d185a0b4c41a2a4111c0910596a7f5c81cbb571885bc721b2bf7",
       "newSha256": "369065b46c217a5898cb1a400652c3399449252f4d5dbf8937eb8d4922d3cf6b",
@@ -75,7 +75,7 @@
     },
     {
       "path": "skills/architect/SKILL.md",
-      "archivePath": "upstream/skills/architect/SKILL.md",
+      "archivePath": "upstream/pstack/skills/architect/SKILL.md",
       "status": "modified",
       "oldSha256": "42be68c2883bd10d867c46930fa11c44a25910b62b85e0c9a40326b4f25d7b6e",
       "newSha256": "aea83d7aa109eb73402182701b14c289844663ad9c8f959fedbef2df66787ce0",
@@ -86,40 +86,40 @@
     },
     {
       "path": "skills/architect/references/design-red-flags.md",
-      "archivePath": "upstream/skills/architect/references/design-red-flags.md",
+      "archivePath": "upstream/pstack/skills/architect/references/design-red-flags.md",
       "status": "removed",
       "oldSha256": "d0e639e4cc588ec865f930d3a4111faad60987ae36925917e319d7ceca7c69ce",
       "newSha256": null,
       "diffstat": "+0/-57",
       "archiveAction": "archive-delete",
       "portOwner": "U44-3",
-      "reason": "deleted upstream with the architect cut; U44-3 drops the Pi override template and the generated copy"
+      "reason": "deleted upstream with the architect cut; the Pi override template and the generated copy were removed in this card, and U44-3 writes the architect body"
     },
     {
       "path": "skills/architect/references/rationale-template.md",
-      "archivePath": "upstream/skills/architect/references/rationale-template.md",
+      "archivePath": "upstream/pstack/skills/architect/references/rationale-template.md",
       "status": "removed",
       "oldSha256": "0cedfccdc7b47fc881febd5a8293eecbc542c20f8df825639904a8102d2eb5d3",
       "newSha256": null,
       "diffstat": "+0/-35",
       "archiveAction": "archive-delete",
       "portOwner": "U44-3",
-      "reason": "deleted upstream with the architect cut; U44-3 drops the Pi override template and the generated copy"
+      "reason": "deleted upstream with the architect cut; the Pi override template and the generated copy were removed in this card, and U44-3 writes the architect body"
     },
     {
       "path": "skills/architect/references/runner-prompt.md",
-      "archivePath": "upstream/skills/architect/references/runner-prompt.md",
+      "archivePath": "upstream/pstack/skills/architect/references/runner-prompt.md",
       "status": "removed",
       "oldSha256": "21dd5314aab778c5007228027a4591d97693fbec6ab86524037772b63f40948e",
       "newSha256": null,
       "diffstat": "+0/-20",
       "archiveAction": "archive-delete",
       "portOwner": "U44-3",
-      "reason": "deleted upstream with the architect cut; U44-3 drops the Pi override template and the generated copy"
+      "reason": "deleted upstream with the architect cut; the Pi override template and the generated copy were removed in this card, and U44-3 writes the architect body"
     },
     {
       "path": "skills/arena/SKILL.md",
-      "archivePath": "upstream/skills/arena/SKILL.md",
+      "archivePath": "upstream/pstack/skills/arena/SKILL.md",
       "status": "modified",
       "oldSha256": "2e418753dfc64239e4d6412e7b739196d268e22ef1a4ecfbb8c0498bd3c82636",
       "newSha256": "2573e96eec7f2dab88249cc0a5e391eaf9a6000427d7316af0298e6b899618ae",
@@ -130,7 +130,7 @@
     },
     {
       "path": "skills/automate-me/SKILL.md",
-      "archivePath": "upstream/skills/automate-me/SKILL.md",
+      "archivePath": "upstream/pstack/skills/automate-me/SKILL.md",
       "status": "modified",
       "oldSha256": "30b35f3628c4fd8c11af0ada06d14cdc3b28901810caca2480f627d4d21acfbe",
       "newSha256": "ffdb2db6d56b29518f50837d4e5d9194034bb3a767d77eb76efe82351ab1489c",
@@ -141,7 +141,7 @@
     },
     {
       "path": "skills/benchmark-checklist/SKILL.md",
-      "archivePath": "upstream/skills/benchmark-checklist/SKILL.md",
+      "archivePath": "upstream/pstack/skills/benchmark-checklist/SKILL.md",
       "status": "modified",
       "oldSha256": "ba109e96c8f6c1c391baccf19e5d11e14370df7b3f2605e1572cd565a6c0fca0",
       "newSha256": "5efd79495e3eebf3b53814861330fe812458212958f8f009492e866c329161f6",
@@ -152,7 +152,7 @@
     },
     {
       "path": "skills/figure-it-out/SKILL.md",
-      "archivePath": "upstream/skills/figure-it-out/SKILL.md",
+      "archivePath": "upstream/pstack/skills/figure-it-out/SKILL.md",
       "status": "modified",
       "oldSha256": "bdb23cdbd82a1e6af094b495691c832a6f7f3ab9706ba9edbeb664ef51a726e1",
       "newSha256": "30693f2510b111128a6bae0d0ac35f97d972a30c0b84364dc87290b9fdc3b699",
@@ -163,7 +163,7 @@
     },
     {
       "path": "skills/no-comments/SKILL.md",
-      "archivePath": "upstream/skills/no-comments/SKILL.md",
+      "archivePath": "upstream/pstack/skills/no-comments/SKILL.md",
       "status": "modified",
       "oldSha256": "9cc934e7541c4db609deeb5fd4e5882c1a4d3956975b5ae1ee693ed340527b9b",
       "newSha256": "054a46f2662c725add02d9e0440d8dcb4351f3bd0afcf797acc22a501b527b54",
@@ -174,7 +174,7 @@
     },
     {
       "path": "skills/poteto-help/SKILL.md",
-      "archivePath": "upstream/skills/poteto-help/SKILL.md",
+      "archivePath": "upstream/pstack/skills/poteto-help/SKILL.md",
       "status": "modified",
       "oldSha256": "5b14be54fc543b8f282953febc641f19f03919e7f77858347baa6957522f0c51",
       "newSha256": "d6d72057e5cdfa5cebeec88ee50d1ebf8f46f2e64788f5580968a73a16aba08d",
@@ -185,7 +185,7 @@
     },
     {
       "path": "skills/poteto-mode/SKILL.md",
-      "archivePath": "upstream/skills/poteto-mode/SKILL.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/SKILL.md",
       "status": "modified",
       "oldSha256": "c1816b328fa174361dfb719f31ecc264991c8f020b0ba971ea79ca223c79c047",
       "newSha256": "9c09f6ab6661975a5be108f925afe203e10966ee426e3d786f4d338c5b05bd9f",
@@ -196,7 +196,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/autonomous-run.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/autonomous-run.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/autonomous-run.md",
       "status": "modified",
       "oldSha256": "e74323411b5a760ffa7393d908d07fed420c68f8dc2aed1267505eaeadf130f2",
       "newSha256": "613c7b3079779ecfa27e1fb41a082711b5a1207e720b87f75c3aaa9b25aac480",
@@ -207,7 +207,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/autopilot-full.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/autopilot-full.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/autopilot-full.md",
       "status": "modified",
       "oldSha256": "2da35982565c6cf1dbe25f7a05ccae28f7729389aefc6dbb3e010eb883abdd19",
       "newSha256": "2a8856b7e11590f6faba87c11520e0a20f46c78dbfdaac5eceab48ea308bf787",
@@ -218,7 +218,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/autopilot-stack.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/autopilot-stack.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/autopilot-stack.md",
       "status": "modified",
       "oldSha256": "34de4bb101dd56524d8067c73bba5988ead6f93d3ab8f96ac13a6adcb43696cb",
       "newSha256": "3dc6961df12a74a917571c21de482b42939b728cb4879d1852c51fd9fbabd152",
@@ -229,7 +229,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/babysit.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/babysit.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/babysit.md",
       "status": "modified",
       "oldSha256": "d546a937ed800abe1d29aae8a689fb57212280fdde62fae1fc1dc7f2efd9d904",
       "newSha256": "06fed1fa997c8899d7365fb0f21c0177084fcb8d0561841d2eca753660f63a85",
@@ -240,7 +240,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/bug-fix.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/bug-fix.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/bug-fix.md",
       "status": "modified",
       "oldSha256": "e58b534e020e19629cd47c15e4210e594edfacea212af1e558a1d55bd311b5b3",
       "newSha256": "eef68686ea0128d36979c39ce88f5cd5c248eb4e58f1ca3229692b9902961170",
@@ -251,7 +251,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/eval.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/eval.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/eval.md",
       "status": "modified",
       "oldSha256": "a93d449a908236afa6645179651844094b1547dbab4e484cffcdda630e4b90bf",
       "newSha256": "369bfda8bf305fb57bf4cabada7862c41dc21f1dc0ad7993cfcd29d0a4d99a68",
@@ -262,7 +262,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/feature.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/feature.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/feature.md",
       "status": "modified",
       "oldSha256": "f52d323f38a1ac2e8ab21b35e34bb10ab315436badfb74aa84bc466ee2ca522b",
       "newSha256": "beb7b527049eab12052deac8a32e6ee7f6cf26e7ebffb3c3f5d6cead1ec7df7e",
@@ -273,7 +273,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/hillclimb.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/hillclimb.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/hillclimb.md",
       "status": "modified",
       "oldSha256": "efa062bb4a02638fd3af64299eb398e6e4c5edc55d0a7c2bf42a0182b5cba959",
       "newSha256": "a1d71e026d648991646533539939641f33508d5a02340f5041482ddd58116216",
@@ -284,7 +284,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/multi-phase-plan.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md",
       "status": "modified",
       "oldSha256": "e0da1ca5fc8c9213314126ec87a08d98219c451fc797fa02aaec20896757d46a",
       "newSha256": "98e0ed1acc5410fd23ed52cc399346c7c3f83f9f6f7068f8cc52d95ff84ab653",
@@ -295,7 +295,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/opening-a-pr.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/opening-a-pr.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/opening-a-pr.md",
       "status": "modified",
       "oldSha256": "b22b7ad7cd102b99d334f4399ae1dba78e0aaf4bee2d5241fda71753c7ce48f9",
       "newSha256": "a14cf04833cd6a3eb899fb8814759c937294d0faa3da1ef09d568f45002026b4",
@@ -306,18 +306,18 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/orchestrate.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/orchestrate.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/orchestrate.md",
       "status": "removed",
       "oldSha256": "dfd7e53e7ef844ae11394672b2f8e22ced47b977ff6e947fef837953cc95bb86",
       "newSha256": null,
       "diffstat": "+0/-25",
       "archiveAction": "archive-delete",
       "portOwner": "U44-2",
-      "reason": "deleted upstream; program-scale work routes to figure-it-out; U44-2 owns the Pi removal"
+      "reason": "deleted upstream; program-scale work routes to figure-it-out; the Pi playbook and its generated copy were removed in this card, and U44-2 owns the poteto-mode body"
     },
     {
       "path": "skills/poteto-mode/playbooks/perf-issue.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/perf-issue.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/perf-issue.md",
       "status": "modified",
       "oldSha256": "bde825b47f11191ed396a5e3237a25e3b0a4d008ab1e09fbf4b74f5b0da198b1",
       "newSha256": "0eb3130e34798cdc0971eb1b3582856cb81023ccab0abeb64301458660be15a1",
@@ -328,7 +328,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/refactoring.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/refactoring.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/refactoring.md",
       "status": "modified",
       "oldSha256": "38a25e96ec0eabb86bdbfe53927d80bf26a786dac5f7f5bf505ae36f24802add",
       "newSha256": "f11ff3c3ff0ea09d3ce2db0a3c11be3a3c11c279c04b83324723d0e0f984755b",
@@ -339,7 +339,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/runtime-forensics.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/runtime-forensics.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/runtime-forensics.md",
       "status": "modified",
       "oldSha256": "3463372b578c28f27c236f2627f09b5c5b1e85e86db7399fb984f3892fb450f5",
       "newSha256": "79634d9bbc1a6fef3fa5c852c1c723d525f7fab45568e9637121e4afc058405f",
@@ -350,7 +350,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/session-pickup.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/session-pickup.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/session-pickup.md",
       "status": "modified",
       "oldSha256": "d194f2a7ef392c1598ef3f0e3b561370ca25c2c7a78308007af4aa46ada8ee12",
       "newSha256": "15a6b61eeb89e2dd66ab8254f7c6807694a06eb103342983a7620f10c942ecf9",
@@ -361,7 +361,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/shipping.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/shipping.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/shipping.md",
       "status": "modified",
       "oldSha256": "bf56339bdf7e0223bcff5abf4e8599e3f5b547b3fcc3b4ce9475e6e7dda14a9f",
       "newSha256": "486a6211859eeacfc9a85c7a9d2632b7dddecad189a6b2551212ef274ef1d85c",
@@ -372,7 +372,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/trace-forensics.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/trace-forensics.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/trace-forensics.md",
       "status": "modified",
       "oldSha256": "ef0bbf79856a4ae1a8993d54c1a1da159cb97623941b652c0069cf75a017e0f5",
       "newSha256": "a2d5e20b544835755407b9bdd945e2b595d2e5f826b44c438cbadf92e7efd797",
@@ -383,7 +383,7 @@
     },
     {
       "path": "skills/poteto-mode/playbooks/worktree-cleanup.md",
-      "archivePath": "upstream/skills/poteto-mode/playbooks/worktree-cleanup.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/playbooks/worktree-cleanup.md",
       "status": "modified",
       "oldSha256": "be04ae0afe19d4a4da5bcc4e94455f68dbebd1cda6eb0f456ca0d358ecf76c00",
       "newSha256": "2d4d3dcc9e4ddff4770c5f2a254c7915e6bbed968861cfa0c3c45bd04f99b3a5",
@@ -394,7 +394,7 @@
     },
     {
       "path": "skills/poteto-mode/scripts/check-plan.mjs",
-      "archivePath": "upstream/skills/poteto-mode/scripts/check-plan.mjs",
+      "archivePath": "upstream/pstack/skills/poteto-mode/scripts/check-plan.mjs",
       "status": "removed",
       "oldSha256": "e3d4e9ca638c6fb4a2b52c434c17c7af30da4fdd44605ccfe9906f82fe37b555",
       "newSha256": null,
@@ -405,7 +405,7 @@
     },
     {
       "path": "skills/poteto-mode/scripts/check-plan.test.ts",
-      "archivePath": "upstream/skills/poteto-mode/scripts/check-plan.test.ts",
+      "archivePath": "upstream/pstack/skills/poteto-mode/scripts/check-plan.test.ts",
       "status": "removed",
       "oldSha256": "848d321f2b76299d1b2d7bb46c929dbaebef08ca4ba8669dbe09d1d5c86f96e2",
       "newSha256": null,
@@ -427,7 +427,7 @@
     },
     {
       "path": "skills/poteto-mode/worker.md",
-      "archivePath": "upstream/skills/poteto-mode/worker.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/worker.md",
       "status": "added",
       "oldSha256": null,
       "newSha256": "d051060527ab1649fb1e69d1e7d416950264f9955c3de3635c0d63569f1b90d8",
@@ -438,7 +438,7 @@
     },
     {
       "path": "skills/principle-attack-the-premise/SKILL.md",
-      "archivePath": "upstream/skills/principle-attack-the-premise/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-attack-the-premise/SKILL.md",
       "status": "modified",
       "oldSha256": "6a932884daad4aa189e9b5d1665226bbc75621d4d2a398fd4003bebd382f4599",
       "newSha256": "831e916c540f4b6b720b7472aeea6e6ef93996655e36cc2517221f6f2081b480",
@@ -449,7 +449,7 @@
     },
     {
       "path": "skills/principle-boundary-discipline/SKILL.md",
-      "archivePath": "upstream/skills/principle-boundary-discipline/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-boundary-discipline/SKILL.md",
       "status": "modified",
       "oldSha256": "62ac2862c2caa22dd14531f51c9c6bb445ceb198ca98a687e25b4d47c1f10a28",
       "newSha256": "c02c26cca3906bfd57829535f8fa7ee9e00df037b4dbb24e5f85ec9e12710b48",
@@ -460,7 +460,7 @@
     },
     {
       "path": "skills/principle-build-the-lever/SKILL.md",
-      "archivePath": "upstream/skills/principle-build-the-lever/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-build-the-lever/SKILL.md",
       "status": "modified",
       "oldSha256": "3434b0ad0c640c6f1d7960be7a8986c3bcdc14e26060360dec29903df60074ff",
       "newSha256": "753d81cf9ca2a4e9d1f057429f0c63c9c622e6022dd877ec97ec15f442076aac",
@@ -471,7 +471,7 @@
     },
     {
       "path": "skills/principle-explain-the-number/SKILL.md",
-      "archivePath": "upstream/skills/principle-explain-the-number/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-explain-the-number/SKILL.md",
       "status": "modified",
       "oldSha256": "3c84fbf9a7d9842abcfcd134010782b32092ac3d3fb4aaf9ed5732dca83aa58c",
       "newSha256": "e6a3f00991f4949cf18a0b5c77dd3126ca4402b8553f88c9c7905e577512676e",
@@ -482,7 +482,7 @@
     },
     {
       "path": "skills/principle-fix-root-causes/SKILL.md",
-      "archivePath": "upstream/skills/principle-fix-root-causes/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-fix-root-causes/SKILL.md",
       "status": "modified",
       "oldSha256": "8df3c8c3fe57eb0055a5c8efab8ab144557fdf301da70b1cdc77a3a3ef3f3052",
       "newSha256": "79afd7e67d8951203231f6f1ccfc7b4a1f30d8d6cdb68e92755c80012414dbeb",
@@ -493,7 +493,7 @@
     },
     {
       "path": "skills/principle-foundational-thinking/SKILL.md",
-      "archivePath": "upstream/skills/principle-foundational-thinking/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-foundational-thinking/SKILL.md",
       "status": "modified",
       "oldSha256": "864b827e8199d946ce58beca0f89c4ed4099ed6e426fb698a3aaa45de2a9eea2",
       "newSha256": "5c63eecf4b83ea5a99eda7a95a96cac0929d2dce7393d7089c83917bc12cf820",
@@ -504,7 +504,7 @@
     },
     {
       "path": "skills/principle-make-operations-idempotent/SKILL.md",
-      "archivePath": "upstream/skills/principle-make-operations-idempotent/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-make-operations-idempotent/SKILL.md",
       "status": "modified",
       "oldSha256": "7aa9327cf1f1aa057e95d47a0a78bd88a8f9d556b608866fee939d455a53a019",
       "newSha256": "76ad0a99b6ff2a05a159accfeee48412d62f62774eb8d05bbff26a1f3aa3eab5",
@@ -515,7 +515,7 @@
     },
     {
       "path": "skills/principle-minimize-reader-load/SKILL.md",
-      "archivePath": "upstream/skills/principle-minimize-reader-load/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-minimize-reader-load/SKILL.md",
       "status": "modified",
       "oldSha256": "1ea2b7fef2391cae5844c4efdbd59031f775e8a52d06b7495d707229a200dcca",
       "newSha256": "22d27deffb0a3726858d0d4b02d71acd4a3eb4d44e218bc89b66e49dc9823937",
@@ -526,7 +526,7 @@
     },
     {
       "path": "skills/principle-model-the-domain/SKILL.md",
-      "archivePath": "upstream/skills/principle-model-the-domain/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-model-the-domain/SKILL.md",
       "status": "modified",
       "oldSha256": "52c0d85e0c3827c41c18299b642657d7b47eaf77b7b31609e42e0df42b84c75f",
       "newSha256": "97c6214dc6a18b93177dda6429185a8640878b36ddee6ec9400c23a0eb9be2d8",
@@ -537,7 +537,7 @@
     },
     {
       "path": "skills/principle-prove-it-works/SKILL.md",
-      "archivePath": "upstream/skills/principle-prove-it-works/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-prove-it-works/SKILL.md",
       "status": "modified",
       "oldSha256": "ec79a15025bac8d33d62011c54f3b612733fd2a024e623b531b3637aa75070e2",
       "newSha256": "3d6c482e341974cfcb8d19ebf66fb1d4274d8673af35e36d3c231a6aa9e03f25",
@@ -548,7 +548,7 @@
     },
     {
       "path": "skills/principle-separate-before-serializing-shared-state/SKILL.md",
-      "archivePath": "upstream/skills/principle-separate-before-serializing-shared-state/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-separate-before-serializing-shared-state/SKILL.md",
       "status": "modified",
       "oldSha256": "05294b40448e927c5da1c7b6f5c6b9fed3744637e3833d2d948b9154a9dd00bb",
       "newSha256": "2e5625d686b657e0b607c329fd8043bf50261b808239308fe4c6776e2817e95a",
@@ -559,7 +559,7 @@
     },
     {
       "path": "skills/principle-sequence-verifiable-units/SKILL.md",
-      "archivePath": "upstream/skills/principle-sequence-verifiable-units/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-sequence-verifiable-units/SKILL.md",
       "status": "modified",
       "oldSha256": "2ccbbacc56ace5afdfb8670cef19d7bd009fb2a0033b9a741cbdf2b6baf72187",
       "newSha256": "ab0cc331cf317c07bb0ed6dd13ee9f618338b36e4e851521977bc5c4a8d429e1",
@@ -570,7 +570,7 @@
     },
     {
       "path": "skills/principle-test-behavior-not-implementation/SKILL.md",
-      "archivePath": "upstream/skills/principle-test-behavior-not-implementation/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-test-behavior-not-implementation/SKILL.md",
       "status": "modified",
       "oldSha256": "f7223698623b6a26fea49c751e466b38e6691b1f32ce841d3983e7ffbe2b74a6",
       "newSha256": "42afc1a2c7176363b6410cfde06a9fd3e96f5022ba86bdb8de4838ad65c2442d",
@@ -581,7 +581,7 @@
     },
     {
       "path": "skills/principle-type-system-discipline/SKILL.md",
-      "archivePath": "upstream/skills/principle-type-system-discipline/SKILL.md",
+      "archivePath": "upstream/pstack/skills/principle-type-system-discipline/SKILL.md",
       "status": "modified",
       "oldSha256": "5cdaf79785e3c12b2592b9469ee8c272143eb86ab7a18d8382197cea5fd30106",
       "newSha256": "9cd1ce345bc9d666c73c64c89c89164217b659aa4c4dde5600cbbe6f6e775461",
@@ -592,7 +592,7 @@
     },
     {
       "path": "skills/recall/SKILL.md",
-      "archivePath": "upstream/skills/recall/SKILL.md",
+      "archivePath": "upstream/pstack/skills/recall/SKILL.md",
       "status": "modified",
       "oldSha256": "44673475f0523b83db7ea09388562b844ad7f2026f54e7d980f537e33109b1c8",
       "newSha256": "1f4eda450650a7bd3948f44489a94f6c692f6a14ab9ce56ab9ed6f60c50e2258",
@@ -603,7 +603,7 @@
     },
     {
       "path": "skills/reflect/SKILL.md",
-      "archivePath": "upstream/skills/reflect/SKILL.md",
+      "archivePath": "upstream/pstack/skills/reflect/SKILL.md",
       "status": "modified",
       "oldSha256": "3b78774e9659a516d8ed48616cab34bd3ec771904c63929aa74270da66b99cf0",
       "newSha256": "6f6952f91514dc86257830da93a446c732a1af906f6acd5e5783dc587a29031e",
@@ -614,51 +614,51 @@
     },
     {
       "path": "skills/reflect/references/divergent-reviewer.md",
-      "archivePath": "upstream/skills/reflect/references/divergent-reviewer.md",
+      "archivePath": "upstream/pstack/skills/reflect/references/divergent-reviewer.md",
       "status": "removed",
       "oldSha256": "f6030d88e20e906ef5e2d9ba44cb013ce610c49c2fe2ef74c377d32e0dc9e939",
       "newSha256": null,
       "diffstat": "+0/-38",
       "archiveAction": "archive-delete",
       "portOwner": "U44-3",
-      "reason": "deleted upstream with the single-file reflect rewrite; U44-3 drops the Pi override template and the generated copy"
+      "reason": "deleted upstream with the single-file reflect rewrite; the Pi override template and the generated copy were removed in this card, and U44-3 writes the reflect body"
     },
     {
       "path": "skills/reflect/references/judgment-reviewer.md",
-      "archivePath": "upstream/skills/reflect/references/judgment-reviewer.md",
+      "archivePath": "upstream/pstack/skills/reflect/references/judgment-reviewer.md",
       "status": "removed",
       "oldSha256": "38f917619fbf346062d643e0ad6b12fc952d58678dfcbbf42ffcf6d8b9c08307",
       "newSha256": null,
       "diffstat": "+0/-37",
       "archiveAction": "archive-delete",
       "portOwner": "U44-3",
-      "reason": "deleted upstream with the single-file reflect rewrite; U44-3 drops the Pi override template and the generated copy"
+      "reason": "deleted upstream with the single-file reflect rewrite; the Pi override template and the generated copy were removed in this card, and U44-3 writes the reflect body"
     },
     {
       "path": "skills/reflect/references/synthesizer.md",
-      "archivePath": "upstream/skills/reflect/references/synthesizer.md",
+      "archivePath": "upstream/pstack/skills/reflect/references/synthesizer.md",
       "status": "removed",
       "oldSha256": "07c81573f63f011df736d24ec8febf8b59d29db328cb1626ad67df7841c9ad77",
       "newSha256": null,
       "diffstat": "+0/-56",
       "archiveAction": "archive-delete",
       "portOwner": "U44-3",
-      "reason": "deleted upstream with the single-file reflect rewrite; U44-3 drops the Pi override template and the generated copy"
+      "reason": "deleted upstream with the single-file reflect rewrite; the Pi override template and the generated copy were removed in this card, and U44-3 writes the reflect body"
     },
     {
       "path": "skills/reflect/references/tooling-reviewer.md",
-      "archivePath": "upstream/skills/reflect/references/tooling-reviewer.md",
+      "archivePath": "upstream/pstack/skills/reflect/references/tooling-reviewer.md",
       "status": "removed",
       "oldSha256": "f81b8697e7366fbbc18feba52c6e3253a101f751091364ebc4396a1d9b5753b4",
       "newSha256": null,
       "diffstat": "+0/-48",
       "archiveAction": "archive-delete",
       "portOwner": "U44-3",
-      "reason": "deleted upstream with the single-file reflect rewrite; U44-3 drops the Pi override template and the generated copy"
+      "reason": "deleted upstream with the single-file reflect rewrite; the Pi override template and the generated copy were removed in this card, and U44-3 writes the reflect body"
     },
     {
       "path": "skills/setup-pstack/SKILL.md",
-      "archivePath": "upstream/skills/setup-pstack/SKILL.md",
+      "archivePath": "upstream/pstack/skills/setup-pstack/SKILL.md",
       "status": "modified",
       "oldSha256": "4c53ea532bbfc429833c8cf5480a0fffcd10c3e32bc26256feff3d7ee7c9da85",
       "newSha256": "d452295f927301bad320b7c306cf6cecd0c421a63c76f36ddfce1fe064c1ed03",
@@ -669,7 +669,7 @@
     },
     {
       "path": "skills/show-me-your-work/SKILL.md",
-      "archivePath": "upstream/skills/show-me-your-work/SKILL.md",
+      "archivePath": "upstream/pstack/skills/show-me-your-work/SKILL.md",
       "status": "modified",
       "oldSha256": "920a8217cbb62f92a2222fb81fc9eab17ecd554a0277e444a95a927195139bd1",
       "newSha256": "ec29326ac20515f2941198205bec615320a55b21659692e19650530dbf217bde",
@@ -680,7 +680,7 @@
     },
     {
       "path": "skills/swarm/SKILL.md",
-      "archivePath": "upstream/skills/swarm/SKILL.md",
+      "archivePath": "upstream/pstack/skills/swarm/SKILL.md",
       "status": "modified",
       "oldSha256": "411f9d1a29a8a6f59b7bfcd4726330ddb62c4c1298ebf53d5773d82703701038",
       "newSha256": "8558089df5320e4ddf61126ca3d638404341584c8307dd6d20f8984e5ae3bbd1",
@@ -691,7 +691,7 @@
     },
     {
       "path": "skills/technical-writing/SKILL.md",
-      "archivePath": "upstream/skills/technical-writing/SKILL.md",
+      "archivePath": "upstream/pstack/skills/technical-writing/SKILL.md",
       "status": "modified",
       "oldSha256": "61fe9c424a798ebf36ad94941f87be049cb8827bdf86d21474a0dde37b513c43",
       "newSha256": "0a620885599cdde5a0a31fa39878144c10f61c894b56bf4a9ff779496e718b14",
@@ -702,7 +702,7 @@
     },
     {
       "path": "skills/unslop/SKILL.md",
-      "archivePath": "upstream/skills/unslop/SKILL.md",
+      "archivePath": "upstream/pstack/skills/unslop/SKILL.md",
       "status": "modified",
       "oldSha256": "ccab208e315ce05e2fab8eeee2f7879f1289b5c6844840b2d307adf31c79144f",
       "newSha256": "2b823fd069e031c1420180be8e0d4f5e2fd25bf2c428049e5c835c59a489b5e0",
@@ -925,7 +925,7 @@
     },
     {
       "path": "skills/poteto-mode/scripts/package.json",
-      "sha256": "c9db6bb9362c6e319e395b358b113ebc72ab06b6c5e3a095093f6ebfdafe1c57",
+      "sha256": "0b7aa62edc524bf9d3f735b17f10ab7fea22797b80b7edc4a91620a570332d13",
       "classification": "old-archive-exclusion",
       "evidence": "excluded from the snapshot since U36 (docs/validation-upstream-01536-plan.md); upstream dropped check-plan.test.ts from its test command in 0.15.43, and the file stays outside the archive"
     },
@@ -999,7 +999,7 @@
   ],
   "followUps": [
     "U44-2 through U44-6 must port the changed bodies listed here under adapters/pi/overrides; this card only syncs the upstream archive, the source lists and the generated files for skills that have no override",
-    "the 10 deleted upstream files must lose their docs/port-map.json entries, their override templates and their generated copies in the card named by portOwner",
-    "skills/poteto-mode/worker.md is registered in docs/port-map.json as a verbatim-inherit entry by this card; its Pi adaptation belongs to U44-2"
+    "the 10 deleted upstream files lost their docs/port-map.json entries, their override templates and their generated copies in this card (U44-1); the cards named by portOwner only write the adapted bodies",
+    "skills/poteto-mode/worker.md is registered in docs/port-map.json as an override entry whose template is byte-identical to the 0.15.44 source, because the upstream file has no frontmatter and the generator's inherit-body path needs one; U44-2 writes the Pi wording of that body"
   ]
 }

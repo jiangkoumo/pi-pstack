@@ -95,7 +95,7 @@ test('prepared references are generated, checked for drift, and have accepted st
   const map = JSON.parse(await readFile(resolve(dir, 'docs/port-map.json'), 'utf8'));
   const entry = map.preparedResources.find(entry => entry.destination === 'skills/poteto-help/references/prompting.md');
   assert.equal(entry.status, 'accepted');
-  assert.equal(map.entries.find(entry => entry.source === 'pstack/skills/architect/SKILL.md').disposition, 'ported');
+  assert.equal(map.entries.find(entry => entry.source === 'pstack/skills/poteto-help/SKILL.md').disposition, 'ported');
   const target = resolve(dir, entry.destination);
   const expected = await readFile(resolve(dir, entry.adaptation.override), 'utf8');
   await writeFile(target, expected + '\nmanual drift\n');
