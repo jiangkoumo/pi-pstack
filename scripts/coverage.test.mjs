@@ -10,10 +10,6 @@ const links = text => [...text.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)].map(m => m[1]
 const localLinks = text => links(text).filter(p => !/^[a-z][a-z0-9+.-]*:/i.test(p) && !p.startsWith('#'));
 const headings = text => [...text.replace(/```[^\n]*\n[\s\S]*?```/g, '').matchAll(/^#{1,6} (.+)$/gm)].map(m => m[1]);
 const load = name => read(`skills/${name}/SKILL.md`);
-const groups = {
-  architect: ['design-red-flags.md', 'rationale-template.md', 'runner-prompt.md'],
-  reflect: ['divergent-reviewer.md', 'judgment-reviewer.md', 'synthesizer.md', 'tooling-reviewer.md'],
-};
 
 async function reachable(start) {
   const seen = new Set();
@@ -34,20 +30,6 @@ async function reachable(start) {
   }
   return seen;
 }
-
-test('task 4: methodology references are reachable from their skill and retain source review dimensions', async () => {
-  for (const [name, refs] of Object.entries(groups)) {
-    const seen = await reachable(`skills/${name}/SKILL.md`);
-    for (const ref of refs) {
-      const path = `skills/${name}/references/${ref}`;
-      assert(seen.has(resolve(root, path)), `Unused method reference: ${path}`);
-      const [body, original] = await Promise.all([read(path), read('upstream/pstack/' + path)]);
-      for (const heading of headings(original)) assert(headings(body).includes(heading), `${path}: missing ${heading}`);
-      const slots = [...original.matchAll(/\{([A-Z_]+)\}/g)].map(m => m[1]);
-      for (const slot of slots) assert(body.includes(`{${slot}}`), `${path}: lost prompt input ${slot}`);
-    }
-  }
-});
 
 test('task 4: architect grounds before sketching and retains agree, implement and scrap phases', async () => {
   const body = await load('architect');

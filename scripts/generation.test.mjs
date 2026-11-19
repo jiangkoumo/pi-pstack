@@ -40,7 +40,7 @@ async function rejectInBothModes(dir, pattern) {
 }
 
 test('B2 generated artifact instructions use the injected run directory instead of the real home', async () => {
-  for (const destination of ['skills/architect/SKILL.md', ...['autonomous-run', 'hillclimb', 'multi-phase-plan', 'orchestrate', 'pause-safely', 'prototype'].map(name => `skills/poteto-mode/playbooks/${name}.md`)]) {
+  for (const destination of ['skills/architect/SKILL.md', ...['autonomous-run', 'hillclimb', 'multi-phase-plan', 'pause-safely', 'prototype'].map(name => `skills/poteto-mode/playbooks/${name}.md`)]) {
     const content = await readFile(resolve(root, destination), 'utf8');
     assert.doesNotMatch(content, /~\/\.pi\/agent\/pstack-runs/, destination);
     assert.match(content, /pstack run directory (?:given|provided) in the system prompt/i, destination);
@@ -93,7 +93,7 @@ test('Pi-specific role agents preserve tool boundaries and are not attributed to
 
 test('prepared references are generated, checked for drift, and have accepted status', () => fixture(async dir => {
   const map = JSON.parse(await readFile(resolve(dir, 'docs/port-map.json'), 'utf8'));
-  const entry = map.preparedResources.find(entry => entry.destination === 'skills/architect/references/design-red-flags.md');
+  const entry = map.preparedResources.find(entry => entry.destination === 'skills/poteto-help/references/prompting.md');
   assert.equal(entry.status, 'accepted');
   assert.equal(map.entries.find(entry => entry.source === 'pstack/skills/architect/SKILL.md').disposition, 'ported');
   const target = resolve(dir, entry.destination);

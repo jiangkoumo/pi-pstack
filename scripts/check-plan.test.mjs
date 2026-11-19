@@ -208,7 +208,7 @@ test('completion includes interaction approval artifacts and rejects blocked ver
 });
 
 test('documented Pi loops parse with the actual runtime and valid shell quoting', () => {
-  for (const name of ['orchestrate', 'babysit']) {
+  for (const name of ['babysit']) {
     const markdown = readFileSync(resolve(root, `skills/poteto-mode/playbooks/${name}.md`), 'utf8');
     const line = markdown.split('\n').find(line => line.startsWith('/loop run '));
     assert.ok(line, name);
@@ -218,21 +218,6 @@ test('documented Pi loops parse with the actual runtime and valid shell quoting'
     const syntax = spawnSync('bash', ['-n', '-c', parsed.until.command], { cwd: root, encoding: 'utf8' });
     assert.equal(syntax.status, 0, syntax.stderr);
   }
-});
-
-test('orchestrate playbook documents agentic Topology and Supervision with Pi substitutions', () => {
-  const markdown = readFileSync(resolve(root, 'skills/poteto-mode/playbooks/orchestrate.md'), 'utf8');
-  assert.match(markdown, /^#### Topology$/m);
-  assert.match(markdown, /^#### Supervision$/m);
-  assert.match(markdown, /pi-subagents `subagent`/);
-  assert.match(markdown, /notes\.md/);
-  assert.match(markdown, /<run-id>\/orchestrate\//);
-  assert.match(markdown, /isolated local worktree/);
-  assert.match(markdown, /gh pr view/);
-  assert.match(markdown, /gh pr checks/);
-  assert.match(markdown, /origin pr view/);
-  assert.match(markdown, /origin pr checks/);
-  assert.match(markdown, /do not invoke any `orch` CLI/i);
 });
 
 test('documented babysit predicate accepts only a pinned, clean, thread-free snapshot', () => {

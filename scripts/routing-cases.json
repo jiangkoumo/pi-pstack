@@ -134,14 +134,6 @@
       }
     },
     {
-      "id": "pb-orchestrate",
-      "category": "playbook",
-      "request": "own this multi-day migration across twenty stacked PRs",
-      "expect": {
-        "playbook": "orchestrate"
-      }
-    },
-    {
       "id": "pb-autopilot-full",
       "category": "playbook",
       "request": "autopilot this queue of independent PRs to merged",
