@@ -22,7 +22,7 @@ Tests alone are not sufficient verification. A PR is verified only when its unit
 
 ## Publish a checker usage example (PR1)
 
-**Depends on.** None. PR1 branches from main. Dependents must wait for the parent's accepted output or explicitly use its branch as their base. The JSON dependency graph is authoritative.
+**Depends on.** None. PR1 branches from main. Dependents must wait for the parent's accepted output or explicitly use its branch as their base. The prose dependency order is authoritative; the JSON block, if kept, copies it.
 
 **Files.**
 
@@ -99,7 +99,7 @@ Scale lanes to the surface. For broad interaction changes use the upstream ten-l
 }
 ```
 
-Each PR id matches `[A-Z][A-Z0-9-]*` and is unique. `dependsOn` contains existing ids, never itself; cycles and duplicate dependencies fail. `state` is `planned`, `active`, `blocked` or `verified`; `head` is `pending` or a full 40/64-character Git SHA. `build` entries require `task` and `evidence`; `observable` requires `result`, `pass`, `evidence`; unit entries require `command`, `pass`, `evidence`; live entries require `scenario`, `drive`, `pass`, `evidence`, with at least one `regression: true`. All artifact paths are unique within a PR and relative below the plan directory. File scope is relative to `repository`; `repository` is relative to the plan directory unless absolute. Commands execute only when the authorized owner deliberately runs them in that repository. Nothing in this package runs a plan command for you.
+Each PR id matches `[A-Z][A-Z0-9-]*` and is unique. `dependsOn` contains existing ids and never itself; keeping it acyclic and free of duplicates is the planner's job, because nothing in this package checks the block. `state` is `planned`, `active`, `blocked` or `verified`; `head` is `pending` or a full 40/64-character Git SHA. `build` entries require `task` and `evidence`; `observable` requires `result`, `pass`, `evidence`; unit entries require `command`, `pass`, `evidence`; live entries require `scenario`, `drive`, `pass`, `evidence`, with at least one `regression: true`. All artifact paths are unique within a PR and relative below the plan directory. File scope is relative to `repository`; `repository` is relative to the plan directory unless absolute. Commands execute only when the authorized owner deliberately runs them in that repository. Nothing in this package runs a plan command for you.
 
 For completion, set `state` to `verified`, set `head` to the current full SHA and add one receipt for every declared artifact. Each receipt has `evidence` equal to the declared relative path, `head` equal to the PR head, `exitCode: 0`, and a concrete `summary`. Include screenshots, video and operator approval artifacts when review is required. For non-command evidence `exitCode: 0` records the verifier's successful inspection, with that inspection described in `summary`. A blocked lane has no successful receipt. Perf exemptions need no fabricated artifact. Existing files and receipts are necessary but the coordinator must still audit their contents; this is not a proof engine or a merge authorization service.
 
