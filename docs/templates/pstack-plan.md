@@ -1,12 +1,12 @@
 # Plan a verifiable program
 
-Adapted from pstack by Lauren Tan, Copyright (c) 2026 Lauren Tan, MIT. The pinned source is `f713f14203cd6420cec13cd7c55c32d598dbab68`, `pstack/skills/poteto-mode/playbooks/multi-phase-plan.md` and its plan checker. See [the upstream license](../../LICENSES/pstack.txt). The JSON contract, local evidence paths and bounded Pi loop are adaptations.
+Adapted from pstack by Lauren Tan, Copyright (c) 2026 Lauren Tan, MIT. The pinned source is `f713f14203cd6420cec13cd7c55c32d598dbab68`, `pstack/skills/poteto-mode/playbooks/multi-phase-plan.md` and the plan checker it shipped then. See [the upstream license](../../LICENSES/pstack.txt). The local evidence paths and bounded Pi loop are adaptations. Upstream 0.15.43 deleted the plan checker together with its fence, so the prose below is the plan and the JSON block is an illustration.
 
 Copy this file to the operator's chosen plan path. Otherwise use `<run-id>/plan.md` in the pstack run directory provided in the system prompt. Resolve this template from the installed package, not the target repository. The example is a complete *planned* CLI documentation change; replace its goal, repository, commands, paths, owners and scenarios with facts from the target project. It records no executed evidence and grants no execution permission.
 
 ## How to read this
 
-One box is one unit of work and names the evidence that checks it. Check a box only when its evidence exists. Keep the body a how-to; appendices explain prototypes, rejected alternatives and risks. The single top-level `pstack-plan` JSON fence is the machine-readable source of truth; keep its PRs aligned with the prose. Ordinary JSON code examples do not count as contracts.
+One box is one unit of work and names the evidence that checks it. Check a box only when its evidence exists. Keep the body a how-to; appendices explain prototypes, rejected alternatives and risks. The prose is the source of truth. Nothing in this package parses the JSON block below; it lists the fields an owner and an auditor read, so keep it aligned with the prose when you keep it at all.
 
 Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf gates have evidence, or a perf exemption has a concrete reason. Live verification is mandatory. Every PR has its own files, build steps, observable result, acceptance commands, regression lane, review decision and merge gate. Behavioral work requires a behavioral verdict; typecheck-only and blocked are not passes.
 
@@ -99,17 +99,16 @@ Scale lanes to the surface. For broad interaction changes use the upstream ten-l
 }
 ```
 
-Each PR id matches `[A-Z][A-Z0-9-]*` and is unique. `dependsOn` contains existing ids, never itself; cycles and duplicate dependencies fail. `state` is `planned`, `active`, `blocked` or `verified`; `head` is `pending` or a full 40/64-character Git SHA. `build` entries require `task` and `evidence`; `observable` requires `result`, `pass`, `evidence`; unit entries require `command`, `pass`, `evidence`; live entries require `scenario`, `drive`, `pass`, `evidence`, with at least one `regression: true`. All artifact paths are unique within a PR and relative below the plan directory. File scope is relative to `repository`; `repository` is relative to the plan directory unless absolute. Commands execute only when the authorized owner deliberately runs them in that repository. The checker never executes a plan command.
+Each PR id matches `[A-Z][A-Z0-9-]*` and is unique. `dependsOn` contains existing ids, never itself; cycles and duplicate dependencies fail. `state` is `planned`, `active`, `blocked` or `verified`; `head` is `pending` or a full 40/64-character Git SHA. `build` entries require `task` and `evidence`; `observable` requires `result`, `pass`, `evidence`; unit entries require `command`, `pass`, `evidence`; live entries require `scenario`, `drive`, `pass`, `evidence`, with at least one `regression: true`. All artifact paths are unique within a PR and relative below the plan directory. File scope is relative to `repository`; `repository` is relative to the plan directory unless absolute. Commands execute only when the authorized owner deliberately runs them in that repository. Nothing in this package runs a plan command for you.
 
 For completion, set `state` to `verified`, set `head` to the current full SHA and add one receipt for every declared artifact. Each receipt has `evidence` equal to the declared relative path, `head` equal to the PR head, `exitCode: 0`, and a concrete `summary`. Include screenshots, video and operator approval artifacts when review is required. For non-command evidence `exitCode: 0` records the verifier's successful inspection, with that inspection described in `summary`. A blocked lane has no successful receipt. Perf exemptions need no fabricated artifact. Existing files and receipts are necessary but the coordinator must still audit their contents; this is not a proof engine or a merge authorization service.
 
 ## Close the program
 
-- [ ] Run `node /absolute/package/scripts/check-plan.mjs /absolute/run/plan.md`. This validates the planned contract without requiring future artifacts.
-- [ ] During authorized execution use `node /absolute/package/scripts/check-plan.mjs --complete /absolute/run/plan.md` only after receipts exist. It rejects stale heads, missing files, nonzero exits and unverified PRs.
-- [ ] Reply with plan path, PR ids and dependencies, review gates, unresolved decisions, actual checker output and exit code. Stop after planning; a structural pass does not start execution.
+- [ ] Read the plan yourself before handoff. No checker ships with the package, so walk the boxes, confirm every declared receipt path and head, and cut any claim the evidence does not support.
+- [ ] Reply with plan path, PR ids and dependencies, review gates and unresolved decisions plus what stays unproven. Stop after planning; a clean read does not start execution.
 
-CLI accepts exactly one file and optional `--complete` in either order. Exit 0 means the selected gate passed; exit 1 means a malformed or rejected plan; exit 2 means usage or file-read failure. Diagnostics include absolute filename, contract line and JSON field path. Resolve checker and execution playbook paths from the package root even when planning another repository; resolve artifact paths from the copied plan, never the process cwd.
+Resolve the execution playbook path from the package root even when planning another repository; resolve artifact paths from the copied plan, never the process cwd.
 
 ## Appendix A. Prototype evidence
 
