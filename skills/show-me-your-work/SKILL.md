@@ -65,7 +65,7 @@ Correct the log, not the story. The audit never edits or removes a row, even an 
 
 ## Cross-model review of the trail
 
-Before handing back, spawn a subagent on a different model family from the one that did the work. Self-review is not a substitute. This requires operator or project authorization and an available pi-subagents integration; if either is unavailable, do not invent a reviewer, and state that limitation in Attention. The reviewer is read-only and never receives write tools. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky. Pick each subagent's reasoning level and speed for the job, per the Subagents section of the **poteto-mode** skill.
+Before handing back, spawn a subagent on another vendor's model than the one that did the work. Self-review is not a substitute. This requires operator or project authorization and an available pi-subagents integration; if either is unavailable, do not invent a reviewer, and state that limitation in Attention. The reviewer is read-only and never receives write tools. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky. Pick each subagent's reasoning level for the job, per the Subagents section of the **poteto-mode** skill.
 
 - Decisions logged with weak or absent evidence.
 - Verification steps skipped or claimed without proof in the transcript.
@@ -84,7 +84,7 @@ Other skills route their audit trail here instead of inventing one. Reference it
 
 ## Pi execution and authority
 
-Adapted from Lauren Tan’s pstack v0.15.25, MIT, fixed revision f713f14203cd6420cec13cd7c55c32d598dbab68. Read the [Pi adapter](../../adapters/pi/harness.md) for host mappings.
+Adapted from Lauren Tan’s pstack v0.15.44, MIT, fixed revision e58dd043600587dbaf58ba315e7f2b38373eeb43. Read the [Pi adapter](../../adapters/pi/harness.md) for host mappings.
 
 The upstream helper `scripts/log.sh <logfile> <phase> <decision> <why> <evidence> <result>` is not shipped; the `write` and `edit` steps above reproduce its stamping, header, byte-stripping, and quote-prefix behavior, and the quote prefix prevents spreadsheet formula execution.
 

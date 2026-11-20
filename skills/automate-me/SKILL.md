@@ -9,7 +9,7 @@ license: MIT
 
 A guided flow for turning the user's working conventions into a skill agents will follow. The output is one `-mode` skill tailored to them (e.g. `jay-mode`, `priya-mode`).
 
-This skill orchestrates three others: an inline mining pass (see step 1), Pi's skill authoring contract (authoring), and the **unslop** skill (prose discipline). It sequences them. It doesn't replace them.
+This skill runs three others in order: an inline mining pass (see step 1), Pi's skill authoring contract (authoring), and the **unslop** skill (prose discipline). It doesn't replace them.
 
 ## Flow
 
@@ -105,7 +105,7 @@ Run a description-optimization loop only if the skill's trigger accuracy turns o
 
 #### Pi adaptation
 
-Adapted from pstack by Lauren Tan, Copyright (c) 2026 Lauren Tan, MIT. Source: pinned upstream commit `f713f14203cd6420cec13cd7c55c32d598dbab68`; license: `LICENSES/pstack.txt` in the package root. The body above preserves the upstream flow with Cursor skill paths, `create-skill`, `AskQuestion`, and transcript paths replaced. These notes govern platform and authorization differences.
+Adapted from pstack by Lauren Tan, Copyright (c) 2026 Lauren Tan, MIT. Source: pinned upstream commit `e58dd043600587dbaf58ba315e7f2b38373eeb43` (pstack 0.15.44); license: `LICENSES/pstack.txt` in the package root. The body above preserves the upstream flow with Cursor skill paths, `create-skill`, `AskQuestion`, and transcript paths replaced. These notes govern platform and authorization differences.
 
 **Paths.** Pi discovers project skills under `.pi/skills/` and user skills under `~/.pi/agent/skills/` (plus `.agents/skills/` and `~/.agents/skills/` when the operator uses the portable Agent Skills locations). Read the installed Pi package's `docs/skills.md` before drafting; it defines frontmatter fields, name and description limits, discovery, and `/reload` behavior. A package can also ship a mode skill under its own `skills/` directory.
 

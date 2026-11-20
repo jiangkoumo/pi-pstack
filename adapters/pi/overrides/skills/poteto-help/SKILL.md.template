@@ -48,7 +48,7 @@ pstack began on Cursor. Its skills use the Agent Skills format, so other tools c
 
 ## Start a task with `/skill:poteto-mode`
 
-`/skill:poteto-mode` matches the task to a playbook, copies the playbook's steps into the todo list, and runs the other skills as the steps need them. A step it skips stays in the list as `skip: <reason>`. A good prompt states the goal and how to tell it's done. It doesn't list skills, because a hand-written sequence tends to drop or reorder steps the playbook would keep. Read [prompting.md](references/prompting.md) before you help word one.
+`/skill:poteto-mode` matches the task to a playbook, copies the playbook's steps into the todo list, and runs the other skills as the steps need them. A good prompt states the goal and how to tell it's done. It doesn't list skills, because a hand-written sequence tends to drop or reorder steps the playbook would keep. Read [prompting.md](references/prompting.md) before you help word one.
 
 Enter on `/skill:poteto-mode` attaches the skill to one message. Explicit skill invocation does not change persistent mode.
 
@@ -104,16 +104,14 @@ Close calls:
 
 - `/how` explains what the code does. `/why` explains the reasons. `/teach` runs one or both and explains the result plainly.
 - `/arena` gives every worker the same brief and merges the best parts. `/swarm` splits work into slices or a race and returns one report.
-- `/architect` implements right after it settles the design. Add "with checkpoint" to review the design before it writes code.
 - `/interrogate` reviews the diff. `/blast-radius` looks for breakage outside the diff and proves the one fact that makes the change safe.
 - `/recall` rebuilds context across recent chats. `/ketchup` covers only this chat since the user's last message. Resuming one specific chat or branch is the Session pickup playbook.
-- `/figure-it-out` designs one rigorous run. The Orchestrate playbook runs a program that spans days and many PRs. The Autonomous run playbook drives one task to a finish condition.
+- `/figure-it-out` designs one rigorous run. The Autonomous run playbook drives one task to a finish condition.
 
 Not shipped as skills in this package:
 
 - `/deslop`, `control-cli`, and `control-ui` come from Cursor's `cursor-team-kit`. Here `/unslop` and `/no-comments` cover the local cleanup, and app verification uses the operator's available browser or CLI driver.
 - `/loop` and `/setup-pstack` are Pi extension commands. `/create-skill` is not shipped; use the manual authoring procedure in the [Pi adapter](../../adapters/pi/harness.md).
-- pstack has no `/orchestrate` skill. Orchestrate is a `/skill:poteto-mode` playbook. If the slash menu shows `/orchestrate`, another plugin provides it.
 
 ## Playbooks and principles
 
@@ -126,7 +124,7 @@ Playbooks are step lists inside `/skill:poteto-mode`, not skills, so they have n
 - "full autopilot on this queue" runs Autopilot-full. "autopilot, don't merge" runs Autopilot-stack.
 - "run the eval playbook" runs [Eval](../poteto-mode/playbooks/eval.md).
 
-Outside `/skill:poteto-mode`, a phrase such as "babysit this pr" does not start a hidden skill here; read the playbook directly or turn the mode on. The Playbooks section of [poteto-mode](../poteto-mode/SKILL.md) lists every playbook and when it applies.
+Outside `/skill:poteto-mode`, a phrase such as "babysit this pr" does not start a hidden skill here; read the playbook directly or turn the mode on. The Playbooks section of [poteto-mode](../poteto-mode/SKILL.md) lists every playbook.
 
 pstack has no planning skill. The host's plan mode works alongside it. For work that spans phases or stacked PRs, asking `/skill:poteto-mode` for a plan runs the [Multi-phase plan playbook](../poteto-mode/playbooks/multi-phase-plan.md), which writes the plan and doesn't implement it. For a design question, the Prototype playbook or `/architect` settles it in code first.
 

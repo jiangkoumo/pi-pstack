@@ -32,7 +32,7 @@ For a quick ballpark the user asked for, one run is enough. Still check question
 - Lead with the verdict: faster, slower, no measurable difference, or inconclusive.
 - Give the number with its unit, the run count, the range, and the limiter. For example, "p50 41 ms → 33 ms, median of 7 runs per side, range 32 to 35 ms after, bound by JSON parsing on one core."
 - Call the verdict inconclusive when you claim a difference but cannot name the limiter, when a side ran untuned, or when you could not check questions 4 and 7. Name the gap.
-- Keep a PR body to one primary number, per the **Opening a PR** playbook. Put the runs, range, and limiter evidence in a linked artifact or notes file.
+- Keep a PR body to one primary number. Put the runs, range, and limiter evidence in a linked artifact or notes file.
 
 ## Other perf material
 
@@ -41,7 +41,7 @@ For a quick ballpark the user asked for, one run is enough. Still check question
 
 ## Pi execution and authority
 
-Adapted from Lauren Tan’s pstack v0.15.25, MIT, fixed revision f713f14203cd6420cec13cd7c55c32d598dbab68. Read the [Pi adapter](../../adapters/pi/harness.md) for host mappings.
+Adapted from Lauren Tan’s pstack v0.15.44, MIT, fixed revision e58dd043600587dbaf58ba315e7f2b38373eeb43. Read the [Pi adapter](../../adapters/pi/harness.md) for host mappings.
 
 Delegation requires operator or applicable project authorization and an available pi-subagents integration. Otherwise perform the same stages sequentially and label the result self-review rather than independent review. Read the installed integration’s public instructions before launching. Use pstack.poteto-agent for isolated candidate writers and pstack.comment-sicko with its actual read-only allowlist for file reviewers. Keep one writer per directory. A source investigator may use only explicitly available read-only connectors; lack of connector access is a gap, never a reason to grant write tools.
 
