@@ -71,7 +71,7 @@ test('routing manifest keeps its labeled reconstruction provenance and extends i
   assert.equal(CASES.source.kind, 'reconstructed');
   assert.match(CASES.source.note, /original 46-case list .* was not supplied/i);
   assert.match(CASES.source.note, /must not be described as one/i);
-  assert.equal(CASES.cases.length, 52, 'Original 46 cases plus ketchup/sharpen additions and three Phase B formal/statechart routes, minus the orchestrate playbook dropped in pstack 0.15.44');
+  assert.equal(CASES.cases.length, 52, 'Original 46 cases plus ketchup/sharpen additions and three Phase B formal/statechart routes, minus the standing-program playbook dropped in pstack 0.15.43');
 });
 
 test('every routing case has a unique id and a declared hit', () => {
@@ -132,7 +132,7 @@ test('routing manifest keeps the original 46 cases and adds two ketchup cases', 
   for (const id of ['sk-tdd-tdd', 'sk-sharpen-rewrite']) {
     assert(CASES.cases.some(item => item.id === id), `Keep the original case: ${id}`);
   }
-  assert.equal(CASES.cases.length, 52, 'Keep the original 50 cases and add three Phase B formal/statechart routes, minus the orchestrate case');
+  assert.equal(CASES.cases.length, 52, 'Keep the original 50 cases and add three Phase B formal/statechart routes, minus the standing-program case');
 });
 
 test('formal creation, maintenance and statechart each have an explicit bundled route', async () => {

@@ -40,7 +40,6 @@ const preSdkTests = [
   'generation.test.mjs',
   'writer-gate.test.mjs',
   'coverage.test.mjs',
-  'check-plan.test.mjs',
   'runtime-next.test.mjs',
   'role-agents.test.mjs',
   'mode-state.test.mjs',

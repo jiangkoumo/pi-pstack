@@ -15,7 +15,7 @@
 
 | 上游修复 | Pi 本地依据 | 结论与本次处理 |
 | --- | --- | --- |
-| #803 check-plan 多反引号行内代码 | [check-plan.mjs](../scripts/check-plan.mjs) 的 `parsePlan` 提取唯一顶层 `pstack-plan` fenced block 后执行 `JSON.parse`；`validatePlan` 校验 JSON 字段、依赖与证据，不扫描 prose 标点或解析行内代码 | 上游行内代码匹配补丁不适用；补充本地 fence 解析验证，生产代码无需修改 |
+| #803 check-plan 多反引号行内代码 | `scripts/check-plan.mjs` 的 `parsePlan` 提取唯一顶层 `pstack-plan` fenced block 后执行 `JSON.parse`；`validatePlan` 校验 JSON 字段、依赖与证据，不扫描 prose 标点或解析行内代码 | 上游行内代码匹配补丁不适用；补充本地 fence 解析验证，生产代码无需修改 |
 | #802 watch-pr sleep 截止保护 | [watch-pr.mjs](../scripts/watch-pr.mjs) 的 `main` 计算 `remaining = timeout * 1000 - elapsed`，先处理 `remaining <= 0`，再 `await sleep(Math.min(options.interval * 1000, remaining))` | 已具备等效保护；增加 interval 大于 timeout 的确定性回归测试 |
 | #801 watch-pr Fork 同名分支 | 同文件 `resolvePrNumber`、`fetchSnapshot`、`normalize` 与主循环均围绕单个 PR 的快照及轮询；没有 `orderStack` 或多 PR head/base 拓扑排序 | 当前不适用；不能据此宣称支持 Fork 堆栈排序。将来增加堆栈能力时须区分仓库身份与分支名 |
 | #804 orch 优先活跃 PR | 当时 `scripts/orch.mjs`（已在 0.15.36 移除）的 `loadPlan` 读取本地 JSON plan contract，`storePath`/`readStore` 读取 `units.json`；`effectiveUnits`/`computeProgress` 根据本地状态与 `dependsOn` 计算下一批任务 | 不从远程分支反查 PR，历史关闭/合并 PR 的选择问题不适用。`publishCommands` 可在显式执行时 push、创建 PR 或评论，但这不是远程 PR 发现/筛选功能；本次未执行发布 |
@@ -23,7 +23,7 @@
 
 ### check-plan 解析证据
 
-[scripts/check-plan.test.mjs](../scripts/check-plan.test.mjs) 原有测试已覆盖三反引号/三波浪线 contract、四反引号包裹的嵌套示例、HTML 注释、重复 contract、未闭合 fence 与非法 JSON。本次对反引号和波浪线分别新增：
+`scripts/check-plan.test.mjs` 原有测试已覆盖三反引号/三波浪线 contract、四反引号包裹的嵌套示例、HTML 注释、重复 contract、未闭合 fence 与非法 JSON。本次对反引号和波浪线分别新增：
 
 - 四字符开启、五字符关闭可解析；JSON goal 中包含双反引号包裹且内嵌反引号的文本及标点，结构校验仍通过。
 - 关闭 fence 比开启 fence 短，或使用另一种字符，均报未闭合。
