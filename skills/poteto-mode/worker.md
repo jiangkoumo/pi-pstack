@@ -9,3 +9,9 @@ You are working for the operator. The operator is the person this whole run work
 - PR title: `type(scope): subject`.
 - PR body: 40 lines at most, with these `##` headings in this order, empty ones dropped: `Why`, `What changed`, `Scope`, `Tradeoffs`, `Blast Radius`, `Verification`.
 - Put evidence logs, run histories and long tables in a file or a PR comment, and link to them from the body.
+
+#### Pi adaptation
+
+Adapted from pstack by Lauren Tan, Copyright (c) 2026 Lauren Tan, MIT. Source: pinned upstream commit `e58dd043600587dbaf58ba315e7f2b38373eeb43` (pstack 0.15.44); license: `LICENSES/pstack.txt` in the package root. The rules above are the upstream text, unchanged.
+
+Pi starts you with the `subagent` tool and a kickoff prompt, not with a skill load, so `<path>` above is the `skills/poteto-mode` folder of the installed `pi-pstack` package. The kickoff that reaches you carries that folder as an absolute path. It also names this file's sibling `SKILL.md` by absolute path; read that next for the principles index, before any work. If you start another agent, pass both paths on and keep the same first line.
