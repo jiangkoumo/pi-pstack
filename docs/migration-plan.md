@@ -10,7 +10,7 @@
 
 ## 近期上游跟进：0.15.36
 
-[U36 同步](upstream-update-01536-plan.md) 已按六个任务完成集成：当前统一基线为 `c742dd61706fbacc1b95f1a20b7b988cf096ce6c`（0.15.36），替代旧全包基线 `eb4db2b5` 和 statechart/ketchup-video 的局部 pin `519d36aa`。新增固定来源 sha256 清单，更新 Orchestrate、interrogate/arena、playbooks、带字幕 ketchup-video，并合入 git_read 修复与 Pi 1.5.0 schema 兼容测试。
+[U36 同步](upstream-update-01536-plan.md) 曾按六个任务完成集成：当时统一基线为 `c742dd61706fbacc1b95f1a20b7b988cf096ce6c`（0.15.36，此后由上节 `0.15.48` 统一同步取代），替代旧全包基线 `eb4db2b5` 和 statechart/ketchup-video 的局部 pin `519d36aa`。新增固定来源 sha256 清单，更新 Orchestrate、interrogate/arena、playbooks、带字幕 ketchup-video，并合入 git_read 修复与 Pi 1.5.0 schema 兼容测试。
 
 下文各 P 阶段保留历史实施与验收范围；U36 集成测试不替代真实长周期编排、在线模型对抗或完整视频渲染验收。未发布，不改包版本。
 
