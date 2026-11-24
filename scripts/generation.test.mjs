@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createHash } from 'node:crypto';
-import { cp, mkdir, mkdtemp, readFile, writeFile, rm, symlink, stat } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, writeFile, rm, symlink, stat, chmod } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -164,11 +164,34 @@ test('prepared resources must have valid status and cannot duplicate a ported so
   await rejectInBothModes(dir, /Unknown prepared resource status/);
 }));
 
-test('generation is repeatable, no-op generation preserves mtime, and check is read-only', () => fixture(async dir => {
+test('generation is repeatable, no-op generation preserves mtime, preserves source executable bit, and check is read-only', () => fixture(async dir => {
   const path = resolve(dir, 'skills/tdd/SKILL.md');
   const before = await stat(path);
+  // Normalize fixture modes first (matching a freshly generated tree) so repeatability check isolates drift.
+  assert.equal(execute(dir, false).code, 0);
   for (const check of [true, false, false, true]) assert.equal(execute(dir, check).code, 0);
   assert.equal((await stat(path)).mtimeMs, before.mtimeMs);
+
+  if (process.platform !== 'win32') {
+    const execTargets = ['skills/statechart/scripts/statechart', 'skills/statechart/scripts/test/java.ts'].map(rel => resolve(dir, rel));
+    const plainTargets = ['skills/statechart/SKILL.md', 'skills/tdd/SKILL.md'].map(rel => resolve(dir, rel));
+    for (const target of execTargets) assert.notEqual((await stat(target)).mode & 0o100, 0, target);
+    for (const target of plainTargets) assert.equal((await stat(target)).mode & 0o100, 0, target);
+
+    await chmod(execTargets[0], 0o644);
+    await chmod(plainTargets[0], 0o755);
+    const modeDrift = execute(dir, true);
+    assert.equal(modeDrift.code, 1);
+    assert.match(modeDrift.output, /Resource mode drift/);
+    assert.equal((await stat(execTargets[0])).mode & 0o100, 0);
+    assert.notEqual((await stat(plainTargets[0])).mode & 0o100, 0);
+
+    assert.equal(execute(dir, false).code, 0);
+    assert.notEqual((await stat(execTargets[0])).mode & 0o100, 0);
+    assert.equal((await stat(plainTargets[0])).mode & 0o100, 0);
+    assert.equal(execute(dir, true).code, 0);
+  }
+
   const content = await readFile(path, 'utf8');
   await writeFile(path, content + '\nmanual drift\n');
   const r = execute(dir);
