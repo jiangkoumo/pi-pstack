@@ -113,6 +113,7 @@
 | 技能 principle-separate-before-serializing-shared-state | P5 | 已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查 |
 | 技能 principle-subtract-before-you-add | P5 | 已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查 |
 | 技能 principle-type-system-discipline | P5 | 已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查 |
+| 技能 reframe | P5 | 已继承上游 reframe 0.15.48 原文并生成 SKILL.md，Pi 适配与索引联动归 U48-2 |
 | 技能 sharpen | P5 | 已适配；上游正文逐字保留，追加 Pi 只返回重写 prompt 的输出约束；见 validation-stage-b-batch-one.md |
 | 技能 technical-writing | P5 | 已适配；正文保持上游，仅补 MIT frontmatter；见 validation-p1.md 资源检查 |
 | 技能 typescript-best-practices | P5 | 已适配；正文保持上游，移除 Pi 不支持的 paths frontmatter，随包保留 references/patterns.md；见 validation-p1.md 与 validation-fidelity.md 资源检查 |

@@ -1,8 +1,8 @@
 {
   "repository": "https://github.com/cursor/plugins",
-  "commit": "e58dd043600587dbaf58ba315e7f2b38373eeb43",
-  "pluginVersion": "0.15.44",
-  "recordedAt": "2026-11-19T14:01:36Z",
+  "commit": "9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc",
+  "pluginVersion": "0.15.48",
+  "recordedAt": "2026-11-24T08:43:44Z",
   "treeTruncated": false,
   "skills": [
     "pstack/automations/benny/skills/reproduce-and-fix-issues/SKILL.md",
@@ -56,6 +56,7 @@
     "pstack/skills/principle-type-system-discipline/SKILL.md",
     "pstack/skills/recall/SKILL.md",
     "pstack/skills/reflect/SKILL.md",
+    "pstack/skills/reframe/SKILL.md",
     "pstack/skills/setup-pstack/SKILL.md",
     "pstack/skills/sharpen/SKILL.md",
     "pstack/skills/show-me-your-work/SKILL.md",

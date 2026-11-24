@@ -1,0 +1,498 @@
+{
+  "task": "U48-1",
+  "goal": "Record the full archive delta contract between the 0.15.44 pin and pstack 0.15.48, update upstream/pstack and the four source/manifest JSONs, and regenerate managed resources.",
+  "target": "9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc",
+  "targetVersion": "0.15.48",
+  "targetSubject": "feat(pstack): have /reframe list the problems a vague description could be (#1326)",
+  "baseline": "e58dd043600587dbaf58ba315e7f2b38373eeb43",
+  "baselineVersion": "0.15.44",
+  "baselineSource": "docs/source-files.json + docs/upstream-manifest.json at the 0.15.44 pin; both commit objects are present in ~/Documents/cursor-plugins-upstream",
+  "sourceTree": "~/Documents/cursor-plugins-upstream (local clone of cursor/plugins; target SHA fetched from origin)",
+  "hashAlgorithm": "sha256 over raw bytes (no CRLF normalization; the port-facing manifest in docs/upstream-manifest.json normalizes CRLF separately)",
+  "archivePolicy": {
+    "archived": [
+      "LICENSE",
+      "agents/**",
+      "skills/**"
+    ],
+    "excludedTopLevel": {
+      "README.md": "product documentation, not imported as an archive copy; Pi keeps its own README",
+      "plugin.json": "Cursor plugin manifest; version/author/license recorded here, not archived",
+      ".cursor-plugin/plugin.json": "Cursor plugin manifest duplicate",
+      ".gitignore": "repository maintenance file",
+      "assets/logo.png": "Cursor marketplace artwork",
+      "automations/benny/**": "Cursor automation pack outside the Pi single-agent scope",
+      "docs/**": "upstream user guide and harness notes; Pi keeps its own docs tree"
+    },
+    "excludedFiles": {
+      "skills/poteto-mode/scripts/package.json": "dev/test entry points; excluded since U36; upstream edited its test command in 0.15.43, which changes no archive byte",
+      "skills/poteto-mode/scripts/watch-pr/tsconfig.json": "dev-only TypeScript config",
+      "skills/poteto-mode/scripts/bun.lock": "lockfile; referenced by bootstrap.ts at the f713f14 audit baseline"
+    },
+    "consequence": "The archive is intentionally narrower than the upstream tree. Every path listed under notArchived is outside the archive scope at both pins; being absent from the previous archive is a scope decision, not evidence that the file is new in 0.15.42."
+  },
+  "license": {
+    "spdx": "MIT",
+    "copyright": "Copyright (c) 2026 Lauren Tan",
+    "author": "Lauren Tan (@poteto)",
+    "declaredVersion": "0.15.48 (plugin.json and .cursor-plugin/plugin.json)",
+    "archiveLicensePath": "upstream/pstack/LICENSE",
+    "archiveLicenseSha256": "bc957ca6bee02792566a1a028d105e02e247c6e77cf057061674273da77b200e",
+    "targetLicenseSha256": "bc957ca6bee02792566a1a028d105e02e247c6e77cf057061674273da77b200e",
+    "change": "unchanged between baseline and target; LICENSES/pstack.txt and THIRD_PARTY_NOTICES.md need no edit in this card"
+  },
+  "counts": {
+    "baselineArchivedFiles": 513,
+    "targetSourceFiles": 554,
+    "archiveAfterSync": 516,
+    "unchangedArchivedFiles": 503,
+    "modified": 10,
+    "removedUpstream": 0,
+    "addedToArchive": 3,
+    "notArchived": 38,
+    "archiveScopeChangedFiles": 13,
+    "notArchivedModified": 5
+  },
+  "adaptationOwnership": {
+    "U48-1": "re-archive the 0.15.48 bytes, pin the four source lists (registering reframe/SKILL.md and statechart/scripts/{janitor,kill}.ts), record the 01548 delta contract, and regenerate managed outputs",
+    "U48-2": "reframe, poteto-help, poteto-mode, and arena adaptation and routing",
+    "U48-3": "statechart/** adapter verification and prose adaptation",
+    "U48-4": "setup-pstack, documentation, and check:fidelity adjustments"
+  },
+  "files": [
+    {
+      "path": "skills/arena/SKILL.md",
+      "archivePath": "upstream/pstack/skills/arena/SKILL.md",
+      "status": "modified",
+      "oldSha256": "2573e96eec7f2dab88249cc0a5e391eaf9a6000427d7316af0298e6b899618ae",
+      "newSha256": "24366948a9546dcb7dfc15a5cf7a4571edd917a8c1efef060b458a0fad608053",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "U48-2",
+      "reason": "0.15.45 (dd24b670) updates the arena runners and cross-judge pool default from gemini-4-neon-high to gemini-4-neon-xhigh; Pi role mapping follows in U48-2"
+    },
+    {
+      "path": "skills/poteto-help/SKILL.md",
+      "archivePath": "upstream/pstack/skills/poteto-help/SKILL.md",
+      "status": "modified",
+      "oldSha256": "d6d72057e5cdfa5cebeec88ee50d1ebf8f46f2e64788f5580968a73a16aba08d",
+      "newSha256": "ea4b36ba83fa7027b9637ad7d926d9a62b4b630a4525304245ae66e1d44c8713",
+      "diffstat": "+1/-0",
+      "archiveAction": "sync-copy",
+      "portOwner": "U48-2",
+      "reason": "0.15.48 (2dd5c0cc) adds the /reframe entry to the skill chooser table; Pi override template follows in U48-2"
+    },
+    {
+      "path": "skills/poteto-mode/SKILL.md",
+      "archivePath": "upstream/pstack/skills/poteto-mode/SKILL.md",
+      "status": "modified",
+      "oldSha256": "9c09f6ab6661975a5be108f925afe203e10966ee426e3d786f4d338c5b05bd9f",
+      "newSha256": "7aa026dc1fad7db0ea1ff39171e6b768ee99d03a7f46d0b9cd38973511251d81",
+      "diffstat": "+2/-2",
+      "archiveAction": "sync-copy",
+      "portOwner": "U48-2",
+      "reason": "0.15.45 (dd24b670) moves the Gemini panel seat default and rule to gemini-4-neon-xhigh; Pi override template follows in U48-2"
+    },
+    {
+      "path": "skills/reframe/SKILL.md",
+      "archivePath": "upstream/pstack/skills/reframe/SKILL.md",
+      "status": "added",
+      "oldSha256": null,
+      "newSha256": "1e2e8a11da838c9169dae6fb71257041cf4e91d58862d1629354648b9bd458f3",
+      "diffstat": "+16/-0",
+      "archiveAction": "archive-add",
+      "portOwner": "U48-2",
+      "reason": "added in 0.15.47..0.15.48 (2dd5c0cc, 9e278fe4): new /reframe skill; registered with inherit-body in U48-1 and owned by U48-2 for Pi adaptation and routing"
+    },
+    {
+      "path": "skills/setup-pstack/SKILL.md",
+      "archivePath": "upstream/pstack/skills/setup-pstack/SKILL.md",
+      "status": "modified",
+      "oldSha256": "d452295f927301bad320b7c306cf6cecd0c421a63c76f36ddfce1fe064c1ed03",
+      "newSha256": "9347e6a17d41c92fd9d57e689c63d81defbd63df18dbcd5e9858ab03de5994ea",
+      "diffstat": "+5/-5",
+      "archiveAction": "sync-copy",
+      "portOwner": "U48-4",
+      "reason": "0.15.45 (dd24b670) moves panel Gemini seats and budget effort rule to gemini-4-neon-xhigh; setup-pstack / docs follow in U48-4"
+    },
+    {
+      "path": "skills/statechart/SKILL.md",
+      "archivePath": "upstream/pstack/skills/statechart/SKILL.md",
+      "status": "modified",
+      "oldSha256": "010b7b4532406739b1c3a426d1a45f02bb618a42561fc96b3976e064a7f8384d",
+      "newSha256": "ca7b3e43b1ddc4fb2425a33960f9390357323a869e1d921b6e2aff4f3004d55e",
+      "diffstat": "+1/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U48-3",
+      "reason": "0.15.46 (0b46ec39) documents the POSIX shell launcher and native Windows node invocation; Pi replacement check and prose follow in U48-3"
+    },
+    {
+      "path": "skills/statechart/scripts/frontends/dot.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/frontends/dot.ts",
+      "status": "modified",
+      "oldSha256": "4eef9ec848557dcd01ca8dbbec75b71c0653c1b73583108bafbb6f559f6d677b",
+      "newSha256": "cd2e681ff58c759ddeaa17c2f3d4af1f0c3e71273566be555187b5d0e7767dac",
+      "diffstat": "+4/-1",
+      "archiveAction": "sync-copy",
+      "portOwner": "U48-3",
+      "reason": "0.15.46 (0b46ec39) adds splitLines to strip \\r\\n and trailing \\r in Windows TLC output; verbatim generated copy updated in U48-1 and statechart port owned by U48-3"
+    },
+    {
+      "path": "skills/statechart/scripts/janitor.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/janitor.ts",
+      "status": "added",
+      "oldSha256": null,
+      "newSha256": "defac41e4cbfca3044c5078c544a0667f857a610c500c5ec96cb3bfaeec7120b",
+      "diffstat": "+13/-0",
+      "archiveAction": "archive-add",
+      "portOwner": "U48-3",
+      "reason": "added in 0.15.46 (0b46ec39): Node/TS janitor replacing /bin/sh process-group cleanup; registered verbatim in U48-1 and port verification owned by U48-3"
+    },
+    {
+      "path": "skills/statechart/scripts/kill.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/kill.ts",
+      "status": "added",
+      "oldSha256": null,
+      "newSha256": "058df69d1184029e55d7e81b4fd37a6dc8557c9208979fb7032482d5ab0db448",
+      "diffstat": "+15/-0",
+      "archiveAction": "archive-add",
+      "portOwner": "U48-3",
+      "reason": "added in 0.15.46 (0b46ec39): cross-platform killGroup helper using taskkill on Windows and process.kill on POSIX; registered verbatim in U48-1 and owned by U48-3"
+    },
+    {
+      "path": "skills/statechart/scripts/run.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/run.ts",
+      "status": "modified",
+      "oldSha256": "751d97cfde3c241bfeed8913fc74a7a7cbc6acd3829e37a441016af3eb78f0e0",
+      "newSha256": "fb6ec4a1835a15e6e72df28bb932b8df5a4c04c5de6f9c270fd63ff5cd148dc7",
+      "diffstat": "+9/-15",
+      "archiveAction": "sync-copy",
+      "portOwner": "U48-3",
+      "reason": "0.15.46 (0b46ec39) adopts splitLines, windowsHide, UTF-8 JVM flags, and moves killGroup to kill.ts; verbatim copy updated in U48-1 and adapter verification owned by U48-3"
+    },
+    {
+      "path": "skills/statechart/scripts/statechart.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/statechart.ts",
+      "status": "modified",
+      "oldSha256": "1c653f05d0cd0f3298455701f36e3d7d1f837f93e6e642f7c20afb5d613c2d12",
+      "newSha256": "5d5feff7d78204c828a8e30d531d23419234a81a7149dc3e48efb08dd770d6c1",
+      "diffstat": "+14/-13",
+      "archiveAction": "sync-copy",
+      "portOwner": "U48-3",
+      "reason": "0.15.46 (0b46ec39) switches cleanup to janitor.ts and kill.ts and forwards TEMP/TMP; verbatim copy updated in U48-1 and port verification owned by U48-3"
+    },
+    {
+      "path": "skills/statechart/scripts/test/cli.test.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/test/cli.test.ts",
+      "status": "modified",
+      "oldSha256": "fdd3154882a0c4505868973a9de133b3f5d2140f0ca9e0a9dcfd7b2cc55871df",
+      "newSha256": "7201a0eece44078a27f85880e2118c69bbfa072fbb9770af1db64442f03970a7",
+      "diffstat": "+29/-0",
+      "archiveAction": "sync-copy",
+      "portOwner": "U48-3",
+      "reason": "0.15.46 (0b46ec39) adds corpus tests for Windows \\r\\n TLC output; verbatim copy updated in U48-1 and test verification owned by U48-3"
+    },
+    {
+      "path": "skills/statechart/scripts/test/messages.test.ts",
+      "archivePath": "upstream/pstack/skills/statechart/scripts/test/messages.test.ts",
+      "status": "modified",
+      "oldSha256": "e7ca0ea446907074452df5388719598bb297d7f8ee50145b8b8f2a41c0c4c92f",
+      "newSha256": "70dc23d0a9c76e9949f052c8f426d35463a1416aca2457d09de544654d0f5721",
+      "diffstat": "+14/-0",
+      "archiveAction": "sync-copy",
+      "portOwner": "U48-3",
+      "reason": "0.15.46 (0b46ec39) adds Windows \\r\\n verdict/plainText parity test; verbatim copy updated in U48-1 and test verification owned by U48-3"
+    }
+  ],
+  "notArchived": [
+    {
+      "path": ".cursor-plugin/plugin.json",
+      "sha256": "cc4f2ba19580f50d111231dac77298ed9307e31af4dfd5d9d5fd3e4982256689",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between e58dd04 and 9e278fe (+1/-1); still outside the archive scope. modified upstream between bf0c7cd and e58dd04; still outside the archive scope. Cursor plugin manifest duplicate; documented as existing in docs/sources.md"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "8ffe9de56bd30c1a95cd945262d6e3ac355ada4111551dde41f67851b9f1fc55",
+      "classification": "old-archive-exclusion",
+      "evidence": "repository maintenance file; creation time at the baseline cannot be verified (shallow clone, baseline objects missing)"
+    },
+    {
+      "path": "README.md",
+      "sha256": "3b21e8b4c6f894b4f3c44fbfd85ab49ad4aed6c329b27933b3134ee039083dd2",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between e58dd04 and 9e278fe (+1/-0); still outside the archive scope. modified upstream between bf0c7cd and e58dd04; still outside the archive scope. outside archive scope; present at the f713f14 dependency-audit baseline (docs/dependency-audit.json references)"
+    },
+    {
+      "path": "assets/logo.png",
+      "sha256": "672f6791589ef758b0ced2c4c477913fa2758623c438e265639a0d539ce90695",
+      "classification": "old-archive-exclusion",
+      "evidence": "Cursor marketplace artwork; not part of the archive scope, creation time unverifiable locally"
+    },
+    {
+      "path": "automations/benny/FOR_AGENTS.md",
+      "sha256": "17d370bf1d97e12924a5b291fa183f2270c310836c3355617fcc97d65b0b2bd1",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; Cursor automation pack outside Pi scope"
+    },
+    {
+      "path": "automations/benny/README.md",
+      "sha256": "ca3c42cbb7f0bf7068f7407eb355815e6c234d5c2786942f3cbe751a3690024b",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; Cursor automation pack outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/reproduce-and-fix-issues/SKILL.md",
+      "sha256": "809659da0bbd0303d2a42dbe380dd117ae06b6fa3e19e4a31832a2756ae841fe",
+      "classification": "old-archive-exclusion",
+      "evidence": "Benny automation skill (3 automation skills counted in docs/sources.md); outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/reproduce-and-fix-issues/references/control-adapter.md",
+      "sha256": "58b0615d2fca895f9a20df83266e280042b0d585b5f2fd324e2094a682fd846b",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/reproduce-and-fix-issues/references/feature-map.example.md",
+      "sha256": "1e5c7c8522daec3e43fcc2e73ceb97289ded65b552949ce65a11cc8eb3d2b6ee",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/reproduce-and-fix-issues/references/verify-existing-fix.md",
+      "sha256": "c90eae00abcdec71a58fa8d60f2c495b082a526ad50b8e8e494837609129bf29",
+      "classification": "old-archive-exclusion",
+      "evidence": "outside Pi scope; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "automations/benny/skills/setup-benny/SKILL.md",
+      "sha256": "1b1298536804eef289718f497a42f48aec135c8f4175b03e5ecfa11075758c59",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/triage-issue-reports/SKILL.md",
+      "sha256": "e88bb1ccc619f93d4b787bd9156fba5159f061c653fca00b6f08c65b6c77701a",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/skills/triage-issue-reports/references/routing.example.md",
+      "sha256": "e5e53013692568cf69da8e8b302fff929fe2fbc9aec1a4651fd7997e2c7a4025",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/templates/configuration.example.yaml",
+      "sha256": "13e24b4ce9b9a0913916e85fe3b080b88d45f8e55dccfe8ae38e0751a997b6f5",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/templates/reproduce-automation-prompt.md",
+      "sha256": "71ec574f1844e379394ae4ef14c48d7df10afbaa319d395c788d7f856f0e6899",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "automations/benny/templates/triage-automation-prompt.md",
+      "sha256": "e0bba594547834f013ec805915610eb597e7929efe3ffbe85ae00339ee16d474",
+      "classification": "old-archive-exclusion",
+      "evidence": "present at the f713f14 dependency-audit baseline; outside Pi scope"
+    },
+    {
+      "path": "docs/guide/01-setup.md",
+      "sha256": "86f1343beb84df874b9f31b9ad53dc85852a68b004cd974fb37ee130f252de0c",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/02-poteto-mode.md",
+      "sha256": "264e3127a8fdfa6e3e2ac64645ae81e4f5fb8a3e6f00d5f98f7ffc528c8da8ff",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between e58dd04 and 9e278fe (+8/-0); still outside the archive scope. modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/03-understand.md",
+      "sha256": "4486cf55f20b1a351b25a06b2a19f6a7081d6af4748a4178946907c2b7861392",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/04-design.md",
+      "sha256": "e41952810df24c07a21ad10ebc2674a3350a03d4961a273fb6f681de87150a13",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; docs/validation-upstream-01536-plan.md already tracks a 0.15.36 edit to this path"
+    },
+    {
+      "path": "docs/guide/05-build-and-clean.md",
+      "sha256": "4a0538dc0e52632a8871be9957e8177adaca6f5fa254f0bbb31d30b921d0cd1c",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/06-verify-and-ship.md",
+      "sha256": "31ab46936950c78989a51cffaebf2e321858580d286a83d92a504528fce24d2d",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/07-overnight.md",
+      "sha256": "5bd1a4336b09947832d3b58afb22bcdfbe698ff76c1bdaab23af545f04cf8e60",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/08-principles.md",
+      "sha256": "0b26b85292f0c09768abe727c9e92987dbf81f5b439a4871034c2fd1c4cb1723",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/09-make-it-yours.md",
+      "sha256": "4df83ef7dc44364921a9663c7d426a1b4d0acab6a0490ef1769257b51b74e65a",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/10-recipes-and-pitfalls.md",
+      "sha256": "287815da2cbebe9b867d4da7d0a3632f069a32b6481815be9d6cad43b12b5fbf",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; present at the f713f14 dependency-audit baseline"
+    },
+    {
+      "path": "docs/guide/README.md",
+      "sha256": "5c888d034d38f380789fad57c2c6fa7307ace803a0622cdde9e57fa2afe182de",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/design.jpg",
+      "sha256": "b8ed07427f6a0c37dd8ba97961fc0eb5071efeee6c4a230648bdb7547f6f2a8f",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/overnight.jpg",
+      "sha256": "4b4405e4df8925c5b3abbe702f681af0f3b1f5f32271b599f95717f578f1a0c8",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/recipes.jpg",
+      "sha256": "9fa2d51b476635712737795ddef81806efaa0086bb3bfa9f9f45695d9ab0f8e8",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/router.jpg",
+      "sha256": "525843055a4efd2b10acc50a8652fd02b0834ea733a8a2f895c1eb89036017da",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/understanding.jpg",
+      "sha256": "b60587e9a9bbe2550e93be9819cf0cd4acf77d90fac769a0c43d82bd8e34e279",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/guide/images/verification.jpg",
+      "sha256": "2a76b52007a1cd2866ba67fd47d7d9ef3e1118bb5a09c4665eee8c3f161bd09a",
+      "classification": "old-archive-exclusion",
+      "evidence": "upstream docs tree is never archived; creation time at the baseline cannot be verified locally"
+    },
+    {
+      "path": "docs/harness/claude-code.md",
+      "sha256": "289a9127a3597d7b3fbbe10c40aea4aea3f15cd5361a75be43806a07b96f634f",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between e58dd04 and 9e278fe (+1/-1); still outside the archive scope. modified upstream between bf0c7cd and e58dd04; still outside the archive scope. upstream harness notes; read and cited in docs/sources.md from commit ac4e25a0, so it predates the baseline and was never archived"
+    },
+    {
+      "path": "plugin.json",
+      "sha256": "889ac708a47d28a16edd2ce39367968a359c990f9a79abe2e747be3028d333f2",
+      "classification": "old-archive-exclusion",
+      "evidence": "modified upstream between e58dd04 and 9e278fe (+1/-1); still outside the archive scope. modified upstream between bf0c7cd and e58dd04; still outside the archive scope. Cursor plugin manifest; never archived, version/license recorded in this file instead"
+    },
+    {
+      "path": "skills/poteto-mode/scripts/bun.lock",
+      "sha256": "667d9cf7222e9aae3fa42a4be383e657784216e9df115da02227fbc5ac7bbe46",
+      "classification": "old-archive-exclusion",
+      "evidence": "lockfile read by skills/poteto-mode/scripts/bootstrap.ts with --frozen-lockfile at the f713f14 audit baseline; never archived"
+    },
+    {
+      "path": "skills/poteto-mode/scripts/package.json",
+      "sha256": "0b7aa62edc524bf9d3f735b17f10ab7fea22797b80b7edc4a91620a570332d13",
+      "classification": "old-archive-exclusion",
+      "evidence": "excluded from the snapshot since U36 (docs/validation-upstream-01536-plan.md); upstream dropped check-plan.test.ts from its test command in 0.15.43, and the file stays outside the archive"
+    },
+    {
+      "path": "skills/poteto-mode/scripts/watch-pr/tsconfig.json",
+      "sha256": "1ecccc72320b086c63ce3f73c959896fd747363e63553b3b1136296ea4069e45",
+      "classification": "old-archive-exclusion",
+      "evidence": "dev-only TypeScript config; present at the f713f14 dependency-audit baseline"
+    }
+  ],
+  "unchanged": {
+    "count": 503,
+    "detail": "every archived file that is byte-identical at both pins; per-file sha256 for the current archive lives in docs/upstream-manifest.json, regenerated by this card"
+  },
+  "verification": [
+    {
+      "kind": "pre-change-manifest-check",
+      "command": "node scripts/upstream-manifest.mjs --check",
+      "exitCode": 1,
+      "result": "fails on the stale 0.15.44 hashes with sha256 mismatch on the 10 modified archived paths",
+      "note": "taken after swapping upstream/pstack to 9e278fe4 and before any source-list edit; log at ~/Documents/pi-pstack-notes/cards/U48-1/logs/01-prechange-manifest-check.log"
+    },
+    {
+      "kind": "archive-fidelity",
+      "command": "tmp=$(mktemp -d) && git -C ~/Documents/cursor-plugins-upstream archive 9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc pstack/LICENSE pstack/agents pstack/skills | tar -x -C \"$tmp\" && rm -f \"$tmp/pstack/skills/poteto-mode/scripts/package.json\" \"$tmp/pstack/skills/poteto-mode/scripts/watch-pr/tsconfig.json\" \"$tmp/pstack/skills/poteto-mode/scripts/bun.lock\" && diff -r \"$tmp/pstack\" upstream/pstack && rm -rf \"$tmp\"",
+      "exitCode": 0,
+      "result": "diff -r prints nothing and upstream/pstack holds 516 files: the archive equals the 9e278fe4 bytes for every archived path",
+      "note": "log at ~/Documents/pi-pstack-notes/cards/U48-1/logs/06-manifest-archive-delta-checks.log"
+    },
+    {
+      "kind": "post-change-manifest-check",
+      "command": "node scripts/upstream-manifest.mjs --check",
+      "exitCode": 0,
+      "result": "{\"status\":\"passed\",\"upstreamSha\":\"9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc\",\"checked\":925}",
+      "note": "log at ~/Documents/pi-pstack-notes/cards/U48-1/logs/03-postchange-manifest-check.log"
+    },
+    {
+      "kind": "generation",
+      "command": "npm run check:generate && node scripts/check-package.mjs",
+      "exitCode": 0,
+      "result": "{\"status\":\"passed\",\"checked\":506,\"unmanaged\":0} and {\"status\":\"passed\",\"mapped\":87,\"archived\":516,\"documents\":195,...}",
+      "note": "logs at ~/Documents/pi-pstack-notes/cards/U48-1/logs/04-check-generate.log and 05-check-package.log"
+    },
+    {
+      "kind": "delta-contract",
+      "command": "jq -r .commit docs/source-files.json docs/upstream-inventory.json docs/port-map.json && jq \".files | length\" docs/validation-upstream-01548-delta.json",
+      "exitCode": 0,
+      "result": "all three commit fields equal 9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc and files length is 13, matching git diff --name-only e58dd043..9e278fe4 -- pstack/skills pstack/agents pstack/LICENSE",
+      "note": "log at ~/Documents/pi-pstack-notes/cards/U48-1/logs/06-manifest-archive-delta-checks.log"
+    },
+    {
+      "kind": "check-plan",
+      "command": "npm run check",
+      "exitCode": 0,
+      "result": "{\"ok\":true,\"passed\":35,\"failed\":0,\"timedOut\":0,\"total\":35,\"executed\":35}",
+      "note": "baseline and post-change runs both pass all 35 checks; logs at ~/Documents/pi-pstack-notes/cards/U48-1/logs/00-baseline-npm-check.log and 08-npm-check.log"
+    },
+    {
+      "kind": "fidelity",
+      "command": "npm run check:fidelity",
+      "exitCode": 1,
+      "result": "{\"status\":\"failed\",\"files\":125,\"overall\":0.9220654265554843,\"kept\":2875,\"upstream\":3118,\"errors\":[\"Overall fidelity 92.2065% < 94%\",\"skills/how/SKILL.md: 69.23% < 70%\"]}",
+      "expectedOwner": "U48-4",
+      "note": "pre-existing fidelity shortfall out of scope for U48-1; docs/fidelity.md was restored after the run; log at ~/Documents/pi-pstack-notes/cards/U48-1/logs/07-check-fidelity.log"
+    }
+  ],
+  "followUps": [
+    "U48-2 owns Pi adaptation and routing for skills/reframe/SKILL.md, skills/poteto-help/SKILL.md, skills/poteto-mode/SKILL.md, and skills/arena/SKILL.md",
+    "U48-3 owns statechart adapter verification and SKILL.md adaptation for the 0.15.46 Windows/janitor/kill changes",
+    "U48-4 owns setup-pstack, documentation updates, and check:fidelity threshold/allowlist alignment"
+  ]
+}
