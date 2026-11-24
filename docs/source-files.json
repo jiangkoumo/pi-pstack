@@ -1,5 +1,5 @@
 {
-  "commit": "e58dd043600587dbaf58ba315e7f2b38373eeb43",
+  "commit": "9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc",
   "files": [
     {
       "path": "pstack/LICENSE",
@@ -19,7 +19,7 @@
     },
     {
       "path": "pstack/skills/arena/SKILL.md",
-      "blob": "5957c9e43f6a2915af04c68e62c19821150c11e9"
+      "blob": "e908a7c6221cdb06d381b4621e265745955d4b2d"
     },
     {
       "path": "pstack/skills/automate-me/SKILL.md",
@@ -103,7 +103,7 @@
     },
     {
       "path": "pstack/skills/poteto-help/SKILL.md",
-      "blob": "77f1bd585bb44b1e14cb1dfc333bdf48c0815809"
+      "blob": "11bc4e47429373201c4edd371c4fbcfe428c33ab"
     },
     {
       "path": "pstack/skills/poteto-help/references/prompting.md",
@@ -115,7 +115,7 @@
     },
     {
       "path": "pstack/skills/poteto-mode/SKILL.md",
-      "blob": "2baadf59f965982652630d5cb78be71ec2e2ec12"
+      "blob": "82a1941713eb18905b93f7c5b2004664f6722898"
     },
     {
       "path": "pstack/skills/poteto-mode/playbooks/authoring-a-skill.md",
@@ -370,8 +370,12 @@
       "blob": "e7bcc3aa18174a4103fdafdf947c8098cc0d8e16"
     },
     {
+      "path": "pstack/skills/reframe/SKILL.md",
+      "blob": "57a219851a939cfb1ee46ed74b20a5196a983539"
+    },
+    {
       "path": "pstack/skills/setup-pstack/SKILL.md",
-      "blob": "c7bda420f9631b223b49620fcccb9f3ea1ce26f3"
+      "blob": "7358536071ed21b257da26adc1aec452c3d46466"
     },
     {
       "path": "pstack/skills/sharpen/SKILL.md",
@@ -391,7 +395,7 @@
     },
     {
       "path": "pstack/skills/statechart/SKILL.md",
-      "blob": "f5a64a8db4b8a5957ac5e76e051b1823cecd4d5e"
+      "blob": "18d653a810dfbb3ea35a6ed88bcfe8cb84f0a893"
     },
     {
       "path": "pstack/skills/statechart/references/render.md",
@@ -419,7 +423,7 @@
     },
     {
       "path": "pstack/skills/statechart/scripts/frontends/dot.ts",
-      "blob": "003dfc89d4925c6aed3e59073b6a9414da78117b"
+      "blob": "09d5481e70d9cf911dc16ddf655c91c197ff1fac"
     },
     {
       "path": "pstack/skills/statechart/scripts/frontends/marks.ts",
@@ -452,6 +456,14 @@
     {
       "path": "pstack/skills/statechart/scripts/ir.ts",
       "blob": "80fd403fe3c231b0986f239ba8c74a60b52c05f7"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/janitor.ts",
+      "blob": "5e69fb316c9e6bd4bc1de68781b43c345381188b"
+    },
+    {
+      "path": "pstack/skills/statechart/scripts/kill.ts",
+      "blob": "014d7c35049a8786359264cb4489c0c5e0a7ff1d"
     },
     {
       "path": "pstack/skills/statechart/scripts/package.json",
@@ -495,7 +507,7 @@
     },
     {
       "path": "pstack/skills/statechart/scripts/run.ts",
-      "blob": "017684f82ddffe860b4b9312771174622603c4a7"
+      "blob": "45e13dcb4d4ee41d4437ed64e3177fe1a412ae56"
     },
     {
       "path": "pstack/skills/statechart/scripts/statechart",
@@ -503,7 +515,7 @@
     },
     {
       "path": "pstack/skills/statechart/scripts/statechart.ts",
-      "blob": "4e2967e680895875d7d5352bfe997a4c08c2d1fc"
+      "blob": "43ee983edfa7b1fa76ddab07e0e99cba897373b9"
     },
     {
       "path": "pstack/skills/statechart/scripts/test/ConfigOracle.java",
@@ -527,7 +539,7 @@
     },
     {
       "path": "pstack/skills/statechart/scripts/test/cli.test.ts",
-      "blob": "11f06a6fd7ee078a66b9cfbc15452e4a8eb20471"
+      "blob": "ee80722d6fdbb1e3c091c0c9f6f981636f61a264"
     },
     {
       "path": "pstack/skills/statechart/scripts/test/config-fuzz.test.ts",
@@ -1991,7 +2003,7 @@
     },
     {
       "path": "pstack/skills/statechart/scripts/test/messages.test.ts",
-      "blob": "61af006968a6e9c2dc359c8b5859a1238b9e56cb"
+      "blob": "4e0d3c358809a2c3b17a171b3e4601f3f2790992"
     },
     {
       "path": "pstack/skills/statechart/scripts/test/pipeline.test.ts",
