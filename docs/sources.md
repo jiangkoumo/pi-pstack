@@ -30,7 +30,7 @@ X 正文不是上游代码的完整规格；该链接中的统计数据不影响
 
 ## 0.15.36 统一同步（U36）
 
-当前 `upstream/pstack/**` 的 535 个归档文件统一固定到 `c742dd61706fbacc1b95f1a20b7b988cf096ce6c`，三份来源清单的 `sourceOverrides` 已清空。sha256 清单另覆盖 406 个逐字分发的 statechart 资源，共 941 项；有意适配的 Pi 文件不进入逐字清单。原文许可与 Lauren Tan 版权保留。同步状态见 [U36](upstream-update-01536-plan.md)，逐文件差异保留在 [实施记录](validation-upstream-01536-plan.md)。
+U36 同步时曾将 `upstream/pstack/**` 的 535 个归档文件统一固定到 `c742dd61706fbacc1b95f1a20b7b988cf096ce6c`（此后由上节 `0.15.48` 统一同步取代），当时三份来源清单的 `sourceOverrides` 已清空，sha256 清单另覆盖 406 个逐字分发的 statechart 资源，共 941 项；有意适配的 Pi 文件不进入逐字清单。原文许可与 Lauren Tan 版权保留。同步状态见 [U36](upstream-update-01536-plan.md)，逐文件差异保留在 [实施记录](validation-upstream-01536-plan.md)。
 
 ## statechart 与 ketchup-video 局部同步历史（#47、#46）
 

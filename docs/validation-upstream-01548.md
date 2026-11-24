@@ -19,7 +19,7 @@
 - **调整前基线**：`files=125`，`kept=2874`，`upstream=3118`，`overall=92.1745%`（`errors: ["Overall fidelity 92.1745% < 94%", "skills/how/SKILL.md: 69.23% < 70%"]`）。
 - **单文件问题已修复**：通过调整 `adapters/pi/overrides/skills/how/SKILL.md.template`（保留 `coverage.test.mjs` 约束的 `Spawn one read-only explainer...` 句并恢复 `Present the subagent's output.`），`skills/how/SKILL.md` 从 `9/13 (69.23%)` 升至 `10/13 (77%)`，单文件 `< 70%` 报错清零。
 - **整体 94% 结构性缺口（待操作者裁决口径）**：
-  - 上游在 `0.15.43–0.15.48` 大幅精简了已移植技能（删除 `why/references/*`、`architect/references/*`、`reflect/references/*`、`how/references/*` 并压缩多份原则与主流程正文），使整体非 Cursor 替换句分母从 `0.15.36` 的 `4720` 降至 `3118`（减少 `1602` 句）。
+  - 上游在 `0.15.42–0.15.48` 大幅精简了已移植技能（`0.15.42` `bf0c7cd` 删除 `how/references/*`、`why/references/*`，`0.15.43` `2f87c85` 删除 `architect/references/*`、`reflect/references/*`，并压缩多份原则与主流程正文），使整体非 Cursor 替换句分母从 `0.15.36` 的 `4720` 降至 `3118`（减少 `1602` 句）。
   - 同时，两项在 [port-map.json](port-map.json) 登记为 `substitute`、不存在对应端口 Markdown 的条目被 [check-upstream-fidelity.mjs](../scripts/check-upstream-fidelity.mjs) 计入整体分母且 `kept=0`：`skills/make-bot-ui/SKILL.md`（`71` 句）与 `skills/setup-pstack/SKILL.md`（由 `0.15.36` 的 `46` 句增至 `60` 句），合计 `131` 句，单独拉低整体分值 `131 / 3118 = 4.20%`。
   - 在模板层微调 6 份文件后（不损失 Pi 适配、权限门禁、角色绑定与 `coverage.test.mjs` 契约前提下追回 18 句），所有 123 个非缺失文件合计保持率为 `2892 / 2987 = 96.82%`，但整体仍为 `2892 / 3118 = 92.7518%`（距 `94%` 门槛 `2931` 句仍差 `39` 句）。
   - 要在不改动 `scripts/check-upstream-fidelity.mjs` 口径/阈值的前提下跨过 `94%`，全部 123 个非缺失文件最多只能保留 `56` 句差异；而当前仅保留必要 Pi 工具/安全门禁/无自动提交与云代理替换的不可压缩差异（`poteto-help`、`worktree-cleanup`、`swarm`、`automate-me`、`statechart`、`runtime-forensics`、`shipping`、`trace-forensics`、`poteto-mode` 等）已超过此上限。
