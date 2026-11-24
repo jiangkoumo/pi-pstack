@@ -2,6 +2,14 @@
 
 Changes to the Pi adaptation are recorded here. Upstream pstack remains pinned to the revision documented in [sources](docs/sources.md).
 
+## Unreleased
+
+- Sync the unified upstream snapshot (`516` archived files), source lists, and LF-normalized sha256 manifest (`925` items) from `0.15.36` (`c742dd61`) to `0.15.48` (`9e278fe4`). Record per-file deltas in [the 0.15.48 plan](docs/upstream-update-01548-plan.md) and [the 0.15.48 validation record](docs/validation-upstream-01548.md).
+- Adopt `0.15.42–0.15.44` upstream updates: single-file `how` and `why`, concise `architect`, `reflect`, `poteto-mode`, `babysit`, `multi-phase-plan`, `opening-a-pr`, `technical-writing`, `unslop`, and principle skills; add `poteto-mode/worker.md`; remove retired `orchestrate`, `check-plan`, and dropped reference prompts.
+- Add `/skill:reframe` (`skills/reframe/SKILL.md`, inherited verbatim from upstream `0.15.48`) and link it from `poteto-help`'s skill table (`U48-2`).
+- Align the Pi `statechart` adapter and test plan with `0.15.42` (`sany-errors`, parent-state `drawnEdges`) and `0.15.46` (`janitor.ts`, `kill.ts`, `\r\n` output parsing, `messages.test.ts`), and unify POSIX/Windows execution guidance on `entry.mjs` (`U48-3`).
+- Document in [integration-decisions.md](docs/integration-decisions.md) that `setup-pstack` (`0.15.42–0.15.48`), `poteto-mode`, and `arena` Cursor model/budget changes do not apply to Pi's `/setup-pstack` extension and `pstack.json` role contract; fix `skills/how/SKILL.md` single-file fidelity above 70% and record the open `0.15.48` overall-threshold denominator issue (`U48-4`).
+
 ## 0.3.16
 
 - Sync the unified upstream snapshot to cursor/plugins@c742dd61 (pstack 0.15.36, #986 and #1043), clear partial source pins, and add an LF-normalized sha256 manifest covering 941 verbatim files.

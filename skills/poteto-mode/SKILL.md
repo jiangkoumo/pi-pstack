@@ -23,8 +23,8 @@ The remaining triggers live only here:
 - Before commit → **unslop** over the diff. Before review → **no-comments**.
 - Shipping UI / IDE / CLI → the control skill for that surface, when the operator has one installed.
 - A number you measured → **benchmark-checklist**.
-- PR status → the **Babysit** playbook (`playbooks/babysit.md`), not a host babysit skill whose description matches the same words. Landing a green stack → the **Shipping** playbook (`playbooks/shipping.md`).
-- Bot review comments → judge each on its merits, per `references/bugbot-triage.md`.
+- PR status → the **Babysit** playbook (`playbooks/babysit.md`), not a host babysit skill whose description matches the same words. Landing a green stack → the **Shipping** playbook. Path: `playbooks/shipping.md`.
+- Bot review comments → judge each on its merits. See `references/bugbot-triage.md`.
 - Long or unattended work → **show-me-your-work**.
 
 Pi routes that upstream does not carry. These skills ship in this package, so keep them reachable:
@@ -98,7 +98,7 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 ## Subagents
 
-**Use pi-subagents `subagent` with `agent: "pstack.poteto-agent"` for any subagent you spawn inside a playbook step.** The chat that receives `/skill:poteto-mode` runs the playbook itself, so never spawn a `pstack.poteto-agent` to run it. Routed workflow skills (`how`, `architect`, `arena`, `swarm`, `interrogate`, `reflect`) set their own `agent`. Respect what the skill prescribes.
+**Use pi-subagents `subagent` with `agent: "pstack.poteto-agent"` for any subagent you spawn inside a playbook step.** The chat that receives `/skill:poteto-mode` runs the playbook itself. Never spawn a `pstack.poteto-agent` to run it. Routed workflow skills (`how`, `architect`, `arena`, `swarm`, `interrogate`, `reflect`) set their own `agent`. Respect what the skill prescribes.
 
 **Defaults for every `subagent` call.** `async: true`, file pointers not inlined context, and the role's configured model and thinking, set independently through `/setup-pstack`. Code delegates tier by difficulty. The hardest changes go to your configured `strongest` role. Each code playbook reads its own role (`code` for feature or refactoring, `bug-fix`, `perf` for perf-issue, or `hillclimb`), prose and judgment read `prose` and `judgment`, and verification reads `verification`. A role with no configured line keeps its default. Keep honoring the role lines, and tell the user once per session to rerun `/setup-pstack`.
 
@@ -106,7 +106,7 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 - Trivial mechanical edits: your configured `code` role.
 - Diverse review and design panels: one seat each on your configured `judgment` and `review` roles, plus another vendor's model where one is configured.
 
-**A second vendor is an exception.** It runs outside a panel only when the user named it for this task, or after two runs of the same brief failed their check. Say which. Difficulty alone never qualifies a model change.
+**A second vendor is an exception.** It runs outside a panel only when the user named it for this task, or after two runs of the same brief failed their check. Say which. Difficulty alone never qualifies.
 
 | Work | Setup role | Agent |
 | --- | --- | --- |
@@ -124,9 +124,9 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 For parallel fan-out, make one call with every seat in `tasks`, for example `subagent({workflow:"parallel",args:{tasks:[{agent:"pstack.judgment-agent",task:"<design brief>"},{agent:"pstack.comment-sicko",task:"<independent review brief>"}]}})`. Use the skill's prescribed agents and roles, with no `model` in a task item or on the outer call.
 
-You own every subagent's work. Review the diff and write your own summary, don't pass through what it said. A second opinion is the same prompt against a different model. Agreement is high-signal.
+You own every subagent's work. Review the diff and write your own summary. Don't pass through what it said. A second opinion is the same prompt against a different model. Agreement is high-signal.
 
-**Fresh subagents by default.** Give new work to a fresh subagent with consolidated scope, meaning the original brief, every later directive, and the prior agent's report and branch. This holds for a fix round, a follow-up, a retry, and the next queue item. Resume, message, or queue a follow-up on an existing subagent only when the new work strictly needs state that lives in that agent and is costly to move: its local checkout, its uncommitted changes, or a process it still runs, such as a dev server, a simulator, or a babysit watcher. A stop or hold order to a running agent is not reuse. A role such as a PR owner outlives its agent. Interrupt-chained resumes silently drop directives, so fire a fresh subagent with consolidated scope rather than trusting a "done" summary.
+**Fresh subagents by default.** Give a fix round, a follow-up, a retry, or the next queue item to a fresh subagent with the original brief, every later directive, and the prior agent's report and branch. This holds for all new work with consolidated scope. Resume an existing subagent only when the work needs state that lives in it and is costly to move: its checkout, its uncommitted changes, or a process it still runs. This applies to resuming, messaging, or queueing a follow-up, such as a dev server, a simulator, or a babysit watcher. A stop or hold order to a running agent is not reuse. A role such as a PR owner outlives its agent. Interrupt-chained resumes silently drop directives, so fire a fresh subagent with consolidated scope rather than trusting a "done" summary.
 
 ## Writing the reply
 
@@ -140,9 +140,9 @@ Comments follow the same rule as the reply, so write them clean as you go. Keep 
 
 ## Playbooks
 
-Match the task to a playbook and open its steps at `playbooks/<title>.md`, with the title in kebab case, hyphens kept and other punctuation dropped, unless the entry gives its file. Copy its steps into the todo list first, before any task-specific todos. Large, cross-cutting, or unattended work, or a task no playbook fits, routes to the **figure-it-out** skill. It designs a bespoke, rigorous playbook for the task.
+Match the task to a playbook and open its steps at `playbooks/<title>.md`, with the title in kebab case. Keep hyphens and drop other punctuation unless the entry gives its file. Copy its steps into the todo list first. Add task-specific todos afterward. Large, cross-cutting, or unattended work, or a task no playbook fits, routes to the **figure-it-out** skill. It designs a bespoke, rigorous playbook for the task.
 
-Investigation, Bug fix, Perf issue, Hillclimb, Runtime forensics, Trace forensics, Feature, Refactoring, Prototype, Visual parity, Authoring a skill (`playbooks/authoring-a-skill.md`), Eval, Babysit, Shipping, Autonomous run, Autopilot-full, Autopilot-stack, Session pickup, Pause safely, Multi-phase plan (`playbooks/multi-phase-plan.md`), Worktree cleanup (`playbooks/worktree-cleanup.md`), Opening a PR (`playbooks/opening-a-pr.md`).
+Investigation, Bug fix, Perf issue, Hillclimb, Runtime forensics, Trace forensics, Feature, Refactoring, Prototype, Visual parity, Authoring a skill, Eval, Babysit, Shipping, Autonomous run, Autopilot-full, Autopilot-stack, Session pickup, Pause safely, Multi-phase plan, Worktree cleanup, Opening a PR. File paths when punctuation or naming differs: `playbooks/authoring-a-skill.md`, `playbooks/multi-phase-plan.md`, `playbooks/worktree-cleanup.md`, `playbooks/opening-a-pr.md`.
 
 ## Pi adaptation
 

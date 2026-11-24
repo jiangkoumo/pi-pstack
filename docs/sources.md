@@ -15,14 +15,18 @@ X 正文不是上游代码的完整规格；该链接中的统计数据不影响
 | --- | --- |
 | 仓库 | https://github.com/cursor/plugins |
 | 子目录 | pstack/ |
-| 提交 | c742dd61706fbacc1b95f1a20b7b988cf096ce6c |
-| 提交时间 | 2026-10-27T23:12:40Z |
-| 插件版本 | 0.15.36 |
+| 提交 | 9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc |
+| 提交时间 | 2026-11-24T00:41:29Z |
+| 插件版本 | 0.15.48 |
 | 作者 | Lauren Tan（@poteto） |
 | 许可 | MIT，Copyright (c) 2026 Lauren Tan |
-| 目录统计 | 60 个 SKILL.md、23 个 poteto-mode playbook、2 个代理定义 |
+| 目录统计 | 63 个技能入口（含 3 个 Benny 入口与 worker.md）、22 个 poteto-mode playbook、2 个代理定义 |
 
-[完整目录清单](upstream-inventory.json) 来源于 GitHub recursive tree API，该响应的 truncated 为 false。统计仅说明文件数量，不能证明所有文件已完成兼容性审计。
+[完整目录清单](upstream-inventory.json) 来源于固定提交 `9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc` 的 git tree（共 87 条 mapped entry）。统计仅说明文件数量，不能证明所有文件已完成兼容性审计。
+
+## 0.15.48 统一同步（U44 / U48）
+
+当前 `upstream/pstack/**` 的 516 个归档文件统一固定到 `9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc`（pstack `0.15.48`），三份来源清单的 `sourceOverrides` 保持为空。`docs/upstream-manifest.json` 共 925 项（516 份上游归档快照 + 409 份逐字分发的 `skills/` 生成文件）。其中 `0.15.42–0.15.44` 由 `U44-1`–`U44-4` 合入，`0.15.44–0.15.48` 由 `U48-1`–`U48-4` 合入；原文许可与 Lauren Tan 版权保留。分工与差异见 [0.15.48 同步计划](upstream-update-01548-plan.md)、[0.15.48 验收记录](validation-upstream-01548.md) 与 [0.15.48 差异契约](validation-upstream-01548-delta.json)。
 
 ## 0.15.36 统一同步（U36）
 

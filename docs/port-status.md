@@ -1,12 +1,12 @@
 # 首批移植记录
 
-本批实现 P1 的单代理子集。上游固定为 f713f14203cd6420cec13cd7c55c32d598dbab68，pstack 0.15.25。技能来源作者 Lauren Tan，MIT 声明在 [上游许可](../LICENSES/pstack.txt)。
+本批实现 P1 的单代理子集，后经 P2–P5 及多次上游同步迭代。当前上游统一固定为 `9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc`，pstack `0.15.48`（最初 P1 基线为 `f713f142`，pstack `0.15.25`）。技能来源作者 Lauren Tan，MIT 声明在 [上游许可](../LICENSES/pstack.txt)。
 
 ## 本批范围
 
-- 11 个技能：poteto-mode、correct、tdd 和八个原则。
-- 三个主流程：调查、缺陷修复、小行为变更。
-- 原清单 57 个技能、23 个流程、2 个代理共 82 项，当前累计归类为 ported 77、substitute 5、deferred 0，依据与归属见 [逐项审计](skill-audit.md)，机器可读结果见 [port-map.json](port-map.json)。deferred 已归零；substitute 只表示已记录本地替代路线，不代表该入口已实现或运行验收。
+- P1 首批范围：11 个技能（`poteto-mode`、`correct`、`tdd` 和八个原则）与三个主流程（调查、缺陷修复、小行为变更）。
+- 当前清单共 63 个技能入口（含 3 个 Benny 入口与 `poteto-mode/worker.md`）、22 个流程、2 个代理合计 87 项，累计归类为 `ported` 82、`substitute` 5、`deferred` 0，依据与归属见 [逐项审计](skill-audit.md)，机器可读结果见 [port-map.json](port-map.json)。`deferred` 已归零；`substitute` 只表示已记录本地替代路线，不代表该入口已实现或运行验收。
+- `0.15.42–0.15.48` 同步（`U44` + `U48`）：同步单文件 `how`/`why`、精简版 `architect`/`reflect`/原则/`poteto-mode`/playbooks、新增 `poteto-mode/worker.md` 与 `reframe`，移除上游已删除的 `orchestrate`、`check-plan` 与 `how`/`why`/`architect`/`reflect` 子参考文件，并将 `statechart` 对齐到 `0.15.48`（`sany-errors`、父状态入边、`janitor.ts`/`kill.ts` 与 Windows/POSIX `entry.mjs` 统一入口）；详情见 [0.15.48 验收记录](validation-upstream-01548.md)。
 - P5 首批：`pause-safely` 已适配为 Pi 本地暂停流程，使用本地补丁与恢复笔记，未授权不提交或推送；见 [P5 Loop 验收](validation-p5-loop.md)。
 - P5 第二批：`autonomous-run` 已适配为 Pi `/loop run` 有界自治流程，使用 `--until` 停止谓词、`--max-turns` 轮次预算与本地迭代证据；未授权不提交或推送；见 [P5 Loop 验收](validation-p5-loop.md)。
 - P5 Batch A：`bro`、`in-your-own-words`、`ketchup` 及 16 个 `principle-*` 已按 `inherit-body` 纳入生成；其中 4 项保留到已生成技能的真实链接依赖，`principle-explain-the-number` 用最小 override 将未移植的 `benchmark-checklist` 链接改为文字引用。
