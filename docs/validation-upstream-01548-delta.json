@@ -80,7 +80,7 @@
       "diffstat": "+1/-0",
       "archiveAction": "sync-copy",
       "portOwner": "U48-2",
-      "reason": "0.15.48 (2dd5c0cc) adds the /reframe entry to the skill chooser table; Pi override template follows in U48-2"
+      "reason": "0.15.47 (2dd5c0cc) adds the /reframe entry to the skill chooser table; Pi override template follows in U48-2"
     },
     {
       "path": "skills/poteto-mode/SKILL.md",
@@ -215,7 +215,7 @@
       "path": ".gitignore",
       "sha256": "8ffe9de56bd30c1a95cd945262d6e3ac355ada4111551dde41f67851b9f1fc55",
       "classification": "old-archive-exclusion",
-      "evidence": "repository maintenance file; creation time at the baseline cannot be verified (shallow clone, baseline objects missing)"
+      "evidence": "repository maintenance file outside the archive scope; already present at the e58dd043 baseline (blob aafcb345668bd80cbb256b066898d4df8988da0e, added in 24bd6eb and unchanged at 9e278fe4)"
     },
     {
       "path": "README.md",
