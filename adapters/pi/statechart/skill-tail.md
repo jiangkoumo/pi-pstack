@@ -1,6 +1,6 @@
 ## Pi execution and authority
 
-Adapted from Lauren Tan's pstack, MIT. The body above comes from cursor/plugins@519d36aa (v0.15.34), with Pi entry and installation instructions replaced by the generation adapter.
+Adapted from Lauren Tan's pstack, MIT. The body above comes from cursor/plugins@9e278fe4 (v0.15.48), with Pi entry and installation instructions replaced by the generation adapter.
 
 The chart entry is `node <package>/adapters/pi/statechart/entry.mjs SPEC.tla [--config FILE] [--view FILE] [--out DIR]`. In help output, `statechart` always means `node <package>/adapters/pi/statechart/entry.mjs`. The help’s automatic TLC/Java installation instructions describe upstream behavior; follow the Pi installation policy in this skill. It keeps the upstream scripts unchanged and applies only the Pi execution boundary. Run it from the parent shell. Set `TLA2TOOLS` (or `TLA2TOOLS_JAR`) to the same absolute `tla2tools.jar` the operator declared for `verification_exec`, and `JAVA` to the Java binary. This package bundles no Java, TLC, or mise, and never installs them; when they are missing, report the installation hint and stop.
 

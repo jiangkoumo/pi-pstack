@@ -65,6 +65,7 @@ export const CHECK_PLAN = [
   // Upstream chart/trace tests run verbatim against the packaged corpus,
   // without TLC, a renderer, a user cache, or a temporary source tree.
   { name: 'chart.test.ts', command: skillTest('skills/statechart/scripts/test/chart.test.ts'), timeoutMs: 300_000, env: { XDG_CACHE_HOME: resolve(root, 'scripts/fixtures/statechart-no-renderer') } },
+  { name: 'messages.test.ts', command: skillTest('skills/statechart/scripts/test/messages.test.ts') },
   { name: 'check-p3-readonly-gate', command: withFlags(script('check-p3-readonly-gate.mjs'), '--allow-skip') },
   { name: 'check-abort-state', command: script('check-abort-state.mjs') },
   { name: 'check-parallel-roles', command: withFlags(script('check-parallel-roles.mjs'), '--allow-skip') },

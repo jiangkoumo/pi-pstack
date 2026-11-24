@@ -1,4 +1,4 @@
-// A narrow, fail-closed substitution for cursor/plugins@519d36aa's internal resolver.
+// A narrow, fail-closed substitution for cursor/plugins@9e278fe4's internal resolver.
 import assert from 'node:assert/strict';
 import { realpathSync } from 'node:fs';
 import { registerHooks } from 'node:module';

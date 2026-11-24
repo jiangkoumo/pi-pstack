@@ -34,6 +34,10 @@ test('generated statechart skill routes executable examples through the Pi entry
   const body = skill.replace(/^---\n[\s\S]*?\n---\n/, '');
   assert.ok(!body.includes('`scripts/statechart.ts` is TypeScript, so run it with a runtime that can execute TypeScript.'),
     'generated guidance must not tell agents to run the raw TypeScript compiler');
+  assert.doesNotMatch(body, /<skill dir>\/scripts\/statechart(?:\.ts)?/,
+    'generated guidance must not tell agents to run upstream scripts directly');
+  assert.doesNotMatch(body, /`scripts\/statechart` is a POSIX shell script/,
+    'generated guidance must not advertise the upstream POSIX shell launcher');
 
   const shellBlocks = [...body.matchAll(/^```(?:sh|bash|shell|zsh|console)[ \t]*\n([\s\S]*?)^```[ \t]*$/gm)];
   assert.ok(shellBlocks.length > 0, 'the skill must include an executable shell example');

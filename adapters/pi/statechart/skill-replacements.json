@@ -5,9 +5,9 @@
     "reason": "Route command through the Pi boundary, which never installs TLC automatically."
   },
   {
-    "from": "`scripts/statechart.ts` is TypeScript, so run it with a runtime that can execute TypeScript.",
-    "to": "The Pi entry runs the TypeScript compiler with the package's supported Node version; always use `node <package>/adapters/pi/statechart/entry.mjs` and never run the upstream compiler or launcher directly.",
-    "reason": "The raw upstream script or launcher can automatically install tools through mise; Pi must run through entry.mjs so the entry hook enforces the no-install boundary."
+    "from": "`scripts/statechart.ts` is TypeScript, so run it with a runtime that can execute TypeScript. `scripts/statechart` is a POSIX shell script that picks one. On native Windows, run `node --disable-warning=ExperimentalWarning <skill dir>/scripts/statechart.ts` with Node 22.18 to 22.x, or Node 23.6 or later.",
+    "to": "The Pi entry runs the TypeScript compiler with the package's supported Node version on both POSIX and Windows; always use `node <package>/adapters/pi/statechart/entry.mjs` and never run the upstream compiler or launcher directly.",
+    "reason": "The raw upstream script or launcher can automatically install tools through mise; Pi must run through entry.mjs on every platform so the entry hook enforces the no-install boundary."
   },
   {
     "from": "The first run installs TLC and Java with mise and needs the network.",
