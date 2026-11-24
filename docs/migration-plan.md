@@ -4,9 +4,13 @@
 
 项目采用“固定上游源码＋Pi 适配层＋生成分发资源”。依据是官方 Claude Code 接入已采用适配表与生成目录，见 [来源与证据](sources.md#官方跨宿主接入的参考证据)。P2.5 已完成迁移并保留 P1/P2 的配置契约与历史证据，导入基线仍为 `f713f14203cd6420cec13cd7c55c32d598dbab68`。P3 已实现代理生成、角色接线、前后台真实 child 拒写、worktree 隔离、双模型只读审阅，以及带 handoff、独立 review 和机械 gate 的写代码委派流程。
 
+## 近期上游跟进：0.15.48
+
+[0.15.48 同步计划](upstream-update-01548-plan.md) 分两阶段完成追平：`0.15.42–0.15.44` 已由 `U44-1`–`U44-4` 合入（单文件化 `how`/`why`、精简 `architect`/`reflect`/原则/`poteto-mode`/playbooks、新增 `worker.md`、移除已退役的 `orchestrate` 与 `check-plan`），`0.15.44–0.15.48` 由 `U48-1`–`U48-4` 合入（统一固定到 `9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc`、接入 `/skill:reframe` 并更新 `poteto-help` 路由表、对齐 `statechart` 的 `0.15.42`/`0.15.46` 适配与测试、核实 `setup-pstack` 仅涉 Cursor 规则并记录保真度现状）。各卡验收与待裁决项见 [0.15.48 验收记录](validation-upstream-01548.md)。未发布，不改包版本。
+
 ## 近期上游跟进：0.15.36
 
-[U36 同步](upstream-update-01536-plan.md) 已按六个任务完成集成：当前统一基线为 `c742dd61706fbacc1b95f1a20b7b988cf096ce6c`（0.15.36），替代旧全包基线 `eb4db2b5` 和 statechart/ketchup-video 的局部 pin `519d36aa`。新增固定来源 sha256 清单，更新 Orchestrate、interrogate/arena、playbooks、带字幕 ketchup-video，并合入 git_read 修复与 Pi 1.5.0 schema 兼容测试。
+[U36 同步](upstream-update-01536-plan.md) 曾按六个任务完成集成：当时统一基线为 `c742dd61706fbacc1b95f1a20b7b988cf096ce6c`（0.15.36，此后由上节 `0.15.48` 统一同步取代），替代旧全包基线 `eb4db2b5` 和 statechart/ketchup-video 的局部 pin `519d36aa`。新增固定来源 sha256 清单，更新 Orchestrate、interrogate/arena、playbooks、带字幕 ketchup-video，并合入 git_read 修复与 Pi 1.5.0 schema 兼容测试。
 
 下文各 P 阶段保留历史实施与验收范围；U36 集成测试不替代真实长周期编排、在线模型对抗或完整视频渲染验收。未发布，不改包版本。
 

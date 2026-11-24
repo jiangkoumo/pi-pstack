@@ -1,63 +1,43 @@
 # pi-pstack upstream fidelity
 
-Files: 145  flagged: 3  overall kept (excluding Cursor substitutions): 4459/4720 = 94%
+Files: 125  flagged: 4  overall kept (excluding Cursor substitutions): 2892/3118 = 93%
 
 Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
 | File | Upstream | Kept | Reworded | Lost | Cursor subst | Port-only | Kept % | Flag |
 |---|---|---|---|---|---|---|---|---|
 | skills/make-bot-ui/SKILL.md | 73 | 0 | 0 | 73 | 2 | 0 | MISSING | ! |
-| skills/setup-pstack/SKILL.md | 55 | 0 | 0 | 55 | 9 | 0 | MISSING | ! |
-| skills/poteto-help/SKILL.md | 174 | 141 | 8 | 11 | 14 | 18 | 88% | ! |
-| skills/poteto-mode/playbooks/worktree-cleanup.md | 30 | 21 | 7 | 2 | 0 | 59 | 70% |  |
-| skills/how/SKILL.md | 24 | 16 | 5 | 1 | 2 | 22 | 73% |  |
-| skills/principle-sequence-verifiable-units/SKILL.md | 15 | 11 | 1 | 3 | 0 | 6 | 73% |  |
+| skills/setup-pstack/SKILL.md | 80 | 0 | 0 | 80 | 20 | 0 | MISSING | ! |
+| skills/poteto-help/SKILL.md | 170 | 136 | 9 | 11 | 14 | 17 | 87% | ! |
+| skills/statechart/SKILL.md | 107 | 103 | 0 | 4 | 0 | 27 | 96% | ! |
+| skills/poteto-mode/playbooks/worktree-cleanup.md | 30 | 22 | 6 | 2 | 0 | 59 | 73% |  |
 | skills/poteto-mode/playbooks/runtime-forensics.md | 17 | 13 | 1 | 3 | 0 | 12 | 76% |  |
-| skills/reflect/SKILL.md | 58 | 38 | 8 | 3 | 9 | 46 | 78% |  |
+| skills/how/SKILL.md | 13 | 10 | 1 | 2 | 0 | 31 | 77% |  |
 | skills/swarm/SKILL.md | 35 | 27 | 2 | 3 | 3 | 35 | 84% |  |
 | skills/poteto-mode/playbooks/trace-forensics.md | 24 | 21 | 1 | 2 | 0 | 10 | 88% |  |
+| skills/arena/SKILL.md | 41 | 34 | 3 | 1 | 3 | 35 | 90% |  |
 | skills/poteto-mode/playbooks/visual-parity.md | 19 | 17 | 1 | 1 | 0 | 9 | 90% |  |
-| skills/figure-it-out/SKILL.md | 44 | 40 | 3 | 1 | 0 | 30 | 91% |  |
-| skills/automate-me/SKILL.md | 93 | 83 | 6 | 1 | 3 | 36 | 92% |  |
 | skills/interrogate/SKILL.md | 26 | 24 | 0 | 2 | 0 | 35 | 92% |  |
-| skills/recall/SKILL.md | 53 | 49 | 4 | 0 | 0 | 48 | 92% |  |
-| skills/principle-prove-it-works/SKILL.md | 14 | 13 | 0 | 1 | 0 | 2 | 93% |  |
-| skills/why/references/sources/code-archaeology.md | 14 | 13 | 1 | 0 | 0 | 9 | 93% |  |
-| skills/architect/SKILL.md | 61 | 56 | 2 | 2 | 1 | 34 | 93% |  |
+| skills/poteto-mode/playbooks/shipping.md | 41 | 37 | 2 | 1 | 1 | 25 | 92% |  |
 | skills/maintain-verification-skill/SKILL.md | 47 | 44 | 3 | 0 | 0 | 30 | 94% |  |
-| skills/principle-explain-the-number/SKILL.md | 16 | 15 | 1 | 0 | 0 | 0 | 94% |  |
-| skills/why/SKILL.md | 104 | 90 | 5 | 1 | 8 | 42 | 94% |  |
-| skills/no-comments/SKILL.md | 36 | 34 | 1 | 1 | 0 | 25 | 94% |  |
-| skills/poteto-mode/SKILL.md | 247 | 225 | 9 | 3 | 10 | 151 | 95% |  |
-| skills/poteto-mode/playbooks/shipping.md | 40 | 37 | 2 | 0 | 1 | 25 | 95% |  |
-| skills/poteto-mode/playbooks/autonomous-run.md | 21 | 19 | 1 | 0 | 1 | 42 | 95% |  |
-| skills/poteto-mode/playbooks/session-pickup.md | 20 | 19 | 1 | 0 | 0 | 37 | 95% |  |
-| skills/why/references/sources/slack.md | 20 | 19 | 1 | 0 | 0 | 8 | 95% |  |
+| skills/poteto-mode/SKILL.md | 141 | 119 | 5 | 3 | 14 | 176 | 94% |  |
+| skills/recall/SKILL.md | 54 | 50 | 3 | 0 | 1 | 49 | 94% |  |
+| skills/automate-me/SKILL.md | 93 | 85 | 4 | 1 | 3 | 36 | 94% |  |
+| skills/figure-it-out/SKILL.md | 44 | 42 | 2 | 0 | 0 | 31 | 96% |  |
 | skills/poteto-help/references/prompting.md | 44 | 42 | 2 | 0 | 0 | 5 | 96% |  |
 | skills/poteto-mode/playbooks/perf-issue.md | 23 | 21 | 1 | 0 | 1 | 36 | 96% |  |
-| skills/principle-boundary-discipline/SKILL.md | 22 | 21 | 0 | 1 | 0 | 2 | 96% |  |
-| skills/poteto-mode/playbooks/hillclimb.md | 46 | 43 | 2 | 0 | 1 | 45 | 96% |  |
-| skills/poteto-mode/playbooks/multi-phase-plan.md | 54 | 49 | 2 | 0 | 3 | 21 | 96% |  |
-| skills/poteto-mode/playbooks/bug-fix.md | 27 | 25 | 1 | 0 | 1 | 24 | 96% |  |
-| skills/poteto-mode/playbooks/feature.md | 31 | 30 | 1 | 0 | 0 | 38 | 97% |  |
+| skills/poteto-mode/playbooks/babysit.md | 26 | 25 | 0 | 1 | 0 | 38 | 96% |  |
+| skills/teach/SKILL.md | 62 | 60 | 1 | 1 | 0 | 31 | 97% |  |
 | skills/show-me-your-work/SKILL.md | 66 | 63 | 1 | 1 | 1 | 36 | 97% |  |
-| skills/teach/SKILL.md | 64 | 62 | 1 | 1 | 0 | 31 | 97% |  |
-| skills/poteto-mode/playbooks/refactoring.md | 34 | 32 | 1 | 0 | 1 | 37 | 97% |  |
-| skills/poteto-mode/playbooks/eval.md | 37 | 35 | 0 | 1 | 1 | 27 | 97% |  |
+| skills/no-comments/SKILL.md | 36 | 35 | 0 | 1 | 0 | 25 | 97% |  |
+| skills/poteto-mode/playbooks/eval.md | 38 | 35 | 0 | 1 | 2 | 27 | 97% |  |
 | skills/create-verification-skill/SKILL.md | 73 | 71 | 2 | 0 | 0 | 34 | 97% |  |
-| skills/how/references/explainer-prompt.md | 39 | 38 | 0 | 1 | 0 | 1 | 97% |  |
-| skills/arena/SKILL.md | 54 | 45 | 0 | 1 | 8 | 34 | 98% |  |
+| skills/poteto-mode/playbooks/hillclimb.md | 46 | 44 | 1 | 0 | 1 | 45 | 98% |  |
 | skills/poteto-mode/references/bugbot-triage.md | 94 | 92 | 1 | 1 | 0 | 5 | 98% |  |
-| skills/reflect/references/synthesizer.md | 49 | 47 | 0 | 1 | 1 | 1 | 98% |  |
-| skills/why/references/synthesizer-prompt.md | 95 | 93 | 1 | 1 | 0 | 8 | 98% |  |
 | skills/benchmark-checklist/SKILL.md | 50 | 49 | 0 | 1 | 0 | 29 | 98% |  |
-| skills/statechart/SKILL.md | 105 | 103 | 0 | 2 | 0 | 27 | 98% |  |
-| skills/poteto-mode/playbooks/babysit.md | 103 | 101 | 1 | 0 | 1 | 36 | 99% |  |
 | agents/comment-sicko.md | 29 | 29 | 0 | 0 | 0 | 20 | 100% |  |
 | agents/poteto-agent.md | 10 | 8 | 0 | 0 | 2 | 2 | 100% |  |
-| skills/architect/references/design-red-flags.md | 38 | 38 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/architect/references/rationale-template.md | 31 | 31 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/architect/references/runner-prompt.md | 36 | 36 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/architect/SKILL.md | 3 | 3 | 0 | 0 | 0 | 14 | 100% |  |
 | skills/blast-radius/SKILL.md | 51 | 51 | 0 | 0 | 0 | 30 | 100% |  |
 | skills/bro/SKILL.md | 3 | 3 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/correct/SKILL.md | 28 | 28 | 0 | 0 | 0 | 22 | 100% |  |
@@ -65,44 +45,52 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/create-verification-skill/references/feature-map-example/README.md | 34 | 34 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/create-note.md | 36 | 36 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/create-verification-skill/references/feature-map-example/search.md | 50 | 50 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/how/references/explorer-prompt.md | 15 | 15 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/in-your-own-words/SKILL.md | 1 | 1 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/ketchup-video/SKILL.md | 43 | 43 | 0 | 0 | 0 | 50 | 100% |  |
 | skills/ketchup/SKILL.md | 82 | 82 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/maintain-formal-verification-skill/SKILL.md | 81 | 81 | 0 | 0 | 0 | 41 | 100% |  |
 | skills/poteto-help/references/recipes.md | 64 | 64 | 0 | 0 | 0 | 5 | 100% |  |
 | skills/poteto-mode/playbooks/authoring-a-skill.md | 12 | 11 | 0 | 0 | 1 | 25 | 100% |  |
-| skills/poteto-mode/playbooks/autopilot-full.md | 57 | 57 | 0 | 0 | 0 | 49 | 100% |  |
+| skills/poteto-mode/playbooks/autonomous-run.md | 21 | 20 | 0 | 0 | 1 | 42 | 100% |  |
+| skills/poteto-mode/playbooks/autopilot-full.md | 58 | 58 | 0 | 0 | 0 | 49 | 100% |  |
 | skills/poteto-mode/playbooks/autopilot-stack.md | 11 | 11 | 0 | 0 | 0 | 36 | 100% |  |
+| skills/poteto-mode/playbooks/bug-fix.md | 27 | 26 | 0 | 0 | 1 | 24 | 100% |  |
+| skills/poteto-mode/playbooks/feature.md | 30 | 30 | 0 | 0 | 0 | 38 | 100% |  |
 | skills/poteto-mode/playbooks/investigation.md | 13 | 13 | 0 | 0 | 0 | 35 | 100% |  |
-| skills/poteto-mode/playbooks/opening-a-pr.md | 73 | 72 | 0 | 0 | 1 | 75 | 100% |  |
-| skills/poteto-mode/playbooks/orchestrate.md | 54 | 54 | 0 | 0 | 0 | 54 | 100% |  |
+| skills/poteto-mode/playbooks/multi-phase-plan.md | 18 | 18 | 0 | 0 | 0 | 16 | 100% |  |
+| skills/poteto-mode/playbooks/opening-a-pr.md | 11 | 10 | 0 | 0 | 1 | 71 | 100% |  |
 | skills/poteto-mode/playbooks/pause-safely.md | 15 | 15 | 0 | 0 | 0 | 38 | 100% |  |
 | skills/poteto-mode/playbooks/prototype.md | 28 | 28 | 0 | 0 | 0 | 34 | 100% |  |
-| skills/principle-attack-the-premise/SKILL.md | 18 | 18 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/principle-build-the-lever/SKILL.md | 26 | 26 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/poteto-mode/playbooks/refactoring.md | 34 | 33 | 0 | 0 | 1 | 37 | 100% |  |
+| skills/poteto-mode/playbooks/session-pickup.md | 20 | 20 | 0 | 0 | 0 | 37 | 100% |  |
+| skills/poteto-mode/worker.md | 17 | 17 | 0 | 0 | 0 | 9 | 100% |  |
+| skills/principle-attack-the-premise/SKILL.md | 8 | 8 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/principle-boundary-discipline/SKILL.md | 8 | 8 | 0 | 0 | 0 | 1 | 100% |  |
+| skills/principle-build-the-lever/SKILL.md | 10 | 10 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/principle-encode-lessons-in-structure/SKILL.md | 4 | 4 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/principle-exhaust-the-design-space/SKILL.md | 1 | 1 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/principle-experience-first/SKILL.md | 14 | 14 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/principle-fix-root-causes/SKILL.md | 19 | 19 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/principle-foundational-thinking/SKILL.md | 19 | 19 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/principle-explain-the-number/SKILL.md | 9 | 9 | 0 | 0 | 0 | 1 | 100% |  |
+| skills/principle-fix-root-causes/SKILL.md | 11 | 11 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/principle-foundational-thinking/SKILL.md | 7 | 7 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/principle-guard-the-context-window/SKILL.md | 3 | 3 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/principle-laziness-protocol/SKILL.md | 4 | 4 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/principle-make-operations-idempotent/SKILL.md | 18 | 18 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/principle-make-operations-idempotent/SKILL.md | 9 | 9 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md | 5 | 5 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/principle-minimize-reader-load/SKILL.md | 22 | 22 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/principle-model-the-domain/SKILL.md | 20 | 20 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/principle-minimize-reader-load/SKILL.md | 9 | 9 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/principle-model-the-domain/SKILL.md | 6 | 6 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/principle-never-block-on-the-human/SKILL.md | 12 | 12 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/principle-outcome-oriented-execution/SKILL.md | 10 | 10 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/principle-prove-it-works/SKILL.md | 7 | 7 | 0 | 0 | 0 | 1 | 100% |  |
 | skills/principle-redesign-from-first-principles/SKILL.md | 9 | 9 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/principle-separate-before-serializing-shared-state/SKILL.md | 15 | 15 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/principle-separate-before-serializing-shared-state/SKILL.md | 6 | 6 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/principle-sequence-verifiable-units/SKILL.md | 10 | 10 | 0 | 0 | 0 | 3 | 100% |  |
 | skills/principle-subtract-before-you-add/SKILL.md | 9 | 9 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/principle-test-behavior-not-implementation/SKILL.md | 29 | 29 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/principle-type-system-discipline/SKILL.md | 15 | 15 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/reflect/references/divergent-reviewer.md | 48 | 46 | 0 | 0 | 2 | 0 | 100% |  |
-| skills/reflect/references/judgment-reviewer.md | 44 | 42 | 0 | 0 | 2 | 0 | 100% |  |
-| skills/reflect/references/tooling-reviewer.md | 54 | 52 | 0 | 0 | 2 | 0 | 100% |  |
-| skills/sharpen/SKILL.md | 8 | 8 | 0 | 0 | 0 | 4 | 100% |  |
+| skills/principle-test-behavior-not-implementation/SKILL.md | 17 | 17 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/principle-type-system-discipline/SKILL.md | 9 | 9 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/reflect/SKILL.md | 13 | 13 | 0 | 0 | 0 | 20 | 100% |  |
+| skills/reframe/SKILL.md | 12 | 12 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/sharpen/SKILL.md | 9 | 9 | 0 | 0 | 0 | 4 | 100% |  |
 | skills/statechart/references/render.md | 25 | 25 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/statechart/scripts/test/corpus/Counter/report.md | 4 | 4 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/statechart/scripts/test/corpus/CounterAction/report.md | 6 | 6 | 0 | 0 | 0 | 0 | 100% |  |
@@ -138,19 +126,11 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 | skills/statechart/scripts/test/corpus/TypeGuard/report.md | 5 | 5 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/statechart/scripts/test/corpus/UserNoDeadlock/report.md | 4 | 4 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/tdd/SKILL.md | 32 | 32 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/technical-writing/SKILL.md | 136 | 136 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/technical-writing/SKILL.md | 65 | 65 | 0 | 0 | 0 | 0 | 100% |  |
 | skills/typescript-best-practices/SKILL.md | 33 | 33 | 0 | 0 | 0 | 1 | 100% |  |
 | skills/typescript-best-practices/references/patterns.md | 67 | 67 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/unslop/SKILL.md | 64 | 64 | 0 | 0 | 0 | 0 | 100% |  |
-| skills/why/references/epistemics.md | 72 | 72 | 0 | 0 | 0 | 7 | 100% |  |
-| skills/why/references/investigator-prompt.md | 68 | 68 | 0 | 0 | 0 | 7 | 100% |  |
-| skills/why/references/source-playbook.md | 12 | 12 | 0 | 0 | 0 | 7 | 100% |  |
-| skills/why/references/sources/databricks.md | 80 | 79 | 0 | 0 | 1 | 10 | 100% |  |
-| skills/why/references/sources/datadog.md | 46 | 46 | 0 | 0 | 0 | 10 | 100% |  |
-| skills/why/references/sources/incident-postmortem.md | 4 | 4 | 0 | 0 | 0 | 7 | 100% |  |
-| skills/why/references/sources/linear.md | 45 | 45 | 0 | 0 | 0 | 10 | 100% |  |
-| skills/why/references/sources/notion.md | 43 | 43 | 0 | 0 | 0 | 9 | 100% |  |
-| skills/why/references/sources/sentry.md | 18 | 18 | 0 | 0 | 0 | 13 | 100% |  |
+| skills/unslop/SKILL.md | 35 | 35 | 0 | 0 | 0 | 0 | 100% |  |
+| skills/why/SKILL.md | 3 | 3 | 0 | 0 | 0 | 68 | 100% |  |
 
 ## Lost upstream sentences (not Cursor-specific)
 
@@ -235,30 +215,44 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 - The aliases inherit-parent and auto are always valid even though they are not detected slugs.
 - The default role-to-model mapping is the rule shape shown in step 5 below.
 - Otherwise start from those defaults.
-- A line whose role is not in step 5, such as how critics, is from a retired role.
+- A line whose role is not in step 5, such as hardest tasks, architect runners, reflect tooling, or why investigators, is from a retired role.
+- Older defaults put another Gemini model, then gemini-4-neon-high, in the panel seat.
+- So in any rule, a gemini-4-neon-high entry, or a gemini-4- entry other than gemini-4-neon-, in a panel role (arena runners, arena cross-judge pool, interrogate reviewers) is an old default.
+- A Gemini 4 Neon entry at any other level is the user's choice and stays.
+- Tell the user which entries you replaced.
+- A rule without the # defaults:
+- 3 line comes from an older setup.
+- That setup wrote a line for every role, so some of its values are old defaults, not choices.
+- Before step 3, replace these values:
+- If the rule has no # defaults:
+- An old slug in feature, refactoring, bug-fix, perf-issue, hillclimb, or swarm workers takes the role's step 5 default.
+- Every other value is the user's choice and stays, including an old slug in any other role and every inherit-parent or auto value.
+- Tell the user which values you replaced.
 - Prefer AskQuestion over free text.
-- Offer these four options with these exact labels, and name the current budget when the rule records one.
+- Offer these three options with these exact labels, and name the current budget when the rule records one.
 - With no rule, say that large matches the skill defaults.
-- unlimited — max reasoning
 - Build the working table from the skill defaults, and on a re-run keep any role you changed by family, list, or alias (inherit-parent, auto).
+- Families are the ones Phase A of the arena skill defines, so Fable is its own family.
+- Each role has a target effort, which is its default's effort moved by the budget.
+- Set the effort token of every real slug in the role, panel entries included, to the role's target.
+- The effort token is the last token, or the one before a trailing fast.
 - If the result is not a detected slug, use the same family's detected slug with the highest effort at or below the target, else mark the role as needing a choice.
 - inherit-parent and auto do not change.
-- large keeps both defaults.
+- Fable 5.2 and Gemini have no fast slug, so never write one.
 - (c) Show the roles and confirm.
 - Show every role with its model, marking any real slug not in the detected set as needing a choice.
 - Also list each line step 2 dropped.
-- Ask whether to accept as-is or change specific roles, offering the detected models plus inherit-parent and auto (both mean:
 - this role runs on the parent chat model, which is how Auto users stay on Auto) as the options.
 - Prefer AskQuestion over free text.
-- For panel roles (arena runners, architect runners, interrogate reviewers) the value is a list, and one subagent runs per entry, alias entries included, so the list length sets the count.
+- For panel roles (arena runners, interrogate reviewers) the value is a list, and one subagent runs per entry, alias entries included, so the list length sets the count.
 - arena cross-judge pool is also a list, but Arena runs one judge.
-- It tries only values from a family other than the parent's, in list order, so order it by preference.
+- It tries only values from a vendor other than the parent's, in list order, so order it by preference.
+- Fable and the other Claude models are one vendor.
 - An inherit-parent or auto value never judges.
 - swarm workers is the default model for every worker unless a race or comparison assigns another model per arm.
-- Every real slug written must be in the detected set.
 - inherit-parent and auto always pass.
 - If a chosen real slug is not available, stop and ask again.
-- true, a # budget line with the chosen label and its target effort, and one line per role, using the same labels poteto-mode uses.
+- 3 line, a # budget line with the chosen label and the effort that label names, and one line per role, using the same labels poteto-mode uses.
 - Overwrite the whole file so re-runs stay idempotent.
 - Tell the user the rule was written and that it applies to new sessions.
 - Re-running this skill updates it.
@@ -280,35 +274,32 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 - Then it offers once each to generate a verification skill and a formal verification skill for the project, unless the project already has one.
 - There, each command takes a pstack:
 - prefix, such as /pstack:poteto-mode.
-- Other tools can read the skills, because they use the Agent Skills format.
 - Guide page 2 has examples.
 - Whether /poteto-mode stays on depends on how the user starts it:
 - It fades as the chat moves on.
 - It stays in context every turn until the user exits the mode, and it stays out of casual turns.
+- If the slash menu shows /orchestrate, another plugin provides it.
 - Guide page 6 covers opening, babysitting, and landing a PR.
 - Guide page 9 covers each of these.
+
+### skills/statechart/SKILL.md
+- scripts/statechart.ts is TypeScript, so run it with a runtime that can execute TypeScript.
+- scripts/statechart is a POSIX shell script that picks one.
+- On native Windows, run node --disable-warning=ExperimentalWarning <skill dir>/scripts/statechart.ts with Node 22.18 to 22.x, or Node 23.6 or later.
+- The first run installs TLC and Java with mise and needs the network.
 
 ### skills/poteto-mode/playbooks/worktree-cleanup.md
 - The transcript scan is slow, so background it.
 - Per Autonomy, clean and merged and not-in-use proceeds.
 
-### skills/how/SKILL.md
-- generalPurpose and readonly:
-
-### skills/principle-sequence-verifiable-units/SKILL.md
-- Rebase onto clean trunk first so every check measures against the real baseline.
-- Each commit lands on its own and the sequence reads as an argument.
-- The sequencing complement to the prove-it-works principle skill, which keeps each check real, and the build-the-lever principle skill, which makes the per-unit check cheap.
-
 ### skills/poteto-mode/playbooks/runtime-forensics.md
 - Parse large artifacts in a subagent (the guard-the-context-window principle skill), keep the reduced finding in the main thread.
-- Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section.
+- Pick each subagent's reasoning level for the job, per the Subagents section.
 - Inject instrumentation via CDP eval on the running process, or hotfix the live code without reloading, to confirm the hypothesis cheaply.
 
-### skills/reflect/SKILL.md
-- One message, three Task calls, subagenttype:
-- generalPurpose, agent mode (readonly:
-- One Task call, subagenttype:
+### skills/how/SKILL.md
+- Spawn one Task subagent with subagenttype:
+- generalPurpose and readonly:
 
 ### skills/swarm/SKILL.md
 - generalPurpose, environment:
@@ -317,69 +308,46 @@ Thresholds: kept >= 0.85, reworded >= 0.55; flag if kept < 70% or lost > 3
 
 ### skills/poteto-mode/playbooks/trace-forensics.md
 - Parse large artifacts in a subagent (the principle-guard-the-context-window skill) and keep the reduced finding in the main thread.
-- Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section.
+- Pick each subagent's reasoning level for the job, per the Subagents section.
+
+### skills/arena/SKILL.md
+- Spawn all N subagents in one message with runinbackground:
 
 ### skills/poteto-mode/playbooks/visual-parity.md
 - /loop per component until the diff is zero.
-
-### skills/figure-it-out/SKILL.md
-- Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section of the poteto-mode skill.
-
-### skills/automate-me/SKILL.md
-- The system prompt names the workspace's agent-transcripts/ directory.
 
 ### skills/interrogate/SKILL.md
 - Read the interrogate reviewers line in place of arena runners.
 - Spawn each adversary as generalPurpose.
 
-### skills/principle-prove-it-works/SKILL.md
-- Commit it only for large or complex work where the trail has to be auditable later, like a big port or migration (the show-me-your-work skill).
-
-### skills/architect/SKILL.md
-- Take the runners from the architect runners line in the pstack-models.mdc rule, in place of the arena runners line.
-- Alias and rejected entries follow the runner rules in the arena skill's Phase A.
-
-### skills/why/SKILL.md
-- Every spawn is generalPurpose with readonly:
-
-### skills/no-comments/SKILL.md
-- Spawn Task with subagenttype:
+### skills/poteto-mode/playbooks/shipping.md
+- Pass the run's PR numbers, bottom-to-top, in --stack-prs, and pass the same list each time you restart the watcher.
 
 ### skills/poteto-mode/SKILL.md
-- If the family has no slug at that level and speed, use its nearest slug.
-- When the calling skill has no fallback, use the closest valid slug of the role's family from the error's list of valid slugs, or omit model so the subagent runs on the parent model when the list has none.
-- When the calling skill's fallback runs out of slugs without saying what to do next, omit model too.
+- If the rule has no # defaults:
+- 3 line, an older setup wrote it.
+- The /setup-pstack budget sets each role's starting level.
 
-### skills/principle-boundary-discipline/SKILL.md
-- Trust internal code unconditionally.
+### skills/automate-me/SKILL.md
+- The system prompt names the workspace's agent-transcripts/ directory.
 
-### skills/show-me-your-work/SKILL.md
-- A bare printf appending a row works too, but mind those same bytes if cells come from generated or user-supplied text.
+### skills/poteto-mode/playbooks/babysit.md
+- Reply with gh api --method POST "repos/<owner>/<repo>/pulls/<pr>/comments/<comment-id>/replies" --input <payload.json> or origin pr thread reply <thread-id> <pr> --body-file <reply-file>, never with shell built from comment text.
 
 ### skills/teach/SKILL.md
 - Generate that picture, don't settle for describing it in words.
 
+### skills/show-me-your-work/SKILL.md
+- A bare printf appending a row works too, but mind those same bytes if cells come from generated or user-supplied text.
+
+### skills/no-comments/SKILL.md
+- Spawn Task with subagenttype:
+
 ### skills/poteto-mode/playbooks/eval.md
 - Read each candidate's local transcript under the active workspace's agent-transcripts/ directory (the system prompt names this path).
-
-### skills/how/references/explainer-prompt.md
-- Use Read, Grep, and Glob as needed.
-
-### skills/arena/SKILL.md
-- Spawn all N subagents in one message with runinbackground:
 
 ### skills/poteto-mode/references/bugbot-triage.md
 - Reply with a short reason and resolve the thread.
 
-### skills/reflect/references/synthesizer.md
-- The parent files each to whatever devex / backlog tracker the team uses.
-
-### skills/why/references/synthesizer-prompt.md
-- This should not happen because git and gh are always expected."
-
 ### skills/benchmark-checklist/SKILL.md
 - Check the load average with uptime and the core count with nproc.
-
-### skills/statechart/SKILL.md
-- scripts/statechart.ts is TypeScript, so run it with a runtime that can execute TypeScript.
-- The first run installs TLC and Java with mise and needs the network.

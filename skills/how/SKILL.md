@@ -19,7 +19,7 @@ Spawn one read-only explainer for the whole question. It explores and explains i
 
 ## 2. Present
 
-Present the explainer's output. Light edits for clarity or context from the conversation are fine. Do not substantially rewrite it.
+Present the subagent's output. Light edits for clarity or context from the conversation are fine. Do not substantially rewrite it.
 
 ## Output format
 

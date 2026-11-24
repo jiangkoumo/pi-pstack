@@ -131,3 +131,17 @@ PI_CODING_AGENT_DIR="$PWD/scripts/fixtures/subagents/user" node scripts/check-su
 后续状态：P1 单代理子集、P2 模式与角色配置，以及 P2.5 生成式适配迁移与真实场景验收均已完成，分别见 [P1 验收](validation-p1.md)、[P2 验收](validation-p2.md)、[P2.5 验收](validation-p2-5.md) 与 [真实场景检查](validation-p2-5-live.md)。本文件早期核对记录中的“尚未实现”描述的是当时建档时的检查边界，不替代当前验收记录。
 
 更新记录（2026-10-19）：P3 多代理角色接线、物理只读隔离、双模型审阅、Writer Gate 与 P4 本地打包/隔离安装/升级/卸载主路径均已通过实证验收，见对应验收记录。当前仍待推进项为 P5 规划范围及未授权的 npm 发布。
+
+## 0.15.42–0.15.48 上游变更的 Pi 处置记录
+
+上游 `0.15.36 → 0.15.48`（`c742dd61..9e278fe4`）期间的模型路由与新增技能处置如下：
+
+1. **`setup-pstack`（0.15.42–0.15.48，含 `bf0c7cd`、`2f87c85`、`e58dd04`、`dd24b670`）**：
+   - 上游连续调整了 `pstack/skills/setup-pstack/SKILL.md` 的 Cursor `.mdc` 规则逻辑：删去已退役的 Cursor 角色行（`hardest tasks`、`architect runners`、`reflect tooling`、`why investigators`、`how explorer`、`how explainer`、`why synthesizer`、`reflect judgment, divergent, synthesizer`）；引入 `# defaults: 2` / `# defaults: 3` 迁移规则与将旧 Cursor 模型 slug 及非目标面板档位替换为 Cursor 默认模型 slug（`0.15.45` `dd24b670` 将面板 Gemini 席位迁至 `xhigh`）的逻辑；将预算选项由 4 档缩减为 3 档（取消 `unlimited — max reasoning`，将旧 `# budget: unlimited` 迁移为 `large`），并标注跨模型家族同供应商判别规则（`arena cross-judge pool`）。
+   - **Pi 处置（维持 `substitute` / `extension-command`，不改扩展）**：Pi 侧通过 `extensions/pstack/index.ts` 的 `/setup-pstack` 命令与 `extensions/pstack/runtime.mjs` 读写 `~/.pi/agent/pstack.json` 与 `.pi/pstack.json`。Pi 原生 `ROLES`（`code`、`bug-fix`、`perf`、`hillclimb`、`judgment`、`strongest`、`review`、`prose`、`verification`）从一开始就不包含上述已退役 Cursor 角色，也不存在 `.mdc` 文件、`# defaults: 3` 迁移规则、`unlimited/large/medium/small` 预算档或硬编码 Cursor 模型 slug；`/setup-pstack` 直接基于 `ctx.modelRegistry.getAvailable()` 与 `getSupportedThinkingLevels(model)` 校验精确 `provider/id` 与 thinking 级别；未配置角色不设 `model`（沿用 `pi-subagents` 默认值），仅当显式将 `model` 设为 `inherit` 时才选取当前会话的 `provider/id`。经逐提交核对，未发现适用于 Pi 扩展的新增行为变动，因此不修改 `extensions/**`、不引入 Cursor 模型名或预算迁移逻辑。
+2. **`poteto-mode` 与 `arena`（`dd24b670`，0.15.45）**：
+   - 上游仅将 Cursor 面板席位默认模型档位调整至 `xhigh` 并更新相关档位措辞。
+   - **Pi 处置（不抄入 Cursor slug）**：Pi 的 `poteto-mode` 与 `arena` 模板通过 `/setup-pstack` 角色配置和用户 `agentOverrides` 解析可用模型，遵循「模型必须来自实际可用列表、不硬编码 Cursor 模型」原则，模板无需引入该上游模型名。
+3. **`reframe`（`2dd5c0cc`、`9e278fe4`，0.15.47–0.15.48）**：
+   - 上游新增纯 prompt 技能 `pstack/skills/reframe/SKILL.md`（自带 `disable-model-invocation: true`，无 Cursor 专有工具/路径/模型引用）并在 `poteto-help` 的技能选择表加入 `/reframe`。
+   - **Pi 处置（`inherit-body` + 路由表联动）**：在 `docs/port-map.json` 以 `disposition: "ported"`、`strategy: "inherit-body"` 生成 `skills/reframe/SKILL.md`（不新建冗余 override 模板，也不新增扩展命令，通过 `/skill:reframe` 显式调用），并在 `adapters/pi/overrides/skills/poteto-help/SKILL.md.template` 技能选择表加入 `/reframe` 链接；相关记录见 [0.15.48 验收记录](validation-upstream-01548.md)。
