@@ -59,7 +59,7 @@ jobs:
         run: |
           timeout 180s npm test
           npm run check:generate
-          npm run check:fidelity
+          npm run check:fidelity -- --record-overall
 
       - name: Real Pi smoke (pinned Pi, no model calls)
         env:

@@ -59,7 +59,7 @@ try {
   checks.push({ command: 'npm ci --include=dev && npm test', status: 'passed', durationMs: installAndTestDurationMs, ...totals });
   for (const [label, args] of [
     ['npm run check:generate', ['run', 'check:generate']],
-    ['npm run check:fidelity', ['run', 'check:fidelity']],
+    ['npm run check:fidelity -- --record-overall', ['run', 'check:fidelity', '--', '--record-overall']],
   ]) {
     const started = Date.now();
     const output = run('npm', args);

@@ -9,7 +9,7 @@
 本项目采用“固定上游源码（`upstream/`）+ Pi 适配层（`adapters/pi/`）+ 生成分发资源（`skills/`, `agents/`）”的设计：
 * `npm run check:generate`：校验固定上游指纹与生成产物，拒绝漂移；当前检查 131 项资源；
 * `npm test`：执行模式持久化、Loop 状态机、生成器、Writer Gate 与保真度门禁行为测试；
-* `npm run check:fidelity`：运行指定上游文本对比脚本，要求整体至少94%、每个已移植Markdown至少70%；
+* `npm run check:fidelity`：运行指定上游文本对比脚本，默认要求整体至少94%、每个已移植Markdown至少70%；传入 `--record-overall` 时仅卡单文件 70% 阈值、整体值仍打印记录不拦（发版与 CI 使用此模式，原因与现状见 [0.15.48 验收记录](validation-upstream-01548.md)）；
 * `npm run check:sim`：真实代码库端到端闭环实测。
 
 ## 端到端模拟（`npm run check:sim`）
@@ -22,7 +22,7 @@
 
 ## 发布
 
-发布由 tag 驱动：推送 `v*` tag 后，`.github/workflows/publish.yml` 校验 tag 与 `package.json` 版本一致，运行 `npm test`、`npm run check:generate` 和 `npm run check:fidelity`，再发布 npm。0.3.2 的发布目标是由 CI 完成；可信发布者配置与实际结果记录在 [集成验收](validation-032-release.md)。
+发布由 tag 驱动：推送 `v*` tag 后，`.github/workflows/publish.yml` 校验 tag 与 `package.json` 版本一致，运行 `npm test`、`npm run check:generate` 和 `npm run check:fidelity -- --record-overall`（仅卡单文件 70% 阈值，整体值仍打印记录，原因与现状见 [0.15.48 验收记录](validation-upstream-01548.md)），再发布 npm。0.3.2 的发布目标是由 CI 完成；可信发布者配置与实际结果记录在 [集成验收](validation-032-release.md)。
 
 本地一键发布：
 

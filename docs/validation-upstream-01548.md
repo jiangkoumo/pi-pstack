@@ -52,5 +52,5 @@ npm run check:fidelity
 
 ## 4. 已知限制
 
-- **整体保真阈值（`92.7518% < 94%`，已裁决接受）**：在 `0.15.42–0.15.48` 上游精简分母及两个 `substitute` 条目（`make-bot-ui`、`setup-pstack`，合计 `131` 句）计入分母后，整体保真度为 `2892 / 3118 = 92.7518% < 94%`（所有 `123` 份非缺失文件合计保持率 `2892 / 2987 = 96.82%`）。已由宇晨裁决按已知限制接受，保持 `scripts/check-upstream-fidelity.mjs` 阈值与算法、`docs/fidelity-allow.txt` 不变。
+- **整体保真阈值（`92.7518% < 94%`，已裁决接受）**：在 `0.15.42–0.15.48` 上游精简分母及两个 `substitute` 条目（`make-bot-ui`、`setup-pstack`，合计 `131` 句）计入分母后，整体保真度为 `2892 / 3118 = 92.7518% < 94%`（所有 `123` 份非缺失文件合计保持率 `2892 / 2987 = 96.82%`）。已由宇晨裁决按已知限制接受，保持 `scripts/check-upstream-fidelity.mjs` 阈值与算法、`docs/fidelity-allow.txt` 不变；`release` 与 CI 按此口径传入 `--record-overall` 放行整体（仍打印记录当前值）、只卡单文件 70% 阈值。
 - **原生 Windows 未验证**：`statechart` 在原生 Windows 上的 Pi 入口（`adapters/pi/statechart/entry.mjs`）目前仅有生成正文替换与 macOS 适配测试（含 `messages.test.ts` 的 `\r\n` 解析用例），尚未在原生 Windows 实机环境运行验证（含文件可执行位与子进程信号清理路径）。

@@ -127,8 +127,8 @@ function runGates() {
   run(npm, ['test']);
   console.log('\n[release] running npm run check:generate');
   run(npm, ['run', 'check:generate']);
-  console.log('\n[release] running npm run check:fidelity');
-  run(npm, ['run', 'check:fidelity']);
+  console.log('\n[release] running npm run check:fidelity -- --record-overall');
+  run(npm, ['run', 'check:fidelity', '--', '--record-overall']);
   // The gates must not leave generated artifacts or test byproducts behind.
   assertClean('after gates');
 }

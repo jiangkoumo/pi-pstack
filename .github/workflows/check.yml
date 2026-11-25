@@ -33,8 +33,8 @@ jobs:
         run: timeout 180s npm test
       - name: Generated resources are current
         run: npm run check:generate
-      - name: Upstream fidelity (overall 94%, every port 70%)
-        run: npm run check:fidelity
+      - name: Upstream fidelity (every port 70%, overall recorded)
+        run: npm run check:fidelity -- --record-overall
 
   pi-smoke:
     name: pi-smoke (${{ matrix.pi }})
