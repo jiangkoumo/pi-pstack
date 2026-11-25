@@ -38,7 +38,7 @@
 | 技能 create-verification-skill | P5 | 采用自编 Pi 作者流程；本轮由 prove-it-works 的脚本化检查替代 |
 | 技能 how | P3 | investigation 流程已内嵌 how 的输出结构；完整版依赖子代理 |
 | 技能 maintain-verification-skill | P5 | 采用自编 Pi 作者流程；依赖并行源码读取 |
-| 技能 poteto-help | P5 | 已适配完整技能索引；已同步上游 c742dd61（0.15.36）的 Autopilot-stack 与带字幕 ketchup-video 说明 |
+| 技能 poteto-help | P5 | 已适配完整技能索引；0.15.36（c742dd61）期曾同步 Autopilot-stack 与带字幕 ketchup-video 说明，现已追平至 9e278fe4（0.15.48，含 /reframe） |
 | 技能 setup-pstack | P2 | P2 已用 /setup-pstack 扩展命令替代：独立 JSON、实际模型目录与 thinking 校验，不沿用 .mdc；见 validation-p2.md |
 | 技能 show-me-your-work | P5 | principle-prove-it-works 现保留本地证据记录；TSV 决策轨迹依赖会话 transcript |
 | Benny 技能 reproduce-and-fix-issues | P5 | Cursor Benny/Slack/Linear 自动化不在 Pi 范围；本地替代为 Bug fix + 手动 issue 复现 |
@@ -136,4 +136,4 @@
 ported 的技能与流程由技能清单导出。P2 的 setup-pstack 已由扩展命令替代，证据见 validation-p2.md；其余 substitute 条目仍需对应阶段实现及验收，deferred 已归零。审计归属不等于全量复刻。
 | 技能 create-formal-verification-skill | P5 | 已适配；正文保持上游，追加 Pi 宿主执行与产物落盘约定；见 docs/validation-stage-b-batch-two.md |
 | 技能 maintain-formal-verification-skill | P5 | 已适配；正文保持上游，追加 Pi 宿主执行与产物落盘约定；见 docs/validation-stage-b-batch-two.md |
-| 技能 statechart | P5 | 已统一固定到 c742dd61（0.15.36）；保留 0.15.34 TypeScript 编译器与 Pi 执行边界；见 docs/validation-statechart-ci.md |
+| 技能 statechart | P5 | 已统一固定到 9e278fe4（0.15.48）；保留 TypeScript 编译器与 Pi 执行边界；见 docs/validation-statechart-ci.md 与 docs/validation-upstream-01548.md |

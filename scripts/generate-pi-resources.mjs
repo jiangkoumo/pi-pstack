@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readdir, readFile, writeFile, mkdir, lstat, realpath } from 'node:fs/promises';
+import { readdir, readFile, writeFile, mkdir, lstat, realpath, chmod } from 'node:fs/promises';
 import { dirname, resolve, relative, posix } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -81,6 +81,7 @@ async function filesUnder(path) {
 }
 
 const rendered = new Map();
+const executable = new Set();
 const overrides = new Set();
 const entries = new Map();
 const prepared = map.preparedResources ?? [];
@@ -96,6 +97,7 @@ for (const entry of removed) {
     if (content !== null) {
       overrides.add(entry.override);
       rendered.set(entry.destination, content);
+      if (((await lstat(templatePath)).mode & 0o100) !== 0) executable.add(entry.destination);
       entries.set(entry.destination, {
         ...entry,
         adaptation: { strategy: 'override', override: entry.override },
@@ -151,18 +153,22 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
   }
 
   let output;
+  let sourcePath;
   if (entry.adaptation.strategy === 'verbatim') {
     assert(isSkill && (entry.source.startsWith('pstack/skills/statechart/scripts/') || entry.source === 'pstack/skills/statechart/references/render.md'), 'Verbatim resources are limited to upstream statechart scripts and render reference: ' + entry.source);
     assert.equal(entry.adaptation.override, null, 'Verbatim resources cannot have an override');
+    sourcePath = await pathInPackage('upstream/' + entry.source, 'upstream/');
     output = originals.get(entry.source);
   } else if (entry.adaptation.strategy === 'override') {
     const template = entry.adaptation.override;
     assert.equal(template, 'adapters/pi/overrides/' + entry.destination + '.template', 'Override must match destination: ' + template);
     assert(!overrides.has(template), 'Duplicate override: ' + template);
     overrides.add(template);
-    output = await readFile(await pathInPackage(template, 'adapters/pi/overrides/'), 'utf8');
+    sourcePath = await pathInPackage(template, 'adapters/pi/overrides/');
+    output = await readFile(sourcePath, 'utf8');
   } else {
     assert.equal(entry.adaptation.override, null, 'Inherited entry has an override: ' + entry.source);
+    sourcePath = await pathInPackage('upstream/' + entry.source, 'upstream/');
     const { fields, body: originalBody } = frontmatter(originals.get(entry.source), ['name', 'description', 'disable-model-invocation'], entry.source);
     let body = originalBody;
     if (entry.adaptation.replacements !== undefined) {
@@ -246,6 +252,7 @@ for (const entry of [...map.entries, ...prepared, ...native]) {
       assert.equal(fields.subagentOnlyExtensions, '../extensions/pstack/index.ts', 'verifier must supply verification_exec provider through subagentOnlyExtensions: ' + entry.destination);
     }
   }
+  if (((await lstat(sourcePath)).mode & 0o100) !== 0) executable.add(entry.destination);
   rendered.set(entry.destination, output);
   entries.set(entry.destination, entry);
 }
@@ -280,8 +287,13 @@ for (const [dest, content] of rendered) {
 
 if (isCheck) {
   for (const [dest, want] of rendered) {
-    const have = await readFile(await pathInPackage(dest), 'utf8').catch(error => { if (error.code === 'ENOENT') return null; throw error; });
+    const destPath = await pathInPackage(dest);
+    const have = await readFile(destPath, 'utf8').catch(error => { if (error.code === 'ENOENT') return null; throw error; });
     assert.equal(have, want, 'Resource drift: ' + dest + '; run npm run generate');
+    if (process.platform !== 'win32') {
+      const info = await lstat(destPath);
+      assert.equal((info.mode & 0o100) !== 0, executable.has(dest), 'Resource mode drift: ' + dest + '; run npm run generate');
+    }
   }
   console.log(JSON.stringify({ status: 'passed', checked: rendered.size, unmanaged: 0 }));
 } else {
@@ -289,10 +301,19 @@ if (isCheck) {
   for (const [dest, content] of rendered) {
     const scope = dest.startsWith('skills/') ? 'skills/' : 'agents/';
     const path = await pathInPackage(dest, scope);
-    const existing = await readFile(path, 'utf8').catch(error => { if (error.code === 'ENOENT') return null; throw error; });
-    if (existing === content) continue;
-    await mkdir(dirname(path), { recursive: true });
-    await writeFile(path, content, 'utf8');
+    const wantExec = executable.has(dest);
+    const existingInfo = await lstat(path).catch(error => { if (error.code === 'ENOENT') return null; throw error; });
+    const existing = existingInfo ? await readFile(path, 'utf8') : null;
+    const modeMatches = process.platform === 'win32' || (existingInfo !== null && ((existingInfo.mode & 0o100) !== 0) === wantExec);
+    if (existing === content && modeMatches) continue;
+    if (existing !== content) {
+      await mkdir(dirname(path), { recursive: true });
+      await writeFile(path, content, 'utf8');
+    }
+    if (process.platform !== 'win32' && !modeMatches) {
+      if (wantExec) await chmod(path, 0o755);
+      else if (existingInfo !== null && (existingInfo.mode & 0o100) !== 0) await chmod(path, existingInfo.mode & ~0o111);
+    }
     written++;
   }
   console.log(JSON.stringify({ status: 'passed', generated: rendered.size, written }));

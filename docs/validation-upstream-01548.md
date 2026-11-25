@@ -18,7 +18,7 @@
 
 - **调整前基线**：`files=125`，`kept=2874`，`upstream=3118`，`overall=92.1745%`（`errors: ["Overall fidelity 92.1745% < 94%", "skills/how/SKILL.md: 69.23% < 70%"]`）。
 - **单文件问题已修复**：通过调整 `adapters/pi/overrides/skills/how/SKILL.md.template`（保留 `coverage.test.mjs` 约束的 `Spawn one read-only explainer...` 句并恢复 `Present the subagent's output.`），`skills/how/SKILL.md` 从 `9/13 (69.23%)` 升至 `10/13 (77%)`，单文件 `< 70%` 报错清零。
-- **整体 94% 结构性缺口（待操作者裁决口径）**：
+- **整体 94% 结构性缺口（已裁决按已知限制接受）**：
   - 上游在 `0.15.42–0.15.48` 大幅精简了已移植技能（`0.15.42` `bf0c7cd` 删除 `how/references/*`、`why/references/*`，`0.15.43` `2f87c85` 删除 `architect/references/*`、`reflect/references/*`，并压缩多份原则与主流程正文），使整体非 Cursor 替换句分母从 `0.15.36` 的 `4720` 降至 `3118`（减少 `1602` 句）。
   - 同时，两项在 [port-map.json](port-map.json) 登记为 `substitute`、不存在对应端口 Markdown 的条目被 [check-upstream-fidelity.mjs](../scripts/check-upstream-fidelity.mjs) 计入整体分母且 `kept=0`：`skills/make-bot-ui/SKILL.md`（`71` 句）与 `skills/setup-pstack/SKILL.md`（由 `0.15.36` 的 `46` 句增至 `60` 句），合计 `131` 句，单独拉低整体分值 `131 / 3118 = 4.20%`。
   - 在模板层微调 6 份文件后（不损失 Pi 适配、权限门禁、角色绑定与 `coverage.test.mjs` 契约前提下追回 18 句），所有 123 个非缺失文件合计保持率为 `2892 / 2987 = 96.82%`，但整体仍为 `2892 / 3118 = 92.7518%`（距 `94%` 门槛 `2931` 句仍差 `39` 句）。
@@ -48,4 +48,9 @@ npm test
 npm run check:fidelity
 ```
 
-- 前四项与 `npm test` 的实际执行输出见本次验收报告；`npm run check:fidelity` 单文件错误已清零（`skills/how/SKILL.md` 为 `77%`），整体 `92.7518% < 94%` 留待操作者裁决是否调整 `scripts/check-upstream-fidelity.mjs` 口径（例如从整体分母剔除已登记为 `substitute` 的未移植入口或重新校准阈值）。
+- 前四项与 `npm test` 的实际执行输出见本次验收报告；`npm run check:fidelity` 单文件错误已清零（`skills/how/SKILL.md` 为 `77%`），整体 `92.7518% < 94%` 已由宇晨裁决按已知限制接受，不调整 `scripts/check-upstream-fidelity.mjs` 口径/阈值或 `docs/fidelity-allow.txt`。
+
+## 4. 已知限制
+
+- **整体保真阈值（`92.7518% < 94%`，已裁决接受）**：在 `0.15.42–0.15.48` 上游精简分母及两个 `substitute` 条目（`make-bot-ui`、`setup-pstack`，合计 `131` 句）计入分母后，整体保真度为 `2892 / 3118 = 92.7518% < 94%`（所有 `123` 份非缺失文件合计保持率 `2892 / 2987 = 96.82%`）。已由宇晨裁决按已知限制接受，保持 `scripts/check-upstream-fidelity.mjs` 阈值与算法、`docs/fidelity-allow.txt` 不变。
+- **原生 Windows 未验证**：`statechart` 在原生 Windows 上的 Pi 入口（`adapters/pi/statechart/entry.mjs`）目前仅有生成正文替换与 macOS 适配测试（含 `messages.test.ts` 的 `\r\n` 解析用例），尚未在原生 Windows 实机环境运行验证（含文件可执行位与子进程信号清理路径）。
